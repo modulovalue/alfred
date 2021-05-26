@@ -1,60 +1,95 @@
-import 'package:alfred/base.dart';
-import 'package:alfred/extensions.dart';
-import 'package:alfred/handlers.dart';
+import 'dart:async';
+import 'dart:io';
+
 import 'package:alfred/middleware/impl/websocket.dart';
+import 'package:alfred/type_handler/impl/websocket/impl.dart';
 import 'package:test/test.dart';
 import 'package:web_socket_channel/io.dart';
 
 import 'common.dart';
 
 void main() {
-  late Alfred app;
-  late int port;
-  setUp(() async {
-    app = Alfred();
-    port = await app.listenForTest();
+  group("websocket", () {
+    test('it correctly handles a websocket error', () async {
+      await runTest(fn: (alfred, port) async {
+        final ws = WebSocketSessionTest2Impl();
+        alfred.get('/ws', WebSocketValueMiddleware(ws));
+        final channel = IOWebSocketChannel.connect('ws://localhost:$port/ws');
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+        channel.sink.add('test');
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+        expect(ws.error, 1);
+      });
+    });
+    test('it can handle websockets', () async {
+      await runTest(fn: (alfred, port) async {
+        final ws = WebSocketSessionTest1Impl();
+        alfred.get('/ws', WebSocketValueMiddleware(ws));
+        final channel = IOWebSocketChannel.connect('ws://localhost:$port/ws');
+        channel.sink.add('hi');
+        final response = await channel.stream.first as String;
+        expect(ws.opened, true);
+        expect(ws.closed, false);
+        expect(ws.message, 'hi');
+        expect(response, 'echo hi');
+        await channel.sink.close();
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        expect(ws.closed, true);
+      });
+    });
   });
-  tearDown(() => app.close());
-  test('it can handle websockets', () async {
-    var opened = false;
-    var closed = false;
-    String? message;
-    app.get(
-      '/ws',
-      WebSocketMiddleware(
-        () => WebSocketSession(
-          onOpen: (ws) => opened = true,
-          onClose: (ws) => closed = true,
-          onMessage: (ws, dynamic data) {
-            message = data as String;
-            ws.send('echo $data');
-          },
-        ),
-      ),
-    );
-    final channel = IOWebSocketChannel.connect('ws://localhost:$port/ws');
-    channel.sink.add('hi');
-    final response = await channel.stream.first as String;
-    expect(opened, true);
-    expect(closed, false);
-    expect(message, 'hi');
-    expect(response, 'echo hi');
-    await channel.sink.close();
-    await Future<void>.delayed(const Duration(milliseconds: 10));
-    expect(closed, true);
-  });
-  test('it correctly handles a websocket error', () async {
-    app.get(
-      '/ws',
-      WebSocketMiddleware(
-        () => WebSocketSession(
-          // ignore: void_checks, only_throw_errors
-          onOpen: (ws) => throw 'Test',
-          onError: (ws, dynamic error) => error = true,
-        ),
-      ),
-    );
-    final channel = IOWebSocketChannel.connect('ws://localhost:$port/ws');
-    channel.sink.add('test');
-  });
+}
+
+class WebSocketSessionTest2Impl with WebSocketSessionMixin {
+  int error = 0;
+
+  WebSocketSessionTest2Impl();
+
+  @override
+  void onClose(WebSocket _) {
+    // Do nothing.
+  }
+
+  @override
+  void onMessage(WebSocket _, Object? data) {
+    // ignore: only_throw_errors
+    throw "Test";
+  }
+
+  @override
+  void onError(WebSocket _, dynamic error) {
+    this.error++;
+  }
+
+  @override
+  void onOpen(WebSocket _) {}
+}
+
+class WebSocketSessionTest1Impl with WebSocketSessionMixin {
+  bool opened = false;
+
+  bool closed = false;
+
+  String? message;
+
+  WebSocketSessionTest1Impl();
+
+  @override
+  void onClose(WebSocket _) => closed = true;
+
+  @override
+  void onError(WebSocket _, dynamic error) {
+    // Do nothing.
+  }
+
+  @override
+  void onMessage(WebSocket _, dynamic data) {
+    message = data as String;
+    socket.add('echo $data');
+  }
+
+  @override
+  void onOpen(WebSocket _) {
+    opened = true;
+  }
 }

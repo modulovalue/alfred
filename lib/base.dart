@@ -1,19 +1,25 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:enum_to_string/enum_to_string.dart';
 import 'package:queue/queue.dart';
 
 import 'extensions.dart';
-import 'handlers.dart';
 import 'http_route.dart';
-import 'logging/impl/generalizing/mixin.dart';
+import 'logging/impl/generalizing/log_type.dart';
 import 'logging/impl/generalizing/print.dart';
 import 'logging/interface/logging_delegate.dart';
+import 'method.dart';
 import 'middleware/interface/middleware.dart';
 import 'plugin_store.dart';
 import 'type_handler/impl/directory.dart';
+import 'type_handler/impl/file.dart';
+import 'type_handler/impl/json_list.dart';
+import 'type_handler/impl/json_map.dart';
 import 'type_handler/impl/list_of_ints.dart';
+import 'type_handler/impl/serializable.dart';
+import 'type_handler/impl/stream_of_list_of_integers.dart';
+import 'type_handler/impl/string.dart';
+import 'type_handler/impl/websocket/impl.dart';
 import 'type_handler/interface/type_handler.dart';
 
 /// Server application class
@@ -212,9 +218,7 @@ class Alfred {
     final effectiveRoutes = RouteMatcher.match(
       request.uri.toString(),
       routes,
-
-      /// TODO remove that dependency after method is an adt.
-      EnumToString.fromString<Method>(Method.values, request.method) ?? Method.get,
+      Method.tryParse(request.method) ?? Method.get,
     );
     try {
       // If there are no effective routes, that means we need to throw a 404
@@ -417,9 +421,6 @@ class NoTypeHandlerError implements Error {
 /// a NotFound response.
 /// TODO have an adt for all errors any given method can throw. no catch all exception-types.
 class NotFoundError extends Error {}
-
-/// TODO these should be an adt.
-enum Method { get, post, put, delete, patch, options, all }
 
 /// Throw these exceptions to bubble up an error from sub functions and have them
 /// handled automatically for the client

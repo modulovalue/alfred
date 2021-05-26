@@ -16,14 +16,14 @@ void main() {
     path.delete('e', const EmptyMiddleware());
     path.options('f', const EmptyMiddleware());
     path.all('g', const EmptyMiddleware());
-    expect(app.routes.map((r) => '${r.route}:${r.method}').toList(), [
-      'path/a:Method.get',
-      'path/b:Method.post',
-      'path/c:Method.put',
-      'path/d:Method.patch',
-      'path/e:Method.delete',
-      'path/f:Method.options',
-      'path/g:Method.all',
+    expect(app.routes.map((r) => r.route + ':' + r.method.description).toList(), [
+      'path/a:GET',
+      'path/b:POST',
+      'path/c:PUT',
+      'path/d:PATCH',
+      'path/e:DELETE',
+      'path/f:OPTIONS',
+      'path/g:ALL',
     ]);
   });
   test('it can compose multiple times', () async {

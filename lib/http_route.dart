@@ -1,4 +1,5 @@
 import 'base.dart';
+import 'method.dart';
 import 'middleware/interface/middleware.dart';
 
 /// TODO interface and impl

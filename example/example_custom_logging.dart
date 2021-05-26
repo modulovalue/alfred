@@ -1,4 +1,5 @@
 import 'package:alfred/base.dart';
+import 'package:alfred/logging/impl/generalizing/log_type.dart';
 import 'package:alfred/logging/impl/generalizing/mixin.dart';
 import 'package:alfred/middleware/impl/value.dart';
 import 'package:logging/logging.dart';

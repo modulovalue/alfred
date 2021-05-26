@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:alfred/base.dart';
 import 'package:alfred/extensions.dart';
+import 'package:alfred/logging/impl/generalizing/log_type.dart';
 import 'package:alfred/logging/impl/generalizing/mixin.dart';
-import 'package:alfred/logging/interface/logging_delegate.dart';
 import 'package:alfred/middleware/impl/callback.dart';
 import 'package:alfred/middleware/impl/cors.dart';
 import 'package:alfred/middleware/impl/empty.dart';
@@ -17,16 +17,6 @@ import 'package:http/http.dart' as http;
 import 'package:test/test.dart';
 
 import 'common.dart';
-
-Future<void> runTest({
-  required Future<void> Function(Alfred app, int port) fn,
-  AlfredLoggingDelegate? LOG,
-}) async {
-  final app = Alfred(LOG: LOG ?? Alfred.defaultLogger);
-  final port = await app.listenForTest();
-  await fn(app, port);
-  await app.close();
-}
 
 /// TODO replace image.jpg with something neutral.
 void main() {
@@ -416,6 +406,7 @@ void main() {
         );
         await http.get(Uri.parse('http://localhost:$port/resource'));
         bool inLog(String part) => logs.isNotEmpty && logs.where((log) => log.contains(part)).isNotEmpty;
+        print(logs.join("\n"));
         expect(inLog('info GET - /resource'), true);
         expect(inLog('debug Match route: /resource'), true);
         expect(inLog('debug Apply middleware'), true);
@@ -433,7 +424,7 @@ class TestLogger with AlfredLoggingDelegateGeneralizingMixin {
   const TestLogger(this.add);
 
   @override
-  void log(dynamic Function() messageFn, LogType type) => add('$type ${messageFn()}');
+  void log(dynamic Function() messageFn, LogType type) => add(type.description + ' ${messageFn()}');
 
   @override
   LogType get logLevel => LogType.info;

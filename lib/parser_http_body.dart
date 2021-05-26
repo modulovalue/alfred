@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:mime/mime.dart';
+import 'package:mime/mime.dart' as m;
 
 /// A handler for processing and collecting HTTP message data in to an
 /// [HttpBody].
@@ -275,7 +275,9 @@ Future<HttpBody<dynamic>> _process(
     Future<HttpBody<String>> asText(Encoding defaultEncoding) async {
       Encoding? encoding;
       final charset = contentType.charset;
-      if (charset != null) encoding = Encoding.getByName(charset);
+      if (charset != null) {
+        encoding = Encoding.getByName(charset);
+      }
       encoding ??= defaultEncoding;
       final dynamic buffer = await encoding.decoder.bind(stream).fold<dynamic>(
             // ignore: avoid_dynamic_calls
@@ -285,11 +287,9 @@ Future<HttpBody<dynamic>> _process(
     }
 
     Future<HttpBody<Map<String, dynamic>>> asFormData() async {
-      final values = await MimeMultipartTransformer(contentType.parameters['boundary']!)
-          .bind(stream)
-          .map((part) => HttpMultipartFormData.parse(part, defaultEncoding: defaultEncoding))
-          .map(
-        (multipart) async {
+      final values = await m.MimeMultipartTransformer(contentType.parameters['boundary']!).bind(stream).map(
+        (part) async {
+          final multipart = HttpMultipartFormData.parse(part, defaultEncoding: defaultEncoding);
           dynamic data;
           if (multipart.isText) {
             final buffer = await multipart.fold<StringBuffer>(StringBuffer(), (b, dynamic s) => b..write(s));
@@ -309,11 +309,12 @@ Future<HttpBody<dynamic>> _process(
         },
       ).toList();
       final parts = await Future.wait<List<dynamic>>(values);
-      final map = <String, dynamic>{};
-      for (final part in parts) {
-        map[part[0] as String] = part[1]; // Override existing entries.
-      }
-      return HttpBodyImpl._('form', map);
+      return HttpBodyImpl._(
+        'form',
+        <String, dynamic>{
+          for (final part in parts) part[0] as String: part[1], // Override existing entries.
+        },
+      );
     }
 
     switch (contentType.primaryType) {
@@ -408,7 +409,7 @@ class HttpMultipartFormData extends Stream<dynamic> {
   /// information in the
   /// [HTML5 spec](http://dev.w3.org/html5/spec-preview/
   /// constraints.html#multipart-form-data).
-  static HttpMultipartFormData parse(MimeMultipart multipart, {Encoding defaultEncoding = utf8}) {
+  static HttpMultipartFormData parse(m.MimeMultipart multipart, {Encoding defaultEncoding = utf8}) {
     ContentType? contentType;
     HeaderValue? encoding;
     HeaderValue? disposition;
@@ -417,15 +418,12 @@ class HttpMultipartFormData extends Stream<dynamic> {
         case 'content-type':
           contentType = ContentType.parse(multipart.headers[key]!);
           break;
-
         case 'content-transfer-encoding':
           encoding = HeaderValue.parse(multipart.headers[key]!);
           break;
-
         case 'content-disposition':
           disposition = HeaderValue.parse(multipart.headers[key]!, preserveBackslash: true);
           break;
-
         default:
           break;
       }
@@ -452,7 +450,7 @@ class HttpMultipartFormData extends Stream<dynamic> {
     return HttpMultipartFormData._(contentType, disposition, encoding, multipart, stream, isText);
   }
 
-  final MimeMultipart _mimeMultipart;
+  final m.MimeMultipart _mimeMultipart;
 
   final Stream<dynamic> _stream;
 

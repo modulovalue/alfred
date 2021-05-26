@@ -1,5 +1,5 @@
-import 'package:alfred/base.dart';
 import 'package:alfred/http_route.dart';
+import 'package:alfred/method.dart';
 import 'package:alfred/middleware/impl/empty.dart';
 import 'package:test/test.dart';
 

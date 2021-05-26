@@ -2,17 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:mime_type/mime_type.dart';
-
 import '../base.dart';
 import 'http_route.dart';
+import 'mime.dart';
 import 'parser_http_body.dart';
 import 'plugin_store.dart';
 
 /// TODO consider having wrapper for third party types and putting the extensions into them.
 
 /// A set of extensions on the [HttpResponse] object, mostly for convenience
-///
 extension ResponseHelpers on HttpResponse {
   /// Set the appropriate headers to download the file
   ///
@@ -33,7 +31,7 @@ extension ResponseHelpers on HttpResponse {
   /// Set the content type given a file
   void setContentTypeFromFile(File file) {
     if (headers.contentType == null || headers.contentType!.mimeType == 'text/plain') {
-      headers.contentType = file.contentType;
+      headers.contentType = fileContentType(file);
     }
   }
 
@@ -48,23 +46,6 @@ extension ResponseHelpers on HttpResponse {
   Future<dynamic> send(Object? data) {
     write(data);
     return close();
-  }
-}
-
-/// A set of extensions on the file object which help in composing http responses
-extension FileHelpers on File {
-  /// Get the mimeType as a string
-  ///
-  String? get mimeType => mime(path);
-
-  /// Get the contentType header from the current
-  ///
-  ContentType? get contentType {
-    final mimeType = this.mimeType;
-    if (mimeType != null) {
-      final split = mimeType.split('/');
-      return ContentType(split[0], split[1]);
-    }
   }
 }
 
@@ -89,16 +70,10 @@ extension RequestHelpers on HttpRequest {
   /// Get the matched route of the current request
   String get route => store.get<String?>('_internal_route') ?? '';
 
+  /// TODO consider plumbing alfred through everywhere explicitly or have it be in the httprequest wrapper.
   /// Get Alfred instance which is associated with this request
   Alfred get alfred => store.get<Alfred>('_internal_alfred');
-}
 
-/// Integrates [RequestStore] mechanism on [HttpRequest]
-extension StorePlugin on HttpRequest {
   /// Returns the [RequestStore] dedicated to this request.
   RequestStore get store => StorePluginData.singleton.update(this, RequestStoreImpl());
-}
-
-extension WebSocketHelper on WebSocket {
-  void send(String data) => add(data);
 }

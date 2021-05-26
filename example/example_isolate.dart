@@ -5,6 +5,7 @@ import 'package:alfred/base.dart';
 import 'package:alfred/extensions.dart';
 import 'package:alfred/middleware/impl/response.dart';
 import 'package:alfred/middleware/impl/value.dart';
+import 'package:alfred/mime.dart';
 
 Future<void> main() async {
   for (var i = 0; i < 5; i++) {
@@ -26,7 +27,7 @@ Future<void> runIsolate(dynamic message) async {
     ResponseMiddleware((res) {
       res.setDownload(filename: 'model10.jpg');
       final file = File('test/files/image.jpg');
-      res.headers.contentType = file.contentType;
+      res.headers.contentType = fileContentType(file);
       return file.openRead();
     }),
     middleware: [

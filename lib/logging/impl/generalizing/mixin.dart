@@ -1,5 +1,6 @@
 import '../../../type_handler/interface/type_handler.dart';
 import '../../interface/logging_delegate.dart';
+import 'log_type.dart';
 
 mixin AlfredLoggingDelegateGeneralizingMixin implements AlfredLoggingDelegate {
   LogType get logLevel;
@@ -48,7 +49,3 @@ mixin AlfredLoggingDelegateGeneralizingMixin implements AlfredLoggingDelegate {
   void logTypeHandler(String Function() msgFn) => //
       log(() => 'DirectoryTypeHandler: ${msgFn()}', LogType.debug);
 }
-
-/// Indicates the severity of logged message
-/// TODO Turn this into an adt.
-enum LogType { debug, info, warn, error }
