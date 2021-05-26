@@ -3,7 +3,14 @@ import 'dart:io';
 
 import 'package:alfred/base.dart';
 import 'package:alfred/extensions.dart';
-import 'package:alfred/middleware_cors.dart';
+import 'package:alfred/middleware/impl/callback.dart';
+import 'package:alfred/middleware/impl/cors.dart';
+import 'package:alfred/middleware/impl/empty.dart';
+import 'package:alfred/middleware/impl/impl.dart';
+import 'package:alfred/middleware/impl/null.dart';
+import 'package:alfred/middleware/impl/request.dart';
+import 'package:alfred/middleware/impl/response.dart';
+import 'package:alfred/middleware/impl/value.dart';
 import 'package:http/http.dart' as http;
 import 'package:test/test.dart';
 
@@ -19,58 +26,58 @@ void main() {
   });
   tearDown(() => app.close());
   test('it should return a string correctly', () async {
-    app.get('/test', (req, res) => 'test string');
+    app.get('/test', MiddlewareImpl((req, res) => 'test string'));
     final response = await http.get(Uri.parse('http://localhost:$port/test'));
     expect(response.body, 'test string');
   });
   test('it should return json', () async {
-    app.get('/test', (req, res) => {'test': true});
+    app.get('/test', MiddlewareImpl((req, res) => {'test': true}));
     final response = await http.get(Uri.parse('http://localhost:$port/test'));
     expect(response.headers['content-type'], 'application/json; charset=utf-8');
     expect(response.body, '{"test":true}');
   });
   test('it should return an image', () async {
-    app.get('/test', (req, res) => File('test/files/image.jpg'));
+    app.get('/test', MiddlewareImpl((req, res) => File('test/files/image.jpg')));
     final response = await http.get(Uri.parse('http://localhost:$port/test'));
     expect(response.headers['content-type'], 'image/jpeg');
   });
   test('it should return a pdf', () async {
-    app.get('/test', (req, res) => File('test/files/dummy.pdf'));
+    app.get('/test', MiddlewareImpl((req, res) => File('test/files/dummy.pdf')));
     final response = await http.get(Uri.parse('http://localhost:$port/test'));
     expect(response.headers['content-type'], 'application/pdf');
   });
   test('routing should, you know, work', () async {
-    app.get('/test', (req, res) => 'test_route');
-    app.get('/testRoute', (req, res) => 'test_route_route');
-    app.get('/a', (req, res) => 'a_route');
+    app.get('/test', MiddlewareImpl((req, res) => 'test_route'));
+    app.get('/testRoute', MiddlewareImpl((req, res) => 'test_route_route'));
+    app.get('/a', MiddlewareImpl((req, res) => 'a_route'));
     expect((await http.get(Uri.parse('http://localhost:$port/test'))).body, 'test_route');
     expect((await http.get(Uri.parse('http://localhost:$port/testRoute'))).body, 'test_route_route');
     expect((await http.get(Uri.parse('http://localhost:$port/a'))).body, 'a_route');
   });
   test('error handling', () async {
     await app.close();
-    app = Alfred(onInternalError: (req, res) {
+    app = Alfred(onInternalError: MiddlewareImpl((req, res) {
       res.statusCode = 500;
       return {'message': 'error not handled'};
-    });
+    }));
     await app.listen(port);
-    app.get('/throwserror', (req, res) => throw Exception('generic exception'));
+    app.get('/throwserror', MiddlewareImpl((req, res) => throw Exception('generic exception')));
     expect((await http.get(Uri.parse('http://localhost:$port/throwserror'))).body, '{"message":"error not handled"}');
   });
   test('error default handling', () async {
     await app.close();
     app = Alfred();
     await app.listen(port);
-    app.get('/throwserror', (req, res) => throw Exception('generic exception'));
+    app.get('/throwserror', MiddlewareImpl((req, res) => throw Exception('generic exception')));
     final response = await http.get(Uri.parse('http://localhost:$port/throwserror'));
     expect(response.body, 'Exception: generic exception');
   });
   test('not found handling', () async {
     await app.close();
-    app = Alfred(onNotFound: (req, res) {
+    app = Alfred(onNotFound: MiddlewareImpl((req, res) {
       res.statusCode = 404;
       return {'message': 'not found'};
-    });
+    }));
     await app.listen(port);
     final response = await http.get(Uri.parse('http://localhost:$port/notfound'));
     expect(response.body, '{"message":"not found"}');
@@ -85,8 +92,8 @@ void main() {
     expect(response.statusCode, 404);
   });
   test('not found with middleware', () async {
-    app.all('*', cors());
-    app.get('resource2', (req, res) {});
+    app.all('*', const CorsMiddleware());
+    app.get('resource2', const EmptyMiddleware());
     final r1 = await http.get(Uri.parse('http://localhost:$port/resource1'));
     expect(r1.body, '404 not found');
     expect(r1.statusCode, 404);
@@ -95,52 +102,51 @@ void main() {
     expect(r2.statusCode, 200);
   });
   test('not found with directory type handler', () async {
-    app.get('/files/*', (req, res) => Directory('test/files'));
+    app.get('/files/*', MiddlewareImpl((req, res) => Directory('test/files')));
     final r = await http.get(Uri.parse('http://localhost:$port/files/no-file.zip'));
     expect(r.body, '404 not found');
     expect(r.statusCode, 404);
   });
   test('not found with file type handler', () async {
-    app.onNotFound = (req, res) {
+    app.onNotFound = MiddlewareImpl((req, res) {
       res.statusCode = HttpStatus.notFound;
       return 'Custom404Message';
-    };
-    app.get('/index.html', (req, res) => File('does-not.exists'));
+    });
+    app.get('/index.html', MiddlewareImpl((req, res) => File('does-not.exists')));
     final r = await http.get(Uri.parse('http://localhost:$port/index.html'));
     expect(r.body, 'Custom404Message');
     expect(r.statusCode, 404);
   });
   test('it handles a post request', () async {
-    app.post('/test', (req, res) => 'test string');
+    app.post('/test', const ValueMiddleware('test string'));
     final response = await http.post(Uri.parse('http://localhost:$port/test'));
     expect(response.body, 'test string');
   });
   test('it handles a put request', () async {
-    app.put('/test', (req, res) => 'test string');
+    app.put('/test', const ValueMiddleware('test string'));
     final response = await http.put(Uri.parse('http://localhost:$port/test'));
     expect(response.body, 'test string');
   });
   test('it handles a delete request', () async {
-    app.delete('/test', (req, res) => 'test string');
+    app.delete('/test', const ValueMiddleware('test string'));
     final response = await http.delete(Uri.parse('http://localhost:$port/test'));
     expect(response.body, 'test string');
   });
   test('it handles an options request', () async {
-    app.options('/test', (req, res) => 'test string');
+    app.options('/test', const ValueMiddleware('test string'));
 
     /// TODO: Need to find a way to send an options request. The HTTP library doesn't
     /// seem to support it.
-    ///
     // final response = await http.head(Uri.parse("http://localhost:$port/test"));
     // expect(response.body, "test string");
   });
   test('it handles a patch request', () async {
-    app.patch('/test', (req, res) => 'test string');
+    app.patch('/test', const ValueMiddleware('test string'));
     final response = await http.patch(Uri.parse('http://localhost:$port/test'));
     expect(response.body, 'test string');
   });
   test('it handles a route that hits all methods', () async {
-    app.all('/test', (req, res) => 'test all');
+    app.all('/test', const ValueMiddleware('test all'));
     final responseGet = await http.get(Uri.parse('http://localhost:$port/test'));
     final responsePost = await http.post(Uri.parse('http://localhost:$port/test'));
     final responsePut = await http.put(Uri.parse('http://localhost:$port/test'));
@@ -152,109 +158,110 @@ void main() {
   });
   test('it executes middleware, but passes through', () async {
     var hitMiddleware = false;
-    app.get('/test', (req, res) => 'test route', middleware: [
-      (req, res) {
-        hitMiddleware = true;
-      }
-    ]);
+    app.get(
+      '/test',
+      const ValueMiddleware('test route'),
+      middleware: [VoidCallbackMiddleware(() => hitMiddleware = true)],
+    );
     final response = await http.get(Uri.parse('http://localhost:$port/test'));
     expect(response.body, 'test route');
     expect(hitMiddleware, true);
   });
   test('it executes middleware, but handles it and stops executing', () async {
-    app.get('/test', (req, res) => 'test route', middleware: [
-      (req, res) {
-        return 'hit middleware';
-      }
-    ]);
+    app.get(
+      '/test',
+      const ValueMiddleware('test route'),
+      middleware: [const ValueMiddleware('hit middleware')],
+    );
     final response = await http.get(Uri.parse('http://localhost:$port/test'));
     expect(response.body, 'hit middleware');
   });
   test('it closes out a request if you fail to', () async {
-    app.get('/test', (req, res) => null);
+    app.get('/test', const NullMiddleware());
     final response = await http.get(Uri.parse('http://localhost:$port/test'));
     expect(response.body, '');
   });
   test('it throws and handles an exception', () async {
-    app.get('/test', (req, res) => throw const AlfredException(360, 'exception'));
+    app.get('/test', VoidCallbackMiddleware(() => throw const AlfredException(360, 'exception')));
     final response = await http.get(Uri.parse('http://localhost:$port/test'));
     expect(response.body, 'exception');
     expect(response.statusCode, 360);
   });
   test('it handles a List<int>', () async {
-    app.get('/test', (req, res) => <int>[1, 2, 3, 4, 5]);
+    app.get('/test', const ValueMiddleware(<int>[1, 2, 3, 4, 5]));
     final response = await http.get(Uri.parse('http://localhost:$port/test'));
     expect(response.body, '\x01\x02\x03\x04\x05');
     expect(response.headers['content-type'], 'application/octet-stream');
   });
   test('it handles a Stream<List<int>>', () async {
     app.get(
-        '/test',
-        (req, res) => Stream.fromIterable([
-              [1, 2, 3, 4, 5]
-            ]));
+      '/test',
+      ValueMiddleware(Stream.fromIterable([
+        [1, 2, 3, 4, 5]
+      ])),
+    );
     final response = await http.get(Uri.parse('http://localhost:$port/test'));
     expect(response.body, '\x01\x02\x03\x04\x05');
     expect(response.headers['content-type'], 'application/octet-stream');
   });
   test('it parses a body', () async {
-    app.post('/test', (req, res) async {
+    app.post('/test', MiddlewareImpl((req, res) async {
       final body = await req.body;
       expect(body is Map, true);
       expect(req.contentType!.mimeType, 'application/json');
       return 'test result';
-    });
+    }));
     final response = await http.post(Uri.parse('http://localhost:$port/test'),
         headers: {'Content-Type': 'application/json'}, body: jsonEncode({'test': true}));
     expect(response.body, 'test result');
   });
   test('it serves a file for download', () async {
-    app.get('/test', (req, res) {
+    app.get('/test', MiddlewareImpl((req, res) {
       res.setDownload(filename: 'testfile.jpg');
       return File('./test/files/image.jpg');
-    });
+    }));
     final response = await http.get(Uri.parse('http://localhost:$port/test'));
     expect(response.headers['content-type'], 'image/jpeg');
     expect(response.headers['content-disposition'], 'attachment; filename=testfile.jpg');
   });
   test('it serves a pdf, setting the extension from the filename', () async {
-    app.get('/test', (req, res) {
+    app.get('/test', ResponseMiddleware((res) {
       res.setContentTypeFromExtension('pdf');
       return File('./test/files/dummy.pdf');
-    });
+    }));
     final response = await http.get(Uri.parse('http://localhost:$port/test'));
     expect(response.headers['content-type'], 'application/pdf');
     expect(response.headers['content-disposition'], null);
   });
   test('it uses the json helper correctly', () async {
-    app.get('/test', (req, res) async {
+    app.get('/test', ResponseMiddleware((res) async {
       await res.json({'success': true});
-    });
+    }));
     final response = await http.get(Uri.parse('http://localhost:$port/test'));
     expect(response.body, '{"success":true}');
   });
   test('it uses the send helper correctly', () async {
-    app.get('/test', (req, res) async {
+    app.get('/test', ResponseMiddleware((res) async {
       await res.send('stuff');
-    });
+    }));
     final response = await http.get(Uri.parse('http://localhost:$port/test'));
     expect(response.body, 'stuff');
   });
   test('it serves static files', () async {
-    app.get('/files/*', (req, res) => Directory('test/files'));
+    app.get('/files/*', ValueMiddleware(Directory('test/files')));
 
     final response = await http.get(Uri.parse('http://localhost:$port/files/dummy.pdf'));
     expect(response.statusCode, 200);
     expect(response.headers['content-type'], 'application/pdf');
   });
   test('it serves static files although directories do not match', () async {
-    app.get('/my/directory/*', (req, res) => Directory('test/files'));
+    app.get('/my/directory/*', ValueMiddleware(Directory('test/files')));
     final response = await http.get(Uri.parse('http://localhost:$port/my/directory/dummy.pdf'));
     expect(response.statusCode, 200);
     expect(response.headers['content-type'], 'application/pdf');
   });
   test('it serves static files with basic filtering', () async {
-    app.get('/my/directory/*.pdf', (req, res) => Directory('test/files'));
+    app.get('/my/directory/*.pdf', ValueMiddleware(Directory('test/files')));
     final r1 = await http.get(Uri.parse('http://localhost:$port/my/directory/dummy.pdf'));
     expect(r1.statusCode, 200);
     expect(r1.headers['content-type'], 'application/pdf');
@@ -262,8 +269,8 @@ void main() {
     expect(r2.statusCode, 404);
   });
   test('it serves SPA projects', () async {
-    app.get('/spa/*', (req, res) => Directory('test/files/spa'));
-    app.get('/spa/*', (req, res) => File('test/files/spa/index.html'));
+    app.get('/spa/*', ValueMiddleware(Directory('test/files/spa')));
+    app.get('/spa/*', ValueMiddleware(File('test/files/spa/index.html')));
     final r1 = await http.get(Uri.parse('http://localhost:$port/spa'));
     expect(r1.statusCode, 200);
     expect(r1.headers['content-type'], 'text/html');
@@ -282,24 +289,24 @@ void main() {
     expect(r4.body.contains('This is some txt'), true);
   });
   test('it does not crash when File not exists', () async {
-    app.get('error', (req, res) => File('does-not-exists'));
-    app.get('works', (req, res) => 'works!');
+    app.get('error', ValueMiddleware(File('does-not-exists')));
+    app.get('works', const ValueMiddleware('works!'));
     await http.get(Uri.parse('http://localhost:$port/error'));
     final request = await http.get(Uri.parse('http://localhost:$port/works'));
     expect(request.statusCode, 200);
   });
   test('it routes correctly for a / url', () async {
-    app.get('/', (req, res) => 'working');
+    app.get('/', const ValueMiddleware('working'));
     final response = await http.get(Uri.parse('http://localhost:$port/'));
     expect(response.body, 'working');
   });
   test('it handles params', () async {
-    app.get('/test/:id', (req, res) => req.params['id']);
+    app.get('/test/:id', RequestMiddleware((req) => req.params['id']));
     final response = await http.get(Uri.parse('http://localhost:$port/test/15'));
     expect(response.body, '15');
   });
   test('it should implement cors correctly', () async {
-    app.all('*', cors(origin: 'test-origin'));
+    app.all('*', const CorsMiddleware(origin: 'test-origin'));
     final response = await http.get(Uri.parse('http://localhost:$port/test'));
     expect(response.headers.containsKey('access-control-allow-origin'), true);
     expect(response.headers['access-control-allow-origin'], 'test-origin');
@@ -307,13 +314,17 @@ void main() {
     expect(response.headers.containsKey('access-control-allow-methods'), true);
   });
   test("it should throw an appropriate error when a return type isn't found", () async {
-    app.get('/test', (req, res) => _UnknownType());
+    app.get('/test', ValueMiddleware(_UnknownType()));
     final response = await http.get(Uri.parse('http://localhost:$port/test'));
     expect(response.statusCode, 500);
     expect(response.body.contains('_UnknownType'), true);
   });
   test('it should log out request information', () async {
-    app.get('/resource', (req, res) => 'response', middleware: [cors()]);
+    app.get(
+      '/resource',
+      const ValueMiddleware('response'),
+      middleware: [const CorsMiddleware()],
+    );
     final logs = <String>[];
     app.logWriter = (msgFn, type) => logs.add('$type ${msgFn()}');
     await http.get(Uri.parse('http://localhost:$port/resource'));

@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:alfred/base.dart';
 import 'package:alfred/extensions.dart';
+import 'package:alfred/middleware/impl/request.dart';
+import 'package:alfred/middleware/impl/value.dart';
 import 'package:alfred/plugin_store.dart';
 import 'package:http/http.dart' as http;
 import 'package:test/test.dart';
@@ -21,13 +23,13 @@ void main() {
   });
   test('it should store and retrieve a value on a request', () async {
     var didHit = false;
-    app.all('/test', (req, res) {
+    app.all('/test', RequestMiddleware((req) {
       expect(req.route, '/test');
       req.store.set('testValue', 'bah!');
       expect(req.store.get<String>('testValue'), 'bah!');
       didHit = true;
       return 'done';
-    });
+    }));
     await http.get(Uri.parse('http://localhost:$port/test'));
     expect(didHit, true);
   });
@@ -35,7 +37,7 @@ void main() {
     var hitCount = 0;
     final listener = (HttpRequest req, HttpResponse res) => hitCount++;
     app.registerOnDoneListener(listener);
-    app.get('/test', (req, res) => 'done');
+    app.get('/test', const ValueMiddleware('done'));
     await http.get(Uri.parse('http://localhost:$port/test'));
     expect(hitCount, 1);
     app.removeOnDoneListener(listener);
@@ -45,13 +47,13 @@ void main() {
   });
   test('the store is correctly available across multiple routes', () async {
     var didHit = false;
-    app.get('*', (req, res) {
+    app.get('*', RequestMiddleware((req) {
       req.store.set('userid', '123456');
-    });
-    app.get('/user', (req, res) {
+    }));
+    app.get('/user', RequestMiddleware((req) {
       didHit = true;
       expect(req.store.get<String>('userid'), '123456');
-    });
+    }));
     await http.get(Uri.parse('http://localhost:$port/user'));
     expect(didHit, true);
   });

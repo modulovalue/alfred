@@ -1,6 +1,7 @@
 import 'package:alfred/base.dart';
 import 'package:alfred/extensions.dart';
 import 'package:alfred/handlers.dart';
+import 'package:alfred/middleware/impl/websocket.dart';
 import 'package:test/test.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -20,13 +21,15 @@ void main() {
     String? message;
     app.get(
       '/ws',
-      (req, res) => WebSocketSession(
-        onOpen: (ws) => opened = true,
-        onClose: (ws) => closed = true,
-        onMessage: (ws, dynamic data) {
-          message = data as String;
-          ws.send('echo $data');
-        },
+      WebSocketMiddleware(
+        () => WebSocketSession(
+          onOpen: (ws) => opened = true,
+          onClose: (ws) => closed = true,
+          onMessage: (ws, dynamic data) {
+            message = data as String;
+            ws.send('echo $data');
+          },
+        ),
       ),
     );
     final channel = IOWebSocketChannel.connect('ws://localhost:$port/ws');
@@ -43,10 +46,12 @@ void main() {
   test('it correctly handles a websocket error', () async {
     app.get(
       '/ws',
-      (req, res) => WebSocketSession(
-        // ignore: void_checks, only_throw_errors
-        onOpen: (ws) => throw 'Test',
-        onError: (ws, dynamic error) => error = true,
+      WebSocketMiddleware(
+        () => WebSocketSession(
+          // ignore: void_checks, only_throw_errors
+          onOpen: (ws) => throw 'Test',
+          onError: (ws, dynamic error) => error = true,
+        ),
       ),
     );
     final channel = IOWebSocketChannel.connect('ws://localhost:$port/ws');

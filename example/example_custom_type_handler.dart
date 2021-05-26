@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:alfred/base.dart';
 import 'package:alfred/handlers.dart';
+import 'package:alfred/middleware/impl/value.dart';
 
 class Chicken {
   const Chicken();
@@ -17,7 +18,7 @@ void main() {
     await res.close();
   }));
   // The app will now return the Chicken.response if you return one from a route.
-  app.get('/kfc', (req, res) => const Chicken()); // I am a chicken.
+  app.get('/kfc', const ValueMiddleware(Chicken())); // I am a chicken.
   app.listen(); // Listening on 3000.
 }
 

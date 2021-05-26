@@ -1,4 +1,5 @@
 import 'package:alfred/base.dart';
+import 'package:alfred/middleware/impl/value.dart';
 import 'package:logging/logging.dart';
 
 // Use 'logging' package instead of default logger
@@ -33,6 +34,6 @@ void main() {
     }
   };
   // Configure routing...
-  app.get('/resource', (req, res) => 'response');
+  app.get('/resource', const ValueMiddleware('response'));
   app.listen();
 }

@@ -1,8 +1,5 @@
-import 'dart:async';
-import 'dart:io';
-
 import 'package:alfred/base.dart';
-import 'package:alfred/extensions.dart';
+import 'package:alfred/middleware/impl/empty.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -12,13 +9,13 @@ void main() {
   });
   test('it can compose requests', () async {
     final path = app.route('path');
-    path.get('a', _callback);
-    path.post('b', _callback);
-    path.put('c', _callback);
-    path.patch('d', _callback);
-    path.delete('e', _callback);
-    path.options('f', _callback);
-    path.all('g', _callback);
+    path.get('a', const EmptyMiddleware());
+    path.post('b', const EmptyMiddleware());
+    path.put('c', const EmptyMiddleware());
+    path.patch('d', const EmptyMiddleware());
+    path.delete('e', const EmptyMiddleware());
+    path.options('f', const EmptyMiddleware());
+    path.all('g', const EmptyMiddleware());
     expect(app.routes.map((r) => '${r.route}:${r.method}').toList(), [
       'path/a:Method.get',
       'path/b:Method.post',
@@ -30,27 +27,27 @@ void main() {
     ]);
   });
   test('it can compose multiple times', () async {
-    app.route('first/and').route('second/and').get('third', _callback);
+    app.route('first/and').route('second/and').get('third', const EmptyMiddleware());
     expect(app.routes.first.route, 'first/and/second/and/third');
   });
   test('it can handle slashes when composing', () async {
-    app.route('first/').get('/second', _callback);
-    app.route('first').get('/second', _callback);
-    app.route('first/').get('second', _callback);
-    app.route('first').get('second', _callback);
+    app.route('first/').get('/second', const EmptyMiddleware());
+    app.route('first').get('/second', const EmptyMiddleware());
+    app.route('first/').get('second', const EmptyMiddleware());
+    app.route('first').get('second', const EmptyMiddleware());
     expect(app.routes.length, 4);
     for (final route in app.routes) {
       expect(route.route, 'first/second');
     }
   });
   test('it can correctly inherit middleware', () async {
-    final mw1 = _callback;
-    final mw2 = _callback;
+    const mw1 = EmptyMiddleware();
+    const mw2 = EmptyMiddleware();
     final first = app.route('first', middleware: [mw1]);
-    first.get('a', _callback);
-    first.get('b', _callback);
+    first.get('a', const EmptyMiddleware());
+    first.get('b', const EmptyMiddleware());
     final second = first.route('second', middleware: [mw2]);
-    second.get('c', _callback);
+    second.get('c', const EmptyMiddleware());
     expect(app.routes.length, 3);
     expect(app.routes[0].route, 'first/a');
     expect(app.routes[0].middleware, [mw1]);
@@ -60,5 +57,3 @@ void main() {
     expect(app.routes[2].middleware, [mw1, mw2]);
   });
 }
-
-FutureOr<dynamic> Function(HttpRequest, HttpResponse) get _callback => (req, res) {};

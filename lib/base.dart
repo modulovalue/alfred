@@ -7,6 +7,7 @@ import 'package:queue/queue.dart';
 import 'extensions.dart';
 import 'handlers.dart';
 import 'http_route.dart';
+import 'middleware/interface/middleware.dart';
 import 'plugin_store.dart';
 
 /// Server application class
@@ -46,11 +47,11 @@ class Alfred {
 
   /// Optional handler for when a route is not found
   /// TODO put into a delegate.
-  FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)? onNotFound;
+  Middleware<Object?>? onNotFound;
 
   /// Optional handler for when the server throws an unhandled error
   /// TODO put into a delegate.
-  FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)? onInternalError;
+  Middleware<Object?>? onInternalError;
 
   /// Creates a new Alfred application.
   ///
@@ -111,64 +112,64 @@ class Alfred {
   /// Create a get route
   HttpRoute get(
     String path,
-    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
-    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+    Middleware<Object?> callback, {
+    List<Middleware<Object?>> middleware = const [],
   }) =>
       _createRoute(path, callback, Method.get, middleware);
 
   /// Create a post route
   HttpRoute post(
     String path,
-    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
-    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+    Middleware<Object?> callback, {
+    List<Middleware<Object?>> middleware = const [],
   }) =>
       _createRoute(path, callback, Method.post, middleware);
 
   /// Create a put route
   HttpRoute put(
     String path,
-    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
-    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+    Middleware<Object?> callback, {
+    List<Middleware<Object?>> middleware = const [],
   }) =>
       _createRoute(path, callback, Method.put, middleware);
 
   /// Create a delete route
   HttpRoute delete(
     String path,
-    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
-    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+    Middleware<Object?> callback, {
+    List<Middleware<Object?>> middleware = const [],
   }) =>
       _createRoute(path, callback, Method.delete, middleware);
 
   /// Create a patch route
   HttpRoute patch(
     String path,
-    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
-    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+    Middleware<Object?> callback, {
+    List<Middleware<Object?>> middleware = const [],
   }) =>
       _createRoute(path, callback, Method.patch, middleware);
 
   /// Create an options route
   HttpRoute options(
     String path,
-    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
-    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+    Middleware<Object?> callback, {
+    List<Middleware<Object?>> middleware = const [],
   }) =>
       _createRoute(path, callback, Method.options, middleware);
 
   /// Create a route that listens on all methods
   HttpRoute all(
     String path,
-    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
-    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+    Middleware<Object?> callback, {
+    List<Middleware<Object?>> middleware = const [],
   }) =>
       _createRoute(path, callback, Method.all, middleware);
 
   HttpRoute _createRoute(
     String path,
-    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback,
+    Middleware<Object?> callback,
     Method method, [
-    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+    List<Middleware<Object?>> middleware = const [],
   ]) {
     final route = HttpRoute(path, callback, method, middleware: middleware);
     routes.add(route);
@@ -242,7 +243,7 @@ class Alfred {
                 break;
               } else {
                 logWriter(() => 'Apply middleware associated with route', LogType.debug);
-                await _handleResponse(await middleware(request, request.response), request);
+                await _handleResponse(await middleware.process(request, request.response), request);
               }
             }
             // If the request has already completed, exit early, otherwise process
@@ -252,7 +253,7 @@ class Alfred {
               break;
             } else {
               logWriter(() => 'Execute route callback function', LogType.debug);
-              await _handleResponse(await route.callback(request, request.response), request);
+              await _handleResponse(await route.callback.process(request, request.response), request);
             }
           }
         }
@@ -281,9 +282,10 @@ class Alfred {
       // Its all broken, bail (but don't crash)
       logWriter(() => e, LogType.error);
       logWriter(() => s, LogType.error);
-      if (onInternalError != null) {
+      final _onInternalError = onInternalError;
+      if (_onInternalError != null) {
         // Handle the error with a custom response
-        final dynamic result = await onInternalError!(request, request.response);
+        final dynamic result = await _onInternalError.process(request, request.response);
         if (result != null && !isDone) {
           await _handleResponse(result, request);
         }
@@ -302,9 +304,10 @@ class Alfred {
 
   /// Responds request with a NotFound response
   Future<dynamic> _respondNotFound(HttpRequest request, bool isDone) async {
-    if (onNotFound != null) {
+    final _onNotFound = onNotFound;
+    if (_onNotFound != null) {
       // Otherwise check if a custom 404 handler has been provided
-      final dynamic result = await onNotFound!(request, request.response);
+      final dynamic result = await _onNotFound.process(request, request.response);
       if (result != null && !isDone) {
         await _handleResponse(result, request);
       }
@@ -381,6 +384,16 @@ class Alfred {
       print('${route.route} - $methodString');
     }
   }
+
+  /// Creates one or multiple route segments that can be used
+  /// as a common base for specifying routes with [get], [post], etc.
+  ///
+  /// You can define middleware that effects all sub-routes.
+  NestedRoute route(
+    String path, {
+    List<Middleware<Object?>> middleware = const [],
+  }) =>
+      NestedRoute(alfred: this, basePath: path, baseMiddleware: middleware);
 }
 
 /// TODO move to its own file.

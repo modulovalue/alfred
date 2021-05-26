@@ -1,14 +1,12 @@
-import 'dart:async';
-import 'dart:io';
-
 import 'base.dart';
+import 'middleware/interface/middleware.dart';
 
 /// TODO interface and impl
 class HttpRoute {
   final String route;
-  final FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback;
+  final Middleware<Object?> callback;
   final Method method;
-  final List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware;
+  final List<Middleware<Object?>> middleware;
 
   const HttpRoute(
     this.route,
@@ -26,12 +24,12 @@ class HttpRoute {
 class NestedRoute {
   final Alfred _alfred;
   final String _basePath;
-  final List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> _baseMiddleware;
+  final List<Middleware<Object?>> _baseMiddleware;
 
-  NestedRoute({
+  const NestedRoute({
     required Alfred alfred,
     required String basePath,
-    required List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> baseMiddleware,
+    required List<Middleware<Object?>> baseMiddleware,
   })  : _alfred = alfred,
         _basePath = basePath,
         _baseMiddleware = baseMiddleware;
@@ -40,8 +38,8 @@ class NestedRoute {
   ///
   HttpRoute get(
     String path,
-    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
-    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+    Middleware<Object?> callback, {
+    List<Middleware<Object?>> middleware = const [],
   }) =>
       _createRoute(path, callback, Method.get, middleware);
 
@@ -49,16 +47,16 @@ class NestedRoute {
   ///
   HttpRoute post(
     String path,
-    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
-    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+    Middleware<Object?> callback, {
+    List<Middleware<Object?>> middleware = const [],
   }) =>
       _createRoute(path, callback, Method.post, middleware);
 
   /// Create a put route
   HttpRoute put(
     String path,
-    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
-    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+    Middleware<Object?> callback, {
+    List<Middleware<Object?>> middleware = const [],
   }) =>
       _createRoute(path, callback, Method.put, middleware);
 
@@ -66,8 +64,8 @@ class NestedRoute {
   ///
   HttpRoute delete(
     String path,
-    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
-    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+    Middleware<Object?> callback, {
+    List<Middleware<Object?>> middleware = const [],
   }) =>
       _createRoute(path, callback, Method.delete, middleware);
 
@@ -75,8 +73,8 @@ class NestedRoute {
   ///
   HttpRoute patch(
     String path,
-    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
-    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+    Middleware<Object?> callback, {
+    List<Middleware<Object?>> middleware = const [],
   }) =>
       _createRoute(path, callback, Method.patch, middleware);
 
@@ -84,8 +82,8 @@ class NestedRoute {
   ///
   HttpRoute options(
     String path,
-    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
-    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+    Middleware<Object?> callback, {
+    List<Middleware<Object?>> middleware = const [],
   }) =>
       _createRoute(path, callback, Method.options, middleware);
 
@@ -93,8 +91,8 @@ class NestedRoute {
   ///
   HttpRoute all(
     String path,
-    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
-    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+    Middleware<Object?> callback, {
+    List<Middleware<Object?>> middleware = const [],
   }) =>
       _createRoute(path, callback, Method.all, middleware);
 
@@ -104,15 +102,15 @@ class NestedRoute {
   /// You can define middleware that effects all sub-routes.
   NestedRoute route(
     String path, {
-    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+    List<Middleware<Object?>> middleware = const [],
   }) =>
       NestedRoute(alfred: _alfred, basePath: _composePath(_basePath, path), baseMiddleware: [..._baseMiddleware, ...middleware]);
 
   HttpRoute _createRoute(
     String path,
-    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback,
+    Middleware<Object?> callback,
     Method method, [
-    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+    List<Middleware<Object?>> middleware = const [],
   ]) {
     final route = HttpRoute(_composePath(_basePath, path), callback, method, middleware: [..._baseMiddleware, ...middleware]);
     _alfred.routes.add(route);

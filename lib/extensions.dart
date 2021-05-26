@@ -9,19 +9,7 @@ import 'http_route.dart';
 import 'parser_http_body.dart';
 import 'plugin_store.dart';
 
-/// TODO turn as many extensions as practical into static methods.
 /// TODO consider having wrapper for third party types and putting the extensions into them.
-extension NestedRouteExtension on Alfred {
-  /// Creates one or multiple route segments that can be used
-  /// as a common base for specifying routes with [get], [post], etc.
-  ///
-  /// You can define middleware that effects all sub-routes.
-  NestedRoute route(
-    String path, {
-    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
-  }) =>
-      NestedRoute(alfred: this, basePath: path, baseMiddleware: middleware);
-}
 
 /// A set of extensions on the [HttpResponse] object, mostly for convenience
 ///

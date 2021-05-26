@@ -1,4 +1,5 @@
 import 'package:alfred/base.dart';
+import 'package:alfred/middleware/impl/value.dart';
 import 'package:http/http.dart' as http;
 import 'package:test/test.dart';
 
@@ -13,15 +14,9 @@ void main() {
   });
   tearDown(() => app.close());
   test('it uses the serializable helper correctly', () async {
-    app.get('/testSerializable1', (req, res) async {
-      return _SerializableObjType1();
-    });
-    app.get('/testSerializable2', (req, res) async {
-      return _SerializableObjType1();
-    });
-    app.get('/testNoSerialize', (req, res) async {
-      return _NonSerializableObj();
-    });
+    app.get('/testSerializable1', ValueMiddleware(_SerializableObjType1()));
+    app.get('/testSerializable2', ValueMiddleware(_SerializableObjType1()));
+    app.get('/testNoSerialize', ValueMiddleware(_NonSerializableObj()));
     final response1 =
         await http.get(Uri.parse('http://localhost:$port/testSerializable1'));
     expect(response1.body, '{"test":true}');

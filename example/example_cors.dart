@@ -1,9 +1,9 @@
 import 'package:alfred/base.dart';
-import 'package:alfred/middleware_cors.dart';
+import 'package:alfred/middleware/impl/cors.dart';
 
 Future<void> main() async {
   final app = Alfred();
   // Warning: defaults to origin "*"
-  app.all('*', cors(origin: 'myorigin.com'));
+  app.all('*', const CorsMiddleware(origin: 'myorigin.com'));
   await app.listen();
 }

@@ -1,15 +1,14 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:alfred/base.dart';
+import 'package:alfred/middleware/impl/callback.dart';
+import 'package:alfred/middleware/impl/response.dart';
 
 Future<void> main() async {
-  final app = Alfred(onInternalError: errorHandler);
+  final app = Alfred(onInternalError: ResponseMiddleware((res) {
+    res.statusCode = 500;
+    return {'message': 'error not handled'};
+  }));
   await app.listen();
-  app.get('/throwserror', (req, res) => throw Exception('generic exception'));
-}
-
-FutureOr<dynamic> errorHandler(HttpRequest req, HttpResponse res) {
-  res.statusCode = 500;
-  return {'message': 'error not handled'};
+  app.get('/throwserror', CallbackMiddleware(() => throw Exception('generic exception')));
 }

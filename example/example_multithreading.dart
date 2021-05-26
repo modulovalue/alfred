@@ -1,6 +1,7 @@
 import 'dart:isolate';
 
 import 'package:alfred/base.dart';
+import 'package:alfred/middleware/impl/value.dart';
 
 Future<void> main() async {
   // Fire up 5 isolates
@@ -16,7 +17,7 @@ Future<void> main() async {
 /// connections etc. However you can engineer this however you like.
 Future<void> startInstance(dynamic message) async {
   final app = Alfred();
-  app.all('/example', (req, res) => 'Hello world');
+  app.all('/example', const ValueMiddleware('Hello world'));
   await app.listen();
 }
 
