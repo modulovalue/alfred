@@ -9,8 +9,7 @@ import 'package:test/test.dart';
 import 'common.dart';
 
 void main() {
-  List<HttpRequest> _outstandingRequests() => storePluginData.keys.toList();
-
+  List<HttpRequest> _outstandingRequests() => StorePluginData.singleton.allKeys();
   late Alfred app;
   late int port;
   setUp(() async {

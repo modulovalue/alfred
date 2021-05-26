@@ -72,7 +72,7 @@ class Alfred {
     int simultaneousProcessing = 50,
   })  : routes = <HttpRoute>[],
         requestQueue = Queue(parallel: simultaneousProcessing),
-        _onDoneListeners = [storePluginOnDoneHandler],
+        _onDoneListeners = [StorePluginData.singleton.storePluginOnDoneHandler],
         logWriter = ((messageFn, type) {
           if (type.index >= logLevel.index) {
             final timestamp = DateTime.now();
@@ -212,6 +212,7 @@ class Alfred {
     final effectiveRoutes = RouteMatcher.match(
       request.uri.toString(),
       routes,
+
       /// TODO remove that dependency after method is an adt.
       EnumToString.fromString<Method>(Method.values, request.method) ?? Method.get,
     );
@@ -340,7 +341,7 @@ class Alfred {
 
   /// Close the server and clean up any resources.
   ///
-  /// Call this if you are shutting down the server 
+  /// Call this if you are shutting down the server
   /// but continuing to run the app.
   Future<dynamic> close({bool force = true}) async {
     if (server != null) {

@@ -108,10 +108,7 @@ extension RequestHelpers on HttpRequest {
 /// Integrates [RequestStore] mechanism on [HttpRequest]
 extension StorePlugin on HttpRequest {
   /// Returns the [RequestStore] dedicated to this request.
-  RequestStore get store {
-    storePluginData[this] ??= RequestStore();
-    return storePluginData[this]!;
-  }
+  RequestStore get store => StorePluginData.singleton.update(this, RequestStoreImpl());
 }
 
 extension WebSocketHelper on WebSocket {
