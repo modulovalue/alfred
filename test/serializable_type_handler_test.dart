@@ -2,19 +2,16 @@ import 'package:alfred/base.dart';
 import 'package:http/http.dart' as http;
 import 'package:test/test.dart';
 
-import '../common.dart';
+import 'common.dart';
 
 void main() {
   late Alfred app;
   late int port;
-
   setUp(() async {
     app = Alfred();
     port = await app.listenForTest();
   });
-
   tearDown(() => app.close());
-
   test('it uses the serializable helper correctly', () async {
     app.get('/testSerializable1', (req, res) async {
       return _SerializableObjType1();

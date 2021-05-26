@@ -25,7 +25,7 @@ Future<void> runIsolate(dynamic message) async {
     res.headers.contentType = file.contentType;
     return file.openRead();
   }, middleware: [
-    (req, res) => {'test': true}
+        (req, res) => {'test': true}
   ]);
   app.get('/redirect', (req, res) => res.redirect(Uri.parse('https://www.google.com')));
   app.get('/files', (req, res) => Directory('test/files'));

@@ -19,15 +19,16 @@ void main() {
     var closed = false;
     String? message;
     app.get(
-        '/ws',
-        (req, res) => WebSocketSession(
-              onOpen: (ws) => opened = true,
-              onClose: (ws) => closed = true,
-              onMessage: (ws, dynamic data) {
-                message = data as String;
-                ws.send('echo $data');
-              },
-            ));
+      '/ws',
+      (req, res) => WebSocketSession(
+        onOpen: (ws) => opened = true,
+        onClose: (ws) => closed = true,
+        onMessage: (ws, dynamic data) {
+          message = data as String;
+          ws.send('echo $data');
+        },
+      ),
+    );
     final channel = IOWebSocketChannel.connect('ws://localhost:$port/ws');
     channel.sink.add('hi');
     final response = await channel.stream.first as String;

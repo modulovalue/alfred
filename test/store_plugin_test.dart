@@ -6,9 +6,11 @@ import 'package:alfred/plugin_store.dart';
 import 'package:http/http.dart' as http;
 import 'package:test/test.dart';
 
-import '../common.dart';
+import 'common.dart';
 
 void main() {
+  List<HttpRequest> _outstandingRequests() => storePluginData.keys.toList();
+
   late Alfred app;
   late int port;
   setUp(() async {
@@ -40,7 +42,7 @@ void main() {
     app.removeOnDoneListener(listener);
     await http.get(Uri.parse('http://localhost:$port/test'));
     expect(hitCount, 1);
-    expect(_outstandingRequests.isEmpty, true);
+    expect(_outstandingRequests().isEmpty, true);
   });
   test('the store is correctly available across multiple routes', () async {
     var didHit = false;
@@ -55,5 +57,3 @@ void main() {
     expect(didHit, true);
   });
 }
-
-List<HttpRequest> get _outstandingRequests => storePluginData.keys.toList();

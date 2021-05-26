@@ -220,6 +220,7 @@ class WebSocketSession {
   FutureOr<void> Function(WebSocket webSocket)? onOpen;
 
   /// TODO method not member
+  /// TODO data should be typed.
   FutureOr<void> Function(WebSocket webSocket, dynamic data)? onMessage;
 
   /// TODO method not member

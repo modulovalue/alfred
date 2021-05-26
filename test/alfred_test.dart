@@ -9,6 +9,7 @@ import 'package:test/test.dart';
 
 import 'common.dart';
 
+/// TODO replace image.jpg with something neutral.
 void main() {
   late Alfred app;
   late int port;
