@@ -1,5 +1,6 @@
-import 'package:alfred/alfred.dart';
-import 'package:alfred/src/type_handlers/handlers.dart';
+import 'package:alfred/base.dart';
+import 'package:alfred/extensions.dart';
+import 'package:alfred/handlers.dart';
 import 'package:test/test.dart';
 import 'package:web_socket_channel/io.dart';
 

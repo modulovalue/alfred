@@ -1,16 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:alfred/plugin_store.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:queue/queue.dart';
 
-import 'alfred_exception.dart';
-import 'extensions/request_helpers.dart';
+import 'extensions.dart';
+import 'handlers.dart';
 import 'http_route.dart';
-import 'plugins/store_plugin.dart';
-import 'route_matcher.dart';
-import 'type_handlers/handlers.dart';
-import 'type_handlers/type_handler.dart';
 
 /// Server application class
 ///
@@ -410,3 +407,16 @@ enum Method { get, post, put, delete, patch, options, all }
 
 /// Indicates the severity of logged message
 enum LogType { debug, info, warn, error }
+/// Throw these exceptions to bubble up an error from sub functions and have them
+/// handled automatically for the client
+class AlfredException implements Exception {
+  /// The response to send to the client
+  ///
+  final Object? response;
+
+  /// The statusCode to send to the client
+  ///
+  final int statusCode;
+
+  const AlfredException(this.statusCode, this.response);
+}

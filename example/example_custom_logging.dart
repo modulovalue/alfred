@@ -1,20 +1,17 @@
-import 'package:alfred/alfred.dart';
+import 'package:alfred/base.dart';
 import 'package:logging/logging.dart';
 
 // Use 'logging' package instead of default logger
 
 void main() {
   final app = Alfred();
-
   // Configure root logger
   Logger.root.level = Level.ALL; // defaults to Level.INFO
   Logger.root.onRecord.listen((record) {
     print('${record.level.name}: ${record.time}: ${record.message}');
   });
-
   // Create logger for Alfred app
   final log = Logger('HttpServer');
-
   // Create custom logWriter and map to logging package
   app.logWriter = (messageFn, type) {
     switch (type) {
@@ -35,9 +32,7 @@ void main() {
         break;
     }
   };
-
   // Configure routing...
   app.get('/resource', (req, res) => 'response');
-
   app.listen();
 }

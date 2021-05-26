@@ -1,5 +1,7 @@
-import 'package:alfred/alfred.dart';
-import 'package:alfred/src/route_matcher.dart';
+import 'dart:io';
+
+import 'package:alfred/base.dart';
+import 'package:alfred/http_route.dart';
 import 'package:test/test.dart';
 
 void main() {

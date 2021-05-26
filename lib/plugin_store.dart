@@ -1,20 +1,13 @@
-import '../../alfred.dart';
+import 'dart:io';
+
+import 'base.dart';
 
 /// Data structure to keep all request-related data
-final storePluginData = <HttpRequest, RequestStore>{};
-
-/// Integrates [RequestStore] mechanism on [HttpRequest]
-extension StorePlugin on HttpRequest {
-  /// Returns the [RequestStore] dedicated to this request.
-  RequestStore get store {
-    storePluginData[this] ??= RequestStore();
-    return storePluginData[this]!;
-  }
-}
+final Map<HttpRequest, RequestStore> storePluginData = {};
 
 /// Key-Value-Store for reading and writing request-related data
 class RequestStore {
-  final _data = <String, dynamic>{};
+  final Map<String, dynamic> _data = <String, dynamic>{};
 
   /// Stores a [value] associated with a specified [key].
   ///

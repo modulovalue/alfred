@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:alfred/alfred.dart';
-import 'package:alfred/src/type_handlers/handlers.dart';
+import 'package:alfred/base.dart';
+import 'package:alfred/extensions.dart';
+import 'package:alfred/handlers.dart';
 
 Future<void> main() async {
   final app = Alfred();

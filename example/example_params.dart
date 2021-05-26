@@ -1,4 +1,5 @@
-import 'package:alfred/alfred.dart';
+import 'package:alfred/base.dart';
+import 'package:alfred/extensions.dart';
 
 Future<void> main() async {
   final app = Alfred();
