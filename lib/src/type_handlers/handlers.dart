@@ -3,9 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:alfred/alfred.dart';
-import 'package:alfred/src/type_handlers/type_handler.dart';
-
+import '../../alfred.dart';
 import '../alfred.dart';
 import '../extensions/request_helpers.dart';
 import '../extensions/response_helpers.dart';
@@ -15,7 +13,7 @@ class TypeHandlerListOfIntegersImpl with TypeHandlerShouldHandleMixin<List<int>>
   const TypeHandlerListOfIntegersImpl();
 
   @override
-  FutureOr handler(HttpRequest req, HttpResponse res, List<int> value) async {
+  FutureOr<dynamic> handler(HttpRequest req, HttpResponse res, List<int> value) async {
     if (res.headers.contentType == null || res.headers.contentType!.value == 'text/plain') {
       res.headers.contentType = ContentType.binary;
     }
@@ -28,7 +26,7 @@ class TypeHandlerStreamOfListOfIntegersImpl with TypeHandlerShouldHandleMixin<St
   const TypeHandlerStreamOfListOfIntegersImpl();
 
   @override
-  FutureOr handler(HttpRequest req, HttpResponse res, Stream<List<int>> val) async {
+  FutureOr<dynamic> handler(HttpRequest req, HttpResponse res, Stream<List<int>> val) async {
     if (res.headers.contentType == null || res.headers.contentType!.value == 'text/plain') {
       res.headers.contentType = ContentType.binary;
     }
@@ -44,7 +42,7 @@ class TypeHandlerDirectoryImpl with TypeHandlerShouldHandleMixin<Directory> {
   const TypeHandlerDirectoryImpl();
 
   @override
-  FutureOr handler(HttpRequest req, HttpResponse res, Directory directory) async {
+  FutureOr<dynamic> handler(HttpRequest req, HttpResponse res, Directory directory) async {
     final usedRoute = req.route;
     assert(
       usedRoute.contains('*'),
@@ -59,11 +57,12 @@ class TypeHandlerDirectoryImpl with TypeHandlerShouldHandleMixin<Directory> {
       File('$filePath/index.htm'),
     ];
     try {
-      var match = fileCandidates.firstWhere((file) => file.existsSync());
+      final match = fileCandidates.firstWhere((file) => file.existsSync());
       _log(req, () => 'Respond with file: ${match.path}');
       res.setContentTypeFromFile(match);
       await res.addStream(match.openRead());
       await res.close();
+      // ignore: avoid_catching_errors
     } on StateError {
       _log(req, () => 'Could not match with any file. Expected file at: $filePath');
     }
@@ -74,7 +73,7 @@ class TypeHandlerFileImpl with TypeHandlerShouldHandleMixin<File> {
   const TypeHandlerFileImpl();
 
   @override
-  FutureOr handler(HttpRequest req, HttpResponse res, File file) async {
+  FutureOr<dynamic> handler(HttpRequest req, HttpResponse res, File file) async {
     if (file.existsSync()) {
       res.setContentTypeFromFile(file);
       await res.addStream(file.openRead());
@@ -89,22 +88,30 @@ class TypeHandlerSerializableImpl with TypeHandlerShouldHandleMixin<dynamic> {
   const TypeHandlerSerializableImpl();
 
   @override
-  FutureOr handler(HttpRequest req, HttpResponse res, dynamic value) {
+  FutureOr<dynamic> handler(HttpRequest req, HttpResponse res, dynamic value) {
     try {
-      if (value.toJson != null) {
-        res.write(jsonEncode(value.toJson()));
+      // ignore: avoid_dynamic_calls
+      final dynamic toJsonCall = value.toJson;
+      if (toJsonCall != null) {
+        // ignore: avoid_dynamic_calls
+        res.write(jsonEncode(toJsonCall()));
         return res.close();
       }
+      // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       if (!e.toString().contains('has no instance getter')) {
         rethrow;
       }
     }
     try {
-      if (value.toJSON != null) {
-        res.write(jsonEncode(value.toJSON()));
+      // ignore: avoid_dynamic_calls
+      final dynamic toJSONCall = value.toJSON;
+      if (toJSONCall != null) {
+        // ignore: avoid_dynamic_calls
+        res.write(jsonEncode(toJSONCall()));
         return res.close();
       }
+      // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       if (!e.toString().contains('has no instance getter')) {
         rethrow;
@@ -118,7 +125,7 @@ class TypeHandlerJsonMapImpl with TypeHandlerShouldHandleMixin<Map<String, dynam
   const TypeHandlerJsonMapImpl();
 
   @override
-  FutureOr handler(
+  FutureOr<dynamic> handler(
     HttpRequest req,
     HttpResponse res,
     Map<String, dynamic> value,
@@ -133,7 +140,7 @@ class TypeHandlerJsonListImpl with TypeHandlerShouldHandleMixin<List<dynamic>> {
   const TypeHandlerJsonListImpl();
 
   @override
-  FutureOr handler(
+  FutureOr<dynamic> handler(
     HttpRequest req,
     HttpResponse res,
     List<dynamic> value,
@@ -148,7 +155,7 @@ class TypeHandlerStringImpl with TypeHandlerShouldHandleMixin<String> {
   const TypeHandlerStringImpl();
 
   @override
-  FutureOr handler(HttpRequest req, HttpResponse res, String value) {
+  FutureOr<dynamic> handler(HttpRequest req, HttpResponse res, String value) {
     res.write(value);
     return res.close();
   }
@@ -158,7 +165,7 @@ class TypeHandlerWebsocketImpl with TypeHandlerShouldHandleMixin<WebSocketSessio
   const TypeHandlerWebsocketImpl();
 
   @override
-  FutureOr handler(HttpRequest req, HttpResponse res, WebSocketSession value) async => //
+  FutureOr<dynamic> handler(HttpRequest req, HttpResponse res, WebSocketSession value) async => //
       value._start(await WebSocketTransformer.upgrade(req));
 }
 
@@ -176,27 +183,20 @@ class WebSocketSession {
   void _start(WebSocket webSocket) {
     socket = webSocket;
     try {
-      if (onOpen != null) {
-        onOpen!(socket);
-      }
+      onOpen?.call(socket);
       socket.listen((dynamic data) {
-        if (onMessage != null) {
-          onMessage!(socket, data);
-        }
+        onMessage?.call(socket, data);
       }, onDone: () {
-        if (onClose != null) {
-          onClose!(socket);
-        }
+        onClose?.call(socket);
       }, onError: (dynamic error) {
-        if (onError != null) {
-          onError!(socket, error);
-        }
+        onError?.call(socket, error);
       });
+      // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       print('WebSocket Error: $e');
       try {
         socket.close();
-        // ignore: empty_catches
+        // ignore: empty_catches, avoid_catches_without_on_clauses
       } catch (e) {}
     }
   }

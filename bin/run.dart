@@ -7,10 +7,10 @@ Future<void> main() async {
   for (var i = 0; i < 5; i++) {
     unawaited(Isolate.spawn(runIsolate, ''));
   }
-  runIsolate(null);
+  unawaited(runIsolate(null));
 }
 
-void runIsolate(dynamic message) async {
+Future<void> runIsolate(dynamic message) async {
   final app = Alfred();
 
   app.all('/example', (req, res) => 'Hello world');

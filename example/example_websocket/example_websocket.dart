@@ -7,11 +7,11 @@ import 'package:alfred/src/type_handlers/handlers.dart';
 Future<void> main() async {
   final app = Alfred();
   // Path to this Dart file
-  var dir = File(Platform.script.path).parent.path;
+  final dir = File(Platform.script.path).parent.path;
   // Deliver web client for chat
   app.get('/', (req, res) => File('$dir/chat-client.html'));
   // Track connected clients
-  var users = <WebSocket>[];
+  final users = <WebSocket>[];
   // WebSocket chat relay implementation
   app.get('/ws', (req, res) {
     return WebSocketSession(

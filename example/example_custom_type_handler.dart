@@ -8,7 +8,7 @@ void main() {
   final app = Alfred();
 
   app.typeHandlers.add(TypeHandler<Chicken>.make((req, res, val) async {
-    res.write((val).response);
+    res.write(val.response);
     await res.close();
   }));
 

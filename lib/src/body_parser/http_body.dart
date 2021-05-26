@@ -116,8 +116,9 @@ class HttpBodyHandler
   static Future<HttpRequestBody> processRequest(HttpRequest request,
       {Encoding defaultEncoding = utf8}) async {
     try {
-      var body = await _process(request, request.headers, defaultEncoding);
+      final body = await _process(request, request.headers, defaultEncoding);
       return HttpRequestBody._(request, body);
+    // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       // Try to send BAD_REQUEST response.
       request.response.statusCode = HttpStatus.badRequest;
@@ -132,7 +133,7 @@ class HttpBodyHandler
   static Future<HttpClientResponseBody> processResponse(
       HttpClientResponse response,
       {Encoding defaultEncoding = utf8}) async {
-    var body = await _process(response, response.headers, defaultEncoding);
+    final body = await _process(response, response.headers, defaultEncoding);
     return HttpClientResponseBody._(response, body);
   }
 
@@ -144,9 +145,10 @@ class HttpBodyHandler
         StreamTransformer.fromHandlers(handleData: (request, sink) async {
       pending++;
       try {
-        var body =
+        final body =
             await processRequest(request, defaultEncoding: _defaultEncoding);
         sink.add(body);
+      // ignore: avoid_catches_without_on_clauses
       } catch (e, st) {
         sink.addError(e, st);
       } finally {
@@ -219,7 +221,7 @@ class HttpBodyFileUpload {
 Future<HttpBody> _process(Stream<List<int>> stream, HttpHeaders headers,
     Encoding defaultEncoding) async {
   Future<HttpBody> asBinary() async {
-    var builder = await stream.fold<BytesBuilder>(
+    final builder = await stream.fold<BytesBuilder>(
         BytesBuilder(), (builder, data) => builder..add(data));
     return HttpBody._('binary', builder.takeBytes());
   }
@@ -228,20 +230,21 @@ Future<HttpBody> _process(Stream<List<int>> stream, HttpHeaders headers,
     return asBinary();
   }
 
-  var contentType = headers.contentType!;
+  final contentType = headers.contentType!;
 
   Future<HttpBody> asText(Encoding defaultEncoding) async {
     Encoding? encoding;
-    var charset = contentType.charset;
+    final charset = contentType.charset;
     if (charset != null) encoding = Encoding.getByName(charset);
     encoding ??= defaultEncoding;
-    dynamic buffer = await encoding.decoder.bind(stream).fold<dynamic>(
-        StringBuffer(), (dynamic buffer, data) => buffer..write(data));
+    final dynamic buffer = await encoding.decoder.bind(stream).fold<dynamic>(
+        // ignore: avoid_dynamic_calls
+        StringBuffer(), (dynamic buffer, data) => buffer..write(data),);
     return HttpBody._('text', buffer.toString());
   }
 
   Future<HttpBody> asFormData() async {
-    var values = await MimeMultipartTransformer(
+    final values = await MimeMultipartTransformer(
             contentType.parameters['boundary']!)
         .bind(stream)
         .map((part) =>
@@ -249,44 +252,42 @@ Future<HttpBody> _process(Stream<List<int>> stream, HttpHeaders headers,
         .map((multipart) async {
       dynamic data;
       if (multipart.isText) {
-        var buffer = await multipart.fold<StringBuffer>(
+        final buffer = await multipart.fold<StringBuffer>(
             StringBuffer(), (b, dynamic s) => b..write(s));
         data = buffer.toString();
       } else {
-        var buffer = await multipart.fold<BytesBuilder>(
+        final buffer = await multipart.fold<BytesBuilder>(
             BytesBuilder(), (b, dynamic d) => b..add(d as List<int>));
         data = buffer.takeBytes();
       }
-      var filename = multipart.contentDisposition.parameters['filename'];
+      final filename = multipart.contentDisposition.parameters['filename'];
       if (filename != null) {
         data = HttpBodyFileUpload._(multipart.contentType, filename, data);
       }
       return <dynamic>[multipart.contentDisposition.parameters['name'], data];
     }).toList();
-    var parts = await Future.wait(values);
-    var map = <String, dynamic>{};
-    for (var part in parts) {
+    final parts = await Future.wait<List<dynamic>>(values);
+    final map = <String, dynamic>{};
+    for (final part in parts) {
       map[part[0] as String] = part[1]; // Override existing entries.
     }
     return HttpBody._('form', map);
   }
-
   switch (contentType.primaryType) {
     case 'text':
       return asText(defaultEncoding);
-
     case 'application':
       switch (contentType.subType) {
         case 'json':
-          var body = await asText(utf8);
+          final body = await asText(utf8);
           return HttpBody._('json', jsonDecode(body.body as String));
 
         case 'x-www-form-urlencoded':
-          var body = await asText(ascii);
-          var map = Uri.splitQueryString(body.body as String,
+          final body = await asText(ascii);
+          final map = Uri.splitQueryString(body.body as String,
               encoding: defaultEncoding);
-          var result = <dynamic, dynamic>{};
-          for (var key in map.keys) {
+          final result = <dynamic, dynamic>{};
+          for (final key in map.keys) {
             result[key] = map[key];
           }
           return HttpBody._('form', result);

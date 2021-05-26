@@ -17,8 +17,7 @@ void main() {
     expect(match('/a?query=true', testRoutes), ['/a']);
     expect(match('/a/123/go', testRoutes), ['/a/:id/go']);
     expect(match('/a/123/go/a', testRoutes), <String>[]);
-    expect(match('/b/a/adskfjasjklf/another', testRoutes),
-        ['/b/a/:input/another']);
+    expect(match('/b/a/adskfjasjklf/another', testRoutes), ['/b/a/:input/another']);
     expect(match('/b/a/adskfjasj', testRoutes), ['/b/a/:input']);
     expect(match('/d/yep', testRoutes), ['/[a-z]/yep']);
     expect(match('/b/B/yep', testRoutes), ['/b/B/:input']);
@@ -55,26 +54,16 @@ void main() {
   });
 
   test('it should extract the route params correctly', () {
-    expect(
-        RouteMatcher.getParams(
-            '/a/:value/:value2', '/a/input/Item%20inventory%20summary'),
-        {
-          'value': 'input',
-          'value2': 'Item inventory summary',
-        });
+    expect(RouteMatcher.getParams('/a/:value/:value2', '/a/input/Item%20inventory%20summary'), {
+      'value': 'input',
+      'value2': 'Item inventory summary',
+    });
   });
 
   test('it should correctly match routes that have a partial match', () {
-    final testRoutes = [
-      HttpRoute('/image', _callback, Method.get),
-      HttpRoute('/imageSource', _callback, Method.get)
-    ];
+    final testRoutes = [HttpRoute('/image', _callback, Method.get), HttpRoute('/imageSource', _callback, Method.get)];
 
-    expect(
-        RouteMatcher.match('/imagesource', testRoutes, Method.get)
-            .map((e) => e.route)
-            .toList(),
-        ['/imageSource']);
+    expect(RouteMatcher.match('/imagesource', testRoutes, Method.get).map((e) => e.route).toList(), ['/imageSource']);
   });
 
   test('it handles a dodgy getParams request', () {
@@ -166,7 +155,10 @@ void main() {
   });
 }
 
-List<String> match(String input, List<HttpRoute> routes) =>
+List<String> match(
+  String input,
+  List<HttpRoute> routes,
+) =>
     RouteMatcher.match(input, routes, Method.get).map((e) => e.route).toList();
 
-Future Function(HttpRequest, HttpResponse) get _callback => (req, res) async {};
+Future<dynamic> Function(HttpRequest, HttpResponse) get _callback => (req, res) async {};

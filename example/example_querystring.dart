@@ -1,11 +1,12 @@
 import 'package:alfred/alfred.dart';
 
-void main() async {
+Future<void> main() async {
   final app = Alfred();
 
   app.post('/route', (req, res) async {
     /// Handle /route?qsvar=true
     final result = req.uri.queryParameters['qsvar'];
+    // ignore: unnecessary_statements
     result == 'true'; //true
   });
 

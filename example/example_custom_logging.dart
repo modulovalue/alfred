@@ -4,7 +4,7 @@ import 'package:logging/logging.dart';
 // Use 'logging' package instead of default logger
 
 void main() {
-  var app = Alfred();
+  final app = Alfred();
 
   // Configure root logger
   Logger.root.level = Level.ALL; // defaults to Level.INFO
@@ -13,7 +13,7 @@ void main() {
   });
 
   // Create logger for Alfred app
-  var log = Logger('HttpServer');
+  final log = Logger('HttpServer');
 
   // Create custom logWriter and map to logging package
   app.logWriter = (messageFn, type) {

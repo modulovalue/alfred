@@ -8,15 +8,14 @@ class FakeHttpHeaders implements HttpHeaders {
   final Map<String, List<String>> _headers = HashMap<String, List<String>>();
 
   @override
-  List<String>? operator [](key) => _headers[key];
+  List<String>? operator [](String key) => _headers[key];
 
   @override
-  int get contentLength =>
-      int.parse(_headers[HttpHeaders.contentLengthHeader]![0]);
+  int get contentLength => int.parse(_headers[HttpHeaders.contentLengthHeader]![0]);
 
   @override
   DateTime? get ifModifiedSince {
-    var values = _headers[HttpHeaders.ifModifiedSinceHeader];
+    final values = _headers[HttpHeaders.ifModifiedSinceHeader];
     if (values != null) {
       try {
         return HttpDate.parse(values[0]);
@@ -31,7 +30,7 @@ class FakeHttpHeaders implements HttpHeaders {
   set ifModifiedSince(DateTime? ifModifiedSince) {
     ArgumentError.checkNotNull(ifModifiedSince);
     // Format "ifModifiedSince" header with date in Greenwich Mean Time (GMT).
-    var formatted = HttpDate.format(ifModifiedSince!.toUtc());
+    final formatted = HttpDate.format(ifModifiedSince!.toUtc());
     _set(HttpHeaders.ifModifiedSinceHeader, formatted);
   }
 
@@ -42,21 +41,26 @@ class FakeHttpHeaders implements HttpHeaders {
   void set(String name, Object value, {bool preserveHeaderCase = false}) {
     if (preserveHeaderCase) {
       throw ArgumentError('preserveHeaderCase not supported');
+    } else {
+      final _name = name.toLowerCase();
+      _headers.remove(_name);
+      _addAll(_name, value);
     }
-    name = name.toLowerCase();
-    _headers.remove(name);
-    _addAll(name, value);
   }
 
   @override
   String? value(String name) {
-    name = name.toLowerCase();
-    var values = _headers[name];
-    if (values == null) return null;
-    if (values.length > 1) {
-      throw HttpException('More than one value for header $name');
+    final _name = name.toLowerCase();
+    final values = _headers[_name];
+    if (values == null) {
+      return null;
+    } else {
+      if (values.length > 1) {
+        throw HttpException('More than one value for header $_name');
+      } else {
+        return values[0];
+      }
     }
-    return values[0];
   }
 
   @override
@@ -101,10 +105,8 @@ class FakeHttpHeaders implements HttpHeaders {
   }
 
   void _set(String name, String value) {
-    assert(name == name.toLowerCase());
-    var values = <String>[];
-    _headers[name] = values;
-    values.add(value);
+    assert(name == name.toLowerCase(), "$name must be canonicalized to its lowercase version.");
+    _headers[name] = [value];
   }
 
   /*
@@ -112,13 +114,7 @@ class FakeHttpHeaders implements HttpHeaders {
    */
   @override
   dynamic noSuchMethod(Invocation invocation) {
-    print([
-      invocation.memberName,
-      invocation.isGetter,
-      invocation.isSetter,
-      invocation.isMethod,
-      invocation.isAccessor
-    ]);
+    print([invocation.memberName, invocation.isGetter, invocation.isSetter, invocation.isMethod, invocation.isAccessor]);
     return super.noSuchMethod(invocation);
   }
 }
@@ -127,6 +123,7 @@ class FakeHttpRequest extends StreamView<Uint8List> implements HttpRequest {
   @override
   final Uri uri;
   @override
+  // ignore: close_sinks, just for tests, doesn't need to be closed.
   final FakeHttpResponse response = FakeHttpResponse();
   @override
   final HttpHeaders headers = FakeHttpHeaders();
@@ -134,19 +131,17 @@ class FakeHttpRequest extends StreamView<Uint8List> implements HttpRequest {
   final String method = 'GET';
   final bool followRedirects;
 
-  FakeHttpRequest(this.uri,
-      {this.followRedirects = true,
-      DateTime? ifModifiedSince,
-      required Stream<Uint8List> data})
-      : super(data) {
+  FakeHttpRequest(
+    this.uri, {
+    required Stream<Uint8List> data,
+    this.followRedirects = true,
+    DateTime? ifModifiedSince,
+  }) : super(data) {
     if (ifModifiedSince != null) {
       headers.ifModifiedSince = ifModifiedSince;
     }
   }
 
-  /*
-   * Implemented to remove editor warnings
-   */
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -154,13 +149,14 @@ class FakeHttpRequest extends StreamView<Uint8List> implements HttpRequest {
 class FakeHttpResponse implements HttpResponse {
   @override
   final HttpHeaders headers = FakeHttpHeaders();
-  final Completer _completer = Completer<dynamic>();
+  final Completer<dynamic> _completer = Completer<dynamic>();
   final List<int> _buffer = <int>[];
   String? _reasonPhrase;
-  late final Future _doneFuture;
+  late final Future<dynamic> _doneFuture;
 
   FakeHttpResponse() {
     _doneFuture = _completer.future.whenComplete(() {
+      // ignore: prefer_asserts_with_message
       assert(!_isDone);
       _isDone = true;
     });
@@ -180,10 +176,10 @@ class FakeHttpResponse implements HttpResponse {
   }
 
   @override
-  Future get done => _doneFuture;
+  Future<dynamic> get done => _doneFuture;
 
   @override
-  Future close() {
+  Future<dynamic> close() {
     _completer.complete();
     return _doneFuture;
   }
@@ -194,22 +190,19 @@ class FakeHttpResponse implements HttpResponse {
   }
 
   @override
-  void addError(error, [StackTrace? stackTrace]) {
+  void addError(dynamic error, [StackTrace? stackTrace]) {
     // doesn't seem to be hit...hmm...
   }
 
   @override
-  Future redirect(Uri location, {int status = HttpStatus.movedTemporarily}) {
+  Future<dynamic> redirect(Uri location, {int status = HttpStatus.movedTemporarily}) {
     statusCode = status;
     headers.set(HttpHeaders.locationHeader, location.toString());
     return close();
   }
 
   @override
-  void write(Object? obj) {
-    var str = obj.toString();
-    add(utf8.encode(str));
-  }
+  void write(Object? obj) => add(utf8.encode(obj.toString()));
 
   /*
    * Implemented to remove editor warnings

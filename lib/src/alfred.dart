@@ -1,21 +1,16 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:alfred/src/extensions/request_helpers.dart';
-import 'package:alfred/src/plugins/store_plugin.dart';
-import 'package:alfred/src/type_handlers/handlers.dart';
-import 'package:alfred/src/type_handlers/type_handler.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:queue/queue.dart';
 
 import 'alfred_exception.dart';
+import 'extensions/request_helpers.dart';
 import 'http_route.dart';
+import 'plugins/store_plugin.dart';
 import 'route_matcher.dart';
-
-enum Method { get, post, put, delete, patch, options, all }
-
-/// Indicates the severity of logged message
-enum LogType { debug, info, warn, error }
+import 'type_handlers/handlers.dart';
+import 'type_handlers/type_handler.dart';
 
 /// Server application class
 ///
@@ -26,7 +21,13 @@ class Alfred {
   ///
   /// Generally you don't want to manipulate this array directly, instead add
   /// routes by calling the [get,post,put,delete] methods.
-  final routes = <HttpRoute>[];
+  final List<HttpRoute> routes;
+
+  /// An array of [TypeHandler] that Alfred walks through in order to determine
+  /// if it can handle a value returned from a route.
+  final List<TypeHandler<dynamic>> typeHandlers;
+
+  final List<void Function(HttpRequest req, HttpResponse res)> _onDoneListeners;
 
   /// HttpServer instance from the dart:io library
   ///
@@ -36,45 +37,19 @@ class Alfred {
   /// Writer to handle internal logging.
   ///
   /// It can optionally exchanged with your own logging solution.
-  /// ```
-  late void Function(dynamic Function() messageFn, LogType type) logWriter;
+  void Function(dynamic Function() messageFn, LogType type) logWriter;
 
   /// Optional handler for when a route is not found
-  ///
-  FutureOr Function(HttpRequest req, HttpResponse res)? onNotFound;
+  FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)? onNotFound;
 
   /// Optional handler for when the server throws an unhandled error
-  ///
-  FutureOr Function(HttpRequest req, HttpResponse res)? onInternalError;
+  FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)? onInternalError;
 
   /// Incoming request queue
   ///
   /// Set the number of simultaneous connections being processed at any one time
   /// in the [simultaneousProcessing] param in the constructor
   Queue requestQueue;
-
-  /// An array of [TypeHandler] that Alfred walks through in order to determine
-  /// if it can handle a value returned from a route.
-  ///
-  var typeHandlers = <TypeHandler<dynamic>>[];
-
-  final _onDoneListeners = <void Function(HttpRequest req, HttpResponse res)>[];
-
-  /// Register a listener when a request is complete
-  ///
-  /// Typically would be used for logging, benchmarking or cleaning up data
-  /// used when writing a plugin.
-  ///
-  Function registerOnDoneListener(void Function(HttpRequest, HttpResponse) listener) {
-    _onDoneListeners.add(listener);
-    return listener;
-  }
-
-  /// Dispose of any on done listeners when you are done with them.
-  ///
-  void removeOnDoneListener(Function listener) {
-    _onDoneListeners.remove(listener);
-  }
 
   /// Creates a new Alfred application.
   ///
@@ -94,105 +69,128 @@ class Alfred {
     this.onInternalError,
     LogType logLevel = LogType.info,
     int simultaneousProcessing = 50,
-  }) : requestQueue = Queue(parallel: simultaneousProcessing) {
-    _registerDefaultTypeHandlers();
-    _registerPluginListeners();
-    _registerDefaultLogWriter(logLevel);
+  })  : routes = <HttpRoute>[],
+        requestQueue = Queue(parallel: simultaneousProcessing),
+        _onDoneListeners = <void Function(HttpRequest req, HttpResponse res)>[
+          storePluginOnDoneHandler,
+        ],
+        logWriter = ((dynamic Function() messageFn, type) {
+          if (type.index >= logLevel.index) {
+            final timestamp = DateTime.now();
+            final logType = EnumToString.convertToString(type);
+            final message = messageFn().toString();
+            print('$timestamp - $logType - $message');
+          }
+        }),
+        typeHandlers = <TypeHandler<dynamic>>[
+          const TypeHandlerStringImpl(),
+          const TypeHandlerListOfIntegersImpl(),
+          const TypeHandlerStreamOfListOfIntegersImpl(),
+          const TypeHandlerJsonListImpl(),
+          const TypeHandlerJsonMapImpl(),
+          const TypeHandlerFileImpl(),
+          const TypeHandlerDirectoryImpl(),
+          const TypeHandlerWebsocketImpl(),
+          const TypeHandlerSerializableImpl()
+        ];
+
+  /// Register a listener when a request is complete
+  ///
+  /// Typically would be used for logging, benchmarking or cleaning up data
+  /// used when writing a plugin.
+  Function registerOnDoneListener(void Function(HttpRequest, HttpResponse) listener) {
+    _onDoneListeners.add(listener);
+    return listener;
   }
 
-  void _registerDefaultLogWriter(LogType logLevel) {
-    logWriter = (dynamic Function() messageFn, type) {
-      if (type.index >= logLevel.index) {
-        var timestamp = DateTime.now();
-        var logType = EnumToString.convertToString(type);
-        var message = messageFn().toString();
-        print('$timestamp - $logType - $message');
-      }
-    };
-  }
-
-  void _registerDefaultTypeHandlers() {
-    typeHandlers.addAll(<TypeHandler<dynamic>>[
-      const TypeHandlerStringImpl(),
-      const TypeHandlerListOfIntegersImpl(),
-      const TypeHandlerStreamOfListOfIntegersImpl(),
-      const TypeHandlerJsonListImpl(),
-      const TypeHandlerJsonMapImpl(),
-      const TypeHandlerFileImpl(),
-      const TypeHandlerDirectoryImpl(),
-      const TypeHandlerWebsocketImpl(),
-      const TypeHandlerSerializableImpl()
-    ]);
-  }
-
-  void _registerPluginListeners() {
-    registerOnDoneListener(storePluginOnDoneHandler);
+  /// Dispose of any on done listeners when you are done with them.
+  void removeOnDoneListener(Function listener) {
+    _onDoneListeners.remove(listener);
   }
 
   /// Create a get route
-  ///
-  HttpRoute get(String path, FutureOr Function(HttpRequest req, HttpResponse res) callback,
-          {List<FutureOr Function(HttpRequest req, HttpResponse res)> middleware = const []}) =>
+  HttpRoute get(
+    String path,
+    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
+    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+  }) =>
       _createRoute(path, callback, Method.get, middleware);
 
   /// Create a post route
-  ///
-  HttpRoute post(String path, FutureOr Function(HttpRequest req, HttpResponse res) callback,
-          {List<FutureOr Function(HttpRequest req, HttpResponse res)> middleware = const []}) =>
+  HttpRoute post(
+    String path,
+    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
+    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+  }) =>
       _createRoute(path, callback, Method.post, middleware);
 
   /// Create a put route
-  HttpRoute put(String path, FutureOr Function(HttpRequest req, HttpResponse res) callback,
-          {List<FutureOr Function(HttpRequest req, HttpResponse res)> middleware = const []}) =>
+  HttpRoute put(
+    String path,
+    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
+    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+  }) =>
       _createRoute(path, callback, Method.put, middleware);
 
   /// Create a delete route
-  ///
-  HttpRoute delete(String path, FutureOr Function(HttpRequest req, HttpResponse res) callback,
-          {List<FutureOr Function(HttpRequest req, HttpResponse res)> middleware = const []}) =>
+  HttpRoute delete(
+    String path,
+    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
+    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+  }) =>
       _createRoute(path, callback, Method.delete, middleware);
 
   /// Create a patch route
-  ///
-  HttpRoute patch(String path, FutureOr Function(HttpRequest req, HttpResponse res) callback,
-          {List<FutureOr Function(HttpRequest req, HttpResponse res)> middleware = const []}) =>
+  HttpRoute patch(
+    String path,
+    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
+    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+  }) =>
       _createRoute(path, callback, Method.patch, middleware);
 
   /// Create an options route
-  ///
-  HttpRoute options(String path, FutureOr Function(HttpRequest req, HttpResponse res) callback,
-          {List<FutureOr Function(HttpRequest req, HttpResponse res)> middleware = const []}) =>
+  HttpRoute options(
+    String path,
+    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
+    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+  }) =>
       _createRoute(path, callback, Method.options, middleware);
 
   /// Create a route that listens on all methods
-  ///
-  HttpRoute all(String path, FutureOr Function(HttpRequest req, HttpResponse res) callback,
-          {List<FutureOr Function(HttpRequest req, HttpResponse res)> middleware = const []}) =>
+  HttpRoute all(
+    String path,
+    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
+    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+  }) =>
       _createRoute(path, callback, Method.all, middleware);
 
-  HttpRoute _createRoute(String path, FutureOr Function(HttpRequest req, HttpResponse res) callback, Method method,
-      [List<FutureOr Function(HttpRequest req, HttpResponse res)> middleware = const []]) {
+  HttpRoute _createRoute(
+    String path,
+    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback,
+    Method method, [
+    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+  ]) {
     final route = HttpRoute(path, callback, method, middleware: middleware);
     routes.add(route);
     return route;
   }
 
   /// Call this function to fire off the server.
-  ///
-  Future<HttpServer> listen([int port = 3000, dynamic bindIp = '0.0.0.0', bool shared = true]) async {
+  Future<HttpServer> listen([
+    int port = 3000,
+    dynamic bindIp = '0.0.0.0',
+    bool shared = true,
+  ]) async {
     final _server = await HttpServer.bind(bindIp, port, shared: shared);
-    _server.idleTimeout = Duration(seconds: 1);
-
+    _server.idleTimeout = const Duration(seconds: 1);
     _server.listen((HttpRequest request) {
       requestQueue.add(() => _incomingRequest(request));
     });
-
     logWriter(() => 'HTTP Server listening on port ${_server.port}', LogType.info);
     return server = _server;
   }
 
   /// Handles and routes an incoming request
-  ///
   Future<void> _incomingRequest(HttpRequest request) async {
     /// Expose this Alfred instance for middleware or other utility functions
     request.store.set('_internal_alfred', this);
@@ -206,7 +204,7 @@ class Alfred {
     // the list of routes (ie the middleware returned)
     _unawaited(request.response.done.then((dynamic _) {
       isDone = true;
-      for (var listener in _onDoneListeners) {
+      for (final listener in _onDoneListeners) {
         listener(request, request.response);
       }
       logWriter(() => 'Response sent to client', LogType.debug);
@@ -228,7 +226,7 @@ class Alfred {
         var nonWildcardRouteMatch = false;
 
         // Loop through the routes in the order they are in the routes list
-        for (var route in effectiveRoutes) {
+        for (final route in effectiveRoutes) {
           if (isDone) {
             break;
           }
@@ -237,8 +235,9 @@ class Alfred {
           nonWildcardRouteMatch = !route.usesWildcardMatcher || nonWildcardRouteMatch;
 
           /// Loop through any middleware
-          for (var middleware in route.middleware) {
+          for (final middleware in route.middleware) {
             // If the request has already completed, exit early.
+            // ignore: invariant_booleans, <- false positive
             if (isDone) {
               break;
             }
@@ -248,6 +247,7 @@ class Alfred {
 
           /// If the request has already completed, exit early, otherwise process
           /// the primary route callback
+          // ignore: invariant_booleans, <- false positive
           if (isDone) {
             break;
           }
@@ -273,8 +273,10 @@ class Alfred {
       // The user threw a handle HTTP Exception
       request.response.statusCode = e.statusCode;
       await _handleResponse(e.response, request);
+      // ignore: avoid_catching_errors
     } on NotFoundError catch (_) {
       await _respondNotFound(request, isDone);
+      // ignore: avoid_catches_without_on_clauses
     } catch (e, s) {
       // Its all broken, bail (but don't crash)
       logWriter(() => e, LogType.error);
@@ -287,11 +289,12 @@ class Alfred {
         }
         await request.response.close();
       } else {
-        //Otherwise fall back to a generic 500 error
+        // Otherwise fall back to a generic 500 error.
         try {
           request.response.statusCode = 500;
           request.response.write(e);
           await request.response.close();
+          // ignore: avoid_catches_without_on_clauses
         } catch (_) {}
       }
     }
@@ -299,7 +302,7 @@ class Alfred {
 
   /// Responds request with a NotFound response
   ///
-  Future _respondNotFound(HttpRequest request, bool isDone) async {
+  Future<dynamic> _respondNotFound(HttpRequest request, bool isDone) async {
     if (onNotFound != null) {
       // Otherwise check if a custom 404 handler has been provided
       final dynamic result = await onNotFound!(request, request.response);
@@ -322,10 +325,10 @@ class Alfred {
   Future<void> _handleResponse(dynamic result, HttpRequest request) async {
     if (result != null) {
       var handled = false;
-      for (var handler in typeHandlers) {
+      for (final handler in typeHandlers) {
         if (handler.shouldHandle(result)) {
           logWriter(() => 'Apply TypeHandler for result type: ${result.runtimeType}', LogType.debug);
-          dynamic handlerResult = await handler.handler(request, request.response, result);
+          final dynamic handlerResult = await handler.handler(request, request.response, result);
           if (handlerResult != false) {
             handled = true;
             break;
@@ -342,7 +345,7 @@ class Alfred {
   ///
   /// Call this if you are shutting down the server but continuing to run
   /// the app.
-  Future close({bool force = true}) async {
+  Future<dynamic> close({bool force = true}) async {
     if (server != null) {
       await server!.close(force: force);
     }
@@ -352,7 +355,7 @@ class Alfred {
   ///
   /// Helpful to see whats available
   void printRoutes() {
-    for (var route in routes) {
+    for (final route in routes) {
       late String methodString;
       switch (route.method) {
         case Method.get:
@@ -383,16 +386,16 @@ class Alfred {
 }
 
 /// Function to prevent linting errors.
-///
 void _unawaited(Future<Null> then) {}
 
 /// Error thrown when a type handler cannot be found for a returned item
-///
-class NoTypeHandlerError extends Error {
+class NoTypeHandlerError implements Error {
   final dynamic object;
   final HttpRequest request;
+  @override
+  final StackTrace? stackTrace;
 
-  NoTypeHandlerError(this.object, this.request);
+  NoTypeHandlerError(this.object, this.request) : stackTrace = StackTrace.current;
 
   @override
   String toString() =>
@@ -402,3 +405,8 @@ class NoTypeHandlerError extends Error {
 /// Error used by middleware, utils or type handler to elevate
 /// a NotFound response.
 class NotFoundError extends Error {}
+
+enum Method { get, post, put, delete, patch, options, all }
+
+/// Indicates the severity of logged message
+enum LogType { debug, info, warn, error }

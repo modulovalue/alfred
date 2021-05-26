@@ -1,4 +1,4 @@
-import 'package:alfred/alfred.dart';
+import '../../alfred.dart';
 
 /// Data structure to keep all request-related data
 final storePluginData = <HttpRequest, RequestStore>{};

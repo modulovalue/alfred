@@ -25,26 +25,21 @@ extension ResponseHelpers on HttpResponse {
   }
 
   /// Set the content type given a file
-  ///
   void setContentTypeFromFile(File file) {
-    if (headers.contentType == null ||
-        headers.contentType!.mimeType == 'text/plain') {
+    if (headers.contentType == null || headers.contentType!.mimeType == 'text/plain') {
       headers.contentType = file.contentType;
-    } else {
-      headers.contentType == ContentType.binary;
     }
   }
 
   /// Helper method for those used to res.json()
-  ///
-  Future json(Object? json) {
+  Future<dynamic> json(Object? json) {
     headers.contentType = ContentType.json;
     write(jsonEncode(json));
     return close();
   }
 
   /// Helper method to just send data;
-  Future send(Object? data) {
+  Future<dynamic> send(Object? data) {
     write(data);
     return close();
   }

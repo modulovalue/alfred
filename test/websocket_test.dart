@@ -29,24 +29,24 @@ void main() {
             ));
     final channel = IOWebSocketChannel.connect('ws://localhost:$port/ws');
     channel.sink.add('hi');
-    var response = (await channel.stream.first) as String;
+    final response = await channel.stream.first as String;
     expect(opened, true);
     expect(closed, false);
     expect(message, 'hi');
     expect(response, 'echo hi');
     await channel.sink.close();
-    await Future<void>.delayed(Duration(milliseconds: 10));
+    await Future<void>.delayed(const Duration(milliseconds: 10));
     expect(closed, true);
   });
   test('it correctly handles a websocket error', () async {
     app.get(
-        '/ws',
-        (req, res) => WebSocketSession(
-              onOpen: (ws) {
-                throw 'Test';
-              },
-              onError: (ws, dynamic error) => error = true,
-            ));
+      '/ws',
+      (req, res) => WebSocketSession(
+        // ignore: void_checks, only_throw_errors
+        onOpen: (ws) => throw 'Test',
+        onError: (ws, dynamic error) => error = true,
+      ),
+    );
     final channel = IOWebSocketChannel.connect('ws://localhost:$port/ws');
     channel.sink.add('test');
   });

@@ -70,7 +70,7 @@ class HttpMultipartFormData extends Stream<dynamic> {
     ContentType? contentType;
     HeaderValue? encoding;
     HeaderValue? disposition;
-    for (var key in multipart.headers.keys) {
+    for (final key in multipart.headers.keys) {
       switch (key) {
         case 'content-type':
           contentType = ContentType.parse(multipart.headers[key]!);
@@ -100,8 +100,8 @@ class HttpMultipartFormData extends Stream<dynamic> {
           '${encoding.value}');
     }
 
-    Stream stream = multipart;
-    var isText = contentType == null ||
+    Stream<dynamic> stream = multipart;
+    final isText = contentType == null ||
         contentType.primaryType == 'text' ||
         contentType.mimeType == 'application/json';
     if (isText) {
@@ -118,7 +118,7 @@ class HttpMultipartFormData extends Stream<dynamic> {
 
   final MimeMultipart _mimeMultipart;
 
-  final Stream _stream;
+  final Stream<dynamic> _stream;
 
   HttpMultipartFormData._(
       this.contentType,
@@ -129,7 +129,7 @@ class HttpMultipartFormData extends Stream<dynamic> {
       this.isText);
 
   @override
-  StreamSubscription listen(void Function(dynamic)? onData,
+  StreamSubscription<dynamic> listen(void Function(dynamic)? onData,
       {void Function()? onDone, Function? onError, bool? cancelOnError}) {
     return _stream.listen(onData,
         onDone: onDone, onError: onError, cancelOnError: cancelOnError);

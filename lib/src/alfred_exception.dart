@@ -9,5 +9,5 @@ class AlfredException implements Exception {
   ///
   final int statusCode;
 
-  AlfredException(this.statusCode, this.response);
+  const AlfredException(this.statusCode, this.response);
 }
