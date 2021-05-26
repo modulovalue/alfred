@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'base.dart';
 
+/// TODO interface and impl
 class HttpRoute {
   final String route;
   final FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback;
@@ -21,69 +22,98 @@ class HttpRoute {
   bool get usesWildcardMatcher => route.contains('*');
 }
 
+/// TODO interface and impl
 class NestedRoute {
   final Alfred _alfred;
   final String _basePath;
   final List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> _baseMiddleware;
 
-  NestedRoute(
-      {required Alfred alfred,
-      required String basePath,
-      required List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> baseMiddleware})
-      : _alfred = alfred,
+  NestedRoute({
+    required Alfred alfred,
+    required String basePath,
+    required List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> baseMiddleware,
+  })  : _alfred = alfred,
         _basePath = basePath,
         _baseMiddleware = baseMiddleware;
 
   /// Create a get route
   ///
-  HttpRoute get(String path, FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback,
-          {List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const []}) =>
+  HttpRoute get(
+    String path,
+    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
+    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+  }) =>
       _createRoute(path, callback, Method.get, middleware);
 
   /// Create a post route
   ///
-  HttpRoute post(String path, FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback,
-          {List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const []}) =>
+  HttpRoute post(
+    String path,
+    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
+    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+  }) =>
       _createRoute(path, callback, Method.post, middleware);
 
   /// Create a put route
-  HttpRoute put(String path, FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback,
-          {List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const []}) =>
+  HttpRoute put(
+    String path,
+    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
+    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+  }) =>
       _createRoute(path, callback, Method.put, middleware);
 
   /// Create a delete route
   ///
-  HttpRoute delete(String path, FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback,
-          {List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const []}) =>
+  HttpRoute delete(
+    String path,
+    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
+    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+  }) =>
       _createRoute(path, callback, Method.delete, middleware);
 
   /// Create a patch route
   ///
-  HttpRoute patch(String path, FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback,
-          {List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const []}) =>
+  HttpRoute patch(
+    String path,
+    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
+    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+  }) =>
       _createRoute(path, callback, Method.patch, middleware);
 
   /// Create an options route
   ///
-  HttpRoute options(String path, FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback,
-          {List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const []}) =>
+  HttpRoute options(
+    String path,
+    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
+    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+  }) =>
       _createRoute(path, callback, Method.options, middleware);
 
   /// Create a route that listens on all methods
   ///
-  HttpRoute all(String path, FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback,
-          {List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const []}) =>
+  HttpRoute all(
+    String path,
+    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, {
+    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+  }) =>
       _createRoute(path, callback, Method.all, middleware);
 
   /// Creates one or multiple route segments that can be used
   /// as a common base for specifying routes with [get], [post], etc.
   ///
   /// You can define middleware that effects all sub-routes.
-  NestedRoute route(String path, {List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const []}) =>
+  NestedRoute route(
+    String path, {
+    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+  }) =>
       NestedRoute(alfred: _alfred, basePath: _composePath(_basePath, path), baseMiddleware: [..._baseMiddleware, ...middleware]);
 
-  HttpRoute _createRoute(String path, FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback, Method method,
-      [List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const []]) {
+  HttpRoute _createRoute(
+    String path,
+    FutureOr<dynamic> Function(HttpRequest req, HttpResponse res) callback,
+    Method method, [
+    List<FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)> middleware = const [],
+  ]) {
     final route = HttpRoute(_composePath(_basePath, path), callback, method, middleware: [..._baseMiddleware, ...middleware]);
     _alfred.routes.add(route);
     return route;
@@ -177,4 +207,5 @@ String _normalizePath(String self) {
 
 /// Throws when trying to extract params and the route you are extracting from
 /// does not match the supplied pattern
+/// TODO interface and adt impl
 class NotMatchingRouteException implements Exception {}

@@ -3,9 +3,11 @@ import 'dart:io';
 import 'base.dart';
 
 /// Data structure to keep all request-related data
+/// TODO custom type 
 final Map<HttpRequest, RequestStore> storePluginData = {};
 
 /// Key-Value-Store for reading and writing request-related data
+/// TODO interface and impl
 class RequestStore {
   final Map<String, dynamic> _data = <String, dynamic>{};
 
@@ -32,6 +34,9 @@ class RequestStore {
 
 /// Used within [Alfred] to remove request-related data after
 /// the request has been resolved.
-void storePluginOnDoneHandler(HttpRequest req, HttpResponse res) {
-  storePluginData.remove(req);
-}
+/// TODO move into storePluginDatas custom type.
+void storePluginOnDoneHandler(
+  HttpRequest req,
+  HttpResponse res,
+) =>
+    storePluginData.remove(req);

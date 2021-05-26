@@ -91,8 +91,7 @@ import 'package:mime/mime.dart';
 /// var response = await request.close();
 /// var body = HttpBodyHandler.processResponse(response);
 /// ```
-class HttpBodyHandler
-    extends StreamTransformerBase<HttpRequest, HttpRequestBody> {
+class HttpBodyHandler extends StreamTransformerBase<HttpRequest, HttpRequestBody> {
   final Encoding _defaultEncoding;
 
   /// Create a new [HttpBodyHandler] to be used with a [Stream]<[HttpRequest]>,
@@ -102,8 +101,7 @@ class HttpBodyHandler
   /// [defaultEncoding] accordingly. This is required for parsing
   /// `multipart/form-data` content correctly. See the class comment
   /// for more information on `multipart/form-data`.
-  HttpBodyHandler({Encoding defaultEncoding = utf8})
-      : _defaultEncoding = defaultEncoding;
+  HttpBodyHandler({Encoding defaultEncoding = utf8}) : _defaultEncoding = defaultEncoding;
 
   /// Process and parse an incoming [HttpRequest].
   ///
@@ -111,12 +109,11 @@ class HttpBodyHandler
   /// the [HttpResponse].
   ///
   /// See [new HttpBodyHandler] for more info on [defaultEncoding].
-  static Future<HttpRequestBody> processRequest(HttpRequest request,
-      {Encoding defaultEncoding = utf8}) async {
+  static Future<HttpRequestBody> processRequest(HttpRequest request, {Encoding defaultEncoding = utf8}) async {
     try {
       final body = await _process(request, request.headers, defaultEncoding);
       return HttpRequestBody._(request, body);
-    // ignore: avoid_catches_without_on_clauses
+      // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       // Try to send BAD_REQUEST response.
       request.response.statusCode = HttpStatus.badRequest;
@@ -128,9 +125,7 @@ class HttpBodyHandler
   /// Process and parse an incoming [HttpClientResponse].
   ///
   /// See [new HttpBodyHandler] for more info on [defaultEncoding].
-  static Future<HttpClientResponseBody> processResponse(
-      HttpClientResponse response,
-      {Encoding defaultEncoding = utf8}) async {
+  static Future<HttpClientResponseBody> processResponse(HttpClientResponse response, {Encoding defaultEncoding = utf8}) async {
     final body = await _process(response, response.headers, defaultEncoding);
     return HttpClientResponseBody._(response, body);
   }
@@ -139,14 +134,12 @@ class HttpBodyHandler
   Stream<HttpRequestBody> bind(Stream<HttpRequest> stream) {
     var pending = 0;
     var closed = false;
-    return stream.transform(
-        StreamTransformer.fromHandlers(handleData: (request, sink) async {
+    return stream.transform(StreamTransformer.fromHandlers(handleData: (request, sink) async {
       pending++;
       try {
-        final body =
-            await processRequest(request, defaultEncoding: _defaultEncoding);
+        final body = await processRequest(request, defaultEncoding: _defaultEncoding);
         sink.add(body);
-      // ignore: avoid_catches_without_on_clauses
+        // ignore: avoid_catches_without_on_clauses
       } catch (e, st) {
         sink.addError(e, st);
       } finally {
@@ -160,6 +153,7 @@ class HttpBodyHandler
   }
 }
 
+/// TODO interface and impl
 /// A HTTP content body produced by [HttpBodyHandler] for either [HttpRequest]
 /// or [HttpClientResponse].
 class HttpBody {
@@ -170,9 +164,10 @@ class HttpBody {
   /// The content of the body with a type depending on [type].
   final dynamic body;
 
-  HttpBody._(this.type, this.body);
+  const HttpBody._(this.type, this.body);
 }
 
+/// TODO make const once httpbody has an interface.
 /// The body of a [HttpClientResponse].
 ///
 /// Headers can be read through the original [response].
@@ -180,10 +175,10 @@ class HttpClientResponseBody extends HttpBody {
   /// The wrapped response.
   final HttpClientResponse response;
 
-  HttpClientResponseBody._(this.response, HttpBody body)
-      : super._(body.type, body.body);
+  HttpClientResponseBody._(this.response, HttpBody body) : super._(body.type, body.body);
 }
 
+/// TODO make const once httpbody has an interface
 /// The body of a [HttpRequest].
 ///
 /// Headers can be read, and a response can be sent, through [request].
@@ -194,10 +189,10 @@ class HttpRequestBody extends HttpBody {
   /// `Stream` methods cannot be used.
   final HttpRequest request;
 
-  HttpRequestBody._(this.request, HttpBody body)
-      : super._(body.type, body.body);
+  HttpRequestBody._(this.request, HttpBody body) : super._(body.type, body.body);
 }
 
+/// TODO interface ind impl
 /// A wrapper around a file upload.
 class HttpBodyFileUpload {
   /// The filename of the uploaded file.
@@ -213,49 +208,46 @@ class HttpBodyFileUpload {
   /// Either a [String] or a [List<int>].
   final dynamic content;
 
-  HttpBodyFileUpload._(this.contentType, this.filename, this.content);
+  const HttpBodyFileUpload._(this.contentType, this.filename, this.content);
 }
 
-Future<HttpBody> _process(Stream<List<int>> stream, HttpHeaders headers,
-    Encoding defaultEncoding) async {
+Future<HttpBody> _process(
+  Stream<List<int>> stream,
+  HttpHeaders headers,
+  Encoding defaultEncoding,
+) async {
   Future<HttpBody> asBinary() async {
-    final builder = await stream.fold<BytesBuilder>(
-        BytesBuilder(), (builder, data) => builder..add(data));
+    final builder = await stream.fold<BytesBuilder>(BytesBuilder(), (builder, data) => builder..add(data));
     return HttpBody._('binary', builder.takeBytes());
   }
 
   if (headers.contentType == null) {
     return asBinary();
   }
-
   final contentType = headers.contentType!;
-
   Future<HttpBody> asText(Encoding defaultEncoding) async {
     Encoding? encoding;
     final charset = contentType.charset;
     if (charset != null) encoding = Encoding.getByName(charset);
     encoding ??= defaultEncoding;
     final dynamic buffer = await encoding.decoder.bind(stream).fold<dynamic>(
-        // ignore: avoid_dynamic_calls
-        StringBuffer(), (dynamic buffer, data) => buffer..write(data),);
+          // ignore: avoid_dynamic_calls
+          StringBuffer(), (dynamic buffer, data) => buffer..write(data),
+        );
     return HttpBody._('text', buffer.toString());
   }
 
   Future<HttpBody> asFormData() async {
-    final values = await MimeMultipartTransformer(
-            contentType.parameters['boundary']!)
+    final values = await MimeMultipartTransformer(contentType.parameters['boundary']!)
         .bind(stream)
-        .map((part) =>
-            HttpMultipartFormData.parse(part, defaultEncoding: defaultEncoding))
+        .map((part) => HttpMultipartFormData.parse(part, defaultEncoding: defaultEncoding))
         .map((multipart) async {
       dynamic data;
       if (multipart.isText) {
-        final buffer = await multipart.fold<StringBuffer>(
-            StringBuffer(), (b, dynamic s) => b..write(s));
+        final buffer = await multipart.fold<StringBuffer>(StringBuffer(), (b, dynamic s) => b..write(s));
         data = buffer.toString();
       } else {
-        final buffer = await multipart.fold<BytesBuilder>(
-            BytesBuilder(), (b, dynamic d) => b..add(d as List<int>));
+        final buffer = await multipart.fold<BytesBuilder>(BytesBuilder(), (b, dynamic d) => b..add(d as List<int>));
         data = buffer.takeBytes();
       }
       final filename = multipart.contentDisposition.parameters['filename'];
@@ -271,6 +263,7 @@ Future<HttpBody> _process(Stream<List<int>> stream, HttpHeaders headers,
     }
     return HttpBody._('form', map);
   }
+
   switch (contentType.primaryType) {
     case 'text':
       return asText(defaultEncoding);
@@ -282,8 +275,7 @@ Future<HttpBody> _process(Stream<List<int>> stream, HttpHeaders headers,
 
         case 'x-www-form-urlencoded':
           final body = await asText(ascii);
-          final map = Uri.splitQueryString(body.body as String,
-              encoding: defaultEncoding);
+          final map = Uri.splitQueryString(body.body as String, encoding: defaultEncoding);
           final result = <dynamic, dynamic>{};
           for (final key in map.keys) {
             result[key] = map[key];
@@ -369,8 +361,7 @@ class HttpMultipartFormData extends Stream<dynamic> {
   /// information in the
   /// [HTML5 spec](http://dev.w3.org/html5/spec-preview/
   /// constraints.html#multipart-form-data).
-  static HttpMultipartFormData parse(MimeMultipart multipart,
-      {Encoding defaultEncoding = utf8}) {
+  static HttpMultipartFormData parse(MimeMultipart multipart, {Encoding defaultEncoding = utf8}) {
     ContentType? contentType;
     HeaderValue? encoding;
     HeaderValue? disposition;
@@ -385,8 +376,7 @@ class HttpMultipartFormData extends Stream<dynamic> {
           break;
 
         case 'content-disposition':
-          disposition = HeaderValue.parse(multipart.headers[key]!,
-              preserveBackslash: true);
+          disposition = HeaderValue.parse(multipart.headers[key]!, preserveBackslash: true);
           break;
 
         default:
@@ -394,20 +384,16 @@ class HttpMultipartFormData extends Stream<dynamic> {
       }
     }
     if (disposition == null) {
-      throw const HttpException(
-          "Mime Multipart doesn't contain a Content-Disposition header value");
+      throw const HttpException("Mime Multipart doesn't contain a Content-Disposition header value");
     }
-    if (encoding != null &&
-        !_transparentEncodings.contains(encoding.value.toLowerCase())) {
+    if (encoding != null && !_transparentEncodings.contains(encoding.value.toLowerCase())) {
       // TODO(ajohnsen): Support BASE64, etc.
       throw HttpException('Unsupported contentTransferEncoding: '
           '${encoding.value}');
     }
 
     Stream<dynamic> stream = multipart;
-    final isText = contentType == null ||
-        contentType.primaryType == 'text' ||
-        contentType.mimeType == 'application/json';
+    final isText = contentType == null || contentType.primaryType == 'text' || contentType.mimeType == 'application/json';
     if (isText) {
       Encoding? encoding;
       if (contentType?.charset != null) {
@@ -416,8 +402,7 @@ class HttpMultipartFormData extends Stream<dynamic> {
       encoding ??= defaultEncoding;
       stream = stream.transform<dynamic>(encoding.decoder);
     }
-    return HttpMultipartFormData._(
-        contentType, disposition, encoding, multipart, stream, isText);
+    return HttpMultipartFormData._(contentType, disposition, encoding, multipart, stream, isText);
   }
 
   final MimeMultipart _mimeMultipart;
@@ -425,19 +410,22 @@ class HttpMultipartFormData extends Stream<dynamic> {
   final Stream<dynamic> _stream;
 
   HttpMultipartFormData._(
-      this.contentType,
-      this.contentDisposition,
-      this.contentTransferEncoding,
-      this._mimeMultipart,
-      this._stream,
-      this.isText);
+    this.contentType,
+    this.contentDisposition,
+    this.contentTransferEncoding,
+    this._mimeMultipart,
+    this._stream,
+    this.isText,
+  );
 
   @override
-  StreamSubscription<dynamic> listen(void Function(dynamic)? onData,
-      {void Function()? onDone, Function? onError, bool? cancelOnError}) {
-    return _stream.listen(onData,
-        onDone: onDone, onError: onError, cancelOnError: cancelOnError);
-  }
+  StreamSubscription<dynamic> listen(
+    void Function(dynamic)? onData, {
+    void Function()? onDone,
+    Function? onError,
+    bool? cancelOnError,
+  }) =>
+      _stream.listen(onData, onDone: onDone, onError: onError, cancelOnError: cancelOnError);
 
   /// Returns the value for the header named [name].
   ///
@@ -445,7 +433,5 @@ class HttpMultipartFormData extends Stream<dynamic> {
   ///
   /// Use this method to index other headers available in the original
   /// [MimeMultipart].
-  String? value(String name) {
-    return _mimeMultipart.headers[name];
-  }
+  String? value(String name) => _mimeMultipart.headers[name];
 }

@@ -32,9 +32,8 @@ void main() {
   });
   test('it handles an on done listener and cleans up the store', () async {
     var hitCount = 0;
-    final listener = app.registerOnDoneListener((req, res) {
-      hitCount++;
-    });
+    final listener = (HttpRequest req, HttpResponse res) => hitCount++;
+    app.registerOnDoneListener(listener);
     app.get('/test', (req, res) => 'done');
     await http.get(Uri.parse('http://localhost:$port/test'));
     expect(hitCount, 1);

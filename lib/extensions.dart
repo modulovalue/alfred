@@ -9,6 +9,8 @@ import 'http_route.dart';
 import 'parser_http_body.dart';
 import 'plugin_store.dart';
 
+/// TODO turn as many extensions as practical into static methods.
+/// TODO consider having wrapper for third party types and putting the extensions into them.
 extension NestedRouteExtension on Alfred {
   /// Creates one or multiple route segments that can be used
   /// as a common base for specifying routes with [get], [post], etc.

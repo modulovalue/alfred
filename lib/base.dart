@@ -1,18 +1,19 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:alfred/plugin_store.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:queue/queue.dart';
 
 import 'extensions.dart';
 import 'handlers.dart';
 import 'http_route.dart';
+import 'plugin_store.dart';
 
 /// Server application class
 ///
 /// This is the core of the server application. Generally you would create one
 /// for each app.
+/// TODO split into interface and impl.
 class Alfred {
   /// List of routes
   ///
@@ -26,6 +27,12 @@ class Alfred {
 
   final List<void Function(HttpRequest req, HttpResponse res)> _onDoneListeners;
 
+  /// Incoming request queue
+  ///
+  /// Set the number of simultaneous connections being processed at any one time
+  /// in the [simultaneousProcessing] param in the constructor
+  final Queue requestQueue;
+
   /// HttpServer instance from the dart:io library
   ///
   /// If there is anything the app can't do, you can do it through here.
@@ -34,19 +41,16 @@ class Alfred {
   /// Writer to handle internal logging.
   ///
   /// It can optionally exchanged with your own logging solution.
+  /// TODO turn into a delegate.
   void Function(dynamic Function() messageFn, LogType type) logWriter;
 
   /// Optional handler for when a route is not found
+  /// TODO put into a delegate.
   FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)? onNotFound;
 
   /// Optional handler for when the server throws an unhandled error
+  /// TODO put into a delegate.
   FutureOr<dynamic> Function(HttpRequest req, HttpResponse res)? onInternalError;
-
-  /// Incoming request queue
-  ///
-  /// Set the number of simultaneous connections being processed at any one time
-  /// in the [simultaneousProcessing] param in the constructor
-  Queue requestQueue;
 
   /// Creates a new Alfred application.
   ///
@@ -68,10 +72,8 @@ class Alfred {
     int simultaneousProcessing = 50,
   })  : routes = <HttpRoute>[],
         requestQueue = Queue(parallel: simultaneousProcessing),
-        _onDoneListeners = <void Function(HttpRequest req, HttpResponse res)>[
-          storePluginOnDoneHandler,
-        ],
-        logWriter = ((dynamic Function() messageFn, type) {
+        _onDoneListeners = [storePluginOnDoneHandler],
+        logWriter = ((messageFn, type) {
           if (type.index >= logLevel.index) {
             final timestamp = DateTime.now();
             final logType = EnumToString.convertToString(type);
@@ -95,15 +97,16 @@ class Alfred {
   ///
   /// Typically would be used for logging, benchmarking or cleaning up data
   /// used when writing a plugin.
-  Function registerOnDoneListener(void Function(HttpRequest, HttpResponse) listener) {
-    _onDoneListeners.add(listener);
-    return listener;
-  }
+  void registerOnDoneListener(
+    void Function(HttpRequest, HttpResponse) listener,
+  ) =>
+      _onDoneListeners.add(listener);
 
   /// Dispose of any on done listeners when you are done with them.
-  void removeOnDoneListener(Function listener) {
-    _onDoneListeners.remove(listener);
-  }
+  void removeOnDoneListener(
+    Function listener,
+  ) =>
+      _onDoneListeners.remove(listener);
 
   /// Create a get route
   HttpRoute get(
@@ -174,6 +177,7 @@ class Alfred {
 
   /// Call this function to fire off the server.
   Future<HttpServer> listen([
+    /// TODO make use provide defaults explicitly via a custom model and a default implementation.
     int port = 3000,
     dynamic bindIp = '0.0.0.0',
     bool shared = true,
@@ -194,9 +198,7 @@ class Alfred {
 
     /// Variable to track the close of the response
     var isDone = false;
-
     logWriter(() => '${request.method} - ${request.uri.toString()}', LogType.info);
-
     // We track if the response has been resolved in order to exit out early
     // the list of routes (ie the middleware returned)
     _unawaited(request.response.done.then((dynamic _) {
@@ -206,11 +208,13 @@ class Alfred {
       }
       logWriter(() => 'Response sent to client', LogType.debug);
     }));
-
     // Work out all the routes we need to process
-    final effectiveRoutes =
-        RouteMatcher.match(request.uri.toString(), routes, EnumToString.fromString<Method>(Method.values, request.method) ?? Method.get);
-
+    final effectiveRoutes = RouteMatcher.match(
+      request.uri.toString(),
+      routes,
+      /// TODO remove that dependency after method is an adt.
+      EnumToString.fromString<Method>(Method.values, request.method) ?? Method.get,
+    );
     try {
       // If there are no effective routes, that means we need to throw a 404
       // or see if there are any static routes to fall back to, otherwise
@@ -219,44 +223,42 @@ class Alfred {
         logWriter(() => 'No matching route found.', LogType.debug);
         await _respondNotFound(request, isDone);
       } else {
-        /// Tracks if one route is using a wildcard
+        // Tracks if one route is using a wildcard.
         var nonWildcardRouteMatch = false;
-
         // Loop through the routes in the order they are in the routes list
         for (final route in effectiveRoutes) {
           if (isDone) {
             break;
-          }
-          logWriter(() => 'Match route: ${route.route}', LogType.debug);
-          request.store.set('_internal_route', route.route);
-          nonWildcardRouteMatch = !route.usesWildcardMatcher || nonWildcardRouteMatch;
-
-          /// Loop through any middleware
-          for (final middleware in route.middleware) {
-            // If the request has already completed, exit early.
+          } else {
+            logWriter(() => 'Match route: ${route.route}', LogType.debug);
+            request.store.set('_internal_route', route.route);
+            nonWildcardRouteMatch = !route.usesWildcardMatcher || nonWildcardRouteMatch;
+            // Loop through any middleware.
+            for (final middleware in route.middleware) {
+              // If the request has already completed, exit early.
+              // ignore: invariant_booleans, <- false positive
+              if (isDone) {
+                break;
+              } else {
+                logWriter(() => 'Apply middleware associated with route', LogType.debug);
+                await _handleResponse(await middleware(request, request.response), request);
+              }
+            }
+            // If the request has already completed, exit early, otherwise process
+            // the primary route callback.
             // ignore: invariant_booleans, <- false positive
             if (isDone) {
               break;
+            } else {
+              logWriter(() => 'Execute route callback function', LogType.debug);
+              await _handleResponse(await route.callback(request, request.response), request);
             }
-            logWriter(() => 'Apply middleware associated with route', LogType.debug);
-            await _handleResponse(await middleware(request, request.response), request);
           }
-
-          /// If the request has already completed, exit early, otherwise process
-          /// the primary route callback
-          // ignore: invariant_booleans, <- false positive
-          if (isDone) {
-            break;
-          }
-          logWriter(() => 'Execute route callback function', LogType.debug);
-          await _handleResponse(await route.callback(request, request.response), request);
         }
-
-        /// If you got here and isDone is still false, you forgot to close
-        /// the response, or you didn't return anything. Either way its an error,
-        /// but instead of letting the whole server hang as most frameworks do,
-        /// lets at least close the connection out
-        ///
+        // If you got here and isDone is still false, you forgot to close
+        // the response, or you didn't return anything. Either way its an error,
+        // but instead of letting the whole server hang as most frameworks do,
+        // lets at least close the connection out.
         if (!isDone) {
           if (request.response.contentLength == -1) {
             if (nonWildcardRouteMatch == false) {
@@ -298,7 +300,6 @@ class Alfred {
   }
 
   /// Responds request with a NotFound response
-  ///
   Future<dynamic> _respondNotFound(HttpRequest request, bool isDone) async {
     if (onNotFound != null) {
       // Otherwise check if a custom 404 handler has been provided
@@ -318,7 +319,6 @@ class Alfred {
   /// Handle a response by response type
   ///
   /// This is the logic that will handle the response based on what you return.
-  ///
   Future<void> _handleResponse(dynamic result, HttpRequest request) async {
     if (result != null) {
       var handled = false;
@@ -338,19 +338,19 @@ class Alfred {
     }
   }
 
-  /// Close the server and clean up any resources
+  /// Close the server and clean up any resources.
   ///
-  /// Call this if you are shutting down the server but continuing to run
-  /// the app.
+  /// Call this if you are shutting down the server 
+  /// but continuing to run the app.
   Future<dynamic> close({bool force = true}) async {
     if (server != null) {
       await server!.close(force: force);
     }
   }
 
-  /// Print out the registered routes to the console
+  /// Print out the registered routes to the console.
   ///
-  /// Helpful to see whats available
+  /// Helpful to see whats available.
   void printRoutes() {
     for (final route in routes) {
       late String methodString;
@@ -382,9 +382,11 @@ class Alfred {
   }
 }
 
+/// TODO move to its own file.
 /// Function to prevent linting errors.
 void _unawaited(Future<Null> then) {}
 
+/// TODO have an adt for all errors any given method can throw. no catch all exception-types.
 /// Error thrown when a type handler cannot be found for a returned item
 class NoTypeHandlerError implements Error {
   final dynamic object;
@@ -401,21 +403,24 @@ class NoTypeHandlerError implements Error {
 
 /// Error used by middleware, utils or type handler to elevate
 /// a NotFound response.
+/// TODO have an adt for all errors any given method can throw. no catch all exception-types.
 class NotFoundError extends Error {}
 
+/// TODO these should be an adt.
 enum Method { get, post, put, delete, patch, options, all }
 
 /// Indicates the severity of logged message
+/// TODO turn logging into a delegate.
 enum LogType { debug, info, warn, error }
+
 /// Throw these exceptions to bubble up an error from sub functions and have them
 /// handled automatically for the client
+/// TODO have an adt for all errors any given method can throw. no catch all exception-types.
 class AlfredException implements Exception {
   /// The response to send to the client
-  ///
   final Object? response;
 
   /// The statusCode to send to the client
-  ///
   final int statusCode;
 
   const AlfredException(this.statusCode, this.response);

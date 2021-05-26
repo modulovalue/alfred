@@ -7,23 +7,13 @@ import 'base.dart';
 import 'extensions.dart';
 
 abstract class TypeHandler<T> {
-  @Deprecated('Please create a subclass or use the named .make constructor')
-  factory TypeHandler(FutureOr<dynamic> Function(HttpRequest req, HttpResponse res, T value) handler) => _TypeHandlerImpl(handler);
+  FutureOr<dynamic> handler(
+    HttpRequest req,
+    HttpResponse res,
+    T value,
+  );
 
-  factory TypeHandler.make(FutureOr<dynamic> Function(HttpRequest req, HttpResponse res, T value) handler) => _TypeHandlerImpl(handler);
-
-  FutureOr<dynamic> handler(HttpRequest req, HttpResponse res, T value);
-
-  bool shouldHandle(dynamic item) => item is T;
-}
-
-class _TypeHandlerImpl<T> with TypeHandlerShouldHandleMixin<T> {
-  final FutureOr<dynamic> Function(HttpRequest req, HttpResponse res, T value) _handler;
-
-  const _TypeHandlerImpl(this._handler);
-
-  @override
-  FutureOr<dynamic> handler(HttpRequest req, HttpResponse res, T value) => _handler(req, res, value);
+  bool shouldHandle(dynamic item);
 }
 
 mixin TypeHandlerShouldHandleMixin<T> implements TypeHandler<T> {
@@ -35,7 +25,11 @@ class TypeHandlerListOfIntegersImpl with TypeHandlerShouldHandleMixin<List<int>>
   const TypeHandlerListOfIntegersImpl();
 
   @override
-  FutureOr<dynamic> handler(HttpRequest req, HttpResponse res, List<int> value) async {
+  FutureOr<dynamic> handler(
+    HttpRequest req,
+    HttpResponse res,
+    List<int> value,
+  ) async {
     if (res.headers.contentType == null || res.headers.contentType!.value == 'text/plain') {
       res.headers.contentType = ContentType.binary;
     }
@@ -48,7 +42,11 @@ class TypeHandlerStreamOfListOfIntegersImpl with TypeHandlerShouldHandleMixin<St
   const TypeHandlerStreamOfListOfIntegersImpl();
 
   @override
-  FutureOr<dynamic> handler(HttpRequest req, HttpResponse res, Stream<List<int>> val) async {
+  FutureOr<dynamic> handler(
+    HttpRequest req,
+    HttpResponse res,
+    Stream<List<int>> val,
+  ) async {
     if (res.headers.contentType == null || res.headers.contentType!.value == 'text/plain') {
       res.headers.contentType = ContentType.binary;
     }
@@ -64,7 +62,11 @@ class TypeHandlerDirectoryImpl with TypeHandlerShouldHandleMixin<Directory> {
   const TypeHandlerDirectoryImpl();
 
   @override
-  FutureOr<dynamic> handler(HttpRequest req, HttpResponse res, Directory directory) async {
+  FutureOr<dynamic> handler(
+    HttpRequest req,
+    HttpResponse res,
+    Directory directory,
+  ) async {
     final usedRoute = req.route;
     assert(
       usedRoute.contains('*'),
@@ -95,7 +97,11 @@ class TypeHandlerFileImpl with TypeHandlerShouldHandleMixin<File> {
   const TypeHandlerFileImpl();
 
   @override
-  FutureOr<dynamic> handler(HttpRequest req, HttpResponse res, File file) async {
+  FutureOr<dynamic> handler(
+    HttpRequest req,
+    HttpResponse res,
+    File file,
+  ) async {
     if (file.existsSync()) {
       res.setContentTypeFromFile(file);
       await res.addStream(file.openRead());
@@ -110,7 +116,11 @@ class TypeHandlerSerializableImpl with TypeHandlerShouldHandleMixin<dynamic> {
   const TypeHandlerSerializableImpl();
 
   @override
-  FutureOr<dynamic> handler(HttpRequest req, HttpResponse res, dynamic value) {
+  FutureOr<dynamic> handler(
+    HttpRequest req,
+    HttpResponse res,
+    dynamic value,
+  ) {
     try {
       // ignore: avoid_dynamic_calls
       final dynamic toJsonCall = value.toJson;
@@ -177,7 +187,11 @@ class TypeHandlerStringImpl with TypeHandlerShouldHandleMixin<String> {
   const TypeHandlerStringImpl();
 
   @override
-  FutureOr<dynamic> handler(HttpRequest req, HttpResponse res, String value) {
+  FutureOr<dynamic> handler(
+    HttpRequest req,
+    HttpResponse res,
+    String value,
+  ) {
     res.write(value);
     return res.close();
   }
@@ -187,17 +201,31 @@ class TypeHandlerWebsocketImpl with TypeHandlerShouldHandleMixin<WebSocketSessio
   const TypeHandlerWebsocketImpl();
 
   @override
-  FutureOr<dynamic> handler(HttpRequest req, HttpResponse res, WebSocketSession value) async => //
+  FutureOr<dynamic> handler(
+    HttpRequest req,
+    HttpResponse res,
+    WebSocketSession value,
+  ) async => //
       value._start(await WebSocketTransformer.upgrade(req));
 }
 
 /// Convenience wrapper around Dart IO WebSocket implementation
+/// TODO move send implementation here
+/// TODO interface and impl
+/// TODO make everybody use this wrapper and not WebSocket itself.
 class WebSocketSession {
   late WebSocket socket;
 
+  /// TODO method not member
   FutureOr<void> Function(WebSocket webSocket)? onOpen;
+
+  /// TODO method not member
   FutureOr<void> Function(WebSocket webSocket, dynamic data)? onMessage;
+
+  /// TODO method not member
   FutureOr<void> Function(WebSocket webSocket)? onClose;
+
+  /// TODO method not member
   FutureOr<void> Function(WebSocket webSocket, dynamic error)? onError;
 
   WebSocketSession({this.onOpen, this.onMessage, this.onClose, this.onError});

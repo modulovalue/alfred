@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+/// TODO have a type that wraps middleware return types.
 /// CORS Middlware.
 ///
 /// Has some sensible defaults. You probably want to change the origin
