@@ -7,8 +7,14 @@ import 'package:queue/queue.dart';
 import 'extensions.dart';
 import 'handlers.dart';
 import 'http_route.dart';
+import 'logging/impl/generalizing/mixin.dart';
+import 'logging/impl/generalizing/print.dart';
+import 'logging/interface/logging_delegate.dart';
 import 'middleware/interface/middleware.dart';
 import 'plugin_store.dart';
+import 'type_handler/impl/directory.dart';
+import 'type_handler/impl/list_of_ints.dart';
+import 'type_handler/interface/type_handler.dart';
 
 /// Server application class
 ///
@@ -40,10 +46,7 @@ class Alfred {
   HttpServer? server;
 
   /// Writer to handle internal logging.
-  ///
-  /// It can optionally exchanged with your own logging solution.
-  /// TODO turn into a delegate.
-  void Function(dynamic Function() messageFn, LogType type) logWriter;
+  final AlfredLoggingDelegate LOG;
 
   /// Optional handler for when a route is not found
   /// TODO put into a delegate.
@@ -52,6 +55,8 @@ class Alfred {
   /// Optional handler for when the server throws an unhandled error
   /// TODO put into a delegate.
   Middleware<Object?>? onInternalError;
+
+  static const AlfredLoggingDelegate defaultLogger = AlfredLoggingDelegatePrintImpl(LogType.info);
 
   /// Creates a new Alfred application.
   ///
@@ -69,19 +74,13 @@ class Alfred {
   Alfred({
     this.onNotFound,
     this.onInternalError,
-    LogType logLevel = LogType.info,
+    this.LOG = defaultLogger,
     int simultaneousProcessing = 50,
   })  : routes = <HttpRoute>[],
         requestQueue = Queue(parallel: simultaneousProcessing),
         _onDoneListeners = [StorePluginData.singleton.storePluginOnDoneHandler],
-        logWriter = ((messageFn, type) {
-          if (type.index >= logLevel.index) {
-            final timestamp = DateTime.now();
-            final logType = EnumToString.convertToString(type);
-            final message = messageFn().toString();
-            print('$timestamp - $logType - $message');
-          }
-        }),
+
+        /// TODO collect default type handler list somewhere.
         typeHandlers = <TypeHandler<dynamic>>[
           const TypeHandlerStringImpl(),
           const TypeHandlerListOfIntegersImpl(),
@@ -188,7 +187,7 @@ class Alfred {
     _server.listen((HttpRequest request) {
       requestQueue.add(() => _incomingRequest(request));
     });
-    logWriter(() => 'HTTP Server listening on port ${_server.port}', LogType.info);
+    LOG.onIsListening(_server.port);
     return server = _server;
   }
 
@@ -199,7 +198,7 @@ class Alfred {
 
     /// Variable to track the close of the response
     var isDone = false;
-    logWriter(() => '${request.method} - ${request.uri.toString()}', LogType.info);
+    LOG.onIncomingRequest(request.method, request.uri);
     // We track if the response has been resolved in order to exit out early
     // the list of routes (ie the middleware returned)
     _unawaited(request.response.done.then((dynamic _) {
@@ -207,7 +206,7 @@ class Alfred {
       for (final listener in _onDoneListeners) {
         listener(request, request.response);
       }
-      logWriter(() => 'Response sent to client', LogType.debug);
+      LOG.onResponseSent();
     }));
     // Work out all the routes we need to process
     final effectiveRoutes = RouteMatcher.match(
@@ -222,7 +221,7 @@ class Alfred {
       // or see if there are any static routes to fall back to, otherwise
       // continue and process the routes
       if (effectiveRoutes.isEmpty) {
-        logWriter(() => 'No matching route found.', LogType.debug);
+        LOG.onNoMatchingRouteFound();
         await _respondNotFound(request, isDone);
       } else {
         // Tracks if one route is using a wildcard.
@@ -232,7 +231,7 @@ class Alfred {
           if (isDone) {
             break;
           } else {
-            logWriter(() => 'Match route: ${route.route}', LogType.debug);
+            LOG.onMatchingRoute(route.route);
             request.store.set('_internal_route', route.route);
             nonWildcardRouteMatch = !route.usesWildcardMatcher || nonWildcardRouteMatch;
             // Loop through any middleware.
@@ -242,7 +241,7 @@ class Alfred {
               if (isDone) {
                 break;
               } else {
-                logWriter(() => 'Apply middleware associated with route', LogType.debug);
+                LOG.onApplyMiddleware();
                 await _handleResponse(await middleware.process(request, request.response), request);
               }
             }
@@ -252,7 +251,7 @@ class Alfred {
             if (isDone) {
               break;
             } else {
-              logWriter(() => 'Execute route callback function', LogType.debug);
+              LOG.onExecuteRouteCallbackFunction();
               await _handleResponse(await route.callback.process(request, request.response), request);
             }
           }
@@ -280,8 +279,7 @@ class Alfred {
       // ignore: avoid_catches_without_on_clauses
     } catch (e, s) {
       // Its all broken, bail (but don't crash)
-      logWriter(() => e, LogType.error);
-      logWriter(() => s, LogType.error);
+      LOG.onIncomingRequestException(e, s);
       final _onInternalError = onInternalError;
       if (_onInternalError != null) {
         // Handle the error with a custom response
@@ -328,7 +326,7 @@ class Alfred {
       var handled = false;
       for (final handler in typeHandlers) {
         if (handler.shouldHandle(result)) {
-          logWriter(() => 'Apply TypeHandler for result type: ${result.runtimeType}', LogType.debug);
+          LOG.onApplyingTypeHandlerTo(handler, result.runtimeType);
           final dynamic handlerResult = await handler.handler(request, request.response, result);
           if (handlerResult != false) {
             handled = true;
@@ -422,10 +420,6 @@ class NotFoundError extends Error {}
 
 /// TODO these should be an adt.
 enum Method { get, post, put, delete, patch, options, all }
-
-/// Indicates the severity of logged message
-/// TODO turn logging into a delegate.
-enum LogType { debug, info, warn, error }
 
 /// Throw these exceptions to bubble up an error from sub functions and have them
 /// handled automatically for the client

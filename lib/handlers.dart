@@ -1,43 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
 import 'base.dart';
 import 'extensions.dart';
+import 'type_handler/impl/mixin.dart';
 
-abstract class TypeHandler<T> {
-  FutureOr<dynamic> handler(
-    HttpRequest req,
-    HttpResponse res,
-    T value,
-  );
-
-  bool shouldHandle(dynamic item);
-}
-
-mixin TypeHandlerShouldHandleMixin<T> implements TypeHandler<T> {
-  @override
-  bool shouldHandle(dynamic item) => item is T;
-}
-
-class TypeHandlerListOfIntegersImpl with TypeHandlerShouldHandleMixin<List<int>> {
-  const TypeHandlerListOfIntegersImpl();
-
-  @override
-  FutureOr<dynamic> handler(
-    HttpRequest req,
-    HttpResponse res,
-    List<int> value,
-  ) async {
-    if (res.headers.contentType == null || res.headers.contentType!.value == 'text/plain') {
-      res.headers.contentType = ContentType.binary;
-    }
-    res.add(value);
-    await res.close();
-  }
-}
-
+/// TODO move into impls.
 class TypeHandlerStreamOfListOfIntegersImpl with TypeHandlerShouldHandleMixin<Stream<List<int>>> {
   const TypeHandlerStreamOfListOfIntegersImpl();
 
@@ -52,44 +21,6 @@ class TypeHandlerStreamOfListOfIntegersImpl with TypeHandlerShouldHandleMixin<St
     }
     await res.addStream(val);
     await res.close();
-  }
-}
-
-class TypeHandlerDirectoryImpl with TypeHandlerShouldHandleMixin<Directory> {
-  static void _log(HttpRequest req, String Function() msgFn) =>
-      req.alfred.logWriter(() => 'DirectoryTypeHandler: ${msgFn()}', LogType.debug);
-
-  const TypeHandlerDirectoryImpl();
-
-  @override
-  FutureOr<dynamic> handler(
-    HttpRequest req,
-    HttpResponse res,
-    Directory directory,
-  ) async {
-    final usedRoute = req.route;
-    assert(
-      usedRoute.contains('*'),
-      'TypeHandler of type Directory needs a route declaration that contains a wildcard (*). Found: $usedRoute',
-    );
-    final virtualPath = req.uri.path.substring(min(req.uri.path.length, usedRoute.indexOf('*')));
-    final filePath = '${directory.path}/$virtualPath';
-    _log(req, () => 'Resolve virtual path: $virtualPath');
-    final fileCandidates = <File>[
-      File(filePath),
-      File('$filePath/index.html'),
-      File('$filePath/index.htm'),
-    ];
-    try {
-      final match = fileCandidates.firstWhere((file) => file.existsSync());
-      _log(req, () => 'Respond with file: ${match.path}');
-      res.setContentTypeFromFile(match);
-      await res.addStream(match.openRead());
-      await res.close();
-      // ignore: avoid_catching_errors
-    } on StateError {
-      _log(req, () => 'Could not match with any file. Expected file at: $filePath');
-    }
   }
 }
 

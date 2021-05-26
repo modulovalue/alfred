@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:alfred/base.dart';
-import 'package:alfred/handlers.dart';
 import 'package:alfred/middleware/impl/value.dart';
+import 'package:alfred/type_handler/impl/mixin.dart';
 
 class Chicken {
   const Chicken();
