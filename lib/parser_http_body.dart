@@ -5,6 +5,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:mime/mime.dart';
 
@@ -91,7 +92,7 @@ import 'package:mime/mime.dart';
 /// var response = await request.close();
 /// var body = HttpBodyHandler.processResponse(response);
 /// ```
-class HttpBodyHandler extends StreamTransformerBase<HttpRequest, HttpRequestBody> {
+class HttpBodyHandler extends StreamTransformerBase<HttpRequest, HttpRequestBody<dynamic>> {
   final Encoding _defaultEncoding;
 
   /// Create a new [HttpBodyHandler] to be used with a [Stream]<[HttpRequest]>,
@@ -101,7 +102,9 @@ class HttpBodyHandler extends StreamTransformerBase<HttpRequest, HttpRequestBody
   /// [defaultEncoding] accordingly. This is required for parsing
   /// `multipart/form-data` content correctly. See the class comment
   /// for more information on `multipart/form-data`.
-  HttpBodyHandler({Encoding defaultEncoding = utf8}) : _defaultEncoding = defaultEncoding;
+  const HttpBodyHandler({
+    Encoding defaultEncoding = utf8,
+  }) : _defaultEncoding = defaultEncoding;
 
   /// Process and parse an incoming [HttpRequest].
   ///
@@ -109,10 +112,10 @@ class HttpBodyHandler extends StreamTransformerBase<HttpRequest, HttpRequestBody
   /// the [HttpResponse].
   ///
   /// See [new HttpBodyHandler] for more info on [defaultEncoding].
-  static Future<HttpRequestBody> processRequest(HttpRequest request, {Encoding defaultEncoding = utf8}) async {
+  static Future<HttpRequestBody<dynamic>> processRequest(HttpRequest request, {Encoding defaultEncoding = utf8}) async {
     try {
       final body = await _process(request, request.headers, defaultEncoding);
-      return HttpRequestBody._(request, body);
+      return HttpRequestBodyImpl<dynamic>._(request, body);
       // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       // Try to send BAD_REQUEST response.
@@ -125,13 +128,13 @@ class HttpBodyHandler extends StreamTransformerBase<HttpRequest, HttpRequestBody
   /// Process and parse an incoming [HttpClientResponse].
   ///
   /// See [new HttpBodyHandler] for more info on [defaultEncoding].
-  static Future<HttpClientResponseBody> processResponse(HttpClientResponse response, {Encoding defaultEncoding = utf8}) async {
+  static Future<HttpClientResponseBody<dynamic>> processResponse(HttpClientResponse response, {Encoding defaultEncoding = utf8}) async {
     final body = await _process(response, response.headers, defaultEncoding);
-    return HttpClientResponseBody._(response, body);
+    return HttpClientResponseBodyImpl<dynamic>._(response, body);
   }
 
   @override
-  Stream<HttpRequestBody> bind(Stream<HttpRequest> stream) {
+  Stream<HttpRequestBody<dynamic>> bind(Stream<HttpRequest> stream) {
     var pending = 0;
     var closed = false;
     return stream.transform(StreamTransformer.fromHandlers(handleData: (request, sink) async {
@@ -153,155 +156,199 @@ class HttpBodyHandler extends StreamTransformerBase<HttpRequest, HttpRequestBody
   }
 }
 
-/// TODO interface and impl
 /// A HTTP content body produced by [HttpBodyHandler] for either [HttpRequest]
 /// or [HttpClientResponse].
-class HttpBody {
+abstract class HttpBody<T> {
   /// A high-level type value, that reflects how the body was parsed, e.g.
   /// "text", "binary" and "json".
-  final String type;
+  String get type;
 
   /// The content of the body with a type depending on [type].
-  final dynamic body;
-
-  const HttpBody._(this.type, this.body);
+  T get body;
 }
 
-/// TODO make const once httpbody has an interface.
+class HttpBodyImpl<T> implements HttpBody<T> {
+  @override
+  final String type;
+
+  @override
+  final T body;
+
+  const HttpBodyImpl._(this.type, this.body);
+}
+
 /// The body of a [HttpClientResponse].
 ///
 /// Headers can be read through the original [response].
-class HttpClientResponseBody extends HttpBody {
+abstract class HttpClientResponseBody<T> implements HttpBody<T> {
   /// The wrapped response.
-  final HttpClientResponse response;
-
-  HttpClientResponseBody._(this.response, HttpBody body) : super._(body.type, body.body);
+  HttpClientResponse get response;
 }
 
-/// TODO make const once httpbody has an interface
+/// The body of a [HttpClientResponse].
+///
+/// Headers can be read through the original [response].
+class HttpClientResponseBodyImpl<T> implements HttpClientResponseBody<T> {
+  @override
+  final HttpClientResponse response;
+
+  final HttpBody<T> _body;
+
+  const HttpClientResponseBodyImpl._(this.response, this._body);
+
+  @override
+  T get body => _body.body;
+
+  @override
+  String get type => _body.type;
+}
+
 /// The body of a [HttpRequest].
 ///
 /// Headers can be read, and a response can be sent, through [request].
-class HttpRequestBody extends HttpBody {
+abstract class HttpRequestBody<T> implements HttpBody<T> {
   /// The wrapped request.
   ///
   /// Note that the [HttpRequest] is already drained, so the
   /// `Stream` methods cannot be used.
-  final HttpRequest request;
-
-  HttpRequestBody._(this.request, HttpBody body) : super._(body.type, body.body);
+  HttpRequest get request;
 }
 
-/// TODO interface ind impl
+/// The body of a [HttpRequest].
+///
+/// Headers can be read, and a response can be sent, through [request].
+class HttpRequestBodyImpl<T> implements HttpRequestBody<T> {
+  @override
+  final HttpRequest request;
+  final HttpBody<T> _body;
+
+  const HttpRequestBodyImpl._(this.request, this._body);
+
+  @override
+  T get body => _body.body;
+
+  @override
+  String get type => _body.type;
+}
+
 /// A wrapper around a file upload.
-class HttpBodyFileUpload {
+abstract class HttpBodyFileUpload<T> {
   /// The filename of the uploaded file.
-  final String filename;
+  String get filename;
 
   /// The [ContentType] of the uploaded file.
   ///
   /// For `text/*` and `application/json` the [content] field will a String.
-  final ContentType? contentType;
+  ContentType? get contentType;
 
   /// The content of the file.
   ///
   /// Either a [String] or a [List<int>].
-  final dynamic content;
-
-  const HttpBodyFileUpload._(this.contentType, this.filename, this.content);
+  T get content;
 }
 
-Future<HttpBody> _process(
+class HttpBodyFileUploadImpl<T> implements HttpBodyFileUpload<T> {
+  @override
+  final String filename;
+  @override
+  final ContentType? contentType;
+  @override
+  final T content;
+
+  const HttpBodyFileUploadImpl._(this.contentType, this.filename, this.content);
+}
+
+Future<HttpBody<dynamic>> _process(
   Stream<List<int>> stream,
   HttpHeaders headers,
   Encoding defaultEncoding,
 ) async {
-  Future<HttpBody> asBinary() async {
+  Future<HttpBody<Uint8List>> asBinary() async {
     final builder = await stream.fold<BytesBuilder>(BytesBuilder(), (builder, data) => builder..add(data));
-    return HttpBody._('binary', builder.takeBytes());
+    return HttpBodyImpl._('binary', builder.takeBytes());
   }
 
   if (headers.contentType == null) {
     return asBinary();
-  }
-  final contentType = headers.contentType!;
-  Future<HttpBody> asText(Encoding defaultEncoding) async {
-    Encoding? encoding;
-    final charset = contentType.charset;
-    if (charset != null) encoding = Encoding.getByName(charset);
-    encoding ??= defaultEncoding;
-    final dynamic buffer = await encoding.decoder.bind(stream).fold<dynamic>(
-          // ignore: avoid_dynamic_calls
-          StringBuffer(), (dynamic buffer, data) => buffer..write(data),
-        );
-    return HttpBody._('text', buffer.toString());
-  }
-
-  Future<HttpBody> asFormData() async {
-    final values = await MimeMultipartTransformer(contentType.parameters['boundary']!)
-        .bind(stream)
-        .map((part) => HttpMultipartFormData.parse(part, defaultEncoding: defaultEncoding))
-        .map((multipart) async {
-      dynamic data;
-      if (multipart.isText) {
-        final buffer = await multipart.fold<StringBuffer>(StringBuffer(), (b, dynamic s) => b..write(s));
-        data = buffer.toString();
-      } else {
-        final buffer = await multipart.fold<BytesBuilder>(BytesBuilder(), (b, dynamic d) => b..add(d as List<int>));
-        data = buffer.takeBytes();
-      }
-      final filename = multipart.contentDisposition.parameters['filename'];
-      if (filename != null) {
-        data = HttpBodyFileUpload._(multipart.contentType, filename, data);
-      }
-      return <dynamic>[multipart.contentDisposition.parameters['name'], data];
-    }).toList();
-    final parts = await Future.wait<List<dynamic>>(values);
-    final map = <String, dynamic>{};
-    for (final part in parts) {
-      map[part[0] as String] = part[1]; // Override existing entries.
+  } else {
+    final contentType = headers.contentType!;
+    Future<HttpBody<String>> asText(Encoding defaultEncoding) async {
+      Encoding? encoding;
+      final charset = contentType.charset;
+      if (charset != null) encoding = Encoding.getByName(charset);
+      encoding ??= defaultEncoding;
+      final dynamic buffer = await encoding.decoder.bind(stream).fold<dynamic>(
+            // ignore: avoid_dynamic_calls
+            StringBuffer(), (dynamic buffer, data) => buffer..write(data),
+          );
+      return HttpBodyImpl._('text', buffer.toString());
     }
-    return HttpBody._('form', map);
-  }
 
-  switch (contentType.primaryType) {
-    case 'text':
-      return asText(defaultEncoding);
-    case 'application':
-      switch (contentType.subType) {
-        case 'json':
-          final body = await asText(utf8);
-          return HttpBody._('json', jsonDecode(body.body as String));
-
-        case 'x-www-form-urlencoded':
-          final body = await asText(ascii);
-          final map = Uri.splitQueryString(body.body as String, encoding: defaultEncoding);
-          final result = <dynamic, dynamic>{};
-          for (final key in map.keys) {
-            result[key] = map[key];
+    Future<HttpBody<Map<String, dynamic>>> asFormData() async {
+      final values = await MimeMultipartTransformer(contentType.parameters['boundary']!)
+          .bind(stream)
+          .map((part) => HttpMultipartFormData.parse(part, defaultEncoding: defaultEncoding))
+          .map(
+        (multipart) async {
+          dynamic data;
+          if (multipart.isText) {
+            final buffer = await multipart.fold<StringBuffer>(StringBuffer(), (b, dynamic s) => b..write(s));
+            data = buffer.toString();
+          } else {
+            final buffer = await multipart.fold<BytesBuilder>(BytesBuilder(), (b, dynamic d) => b..add(d as List<int>));
+            data = buffer.takeBytes();
           }
-          return HttpBody._('form', result);
-
-        default:
-          break;
+          final filename = multipart.contentDisposition.parameters['filename'];
+          if (filename != null) {
+            data = HttpBodyFileUploadImpl<dynamic>._(multipart.contentType, filename, data);
+          }
+          return <dynamic>[
+            multipart.contentDisposition.parameters['name'],
+            data,
+          ];
+        },
+      ).toList();
+      final parts = await Future.wait<List<dynamic>>(values);
+      final map = <String, dynamic>{};
+      for (final part in parts) {
+        map[part[0] as String] = part[1]; // Override existing entries.
       }
-      break;
+      return HttpBodyImpl._('form', map);
+    }
 
-    case 'multipart':
-      switch (contentType.subType) {
-        case 'form-data':
-          return asFormData();
-
-        default:
-          break;
-      }
-      break;
-
-    default:
-      break;
+    switch (contentType.primaryType) {
+      case 'text':
+        return asText(defaultEncoding);
+      case 'application':
+        switch (contentType.subType) {
+          case 'json':
+            final body = await asText(utf8);
+            return HttpBodyImpl<dynamic>._('json', jsonDecode(body.body));
+          case 'x-www-form-urlencoded':
+            final body = await asText(ascii);
+            final map = Uri.splitQueryString(body.body, encoding: defaultEncoding);
+            final result = <dynamic, dynamic>{};
+            for (final key in map.keys) {
+              result[key] = map[key];
+            }
+            return HttpBodyImpl<dynamic>._('form', result);
+          default:
+            break;
+        }
+        break;
+      case 'multipart':
+        switch (contentType.subType) {
+          case 'form-data':
+            return asFormData();
+          default:
+            break;
+        }
+        break;
+      default:
+        break;
+    }
+    return asBinary();
   }
-
-  return asBinary();
 }
 
 /// The data in a `multipart/form-data` part.

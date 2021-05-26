@@ -27,7 +27,6 @@ void _testHttpClientResponseBody() {
         request.response.close();
       });
     });
-
     final client = HttpClient();
     try {
       final request = await client.get('localhost', server.port, '/');
@@ -41,7 +40,6 @@ void _testHttpClientResponseBody() {
         case 'json':
           expect(body.body, equals(expectedBody));
           break;
-
         default:
           fail('bad body type');
       }
@@ -61,7 +59,6 @@ void _testHttpClientResponseBody() {
   check('text/plain; charset=utf-8', [42], '*', 'text');
   check('text/plain; charset=us-ascii', [142], null, 'text', true);
   check('text/plain; charset=utf-8', [142], null, 'text', true);
-
   check('application/json', '{"val": 5}'.codeUnits, {'val': 5}, 'json');
   check('application/json', '{ bad json }'.codeUnits, null, 'json', true);
 }
@@ -85,17 +82,14 @@ void _testHttpServerRequestBody() {
           expect(body.request.headers.contentType!.mimeType, equals('text/plain'));
           expect(body.body, equals(expectedBody));
           break;
-
         case 'json':
           expect(body.request.headers.contentType!.mimeType, equals('application/json'));
           expect(body.body, equals(expectedBody));
           break;
-
         case 'binary':
           expect(body.request.headers.contentType, isNull);
           expect(body.body, equals(expectedBody));
           break;
-
         case 'form':
           final mimeType = body.request.headers.contentType!.mimeType;
           expect(mimeType, anyOf(equals('multipart/form-data'), equals('application/x-www-form-urlencoded')));
@@ -119,7 +113,6 @@ void _testHttpServerRequestBody() {
             }
           }
           break;
-
         default:
           throw StateError('bad body type');
       }
@@ -128,7 +121,6 @@ void _testHttpServerRequestBody() {
       // ignore: only_throw_errors
       if (!shouldFail) throw error;
     });
-
     final client = HttpClient();
     try {
       final request = await client.post('localhost', server.port, '/');
@@ -155,12 +147,9 @@ void _testHttpServerRequestBody() {
   check('text/plain; charset=utf-8', [42], '*', 'text');
   check('text/plain; charset=us-ascii', [142], null, 'text', shouldFail: true);
   check('text/plain; charset=utf-8', [142], null, 'text', shouldFail: true);
-
   check('application/json', '{"val": 5}'.codeUnits, {'val': 5}, 'json');
   check('application/json', '{ bad json }'.codeUnits, null, 'json', shouldFail: true);
-
   check(null, 'body'.codeUnits, 'body'.codeUnits, 'binary');
-
   check(
       'multipart/form-data; boundary=AaB03x',
       '''
@@ -172,7 +161,6 @@ Larry\r
           .codeUnits,
       {'name': 'Larry'},
       'form');
-
   check(
       'multipart/form-data; boundary=AaB03x',
       '''
@@ -187,7 +175,6 @@ File content\r
         'files': {'filename': 'myfile', 'contentType': 'application/octet-stream', 'content': 'File content'.codeUnits}
       },
       'form');
-
   check(
       'multipart/form-data; boundary=AaB03x',
       '''
@@ -207,7 +194,6 @@ File content\r
         'files': {'filename': 'myfile', 'contentType': 'text/plain', 'content': 'File content'}
       },
       'form');
-
   check(
       'multipart/form-data; boundary=AaB03x',
       '''
@@ -222,7 +208,6 @@ File content\r
         'files': {'filename': 'myfile', 'contentType': 'application/json', 'content': 'File content'}
       },
       'form');
-
   check(
       'application/x-www-form-urlencoded',
       '%E5%B9%B3%3D%E4%BB%AE%E5%90%8D=%E5%B9%B3%E4%BB%AE%E5%90%8D&b'
@@ -230,58 +215,41 @@ File content\r
           .codeUnits,
       {'平=仮名': '平仮名', 'b': '平仮名'},
       'form');
-
   check('application/x-www-form-urlencoded', 'a=%F8+%26%23548%3B'.codeUnits, null, 'form', shouldFail: true);
-
   check('application/x-www-form-urlencoded', 'a=%C0%A0'.codeUnits, null, 'form', shouldFail: true);
-
   check('application/x-www-form-urlencoded', 'a=x%A0x'.codeUnits, null, 'form', shouldFail: true);
-
   check('application/x-www-form-urlencoded', 'a=x%C0x'.codeUnits, null, 'form', shouldFail: true);
-
   check('application/x-www-form-urlencoded', 'a=%C3%B8+%C8%A4'.codeUnits, {'a': 'ø Ȥ'}, 'form');
-
   check('application/x-www-form-urlencoded', 'a=%F8+%26%23548%3B'.codeUnits, {'a': 'ø &#548;'}, 'form', defaultEncoding: latin1);
-
   check('application/x-www-form-urlencoded', 'name=%26'.codeUnits, {'name': '&'}, 'form', defaultEncoding: latin1);
-
   check('application/x-www-form-urlencoded', 'name=%F8%26'.codeUnits, {'name': 'ø&'}, 'form', defaultEncoding: latin1);
-
   check('application/x-www-form-urlencoded', 'name=%26%3B'.codeUnits, {'name': '&;'}, 'form', defaultEncoding: latin1);
-
   check('application/x-www-form-urlencoded', 'name=%26%23548%3B%26%23548%3B'.codeUnits, {'name': '&#548;&#548;'}, 'form',
       defaultEncoding: latin1);
-
   check('application/x-www-form-urlencoded', 'name=%26'.codeUnits, {'name': '&'}, 'form');
-
   check('application/x-www-form-urlencoded', 'name=%C3%B8%26'.codeUnits, {'name': 'ø&'}, 'form');
-
   check('application/x-www-form-urlencoded', 'name=%26%3B'.codeUnits, {'name': '&;'}, 'form');
-
   check('application/x-www-form-urlencoded', 'name=%C8%A4%26%23548%3B'.codeUnits, {'name': 'Ȥ&#548;'}, 'form');
-
   check('application/x-www-form-urlencoded', 'name=%C8%A4%C8%A4'.codeUnits, {'name': 'ȤȤ'}, 'form');
 }
 
 void main() {
   test('client response body', _testHttpClientResponseBody);
   test('server request body', _testHttpServerRequestBody);
-
   test('Does not close stream while requests are pending', () async {
     final data = StreamController<Uint8List>();
     final requests = Stream<HttpRequest>.fromIterable([FakeHttpRequest(Uri(), data: data.stream)]);
     var isDone = false;
-    requests.transform(HttpBodyHandler()).listen((_) {}, onDone: () => isDone = true);
+    requests.transform(const HttpBodyHandler()).listen((_) {}, onDone: () => isDone = true);
     await pumpEventQueue();
     expect(isDone, isFalse);
     await data.close();
     expect(isDone, isTrue);
   });
-
   test('Closes stream while no requests are pending', () async {
     const requests = Stream<HttpRequest>.empty();
     var isDone = false;
-    requests.transform(HttpBodyHandler()).listen((_) {}, onDone: () => isDone = true);
+    requests.transform(const HttpBodyHandler()).listen((_) {}, onDone: () => isDone = true);
     await pumpEventQueue();
     expect(isDone, isTrue);
   });
@@ -392,9 +360,6 @@ class FakeHttpHeaders implements HttpHeaders {
     _headers[name] = [value];
   }
 
-  /*
-   * Implemented to remove editor warnings
-   */
   @override
   dynamic noSuchMethod(Invocation invocation) {
     print([invocation.memberName, invocation.isGetter, invocation.isSetter, invocation.isMethod, invocation.isAccessor]);
@@ -454,9 +419,7 @@ class FakeHttpResponse implements HttpResponse {
   String get reasonPhrase => _findReasonPhrase(statusCode)!;
 
   @override
-  set reasonPhrase(String value) {
-    _reasonPhrase = value;
-  }
+  set reasonPhrase(String value) => _reasonPhrase = value;
 
   @override
   Future<dynamic> get done => _doneFuture;
@@ -468,9 +431,7 @@ class FakeHttpResponse implements HttpResponse {
   }
 
   @override
-  void add(List<int> data) {
-    _buffer.addAll(data);
-  }
+  void add(List<int> data) => _buffer.addAll(data);
 
   @override
   void addError(dynamic error, [StackTrace? stackTrace]) {
@@ -487,9 +448,6 @@ class FakeHttpResponse implements HttpResponse {
   @override
   void write(Object? obj) => add(utf8.encode(obj.toString()));
 
-  /*
-   * Implemented to remove editor warnings
-   */
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 
@@ -504,13 +462,13 @@ class FakeHttpResponse implements HttpResponse {
   String? _findReasonPhrase(int statusCode) {
     if (_reasonPhrase != null) {
       return _reasonPhrase;
-    }
-
-    switch (statusCode) {
-      case HttpStatus.notFound:
-        return 'Not Found';
-      default:
-        return 'Status $statusCode';
+    } else {
+      switch (statusCode) {
+        case HttpStatus.notFound:
+          return 'Not Found';
+        default:
+          return 'Status $statusCode';
+      }
     }
   }
 }
