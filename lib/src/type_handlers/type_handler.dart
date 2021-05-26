@@ -1,10 +1,26 @@
 import 'dart:async';
 import 'dart:io';
 
-class TypeHandler<T> {
-  TypeHandler(this.handler);
+abstract class TypeHandler<T> {
+  @Deprecated('Please create a subclass or use the named .make constructor')
+  factory TypeHandler(FutureOr Function(HttpRequest req, HttpResponse res, T value) handler) => _TypeHandlerImpl(handler);
+  factory TypeHandler.make(FutureOr Function(HttpRequest req, HttpResponse res, T value) handler) => _TypeHandlerImpl(handler);
 
-  FutureOr Function(HttpRequest req, HttpResponse res, T value) handler;
+  FutureOr handler(HttpRequest req, HttpResponse res, T value);
 
+  bool shouldHandle(dynamic item) => item is T;
+}
+
+class _TypeHandlerImpl<T> with TypeHandlerShouldHandleMixin<T> {
+  final FutureOr Function(HttpRequest req, HttpResponse res, T value) _handler;
+
+  const _TypeHandlerImpl(this._handler);
+
+  @override
+  FutureOr handler(HttpRequest req, HttpResponse res, T value) => _handler(req, res, value);
+}
+
+mixin TypeHandlerShouldHandleMixin<T> implements TypeHandler<T> {
+  @override
   bool shouldHandle(dynamic item) => item is T;
 }

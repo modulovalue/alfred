@@ -31,8 +31,7 @@ void runIsolate(dynamic message) async {
     (req, res) => {'test': true}
   ]);
 
-  app.get('/redirect',
-      (req, res) => res.redirect(Uri.parse('https://www.google.com')));
+  app.get('/redirect', (req, res) => res.redirect(Uri.parse('https://www.google.com')));
 
   app.get('/files', (req, res) => Directory('test/files'));
 
