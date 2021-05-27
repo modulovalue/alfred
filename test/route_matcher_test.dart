@@ -1,17 +1,19 @@
-import 'package:alfred/http_route.dart';
-import 'package:alfred/method.dart';
+import 'package:alfred/alfred/impl/alfred.dart';
+import 'package:alfred/base/impl/methods.dart';
+import 'package:alfred/http_route/impl/http_route.dart';
+import 'package:alfred/http_route/interface/http_route.dart';
 import 'package:alfred/middleware/impl/empty.dart';
 import 'package:test/test.dart';
 
 void main() {
   test('it should match routes correctly', () {
     const testRoutes = [
-      HttpRoute('/a/:id/go', EmptyMiddleware(), Method.get),
-      HttpRoute('/a', EmptyMiddleware(), Method.get),
-      HttpRoute('/b/a/:input/another', EmptyMiddleware(), Method.get),
-      HttpRoute('/b/a/:input', EmptyMiddleware(), Method.get),
-      HttpRoute('/b/B/:input', EmptyMiddleware(), Method.get),
-      HttpRoute('/[a-z]/yep', EmptyMiddleware(), Method.get),
+      HttpRouteImpl('/a/:id/go', EmptyMiddleware(), Methods.get),
+      HttpRouteImpl('/a', EmptyMiddleware(), Methods.get),
+      HttpRouteImpl('/b/a/:input/another', EmptyMiddleware(), Methods.get),
+      HttpRouteImpl('/b/a/:input', EmptyMiddleware(), Methods.get),
+      HttpRouteImpl('/b/B/:input', EmptyMiddleware(), Methods.get),
+      HttpRouteImpl('/[a-z]/yep', EmptyMiddleware(), Methods.get),
     ];
     expect(match('/a', testRoutes), ['/a']);
     expect(match('/a?query=true', testRoutes), ['/a']);
@@ -24,23 +26,23 @@ void main() {
   });
   test('it should match wildcards', () {
     const testRoutes = [
-      HttpRoute('*', EmptyMiddleware(), Method.get),
-      HttpRoute('/a', EmptyMiddleware(), Method.get),
-      HttpRoute('/b', EmptyMiddleware(), Method.get),
+      HttpRouteImpl('*', EmptyMiddleware(), Methods.get),
+      HttpRouteImpl('/a', EmptyMiddleware(), Methods.get),
+      HttpRouteImpl('/b', EmptyMiddleware(), Methods.get),
     ];
     expect(match('/a', testRoutes), ['*', '/a']);
   });
   test('it should generously match wildcards for sub-paths', () {
-    const testRoutes = [HttpRoute('path/*', EmptyMiddleware(), Method.get)];
+    const testRoutes = [HttpRouteImpl('path/*', EmptyMiddleware(), Methods.get)];
     expect(match('/path/to', testRoutes), ['path/*']);
     expect(match('/path/', testRoutes), ['path/*']);
     expect(match('/path', testRoutes), ['path/*']);
   });
   test('it should respect the route method', () {
     const testRoutes = [
-      HttpRoute('*', EmptyMiddleware(), Method.post),
-      HttpRoute('/a', EmptyMiddleware(), Method.get),
-      HttpRoute('/b', EmptyMiddleware(), Method.get),
+      HttpRouteImpl('*', EmptyMiddleware(), Methods.post),
+      HttpRouteImpl('/a', EmptyMiddleware(), Methods.get),
+      HttpRouteImpl('/b', EmptyMiddleware(), Methods.get),
     ];
     expect(match('/a', testRoutes), ['/a']);
   });
@@ -51,8 +53,11 @@ void main() {
     });
   });
   test('it should correctly match routes that have a partial match', () {
-    const testRoutes = [HttpRoute('/image', EmptyMiddleware(), Method.get), HttpRoute('/imageSource', EmptyMiddleware(), Method.get)];
-    expect(RouteMatcher.match('/imagesource', testRoutes, Method.get).map((e) => e.route).toList(), ['/imageSource']);
+    const testRoutes = [
+      HttpRouteImpl('/image', EmptyMiddleware(), Methods.get),
+      HttpRouteImpl('/imageSource', EmptyMiddleware(), Methods.get)
+    ];
+    expect(RouteMatcher.match('/imagesource', testRoutes, Methods.get).map((e) => e.route).toList(), ['/imageSource']);
   });
   test('it handles a dodgy getParams request', () {
     var hitError = false;
@@ -64,49 +69,49 @@ void main() {
     expect(hitError, true);
   });
   test('it should ignore a trailing slash', () {
-    const testRoutes = [HttpRoute('/b/', EmptyMiddleware(), Method.get)];
+    const testRoutes = [HttpRouteImpl('/b/', EmptyMiddleware(), Methods.get)];
     expect(match('/b?qs=true', testRoutes), ['/b/']);
   });
   test('it should ignore a trailing slash in reverse', () {
-    const testRoutes = [HttpRoute('/b', EmptyMiddleware(), Method.get)];
+    const testRoutes = [HttpRouteImpl('/b', EmptyMiddleware(), Methods.get)];
     expect(match('/b/?qs=true', testRoutes), ['/b']);
   });
   test('it should hit a wildcard route halfway through the uri', () {
     const testRoutes = [
-      HttpRoute('/route/*', EmptyMiddleware(), Method.get),
-      HttpRoute('/route/route2', EmptyMiddleware(), Method.get),
+      HttpRouteImpl('/route/*', EmptyMiddleware(), Methods.get),
+      HttpRouteImpl('/route/route2', EmptyMiddleware(), Methods.get),
     ];
     expect(match('/route/route2', testRoutes), ['/route/*', '/route/route2']);
   });
   test('it should hit a wildcard route halfway through the uri - sibling', () {
     const testRoutes = [
-      HttpRoute('/route*', EmptyMiddleware(), Method.get),
-      HttpRoute('/route', EmptyMiddleware(), Method.get),
-      HttpRoute('/route/test', EmptyMiddleware(), Method.get),
+      HttpRouteImpl('/route*', EmptyMiddleware(), Methods.get),
+      HttpRouteImpl('/route', EmptyMiddleware(), Methods.get),
+      HttpRouteImpl('/route/test', EmptyMiddleware(), Methods.get),
     ];
     expect(match('/route', testRoutes), ['/route*', '/route']);
     expect(match('/route/test', testRoutes), ['/route*', '/route/test']);
   });
   test('it should match wildcards in the middle', () {
     const testRoutes = [
-      HttpRoute('/a/*/b', EmptyMiddleware(), Method.get),
-      HttpRoute('/a/*/*/b', EmptyMiddleware(), Method.get),
+      HttpRouteImpl('/a/*/b', EmptyMiddleware(), Methods.get),
+      HttpRouteImpl('/a/*/*/b', EmptyMiddleware(), Methods.get),
     ];
     expect(match('/a', testRoutes), <String>[]);
     expect(match('/a/x/b', testRoutes), ['/a/*/b']);
     expect(match('/a/x/y/b', testRoutes), ['/a/*/b', '/a/*/*/b']);
   });
   test('it should match wildcards at the beginning', () {
-    const testRoutes = [HttpRoute('*.jpg', EmptyMiddleware(), Method.get)];
+    const testRoutes = [HttpRouteImpl('*.jpg', EmptyMiddleware(), Methods.get)];
     expect(match('xjpg', testRoutes), <String>[]);
     expect(match('.jpg', testRoutes), <String>['*.jpg']);
     expect(match('path/to/picture.jpg', testRoutes), <String>['*.jpg']);
   });
   test('it should match regex expressions within segments', () {
     const testRoutes = [
-      HttpRoute('[a-z]+/[0-9]+', EmptyMiddleware(), Method.get),
-      HttpRoute('[a-z]{5}', EmptyMiddleware(), Method.get),
-      HttpRoute('(a|b)/c', EmptyMiddleware(), Method.get),
+      HttpRouteImpl('[a-z]+/[0-9]+', EmptyMiddleware(), Methods.get),
+      HttpRouteImpl('[a-z]{5}', EmptyMiddleware(), Methods.get),
+      HttpRouteImpl('(a|b)/c', EmptyMiddleware(), Methods.get),
     ];
     expect(match('a/b', testRoutes), <String>[]);
     expect(match('3/a', testRoutes), <String>[]);
@@ -125,4 +130,4 @@ List<String> match(
   String input,
   List<HttpRoute> routes,
 ) =>
-    RouteMatcher.match(input, routes, Method.get).map((e) => e.route).toList();
+    RouteMatcher.match(input, routes, Methods.get).map((e) => e.route).toList();

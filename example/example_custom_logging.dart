@@ -1,4 +1,4 @@
-import 'package:alfred/base.dart';
+import 'package:alfred/alfred/impl/alfred.dart';
 import 'package:alfred/logging/impl/generalizing/log_type.dart';
 import 'package:alfred/logging/impl/generalizing/mixin.dart';
 import 'package:alfred/middleware/impl/value.dart';
@@ -7,8 +7,8 @@ import 'package:logging/logging.dart';
 // Use 'logging' package instead of default logger
 
 void main() {
-  final app = Alfred(
-    LOG: const CustomLogger(),
+  final app = AlfredImpl(
+    log: const CustomLogger(),
   );
   // Configure root logger
   Logger.root.level = Level.ALL; // defaults to Level.INFO

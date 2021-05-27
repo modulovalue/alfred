@@ -1,7 +1,3 @@
-// Copyright (c) 2013, the Dart project authors.  Please see the AUTHORS file
-// for details. All rights reserved. Use of this source code is governed by a
-// BSD-style license that can be found in the LICENSE file.
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -102,9 +98,7 @@ class HttpBodyHandler extends StreamTransformerBase<HttpRequest, HttpRequestBody
   /// [defaultEncoding] accordingly. This is required for parsing
   /// `multipart/form-data` content correctly. See the class comment
   /// for more information on `multipart/form-data`.
-  const HttpBodyHandler({
-    Encoding defaultEncoding = utf8,
-  }) : _defaultEncoding = defaultEncoding;
+  const HttpBodyHandler(Encoding defaultEncoding) : _defaultEncoding = defaultEncoding;
 
   /// Process and parse an incoming [HttpRequest].
   ///
@@ -397,7 +391,7 @@ class HttpMultipartFormData extends Stream<dynamic> {
   /// The values which indicate that no incoding was performed.
   ///
   /// https://www.w3.org/Protocols/rfc1341/5_Content-Transfer-Encoding.html
-  static const _transparentEncodings = ['7bit', '8bit', 'binary'];
+  static const List<String> _transparentEncodings = ['7bit', '8bit', 'binary'];
 
   /// Parse a [MimeMultipart] and return a [HttpMultipartFormData].
   ///

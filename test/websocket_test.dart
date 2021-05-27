@@ -40,7 +40,7 @@ void main() {
   });
 }
 
-class WebSocketSessionTest2Impl with WebSocketSessionMixin {
+class WebSocketSessionTest2Impl with WebSocketSessionStartMixin {
   int error = 0;
 
   WebSocketSessionTest2Impl();
@@ -65,7 +65,7 @@ class WebSocketSessionTest2Impl with WebSocketSessionMixin {
   void onOpen(WebSocket _) {}
 }
 
-class WebSocketSessionTest1Impl with WebSocketSessionMixin {
+class WebSocketSessionTest1Impl with WebSocketSessionStartMixin {
   bool opened = false;
 
   bool closed = false;

@@ -1,6 +1,7 @@
 import 'dart:isolate';
 
-import 'package:alfred/base.dart';
+import 'package:alfred/alfred/impl/alfred.dart';
+import 'package:alfred/base/unawaited.dart';
 import 'package:alfred/middleware/impl/value.dart';
 
 Future<void> main() async {
@@ -16,10 +17,7 @@ Future<void> main() async {
 /// run your entire app in an isolate so you don't run into trouble sharing DB
 /// connections etc. However you can engineer this however you like.
 Future<void> startInstance(dynamic message) async {
-  final app = Alfred();
+  final app = AlfredImpl();
   app.all('/example', const ValueMiddleware('Hello world'));
   await app.listen();
 }
-
-/// Simple function to prevent linting errors, can be ignored
-void unawaited(Future<dynamic> future) {}

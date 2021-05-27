@@ -1,9 +1,9 @@
-import 'package:alfred/base.dart';
+import 'package:alfred/alfred/impl/alfred.dart';
 import 'package:alfred/middleware/impl/request.dart';
 import 'package:alfred/middleware/impl/value.dart';
 
 Future<void> main() async {
-  final app = Alfred();
+  final app = AlfredImpl();
   app.all('*', RequestMiddleware((req) {
     // Perform action
     req.headers.add('x-custom-header', "Alfred isn't bad");

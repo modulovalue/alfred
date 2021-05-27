@@ -1,15 +1,15 @@
 import 'dart:io';
 
-import 'package:alfred/base.dart';
-import 'package:alfred/extensions.dart';
+import 'package:alfred/alfred/impl/alfred.dart';
+import 'package:alfred/alfred/impl/response.dart';
 import 'package:alfred/middleware/impl/response.dart';
 import 'package:alfred/middleware/impl/value.dart';
 
 Future<void> main() async {
-  final app = Alfred();
+  final app = AlfredImpl();
   app.get('/text', const ValueMiddleware('Text response'));
   app.get('/json', const ValueMiddleware({'json_response': true}));
-  app.get('/jsonExpressStyle', ResponseMiddleware((res) => res.json({'type': 'traditional_json_response'})));
+  app.get('/jsonExpressStyle', ResponseMiddleware((res) => AlfredHttpResponseImpl(res).json({'type': 'traditional_json_response'})));
   app.get('/file', ValueMiddleware(File('test/files/image.jpg')));
   app.get('/html', ResponseMiddleware((res) {
     res.headers.contentType = ContentType.html;

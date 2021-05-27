@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:alfred/base.dart';
-import 'package:alfred/extensions.dart';
+import 'package:alfred/alfred/impl/alfred.dart';
+import 'package:alfred/alfred/impl/request.dart';
+import 'package:alfred/alfred/impl/response.dart';
+import 'package:alfred/base/interface/exception.dart';
 import 'package:alfred/logging/impl/generalizing/log_type.dart';
 import 'package:alfred/logging/impl/generalizing/mixin.dart';
 import 'package:alfred/middleware/impl/callback.dart';
@@ -69,7 +71,7 @@ void main() {
   test('error handling', () async {
     await runTest(fn: (app, port) async {
       await app.close();
-      app = Alfred(onInternalError: MiddlewareImpl((req, res) {
+      app = AlfredImpl(onInternalError: MiddlewareImpl((req, res) {
         res.statusCode = 500;
         return {'message': 'error not handled'};
       }));
@@ -81,7 +83,7 @@ void main() {
   test('error default handling', () async {
     await runTest(fn: (app, port) async {
       await app.close();
-      app = Alfred();
+      app = AlfredImpl();
       await app.listen(port);
       app.get('/throwserror', MiddlewareImpl((req, res) => throw Exception('generic exception')));
       final response = await http.get(Uri.parse('http://localhost:$port/throwserror'));
@@ -91,7 +93,7 @@ void main() {
   test('not found handling', () async {
     await runTest(fn: (app, port) async {
       await app.close();
-      app = Alfred(onNotFound: MiddlewareImpl((req, res) {
+      app = AlfredImpl(onNotFound: MiddlewareImpl((req, res) {
         res.statusCode = 404;
         return {'message': 'not found'};
       }));
@@ -104,7 +106,7 @@ void main() {
   test('not found default handling', () async {
     await runTest(fn: (app, port) async {
       await app.close();
-      app = Alfred();
+      app = AlfredImpl();
       await app.listen(port);
       final response = await http.get(Uri.parse('http://localhost:$port/notfound'));
       expect(response.body, '404 not found');
@@ -132,16 +134,18 @@ void main() {
     });
   });
   test('not found with file type handler', () async {
-    await runTest(fn: (app, port) async {
-      app.onNotFound = MiddlewareImpl((req, res) {
+    await runTest(
+      fn: (app, port) async {
+        app.get('/index.html', MiddlewareImpl((req, res) => File('does-not.exists')));
+        final r = await http.get(Uri.parse('http://localhost:$port/index.html'));
+        expect(r.body, 'Custom404Message');
+        expect(r.statusCode, 404);
+      },
+      notFound: MiddlewareImpl((req, res) {
         res.statusCode = HttpStatus.notFound;
         return 'Custom404Message';
-      });
-      app.get('/index.html', MiddlewareImpl((req, res) => File('does-not.exists')));
-      final r = await http.get(Uri.parse('http://localhost:$port/index.html'));
-      expect(r.body, 'Custom404Message');
-      expect(r.statusCode, 404);
-    });
+      }),
+    );
   });
   test('it handles a post request', () async {
     await runTest(fn: (app, port) async {
@@ -226,7 +230,7 @@ void main() {
   });
   test('it throws and handles an exception', () async {
     await runTest(fn: (app, port) async {
-      app.get('/test', VoidCallbackMiddleware(() => throw const AlfredException(360, 'exception')));
+      app.get('/test', VoidCallbackMiddleware(() => throw const _AlfredExceptionImpl(360, 'exception')));
       final response = await http.get(Uri.parse('http://localhost:$port/test'));
       expect(response.body, 'exception');
       expect(response.statusCode, 360);
@@ -256,9 +260,9 @@ void main() {
   test('it parses a body', () async {
     await runTest(fn: (app, port) async {
       app.post('/test', MiddlewareImpl((req, res) async {
-        final body = await req.body;
+        final body = await AlfredHttpRequestImpl(req, app).body;
         expect(body is Map, true);
-        expect(req.contentType!.mimeType, 'application/json');
+        expect(AlfredHttpRequestImpl(req, app).contentType!.mimeType, 'application/json');
         return 'test result';
       }));
       final response = await http.post(Uri.parse('http://localhost:$port/test'),
@@ -269,7 +273,7 @@ void main() {
   test('it serves a file for download', () async {
     await runTest(fn: (app, port) async {
       app.get('/test', MiddlewareImpl((req, res) {
-        res.setDownload(filename: 'testfile.jpg');
+        AlfredHttpResponseImpl(res).setDownload(filename: 'testfile.jpg');
         return File('./test/files/image.jpg');
       }));
       final response = await http.get(Uri.parse('http://localhost:$port/test'));
@@ -280,7 +284,7 @@ void main() {
   test('it serves a pdf, setting the extension from the filename', () async {
     await runTest(fn: (app, port) async {
       app.get('/test', ResponseMiddleware((res) {
-        res.setContentTypeFromExtension('pdf');
+        AlfredHttpResponseImpl(res).setContentTypeFromExtension('pdf');
         return File('./test/files/dummy.pdf');
       }));
       final response = await http.get(Uri.parse('http://localhost:$port/test'));
@@ -291,7 +295,7 @@ void main() {
   test('it uses the json helper correctly', () async {
     await runTest(fn: (app, port) async {
       app.get('/test', ResponseMiddleware((res) async {
-        await res.json({'success': true});
+        await AlfredHttpResponseImpl(res).json({'success': true});
       }));
       final response = await http.get(Uri.parse('http://localhost:$port/test'));
       expect(response.body, '{"success":true}');
@@ -300,7 +304,7 @@ void main() {
   test('it uses the send helper correctly', () async {
     await runTest(fn: (app, port) async {
       app.get('/test', ResponseMiddleware((res) async {
-        await res.send('stuff');
+        await AlfredHttpResponseImpl(res).send('stuff');
       }));
       final response = await http.get(Uri.parse('http://localhost:$port/test'));
       expect(response.body, 'stuff');
@@ -372,7 +376,7 @@ void main() {
   });
   test('it handles params', () async {
     await runTest(fn: (app, port) async {
-      app.get('/test/:id', RequestMiddleware((req) => req.params['id']));
+      app.get('/test/:id', RequestMiddleware((req) => AlfredHttpRequestImpl(req, app).params['id']));
       final response = await http.get(Uri.parse('http://localhost:$port/test/15'));
       expect(response.body, '15');
     });
@@ -431,3 +435,18 @@ class TestLogger with AlfredLoggingDelegateGeneralizingMixin {
 }
 
 class _UnknownType {}
+
+/// Throw these exceptions to bubble up an error from sub functions and have them
+/// handled automatically for the client
+/// TODO have an adt for all errors any given method can throw. no catch all exception-types.
+class _AlfredExceptionImpl implements AlfredException {
+  /// The response to send to the client
+  @override
+  final Object? response;
+
+  /// The statusCode to send to the client
+  @override
+  final int statusCode;
+
+  const _AlfredExceptionImpl(this.statusCode, this.response);
+}

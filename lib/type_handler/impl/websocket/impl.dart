@@ -16,8 +16,8 @@ class TypeHandlerWebsocketImpl with TypeHandlerShouldHandleMixin<WebSocketSessio
       value.start(await WebSocketTransformer.upgrade(req));
 }
 
-/// Convenience wrapper around Dart IO WebSocket implementation
-mixin WebSocketSessionMixin implements WebSocketSession {
+/// Convenience wrapper around Dart IO WebSocket implementation.
+mixin WebSocketSessionStartMixin implements WebSocketSession {
   @override
   late WebSocket socket;
 
@@ -29,7 +29,13 @@ mixin WebSocketSessionMixin implements WebSocketSession {
       socket.listen(
         (dynamic data) {
           try {
-            onMessage(socket, data);
+            if (data is String) {
+              onMessage(socket, data);
+            } else if (data is List<int>) {
+              onMessage(socket, data);
+            } else {
+              throw Exception("Unknown data type emitted by socket. ${data.runtimeType}");
+            }
             // ignore: avoid_catches_without_on_clauses
           } catch (e) {
             onError(socket, e);

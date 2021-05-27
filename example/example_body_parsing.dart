@@ -1,11 +1,11 @@
-import 'package:alfred/base.dart';
-import 'package:alfred/extensions.dart';
+import 'package:alfred/alfred/impl/alfred.dart';
+import 'package:alfred/alfred/impl/request.dart';
 import 'package:alfred/middleware/impl/request.dart';
 
 Future<void> main() async {
-  final app = Alfred();
+  final app = AlfredImpl();
   app.post('/post-route', RequestMiddleware((req) async {
-    final body = await req.body; //JSON body
+    final body = await AlfredHttpRequestImpl(req, app).body; //JSON body
     // ignore: unnecessary_statements
     body != null; //true
   }));

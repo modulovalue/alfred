@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:alfred/base.dart';
+import 'package:alfred/alfred/impl/alfred.dart';
 import 'package:alfred/middleware/impl/value.dart';
 import 'package:alfred/middleware/impl/websocket.dart';
 import 'package:alfred/type_handler/impl/websocket/impl.dart';
 
 Future<void> main() async {
-  final app = Alfred();
+  final app = AlfredImpl();
   // Path to this Dart file
   final dir = File(Platform.script.path).parent.path;
   // Deliver web client for chat
@@ -19,7 +19,7 @@ Future<void> main() async {
   print('Listening on ${server.port}');
 }
 
-class MyWebSocketSession with WebSocketSessionMixin {
+class MyWebSocketSession with WebSocketSessionStartMixin {
   MyWebSocketSession();
 
   final users = <WebSocket>[];

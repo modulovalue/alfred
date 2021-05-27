@@ -1,11 +1,13 @@
-import 'package:alfred/base.dart';
+import 'package:alfred/alfred/impl/alfred.dart';
+import 'package:alfred/alfred/interface/alfred.dart';
 import 'package:alfred/middleware/impl/empty.dart';
 import 'package:test/test.dart';
 
 void main() {
   late Alfred app;
   setUp(() {
-    app = Alfred();
+    /// TODO replace with runTest
+    app = AlfredImpl();
   });
   test('it can compose requests', () async {
     final path = app.route('path');

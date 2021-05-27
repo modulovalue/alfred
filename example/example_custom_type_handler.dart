@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:alfred/base.dart';
+import 'package:alfred/alfred/impl/alfred.dart';
 import 'package:alfred/middleware/impl/value.dart';
 import 'package:alfred/type_handler/impl/mixin.dart';
 
@@ -12,7 +12,7 @@ class Chicken {
 }
 
 void main() {
-  final app = Alfred();
+  final app = AlfredImpl();
   app.typeHandlers.add(TypeHandlerImpl<Chicken>((req, res, val) async {
     res.write(val.response);
     await res.close();

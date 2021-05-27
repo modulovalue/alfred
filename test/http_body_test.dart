@@ -8,7 +8,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:alfred/parser_http_body.dart';
+import 'package:alfred/parse_http_body/interface/parse_http_body.dart';
 import 'package:test/test.dart';
 
 void _testHttpClientResponseBody() {
@@ -73,7 +73,7 @@ void _testHttpServerRequestBody() {
     Encoding defaultEncoding = utf8,
   }) async {
     final server = await HttpServer.bind('localhost', 0);
-    server.transform(HttpBodyHandler(defaultEncoding: defaultEncoding)).listen((body) {
+    server.transform(HttpBodyHandler(defaultEncoding)).listen((body) {
       if (shouldFail) return;
       expect(shouldFail, isFalse);
       expect(body.type, equals(type));
@@ -240,7 +240,7 @@ void main() {
     final data = StreamController<Uint8List>();
     final requests = Stream<HttpRequest>.fromIterable([FakeHttpRequest(Uri(), data: data.stream)]);
     var isDone = false;
-    requests.transform(const HttpBodyHandler()).listen((_) {}, onDone: () => isDone = true);
+    requests.transform(const HttpBodyHandler(utf8)).listen((_) {}, onDone: () => isDone = true);
     await pumpEventQueue();
     expect(isDone, isFalse);
     await data.close();
@@ -249,7 +249,7 @@ void main() {
   test('Closes stream while no requests are pending', () async {
     const requests = Stream<HttpRequest>.empty();
     var isDone = false;
-    requests.transform(const HttpBodyHandler()).listen((_) {}, onDone: () => isDone = true);
+    requests.transform(const HttpBodyHandler(utf8)).listen((_) {}, onDone: () => isDone = true);
     await pumpEventQueue();
     expect(isDone, isTrue);
   });

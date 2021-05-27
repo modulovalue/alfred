@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import '../../base/impl/methods.dart';
 import '../interface/middleware.dart';
 
 /// CORS Middleware.
@@ -15,7 +16,7 @@ class CorsMiddleware implements Middleware<void> {
   const CorsMiddleware({
     this.age = 86400,
     this.headers = '*',
-    this.methods = 'POST, GET, OPTIONS, PUT, PATCH',
+    this.methods = '${MethodPost.string}, ${MethodGet.string}, ${MethodOptions.string}, ${MethodPut.string}, ${MethodPatch.string}',
     this.origin = '*',
   });
 
@@ -25,7 +26,7 @@ class CorsMiddleware implements Middleware<void> {
     res.headers.set('Access-Control-Allow-Methods', methods);
     res.headers.set('Access-Control-Allow-Headers', headers);
     res.headers.set('Access-Control-Max-Age', age);
-    if (req.method == 'OPTIONS') {
+    if (req.method == MethodOptions.string) {
       res.close();
     }
   }

@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import '../../base.dart';
-import '../../extensions.dart';
+import '../../alfred/impl/alfred.dart';
+import '../../alfred/impl/response.dart';
 import 'mixin.dart';
 
 class TypeHandlerFileImpl with TypeHandlerShouldHandleMixin<File> {
@@ -15,7 +15,7 @@ class TypeHandlerFileImpl with TypeHandlerShouldHandleMixin<File> {
     File file,
   ) async {
     if (file.existsSync()) {
-      res.setContentTypeFromFile(file);
+      AlfredHttpResponseImpl(res).setContentTypeFromFile(file);
       await res.addStream(file.openRead());
       return res.close();
     } else {

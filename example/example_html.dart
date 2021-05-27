@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:alfred/base.dart';
+import 'package:alfred/alfred/impl/alfred.dart';
 import 'package:alfred/middleware/impl/response.dart';
 
 Future<void> main() async {
-  final app = Alfred();
+  final app = AlfredImpl();
   app.get('/html', ResponseMiddleware((res) {
     res.headers.contentType = ContentType.html;
     return '<html><body><h1>Title!</h1></body></html>';

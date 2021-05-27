@@ -1,8 +1,8 @@
-import 'package:alfred/base.dart';
+import 'package:alfred/alfred/impl/alfred.dart';
 import 'package:alfred/middleware/impl/request.dart';
 
 Future<void> main() async {
-  final app = Alfred();
+  final app = AlfredImpl();
   app.post('/route', RequestMiddleware((req) async {
     /// Handle /route?qsvar=true
     final result = req.uri.queryParameters['qsvar'];

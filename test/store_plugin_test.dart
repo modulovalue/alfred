@@ -1,21 +1,20 @@
 import 'dart:io';
 
-import 'package:alfred/base.dart';
-import 'package:alfred/extensions.dart';
+import 'package:alfred/alfred/impl/alfred.dart';
+import 'package:alfred/alfred/impl/request.dart';
+import 'package:alfred/alfred/interface/alfred.dart';
 import 'package:alfred/middleware/impl/request.dart';
 import 'package:alfred/middleware/impl/value.dart';
-import 'package:alfred/plugin_store.dart';
 import 'package:http/http.dart' as http;
 import 'package:test/test.dart';
 
 import 'common.dart';
 
 void main() {
-  List<HttpRequest> _outstandingRequests() => StorePluginData.singleton.allKeys();
   late Alfred app;
   late int port;
   setUp(() async {
-    app = Alfred();
+    app = AlfredImpl();
     port = await app.listenForTest();
   });
   tearDown(() async {
@@ -24,9 +23,9 @@ void main() {
   test('it should store and retrieve a value on a request', () async {
     var didHit = false;
     app.all('/test', RequestMiddleware((req) {
-      expect(req.route, '/test');
-      req.store.set('testValue', 'bah!');
-      expect(req.store.get<String>('testValue'), 'bah!');
+      expect(AlfredHttpRequestImpl(req, app).route, '/test');
+      AlfredHttpRequestImpl(req, app).store.set('testValue', 'bah!');
+      expect(AlfredHttpRequestImpl(req, app).store.get<String>('testValue'), 'bah!');
       didHit = true;
       return 'done';
     }));
@@ -43,16 +42,16 @@ void main() {
     app.removeOnDoneListener(listener);
     await http.get(Uri.parse('http://localhost:$port/test'));
     expect(hitCount, 1);
-    expect(_outstandingRequests().isEmpty, true);
+    expect(app.store.allKeys().isEmpty, true);
   });
   test('the store is correctly available across multiple routes', () async {
     var didHit = false;
     app.get('*', RequestMiddleware((req) {
-      req.store.set('userid', '123456');
+      AlfredHttpRequestImpl(req, app).store.set('userid', '123456');
     }));
     app.get('/user', RequestMiddleware((req) {
       didHit = true;
-      expect(req.store.get<String>('userid'), '123456');
+      expect(AlfredHttpRequestImpl(req, app).store.get<String>('userid'), '123456');
     }));
     await http.get(Uri.parse('http://localhost:$port/user'));
     expect(didHit, true);
