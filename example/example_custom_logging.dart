@@ -1,7 +1,7 @@
 import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/logging/impl/generalizing/log_type.dart';
-import 'package:alfred/logging/impl/generalizing/mixin.dart';
-import 'package:alfred/middleware/impl/value.dart';
+import 'package:alfred/alfred/impl/logging/log_type.dart';
+import 'package:alfred/alfred/impl/logging/mixin.dart';
+import 'package:alfred/alfred/impl/middleware/value.dart';
 import 'package:logging/logging.dart';
 
 // Use 'logging' package instead of default logger
@@ -16,8 +16,8 @@ void main() {
     print('${record.level.name}: ${record.time}: ${record.message}');
   });
   // Configure routing...
-  app.get('/resource', const ValueMiddleware('response'));
-  app.listen();
+  app.get('/resource', const ServeString('response'));
+  app.build();
 }
 
 

@@ -1,13 +1,13 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/middleware/impl/response.dart';
+import 'package:alfred/alfred/impl/middleware/impl.dart';
+import 'package:alfred/alfred/impl/middleware/value.dart';
 
 Future<void> main() async {
-  final app = AlfredImpl(onNotFound: ResponseMiddleware((HttpResponse res) {
-    res.statusCode = 404;
-    return {'message': 'not found'};
+  final app = AlfredImpl(onNotFound: MiddlewareBuilder((c) {
+    c.res.statusCode = 404;
+    return const ServeJson.map({'message': 'not found'}).process(c);
   }));
-  await app.listen();
+  await app.build();
 }

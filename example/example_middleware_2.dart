@@ -1,16 +1,16 @@
 import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/middleware/impl/request.dart';
-import 'package:alfred/middleware/impl/value.dart';
+import 'package:alfred/alfred/impl/middleware/impl.dart';
+import 'package:alfred/alfred/impl/middleware/value.dart';
 
 Future<void> main() async {
   final app = AlfredImpl();
-  app.all('*', RequestMiddleware((req) {
+  app.all('*', MiddlewareBuilder((c) async {
     // Perform action
-    req.headers.add('x-custom-header', "Alfred isn't bad");
+    c.req.headers.add('x-custom-header', "Alfred isn't bad");
     /// No need to call next as we don't send a response.
     /// Alfred will find the next matching route
   }));
     //Action performed next
-  app.get('/otherFunction', const ValueMiddleware({'message': 'complete'}));
-  await app.listen();
+  app.get('/otherFunction', const ServeJson.map({'message': 'complete'}));
+  await app.build();
 }

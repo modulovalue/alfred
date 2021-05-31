@@ -1,9 +1,10 @@
 import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/middleware/impl/empty.dart';
+import 'package:alfred/alfred/impl/middleware/value.dart';
+import 'package:alfred/util/print_routes.dart';
 
 Future<void> main() async {
   final app = AlfredImpl();
-  app.get('/html', const EmptyMiddleware());
-  app.printRoutes(); //Will print the routes to the console
-  await app.listen();
+  app.get('/html', const ClosingMiddleware());
+  printRoutes(app); // Will print the routes to the console.
+  await app.build();
 }

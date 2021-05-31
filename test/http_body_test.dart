@@ -8,7 +8,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:alfred/parse_http_body/interface/parse_http_body.dart';
+import 'package:alfred/alfred/impl/parse_http_body.dart';
+import 'package:alfred/alfred/interface/parse_http_body.dart';
 import 'package:test/test.dart';
 
 void _testHttpClientResponseBody() {
@@ -31,7 +32,7 @@ void _testHttpClientResponseBody() {
     try {
       final request = await client.get('localhost', server.port, '/');
       final response = await request.close();
-      final body = await HttpBodyHandler.processResponse(response);
+      final body = await HttpBodyHandlerImpl.processResponse(response);
       expect(shouldFail, isFalse);
       expect(body.type, equals(type));
       expect(body.response, isNotNull);
@@ -73,7 +74,7 @@ void _testHttpServerRequestBody() {
     Encoding defaultEncoding = utf8,
   }) async {
     final server = await HttpServer.bind('localhost', 0);
-    server.transform(HttpBodyHandler(defaultEncoding)).listen((body) {
+    server.transform(HttpBodyHandlerImpl(defaultEncoding)).listen((body) {
       if (shouldFail) return;
       expect(shouldFail, isFalse);
       expect(body.type, equals(type));
@@ -240,7 +241,7 @@ void main() {
     final data = StreamController<Uint8List>();
     final requests = Stream<HttpRequest>.fromIterable([FakeHttpRequest(Uri(), data: data.stream)]);
     var isDone = false;
-    requests.transform(const HttpBodyHandler(utf8)).listen((_) {}, onDone: () => isDone = true);
+    requests.transform(const HttpBodyHandlerImpl(utf8)).listen((_) {}, onDone: () => isDone = true);
     await pumpEventQueue();
     expect(isDone, isFalse);
     await data.close();
@@ -249,7 +250,7 @@ void main() {
   test('Closes stream while no requests are pending', () async {
     const requests = Stream<HttpRequest>.empty();
     var isDone = false;
-    requests.transform(const HttpBodyHandler(utf8)).listen((_) {}, onDone: () => isDone = true);
+    requests.transform(const HttpBodyHandlerImpl(utf8)).listen((_) {}, onDone: () => isDone = true);
     await pumpEventQueue();
     expect(isDone, isTrue);
   });

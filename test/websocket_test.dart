@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:alfred/middleware/impl/websocket.dart';
-import 'package:alfred/type_handler/impl/websocket/impl.dart';
+import 'package:alfred/alfred/impl/middleware/websocket.dart';
 import 'package:test/test.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -11,7 +10,7 @@ import 'common.dart';
 void main() {
   group("websocket", () {
     test('it correctly handles a websocket error', () async {
-      await runTest(fn: (alfred, port) async {
+      await runTest(fn: (alfred, built, port) async {
         final ws = WebSocketSessionTest2Impl();
         alfred.get('/ws', WebSocketValueMiddleware(ws));
         final channel = IOWebSocketChannel.connect('ws://localhost:$port/ws');
@@ -22,7 +21,7 @@ void main() {
       });
     });
     test('it can handle websockets', () async {
-      await runTest(fn: (alfred, port) async {
+      await runTest(fn: (alfred, built, port) async {
         final ws = WebSocketSessionTest1Impl();
         alfred.get('/ws', WebSocketValueMiddleware(ws));
         final channel = IOWebSocketChannel.connect('ws://localhost:$port/ws');

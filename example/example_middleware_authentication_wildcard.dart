@@ -1,18 +1,17 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/middleware/impl/empty.dart';
-import 'package:alfred/middleware/impl/response.dart';
+import 'package:alfred/alfred/impl/middleware/impl.dart';
+import 'package:alfred/alfred/impl/middleware/value.dart';
 
 Future<void> main() async {
   final app = AlfredImpl();
-  app.all('/resource*', ResponseMiddleware((HttpResponse res) async {
-    res.statusCode = 401;
-    await res.close();
+  app.all('/resource*', MiddlewareBuilder((c) async {
+    c.res.statusCode = 401;
+    await c.res.close();
   }));
-  app.get('/resource', const EmptyMiddleware()); //Will not be hit
-  app.post('/resource', const EmptyMiddleware()); //Will not be hit
-  app.post('/resource/1', const EmptyMiddleware()); //Will not be hit
-  await app.listen();
+  app.get('/resource', const ClosingMiddleware()); //Will not be hit
+  app.post('/resource', const ClosingMiddleware()); //Will not be hit
+  app.post('/resource/1', const ClosingMiddleware()); //Will not be hit
+  await app.build();
 }

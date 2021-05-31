@@ -10,9 +10,10 @@ dependencies:
   mime: ^1.0.0
   mime_type: ^1.0.0
   queue: ^3.1.0
+  universal_html: ^2.0.8
 
 dev_dependencies:
-  extra_pedantic: 1.4.0
+  extra_pedantic: 1.5.0
   http: ^0.13.2
   logging: ^1.0.1
   test: ^1.14.4

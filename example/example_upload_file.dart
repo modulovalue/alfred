@@ -1,20 +1,20 @@
 import 'dart:io';
 
 import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/alfred/impl/request.dart';
-import 'package:alfred/middleware/impl/request.dart';
-import 'package:alfred/middleware/impl/value.dart';
-import 'package:alfred/parse_http_body/interface/parse_http_body.dart';
+import 'package:alfred/alfred/impl/middleware/io.dart';
+import 'package:alfred/alfred/impl/middleware/value.dart';
+import 'package:alfred/alfred/interface/parse_http_body.dart';
 
 Future<void> main() async {
   final _uploadDirectory = Directory('uploadedFiles');
   final app = AlfredImpl();
-  app.get('/files/*', ValueMiddleware(_uploadDirectory));
+  app.get('/files/*', ServeDirectory(_uploadDirectory));
   // Example of handling a multipart/form-data file upload.
   app.post(
     '/upload',
-    RequestMiddleware((req) async {
-      final body = await AlfredHttpRequestImpl(req, app).bodyAsJsonMap;
+    /// TODO replace with json builder.
+    ServeJsonBuilder.map((context) async {
+      final body = Map<String, dynamic>.from((await context.body as Map?)!);
       // Create the upload directory if it doesn't exist
       // ignore: avoid_slow_async_io
       if (await _uploadDirectory.exists() == false) {
@@ -28,8 +28,8 @@ Future<void> main() async {
       // Return the path to the user.
       //
       // The path is served from the /files route above.
-      return {'path': 'https://${req.headers.host ?? ''}/files/${uploadedFile.filename}'};
+      return {'path': 'https://${context.req.headers.host ?? ''}/files/${uploadedFile.filename}'};
     }),
   );
-  await app.listen();
+  await app.build();
 }

@@ -1,34 +1,31 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/base/interface/exception.dart';
-import 'package:alfred/middleware/impl/empty.dart';
-import 'package:alfred/middleware/interface/middleware.dart';
+import 'package:alfred/alfred/impl/middleware/value.dart';
+import 'package:alfred/alfred/interface/alfred.dart';
+import 'package:alfred/alfred/interface/middleware.dart';
+import 'package:alfred/alfred/interface/serve_context.dart';
 
-class ExampleMiddleware implements Middleware<dynamic> {
+class ExampleMiddleware implements Middleware {
   const ExampleMiddleware();
 
   @override
-  FutureOr<dynamic> process(HttpRequest req, HttpResponse res) {
+  Future<dynamic> process(ServeContext context) async {
     // Do work.
-    if (req.headers.value('Authorization') != 'apikey') {
+    if (context.req.headers.value('Authorization') != 'apikey') {
       throw const _AlfredExceptionImpl(401, {'message': 'authentication failed'});
     }
   }
 }
 
-FutureOr<dynamic> exampleMiddlware(HttpRequest req, HttpResponse res) {}
-
 Future<void> main() async {
   final app = AlfredImpl();
-  app.all('/example/:id/:name', const EmptyMiddleware(), middleware: const [ExampleMiddleware()]);
-  await app.listen(); //Listening on port 3000
+  app.all('/example/:id/:name', const ClosingMiddleware());
+  await app.build(); //Listening on port 3000
 }
 
 /// Throw these exceptions to bubble up an error from sub functions and have them
 /// handled automatically for the client
-/// TODO have an adt for all errors any given method can throw. no catch all exception-types.
 class _AlfredExceptionImpl implements AlfredException {
   /// The response to send to the client
   @override

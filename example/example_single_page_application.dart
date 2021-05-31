@@ -1,13 +1,11 @@
-import 'dart:io';
-
 import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/middleware/impl/value.dart';
+import 'package:alfred/alfred/impl/middleware/io.dart';
 
 Future<void> main() async {
   final app = AlfredImpl();
   // Provide any static assets
-  app.get('/frontend/*', ValueMiddleware(Directory('spa')));
+  app.get('/frontend/*', ServeDirectory.at('test/files/spa'));
   // Let any other routes handle by client SPA
-  app.get('/frontend/*', ValueMiddleware(File('spa/index.html')));
-  await app.listen();
+  app.get('/frontend/*', ServeFile.at('test/files/spa/index.html'));
+  await app.build(6565);
 }

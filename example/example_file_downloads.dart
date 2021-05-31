@@ -1,14 +1,14 @@
-import 'dart:io';
-
 import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/alfred/impl/response.dart';
-import 'package:alfred/middleware/impl/response.dart';
+import 'package:alfred/alfred/impl/middleware/io.dart';
 
 Future<void> main() async {
   final app = AlfredImpl();
-  app.get('/image/download', ResponseMiddleware((res) {
-    AlfredHttpResponseImpl(res).setDownload(filename: 'image.jpg');
-    return File('test/files/image.jpg');
-  }));
-  await app.listen(); //Listening on port 3000
+  app.get(
+    '/image/download',
+    ServeDownload(
+      filename: 'image.jpg',
+      child: ServeFile.at('test/files/image.jpg'),
+    ),
+  );
+  await app.build(); //Listening on port 3000
 }

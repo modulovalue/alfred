@@ -1,13 +1,11 @@
 import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/alfred/impl/request.dart';
-import 'package:alfred/middleware/impl/request.dart';
+import 'package:alfred/alfred/impl/middleware/impl.dart';
 
 Future<void> main() async {
   final app = AlfredImpl();
-  app.post('/post-route', RequestMiddleware((req) async {
-    final body = await AlfredHttpRequestImpl(req, app).body; //JSON body
-    // ignore: unnecessary_statements
-    body != null; //true
+  app.post('/post-route', MiddlewareBuilder((context) async {
+    final body = await context.body; //JSON body
+    assert(body != null, "Body is not null");
   }));
-  await app.listen(); //Listening on port 3000
+  await app.build(); //Listening on port 3000
 }

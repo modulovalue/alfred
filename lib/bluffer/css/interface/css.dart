@@ -1,0 +1,32 @@
+abstract class CssStyleDeclaration2 {
+  String? get margin; //
+  String? get maxHeight; //
+  String? get maxWidth; //
+  String? get minHeight; //
+  String? get minWidth; //
+  String? get display; //
+  String? get backgroundColor; //
+  String? get backgroundImage; //
+  String? get backgroundPosition; //
+  String? get backgroundSize; //
+  String? get borderTopLeftRadius; //
+  String? get borderTopRightRadius; //
+  String? get borderBottomLeftRadius; //
+  String? get borderBottomRightRadius; //
+  String? get boxShadow; //
+  String? get flexDirection; //
+  String? get justifyContent; //
+  String? get alignItems; //
+  String? get flexGrow; //
+  String? get flexShrink; //
+  String? get flexBasis; //
+  String? get objectFit; //
+  String? get width; //
+  String? get height; //
+  String? get textAlign; //
+  String? get lineHeight; //
+  String? get fontSize; //
+  String? get color; //
+  String? get fontWeight; //
+  String? get fontFamily; //
+}
