@@ -22,7 +22,7 @@ class PublishingLogPrintImpl implements PublishingLog {
       output("  - '${item.path}' into > '${destination.path}'");
 
   @override
-  void processingRoute(WidgetRoute route) => //
+  void processingRoute(UrlWidgetRoute route) => //
       output('  [Route(${route.relativeUrl})]');
 
   @override

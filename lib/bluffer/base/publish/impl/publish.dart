@@ -4,7 +4,6 @@ import '../../../html/interface/html.dart';
 import '../../../widgets/localization/localizations.dart';
 import '../../../widgets/widget/impl/build_context.dart';
 import '../../../widgets/widget/interface/build_context.dart';
-import '../../../widgets/widget/interface/widget.dart';
 import '../../app.dart';
 import '../../assets.dart';
 import '../../locale.dart';
@@ -12,31 +11,18 @@ import '../interface/publishing_log.dart';
 import 'print_log.dart';
 
 void publishApp({
-  required Widget root,
+  required Application root,
   required void Function(String targetPath, HtmlElement2 element) serializeTo,
   Directory? directory,
   Directory? assets,
 }) =>
     publishRaw(
-      application: root is Application ? root : defaultApplication(child: root),
+      application: root ,
       directory: directory ?? Directory('build'),
       assetsDirectory: assets ?? Directory('example/assets'),
       log: const PublishingLogPrintImpl(print),
       assets: const AssetsDefaultImpl(),
       serializeTo: serializeTo,
-    );
-
-Application defaultApplication({
-  required Widget child,
-}) =>
-    Application(
-      routes: [
-        WidgetRoute(
-          title: (context) => 'Index',
-          builder: (context) => child,
-          relativeUrl: 'index',
-        ),
-      ],
     );
 
 void publishRaw({

@@ -14,14 +14,11 @@ import 'media_query_data.dart';
 
 class Application implements Widget {
   final String? currentRoute;
-  final List<WidgetRoute> routes;
-  final List<Locale> supportedLocales;
-  final List<String> stylesheetLinks;
-  final List<String> scriptLinks;
-  final ThemeData Function(BuildContext context)? theme;
-  final Widget Function(BuildContext context, WidgetRoute child)? builder;
+  final List<UrlWidgetRoute> routes;
+  final ApplicationWidget Function(WidgetRoute) application;
   @override
   final Key? key = null;
+  final List<Locale> supportedLocales;
 
   /// This list collectively defines the localized resources objects that can
   /// be retrieved with [Localizations.of].
@@ -29,13 +26,10 @@ class Application implements Widget {
 
   Application({
     required this.routes,
+    required this.application,
     this.currentRoute,
-    this.theme,
-    this.builder,
-    this.stylesheetLinks = const <String>[],
-    this.scriptLinks = const <String>[],
-    this.delegates = const <LocalizationsDelegate<dynamic>>[],
     this.supportedLocales = const <Locale>[Locale('en', 'US')],
+    this.delegates = const <LocalizationsDelegate<dynamic>>[],
   });
 
   Application withCurrentRoute(
@@ -44,19 +38,46 @@ class Application implements Widget {
       Application(
         currentRoute: currentRoute,
         routes: routes,
-        theme: theme,
-        stylesheetLinks: stylesheetLinks,
-        scriptLinks: scriptLinks,
-        delegates: delegates,
-        supportedLocales: supportedLocales,
-        builder: builder,
+        application: application,
       );
+
+  @override
+  HtmlElement2 renderHtml(BuildContext context) {
+    final currentRoute = routes.firstWhere((x) => x.relativeUrl == this.currentRoute);
+    return application(currentRoute).renderHtml(context);
+  }
+
+  @override
+  HtmlElement2 render(BuildContext context) {
+    final currentRoute = routes.firstWhere((x) => x.relativeUrl == this.currentRoute);
+    return application(currentRoute).render(context);
+  }
+
+  @override
+  Null renderCss(BuildContext context) => null;
+}
+
+class ApplicationWidget<ROUTE extends WidgetRoute> implements Widget {
+  final ROUTE route;
+  final List<String> stylesheetLinks;
+  final List<String> scriptLinks;
+  final ThemeData Function(BuildContext context)? theme;
+  final Widget Function(BuildContext context, ROUTE child)? builder;
+  @override
+  final Key? key = null;
+
+  ApplicationWidget({
+    required this.route,
+    this.theme,
+    this.builder,
+    this.stylesheetLinks = const <String>[],
+    this.scriptLinks = const <String>[],
+  });
 
   static const availableSizes = MediaSize.values;
 
   @override
   HtmlElement2 renderHtml(BuildContext context) {
-    final currentRoute = routes.firstWhere((x) => x.relativeUrl == this.currentRoute);
     return HtmlHtmlElement2Impl.make([
       HeadElement2Impl.make(
         [
@@ -66,7 +87,7 @@ class Application implements Widget {
             ..setAttribute('content', 'width=device-width, initial-scale=1'),
           for (final link in stylesheetLinks) //
             LinkElement2Impl(href: link, rel: 'stylesheet'),
-          ...currentRoute.head(context),
+          ...route.head(context),
         ],
       ),
       StyleElement2Impl.make([
@@ -85,7 +106,7 @@ class Application implements Widget {
                 child: Builder(
                   builder: (context) => Theme(
                     data: theme?.call(context),
-                    child: builder != null ? builder!(context, currentRoute) : currentRoute.builder(context),
+                    child: builder != null ? builder!(context, route) : route.build(context),
                   ),
                 ),
               ).render(context)
@@ -125,22 +146,56 @@ class Application implements Widget {
   }
 }
 
-class WidgetRoute {
+abstract class WidgetRoute {
+  String makeTitle(BuildContext context);
+
+  Widget build(BuildContext context);
+
+  Iterable<HtmlElement2> head(BuildContext context);
+}
+
+class WidgetRouteImpl with WidgetRouteMixin {
+  @override
   final String Function(BuildContext context) title;
-  final String relativeUrl;
+  @override
   final Widget Function(BuildContext context) builder;
 
-  const WidgetRoute({
+  const WidgetRouteImpl({
     required this.title,
-    required this.relativeUrl,
     required this.builder,
   });
+}
 
+mixin WidgetRouteMixin implements WidgetRoute {
+  String Function(BuildContext context) get title;
+
+  Widget Function(BuildContext context) get builder;
+
+  @override
   Iterable<HtmlElement2> head(BuildContext context) => //
       [TitleElement2Impl()..text = title(context)];
 
-  HtmlElement2 renderHtml(BuildContext context) => //
-      builder(context).render(context);
+  @override
+  Widget build(BuildContext context) => //
+      builder(context);
+
+  @override
+  String makeTitle(BuildContext context) => //
+      title(context);
+}
+
+class UrlWidgetRoute with WidgetRouteMixin {
+  final String relativeUrl;
+  @override
+  final String Function(BuildContext context) title;
+  @override
+  final Widget Function(BuildContext context) builder;
+
+  const UrlWidgetRoute({
+    required this.relativeUrl,
+    required this.title,
+    required this.builder,
+  });
 }
 
 String mediaClassForMediaSize(List<MediaSize> all, MediaSize size) {

@@ -30,8 +30,11 @@ void main() {
         const Locale('fr', 'FR'),
         const Locale('en', 'US'),
       ],
+      application: (route) => ApplicationWidget(
+        route: route,
+      ),
       routes: [
-        WidgetRoute(
+        UrlWidgetRoute(
           title: (context) {
             final locale = Localizations.localeOf(context);
             if (locale!.languageCode == 'fr') {
@@ -95,7 +98,7 @@ void main() {
                       borderRadius: BorderRadius.circular(5),
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ),

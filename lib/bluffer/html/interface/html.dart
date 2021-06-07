@@ -1,7 +1,6 @@
 import '../../css/interface/css.dart';
 
-/// TODO split into immutable, mutable and builder parts.
-/// TODO Html node should be a child of a HtmlEntity that has elements and nodes as children.
+/// TODO make them all be immutable.
 abstract class HtmlEntity {
   R acceptHtmlEntityOneArg<R, A>(HtmlEntityVisitorOneArg<R, A> v, A a);
 }
@@ -42,8 +41,9 @@ abstract class ScriptElement2 implements HtmlElement2 {
 }
 
 abstract class LinkElement2 implements HtmlElement2 {
-  abstract String? href;
-  abstract String? rel;
+  String? get href;
+
+  String? get rel;
 }
 
 abstract class TitleElement2 implements HtmlElement2 {

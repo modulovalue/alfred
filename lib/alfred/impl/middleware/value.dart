@@ -62,6 +62,19 @@ class ServeHtml implements Middleware {
   }
 }
 
+class ServeHtmlBuilder implements Middleware {
+  final String Function(ServeContext context) builder;
+
+  const ServeHtmlBuilder(this.builder);
+
+  @override
+  Future<void> process(ServeContext c) async {
+    c.res.headers.contentType = ContentType.html;
+    c.res.write(builder(c));
+    await c.res.close();
+  }
+}
+
 class ClosingMiddleware implements Middleware {
   const ClosingMiddleware();
 

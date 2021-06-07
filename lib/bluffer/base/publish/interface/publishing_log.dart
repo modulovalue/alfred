@@ -10,7 +10,7 @@ abstract class PublishingAssetLog {
 }
 
 abstract class PublishingRouteLog {
-  void processingRoute(WidgetRoute route);
+  void processingRoute(UrlWidgetRoute route);
 
   void processingRouteFile(File file);
 }

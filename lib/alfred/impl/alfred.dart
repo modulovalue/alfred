@@ -52,7 +52,7 @@ class AlfredImpl with HttpRouteFactoryBoilerplateMixin implements Alfred {
 
   @override
   Future<BuiltAlfredImpl> build([
-    int port = 3000,
+    int port = 80,
     String bindIp = '0.0.0.0',
     bool shared = true,
     int simultaneousProcessing = 50,

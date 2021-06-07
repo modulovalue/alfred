@@ -1,4 +1,3 @@
-
 abstract class MutableCssStyleDeclaration2 {
   set margin(String? _); //
   set maxHeight(String? _); //

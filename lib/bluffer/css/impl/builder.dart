@@ -1,5 +1,6 @@
 import '../interface/builder.dart';
 
+/// TODO make this be immutable and remove the mutable and builder interfaces
 class CssStyleDeclaration2BuilderImpl implements CssStyleDeclaration2Builder {
   @override
   String? margin;
