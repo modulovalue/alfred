@@ -15,23 +15,30 @@ class Padding implements Widget {
   final Key? key;
 
   const Padding({
-    this.child,
-    this.padding,
-    this.key,
+    final this.child,
+    final this.padding,
+    final this.key,
   });
 
   @override
-  CssStyleDeclaration2 renderCss(BuildContext context) {
-    final style = CssStyleDeclaration2BuilderImpl();
-    style.display = 'flex';
-    if (padding != null) {
-      style.margin = '${padding!.top}px ${padding!.right}px ${padding!.bottom}px ${padding!.left}px';
-    }
-    return style;
-  }
+  CssStyleDeclaration2 renderCss(
+    final BuildContext context,
+  ) =>
+      CssStyleDeclaration2BuilderImpl.build(
+        display: "flex",
+        margin: () {
+          if (padding != null) {
+            return '${padding!.top}px ${padding!.right}px ${padding!.bottom}px ${padding!.left}px';
+          } else {
+            return null;
+          }
+        }(),
+      );
 
   @override
-  HtmlElement2 renderHtml(BuildContext context) {
+  HtmlElement2 renderHtml(
+    final BuildContext context,
+  ) {
     if (child == null) {
       return DivElement2Impl();
     } else {
@@ -40,5 +47,8 @@ class Padding implements Widget {
   }
 
   @override
-  HtmlElement2 render(BuildContext context) => renderWidget(this, context);
+  HtmlElement2 render(
+    final BuildContext context,
+  ) =>
+      renderWidget(this, context);
 }

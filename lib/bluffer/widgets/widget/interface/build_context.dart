@@ -8,11 +8,16 @@ abstract class BuildContext {
 
   Assets get assets;
 
-  BuildContext withInherited(InheritedWidget widget);
+  BuildContext withInherited(
+    final InheritedWidget widget,
+  );
 
   Key createDefaultKey();
 
   T? dependOnInheritedWidgetOfExactType<T extends InheritedWidget>();
 
-  void setStyle(String className, CssStyleDeclaration2 css);
+  void setStyle(
+    final String className,
+    final CssStyleDeclaration2 css,
+  );
 }

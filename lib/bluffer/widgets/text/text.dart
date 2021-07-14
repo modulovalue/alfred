@@ -95,21 +95,23 @@ class Text implements Widget {
   ///
   /// The [data] parameter must not be null.
   const Text(
-    this.data, {
-    this.style,
-    this.strutStyle,
-    this.textAlign,
-    this.textDirection,
-    this.locale,
-    this.softWrap,
-    this.overflow,
-    this.textScaleFactor,
-    this.maxLines,
-    this.key,
+    final this.data, {
+    final this.style,
+    final this.strutStyle,
+    final this.textAlign,
+    final this.textDirection,
+    final this.locale,
+    final this.softWrap,
+    final this.overflow,
+    final this.textScaleFactor,
+    final this.maxLines,
+    final this.key,
   });
 
   @override
-  HtmlElement2 renderHtml(BuildContext context) {
+  HtmlElement2 renderHtml(
+    final BuildContext context,
+  ) {
     final lines = data.split('\n');
     return ParagraphElement2Impl()
       ..childNodes.addAll(
@@ -121,58 +123,65 @@ class Text implements Widget {
   }
 
   @override
-  CssStyleDeclaration2 renderCss(BuildContext context) {
-    final style = CssStyleDeclaration2BuilderImpl();
+  CssStyleDeclaration2 renderCss(
+    final BuildContext context,
+  ) {
     final textStyles = this.style ?? Theme.of(context)!.text.paragraph;
-    if (textAlign != null) {
-      switch (textAlign!) {
-        case TextAlign.end:
-          // TODO is this correct?
-          style.textAlign = 'right';
-          break;
-        case TextAlign.right:
-          style.textAlign = 'right';
-          break;
-        case TextAlign.center:
-          style.textAlign = 'center';
-          break;
-        case TextAlign.left:
-          style.textAlign = 'left';
-          break;
-        case TextAlign.justify:
-          // TODO is this correct?
-          style.textAlign = 'left';
-          break;
-        case TextAlign.start:
-          // TODO: is this correct?
-          style.textAlign = 'left';
-          break;
-      }
-    }
-    if (textStyles.height != null) {
-      style.lineHeight = '${textStyles.height}';
-    }
-    style.display = 'flex';
-    style.fontSize = (textStyles.fontSize ?? 12).toString();
-    style.color = (textStyles.color ?? const Color(0xFF000000)).toCss();
-    style.fontWeight = const <int, String>{
-      0: '100',
-      1: '200',
-      2: '300',
-      3: '400',
-      4: '500',
-      5: '600',
-      6: '700',
-      7: '800',
-      8: '900',
-    }[textStyles.fontWeight?.index ?? FontWeight.w400.index];
-    style.fontFamily = <String>[
-      if (textStyles.fontFamily != null) "'" + textStyles.fontFamily! + "'",
-      if (textStyles.fontFamilyFallback != null) ...textStyles.fontFamilyFallback!
-    ].join(', ');
-    return style;
+    return CssStyleDeclaration2BuilderImpl.build(
+      textAlign: () {
+        if (textAlign != null) {
+          switch (textAlign!) {
+            case TextAlign.end:
+              // TODO should be dynamic
+              return 'right';
+            case TextAlign.right:
+              return 'right';
+            case TextAlign.center:
+              return 'center';
+            case TextAlign.left:
+              return 'left';
+            case TextAlign.justify:
+              // TODO is this correct?
+              return 'left';
+            case TextAlign.start:
+              // TODO should be dynamic
+              return 'left';
+          }
+        } else {
+          return null;
+        }
+      }(),
+      lineHeight: () {
+        if (textStyles.height != null) {
+          return '${textStyles.height}';
+        } else {
+          return null;
+        }
+      }(),
+      display: 'flex',
+      fontSize: (textStyles.fontSize ?? 12).toString(),
+      color: (textStyles.color ?? const Color(0xFF000000)).toCss(),
+      fontWeight: const <int, String>{
+        0: '100',
+        1: '200',
+        2: '300',
+        3: '400',
+        4: '500',
+        5: '600',
+        6: '700',
+        7: '800',
+        8: '900',
+      }[textStyles.fontWeight?.index ?? FontWeight.w400.index],
+      fontFamily: <String>[
+        if (textStyles.fontFamily != null) "'" + textStyles.fontFamily! + "'",
+        if (textStyles.fontFamilyFallback != null) ...textStyles.fontFamilyFallback!
+      ].join(', '),
+    );
   }
 
   @override
-  HtmlElement2 render(BuildContext context) => renderWidget(this, context);
+  HtmlElement2 render(
+    final BuildContext context,
+  ) =>
+      renderWidget(this, context);
 }

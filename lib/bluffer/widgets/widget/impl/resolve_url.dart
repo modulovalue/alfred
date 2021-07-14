@@ -3,7 +3,10 @@ import 'dart:io';
 import '../interface/build_context.dart';
 import 'widget_mixin.dart';
 
-String resolveUrl(BuildContext context, String url) {
+String resolveUrl(
+  final BuildContext context,
+  final String url,
+) {
   if (url.startsWith('asset://')) {
     return context.assets.local.path + Platform.pathSeparator + url.replaceAll('asset://', '');
   } else if (url.startsWith('#')) {

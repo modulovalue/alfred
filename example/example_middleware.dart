@@ -6,6 +6,12 @@ import 'package:alfred/alfred/interface/alfred.dart';
 import 'package:alfred/alfred/interface/middleware.dart';
 import 'package:alfred/alfred/interface/serve_context.dart';
 
+Future<void> main() async {
+  final app = AlfredImpl();
+  app.all('/example/:id/:name', const ClosingMiddleware());
+  await app.build(); //Listening on port 3000
+}
+
 class ExampleMiddleware implements Middleware {
   const ExampleMiddleware();
 
@@ -16,12 +22,6 @@ class ExampleMiddleware implements Middleware {
       throw const _AlfredExceptionImpl(401, {'message': 'authentication failed'});
     }
   }
-}
-
-Future<void> main() async {
-  final app = AlfredImpl();
-  app.all('/example/:id/:name', const ClosingMiddleware());
-  await app.build(); //Listening on port 3000
 }
 
 /// Throw these exceptions to bubble up an error from sub functions and have them

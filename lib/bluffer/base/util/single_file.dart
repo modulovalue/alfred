@@ -8,7 +8,9 @@ import '../assets.dart';
 import '../media_query_data.dart';
 import '../publish/impl/via_manual.dart';
 
-String singlePage(Widget Function(BuildContext) child) => //
+String singlePage(
+  final Widget Function(BuildContext) child,
+) => //
     elementToStringViaManual(
       MediaQuery(
         data: const MediaQueryDataImpl(

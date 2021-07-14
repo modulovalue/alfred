@@ -15,27 +15,38 @@ class SizedBox implements Widget {
   final Key? key;
 
   const SizedBox({
-    this.child,
-    this.width,
-    this.height,
-    this.key,
+    final this.child,
+    final this.width,
+    final this.height,
+    final this.key,
   });
 
   @override
-  CssStyleDeclaration2 renderCss(BuildContext context) {
-    final style = CssStyleDeclaration2BuilderImpl();
-    if (width != null) {
-      style.width = '${width}px';
-    }
-    if (height != null) {
-      style.height = '${height}px';
-    }
-    style.flexShrink = '0';
-    return style;
-  }
+  CssStyleDeclaration2 renderCss(
+    final BuildContext context,
+  ) =>
+      CssStyleDeclaration2BuilderImpl.build(
+        flexShrink: '0',
+        width: () {
+          if (width != null) {
+            return '${width}px';
+          } else {
+            return null;
+          }
+        }(),
+        height: () {
+          if (height != null) {
+            return '${height}px';
+          } else {
+            return null;
+          }
+        }(),
+      );
 
   @override
-  HtmlElement2 renderHtml(BuildContext context) {
+  HtmlElement2 renderHtml(
+    final BuildContext context,
+  ) {
     if (child == null) {
       return DivElement2Impl();
     } else {
@@ -44,5 +55,8 @@ class SizedBox implements Widget {
   }
 
   @override
-  HtmlElement2 render(BuildContext context) => renderWidget(this, context);
+  HtmlElement2 render(
+    final BuildContext context,
+  ) =>
+      renderWidget(this, context);
 }

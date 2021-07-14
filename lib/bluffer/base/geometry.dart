@@ -11,15 +11,18 @@ import 'lerp.dart';
 /// Base class for [Size] and [Offset], which are both ways to describe
 /// a distance as a two-dimensional axis-aligned vector.
 abstract class OffsetBase {
+  final double _dx;
+  final double _dy;
+
   /// Abstract const constructor. This constructor enables subclasses to provide
   /// const constructors so that they can be used in const expressions.
   ///
   /// The first argument sets the horizontal component, and the second the
   /// vertical component.
-  const OffsetBase(this._dx, this._dy);
-
-  final double _dx;
-  final double _dy;
+  const OffsetBase(
+    final this._dx,
+    final this._dy,
+  );
 
   /// Returns true if either component is [double.infinity], and false if both
   /// are finite (or negative infinity, or NaN).
@@ -1210,12 +1213,10 @@ class RRect {
   /// respective quadrant bisector.
   Rect get safeInnerRect {
     const double kInsetFactor = 0.29289321881; // 1-cos(pi/4)
-
     final double leftRadius = math.max(blRadiusX, tlRadiusX);
     final double topRadius = math.max(tlRadiusY, trRadiusY);
     final double rightRadius = math.max(trRadiusX, brRadiusX);
     final double bottomRadius = math.max(brRadiusY, blRadiusY);
-
     return Rect.fromLTRB(left + leftRadius * kInsetFactor, top + topRadius * kInsetFactor, right - rightRadius * kInsetFactor,
         bottom - bottomRadius * kInsetFactor);
   }
@@ -1333,7 +1334,6 @@ class RRect {
     scale = _getMin(scale, tlRadiusX, trRadiusX, width);
     scale = _getMin(scale, trRadiusY, brRadiusY, height);
     scale = _getMin(scale, brRadiusX, blRadiusX, width);
-
     if (scale < 1.0) {
       return RRect._raw(
         top: top,
@@ -1350,7 +1350,6 @@ class RRect {
         brRadiusY: brRadiusY * scale,
       );
     }
-
     return RRect._raw(
       top: top,
       left: left,
@@ -1375,45 +1374,46 @@ class RRect {
   /// using this method, prefer to reuse existing [RRect]s rather than
   /// recreating the object each time.
   bool contains(Offset point) {
-    if (point.dx < left || point.dx >= right || point.dy < top || point.dy >= bottom) return false; // outside bounding box
-
-    final RRect scaled = scaleRadii();
-
-    double x;
-    double y;
-    double radiusX;
-    double radiusY;
-    // check whether point is in one of the rounded corner areas
-    // x, y -> translate to ellipse center
-    if (point.dx < left + scaled.tlRadiusX && point.dy < top + scaled.tlRadiusY) {
-      x = point.dx - left - scaled.tlRadiusX;
-      y = point.dy - top - scaled.tlRadiusY;
-      radiusX = scaled.tlRadiusX;
-      radiusY = scaled.tlRadiusY;
-    } else if (point.dx > right - scaled.trRadiusX && point.dy < top + scaled.trRadiusY) {
-      x = point.dx - right + scaled.trRadiusX;
-      y = point.dy - top - scaled.trRadiusY;
-      radiusX = scaled.trRadiusX;
-      radiusY = scaled.trRadiusY;
-    } else if (point.dx > right - scaled.brRadiusX && point.dy > bottom - scaled.brRadiusY) {
-      x = point.dx - right + scaled.brRadiusX;
-      y = point.dy - bottom + scaled.brRadiusY;
-      radiusX = scaled.brRadiusX;
-      radiusY = scaled.brRadiusY;
-    } else if (point.dx < left + scaled.blRadiusX && point.dy > bottom - scaled.blRadiusY) {
-      x = point.dx - left - scaled.blRadiusX;
-      y = point.dy - bottom + scaled.blRadiusY;
-      radiusX = scaled.blRadiusX;
-      radiusY = scaled.blRadiusY;
+    if (point.dx < left || point.dx >= right || point.dy < top || point.dy >= bottom) {
+      // outside bounding box
+      return false;
     } else {
-      return true; // inside and not within the rounded corner area
+      final RRect scaled = scaleRadii();
+      double x;
+      double y;
+      double radiusX;
+      double radiusY;
+      // check whether point is in one of the rounded corner areas
+      // x, y -> translate to ellipse center
+      if (point.dx < left + scaled.tlRadiusX && point.dy < top + scaled.tlRadiusY) {
+        x = point.dx - left - scaled.tlRadiusX;
+        y = point.dy - top - scaled.tlRadiusY;
+        radiusX = scaled.tlRadiusX;
+        radiusY = scaled.tlRadiusY;
+      } else if (point.dx > right - scaled.trRadiusX && point.dy < top + scaled.trRadiusY) {
+        x = point.dx - right + scaled.trRadiusX;
+        y = point.dy - top - scaled.trRadiusY;
+        radiusX = scaled.trRadiusX;
+        radiusY = scaled.trRadiusY;
+      } else if (point.dx > right - scaled.brRadiusX && point.dy > bottom - scaled.brRadiusY) {
+        x = point.dx - right + scaled.brRadiusX;
+        y = point.dy - bottom + scaled.brRadiusY;
+        radiusX = scaled.brRadiusX;
+        radiusY = scaled.brRadiusY;
+      } else if (point.dx < left + scaled.blRadiusX && point.dy > bottom - scaled.blRadiusY) {
+        x = point.dx - left - scaled.blRadiusX;
+        y = point.dy - bottom + scaled.blRadiusY;
+        radiusX = scaled.blRadiusX;
+        radiusY = scaled.blRadiusY;
+      } else {
+        return true; // inside and not within the rounded corner area
+      }
+      x = x / radiusX;
+      y = y / radiusY;
+      // check if the point is outside the unit circle
+      if (x * x + y * y > 1.0) return false;
+      return true;
     }
-
-    x = x / radiusX;
-    y = y / radiusY;
-    // check if the point is outside the unit circle
-    if (x * x + y * y > 1.0) return false;
-    return true;
   }
 
   /// Linearly interpolate between two rounded rectangles.

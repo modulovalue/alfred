@@ -19,57 +19,120 @@ class DecoratedBox implements Widget {
   final Key? key;
 
   const DecoratedBox({
-    this.child,
-    this.decoration,
-    this.key,
+    final this.child,
+    final this.decoration,
+    final this.key,
   });
 
   @override
-  CssStyleDeclaration2 renderCss(BuildContext context) {
-    final style = CssStyleDeclaration2BuilderImpl();
-    style.display = 'flex';
-    if (decoration?.color != null) {
-      final _color = decoration!.color!.toCss();
-      style.backgroundColor = _color;
-    } else if (decoration?.image != null) {
-      style.backgroundImage = 'url(' + resolveUrl(context, decoration!.image!.image.url) + ')';
-    }
-    if (decoration != null) {
-      if (decoration!.image?.fit != null) {
-        style.backgroundPosition = 'center';
-        switch (decoration!.image!.fit!) {
-          case BoxFit.cover:
-            style.backgroundSize = 'cover';
-            break;
-          case BoxFit.fill:
-            style.backgroundSize = 'fill';
-            break;
-          case BoxFit.none:
-            style.backgroundSize = 'none';
-            break;
-          case BoxFit.scaleDown:
-            style.backgroundSize = 'scale-down';
-            break;
-          case BoxFit.contain:
-            style.backgroundSize = 'contain';
-            break;
-        }
-      }
-      final borderRadius = decoration!.borderRadius;
-      if (borderRadius is BorderRadius) {
-        style.borderTopLeftRadius = '${borderRadius.topLeft.x}px';
-        style.borderTopRightRadius = '${borderRadius.topRight.x}px';
-        style.borderBottomLeftRadius = '${borderRadius.bottomLeft.x}px';
-        style.borderBottomRightRadius = '${borderRadius.bottomRight.x}px';
-      }
-      if (decoration!.boxShadow.isNotEmpty) {
-        final shadow = decoration!.boxShadow.first;
-        final shadowColor = shadow.color.toCss();
-        style.boxShadow = '${shadow.offset.dx}px ${shadow.offset}px ${shadow.blurRadius}px ${shadow.spreadRadius}px ${shadowColor};';
-      }
-    }
-    return style;
-  }
+  CssStyleDeclaration2 renderCss(
+    final BuildContext context,
+  ) =>
+      CssStyleDeclaration2BuilderImpl.build(
+        display: "flex",
+        backgroundColor: () {
+          if (decoration?.color != null) {
+            final _color = decoration!.color!.toCss();
+            return _color;
+          } else if (decoration?.image != null) {
+            return 'url(' + resolveUrl(context, decoration!.image!.image.url) + ')';
+          }
+        }(),
+        backgroundPosition: () {
+          if (decoration != null) {
+            if (decoration!.image?.fit != null) {
+              return 'center';
+            } else {
+              return null;
+            }
+          } else {
+            return null;
+          }
+        }(),
+        backgroundSize: () {
+          if (decoration != null) {
+            if (decoration!.image?.fit != null) {
+              switch (decoration!.image!.fit!) {
+                case BoxFit.cover:
+                  return 'cover';
+                case BoxFit.fill:
+                  return 'fill';
+                case BoxFit.none:
+                  return 'none';
+                case BoxFit.scaleDown:
+                  return 'scale-down';
+                case BoxFit.contain:
+                  return 'contain';
+              }
+            } else {
+              return null;
+            }
+          } else {
+            return null;
+          }
+        }(),
+        boxShadow: () {
+          if (decoration != null) {
+            if (decoration!.boxShadow.isNotEmpty) {
+              final shadow = decoration!.boxShadow.first;
+              final shadowColor = shadow.color.toCss();
+              return '${shadow.offset.dx}px ${shadow.offset}px ${shadow.blurRadius}px ${shadow.spreadRadius}px ${shadowColor};';
+            } else {
+              return null;
+            }
+          } else {
+            return null;
+          }
+        }(),
+        borderTopLeftRadius: () {
+          if (decoration != null) {
+            final borderRadius = decoration!.borderRadius;
+            if (borderRadius is BorderRadius) {
+              return '${borderRadius.topLeft.x}px';
+            } else {
+              return null;
+            }
+          } else {
+            return null;
+          }
+        }(),
+        borderBottomLeftRadius: () {
+          if (decoration != null) {
+            final borderRadius = decoration!.borderRadius;
+            if (borderRadius is BorderRadius) {
+              return '${borderRadius.bottomLeft.x}px';
+            } else {
+              return null;
+            }
+          } else {
+            return null;
+          }
+        }(),
+        borderBottomRightRadius: () {
+          if (decoration != null) {
+            final borderRadius = decoration!.borderRadius;
+            if (borderRadius is BorderRadius) {
+              return '${borderRadius.bottomRight.x}px';
+            } else {
+              return null;
+            }
+          } else {
+            return null;
+          }
+        }(),
+        borderTopRightRadius: () {
+          if (decoration != null) {
+            final borderRadius = decoration!.borderRadius;
+            if (borderRadius is BorderRadius) {
+              return '${borderRadius.topRight.x}px';
+            } else {
+              return null;
+            }
+          } else {
+            return null;
+          }
+        }(),
+      );
 
   @override
   HtmlElement2 renderHtml(BuildContext context) {

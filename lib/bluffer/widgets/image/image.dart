@@ -19,21 +19,21 @@ class Image implements Widget {
   final Key? key;
 
   const Image({
-    required this.image,
-    this.key,
-    this.fit = BoxFit.cover,
-    this.width,
-    this.height,
-    this.semanticsLabel,
+    required final this.image,
+    final this.key,
+    final this.fit = BoxFit.cover,
+    final this.width,
+    final this.height,
+    final this.semanticsLabel,
   });
 
   Image.network(
-    String url, {
-    BoxFit fit = BoxFit.cover,
-    double? width,
-    double? height,
-    String? semanticsLabel,
-    Key? key,
+    final String url, {
+    final BoxFit fit = BoxFit.cover,
+    final double? width,
+    final double? height,
+    final String? semanticsLabel,
+    final Key? key,
   }) : this(
           key: key,
           fit: fit,
@@ -44,12 +44,12 @@ class Image implements Widget {
         );
 
   Image.asset(
-    String name, {
-    BoxFit fit = BoxFit.cover,
-    double? width,
-    double? height,
-    String? semanticsLabel,
-    Key? key,
+    final String name, {
+    final BoxFit fit = BoxFit.cover,
+    final double? width,
+    final double? height,
+    final String? semanticsLabel,
+    final Key? key,
   }) : this(
           key: key,
           fit: fit,
@@ -60,33 +60,45 @@ class Image implements Widget {
         );
 
   @override
-  CssStyleDeclaration2 renderCss(BuildContext context) {
-    final style = CssStyleDeclaration2BuilderImpl();
-    style.display = 'flex';
-    if (width != null) style.width = '${width}px';
-    if (height != null) style.height = '${height}px';
-    switch (fit) {
-      case BoxFit.cover:
-        style.objectFit = 'cover';
-        break;
-      case BoxFit.fill:
-        style.objectFit = 'fill';
-        break;
-      case BoxFit.none:
-        style.objectFit = 'none';
-        break;
-      case BoxFit.scaleDown:
-        style.objectFit = 'scale-down';
-        break;
-      case BoxFit.contain:
-        style.objectFit = 'contain';
-        break;
-    }
-    return style;
-  }
+  CssStyleDeclaration2 renderCss(
+    final BuildContext context,
+  ) =>
+      CssStyleDeclaration2BuilderImpl.build(
+        display: "flex",
+        width: () {
+          if (width != null) {
+            return '${width}px';
+          } else {
+            return null;
+          }
+        }(),
+        height: () {
+          if (height != null) {
+            return '${height}px';
+          } else {
+            return null;
+          }
+        }(),
+        objectFit: () {
+          switch (fit) {
+            case BoxFit.cover:
+              return 'cover';
+            case BoxFit.fill:
+              return 'fill';
+            case BoxFit.none:
+              return 'none';
+            case BoxFit.scaleDown:
+              return 'scale-down';
+            case BoxFit.contain:
+              return 'contain';
+          }
+        }(),
+      );
 
   @override
-  HtmlElement2 renderHtml(BuildContext context) {
+  HtmlElement2 renderHtml(
+    final BuildContext context,
+  ) {
     final result = ImageElement2Impl();
     result.src = resolveUrl(context, image.url);
     if (semanticsLabel != null) {
@@ -96,5 +108,8 @@ class Image implements Widget {
   }
 
   @override
-  HtmlElement2 render(BuildContext context) => renderWidget(this, context);
+  HtmlElement2 render(
+    final BuildContext context,
+  ) =>
+      renderWidget(this, context);
 }

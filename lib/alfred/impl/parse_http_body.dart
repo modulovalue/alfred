@@ -301,7 +301,6 @@ class HttpMultipartFormData extends Stream<dynamic> {
       throw HttpException('Unsupported contentTransferEncoding: '
           '${encoding.value}');
     }
-
     Stream<dynamic> stream = multipart;
     final isText = contentType == null || contentType.primaryType == 'text' || contentType.mimeType == 'application/json';
     if (isText) {
@@ -342,6 +341,6 @@ class HttpMultipartFormData extends Stream<dynamic> {
   /// If there is no header with the provided name, `null` will be returned.
   ///
   /// Use this method to index other headers available in the original
-  /// MimeMultipar].
+  /// MimeMultipart.
   String? value(String name) => _mimeMultipart.headers[name];
 }

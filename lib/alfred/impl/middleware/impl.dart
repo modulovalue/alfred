@@ -15,7 +15,7 @@ class MiddlewareBuilder implements Middleware {
 }
 
 class ServetBuilder implements Middleware {
-  final Future<Middleware> Function(ServeContext c) process_;
+  final FutureOr<Middleware> Function(ServeContext c) process_;
 
   const ServetBuilder(this.process_);
 

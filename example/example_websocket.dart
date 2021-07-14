@@ -68,9 +68,9 @@ Future<void> main() async {
 }
 
 class MyWebSocketSession with WebSocketSessionStartMixin {
-  MyWebSocketSession();
+  final List<WebSocket> users = [];
 
-  final users = <WebSocket>[];
+  MyWebSocketSession();
 
   @override
   void onClose(WebSocket ws) {

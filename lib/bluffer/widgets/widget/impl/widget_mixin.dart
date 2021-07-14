@@ -18,7 +18,6 @@ HtmlElement2 renderWidget(Widget widget, BuildContext context) {
     if (currentClasses != null && currentClasses != "") currentClasses,
     newClassKey.className,
   ].join(" ");
-
   final css = widget.renderCss(context);
   if (css != null) {
     context.setStyle(newClassKey.className,  css);

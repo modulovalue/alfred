@@ -1,20 +1,19 @@
 name: alfred
-description: A performant, expressjs like server framework thats easy to use and has all the bits in one place.
-version: 0.1.4+4
-repository: https://github.com/rknell/alfred
+
+publish_to: 'none'
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
-  mime: ^1.0.0
-  mime_type: ^1.0.0
-  queue: ^3.1.0
-  universal_html: ^2.0.8
+  mime: ^1.0.0 # TODO remove this dependency
+  mime_type: ^1.0.0 # TODO remove this dependency
+  queue: ^3.1.0 # TODO remove this dependency
+  universal_html: ^2.0.8 # TODO remove this dependency
 
 dev_dependencies:
   extra_pedantic: 1.5.0
   http: ^0.13.2
-  logging: ^1.0.1
+  logging: ^1.0.1 # TODO remove this dependency
   test: ^1.14.4
   web_socket_channel: ^2.0.0

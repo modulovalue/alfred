@@ -4,7 +4,10 @@ import 'servet.dart';
 ///
 /// [RouteServet]s contain [RouteServet]s.
 abstract class RouteServet<DATA> implements Servet<RouteServet<DATA>> {
-  R acceptRouteServet1<R, A>(RouteServetVisitorOneArg<DATA, R, A> v, A a);
+  R acceptRouteServet1<R, A>(
+    final RouteServetVisitorOneArg<DATA, R, A> v,
+    final A a,
+  );
 }
 
 /// Base class for [Servet]s that route to multiple routes.
@@ -20,9 +23,18 @@ abstract class LeafRouteServet<DATA> implements RouteServet<DATA>, LeafServet<Ro
 
 /// A one argument [RouteServet] visitor.
 abstract class RouteServetVisitorOneArg<DATA, R, A> {
-  R visitRouteServetLeaf(LeafRouteServet<DATA> node, A arg);
+  R visitRouteServetLeaf(
+    final LeafRouteServet<DATA> node,
+    final A arg,
+  );
 
-  R visitRouteServetPoly(PolyRouteServet<DATA> node, A arg);
+  R visitRouteServetPoly(
+    final PolyRouteServet<DATA> node,
+    final A arg,
+  );
 
-  R visitRouteServetMono(MonoRouteServet<DATA> node, A arg);
+  R visitRouteServetMono(
+    final MonoRouteServet<DATA> node,
+    final A arg,
+  );
 }

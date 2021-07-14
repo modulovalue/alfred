@@ -4,19 +4,31 @@ import '../interface/servet.dart';
 /// A [LeafRouteServet] mixin that visits its visitor.
 mixin LeafRouteServetVisitorMixin<TYPE> implements LeafRouteServet<TYPE> {
   @override
-  R acceptRouteServet1<R, A>(RouteServetVisitorOneArg<TYPE, R, A> v, A a) => v.visitRouteServetLeaf(this, a);
+  R acceptRouteServet1<R, A>(
+    final RouteServetVisitorOneArg<TYPE, R, A> v,
+    final A a,
+  ) =>
+      v.visitRouteServetLeaf(this, a);
 }
 
 /// A [PolyRouteServet] mixin that visits its visitor.
 mixin PolyRouteServetVisitorMixin<TYPE> implements PolyRouteServet<TYPE> {
   @override
-  R acceptRouteServet1<R, A>(RouteServetVisitorOneArg<TYPE, R, A> v, A a) => v.visitRouteServetPoly(this, a);
+  R acceptRouteServet1<R, A>(
+    final RouteServetVisitorOneArg<TYPE, R, A> v,
+    final A a,
+  ) =>
+      v.visitRouteServetPoly(this, a);
 }
 
 /// A [MonoRouteServet] mixin that visits its visitor.
 mixin MonoRouteServetVisitorMixin<TYPE> implements MonoRouteServet<TYPE> {
   @override
-  R acceptRouteServet1<R, A>(RouteServetVisitorOneArg<TYPE, R, A> v, A a) => v.visitRouteServetMono(this, a);
+  R acceptRouteServet1<R, A>(
+    final RouteServetVisitorOneArg<TYPE, R, A> v,
+    final A a,
+  ) =>
+      v.visitRouteServetMono(this, a);
 }
 
 /// A [PolyServet] that is backed by a child list.
@@ -27,5 +39,8 @@ mixin PolyRouteServetListMixin<DATA> implements PolyRouteServet<DATA> {
   int get length => children.length;
 
   @override
-  RouteServet<DATA> elementAt(int index) => children.elementAt(index);
+  RouteServet<DATA> elementAt(
+    final int index,
+  ) =>
+      children.elementAt(index);
 }

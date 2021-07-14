@@ -74,63 +74,54 @@ class Flex implements Widget {
   }
 
   @override
-  HtmlElement2 renderHtml(BuildContext context) {
-    return DivElement2Impl();
-  }
+  HtmlElement2 renderHtml(
+    final BuildContext context,
+  ) =>
+      DivElement2Impl();
 
   @override
-  CssStyleDeclaration2 renderCss(BuildContext context) {
-    final style = DivElement2Impl().style;
-    style.display = 'flex';
-    style.flexDirection = direction == Axis.horizontal ? 'row' : 'column';
-    switch (mainAxisAlignment) {
-      case MainAxisAlignment.end:
-        style.justifyContent = 'flex-end';
-        break;
-      case MainAxisAlignment.spaceAround:
-        style.justifyContent = 'space-around';
-        break;
-      case MainAxisAlignment.spaceBetween:
-        style.justifyContent = 'space-between';
-        break;
-      case MainAxisAlignment.spaceEvenly:
-        style.justifyContent = 'space-evenly';
-        break;
-      case MainAxisAlignment.center:
-        style.justifyContent = 'center';
-        break;
-      case MainAxisAlignment.start:
-        style.justifyContent = 'flex-start';
-        break;
-    }
-
-    switch (crossAxisAlignment) {
-      case CrossAxisAlignment.end:
-        style.alignItems = 'flex-end';
-        break;
-      case CrossAxisAlignment.baseline:
-        style.alignItems = 'baseline';
-        break;
-      case CrossAxisAlignment.stretch:
-        style.alignItems = 'stretch';
-        break;
-      case CrossAxisAlignment.center:
-        style.alignItems = 'center';
-        break;
-      case CrossAxisAlignment.start:
-        style.alignItems = 'flex-start';
-        break;
-    }
-    switch (mainAxisSize) {
-      case MainAxisSize.max:
-        style.justifyContent = 'stretch';
-        break;
-      case MainAxisSize.min:
-        // Do nothing.
-        break;
-    }
-    return style;
-  }
+  CssStyleDeclaration2 renderCss(
+    final BuildContext context,
+  ) =>
+      CssStyleDeclaration2BuilderImpl.build(
+        display: 'flex',
+        flexDirection: direction == Axis.horizontal ? 'row' : 'column',
+        justifyContent: () {
+          switch (mainAxisSize) {
+            case MainAxisSize.max:
+              return 'stretch';
+            case MainAxisSize.min:
+              switch (mainAxisAlignment) {
+                case MainAxisAlignment.end:
+                  return 'flex-end';
+                case MainAxisAlignment.spaceAround:
+                  return 'space-around';
+                case MainAxisAlignment.spaceBetween:
+                  return 'space-between';
+                case MainAxisAlignment.spaceEvenly:
+                  return 'space-evenly';
+                case MainAxisAlignment.center:
+                  return 'center';
+                case MainAxisAlignment.start:
+                  return 'flex-start';
+              }
+          }
+        }(),
+        alignItems: () {
+          switch (crossAxisAlignment) {
+            case CrossAxisAlignment.end:
+              return 'flex-end';
+            case CrossAxisAlignment.baseline:
+              return 'baseline';
+            case CrossAxisAlignment.stretch:
+              return 'stretch';
+            case CrossAxisAlignment.center:
+              return 'center';
+            case CrossAxisAlignment.start:
+              return 'flex-start';
+          }
+        }(),
+      );
 }
 
 class Flexible implements Widget {
@@ -163,26 +154,35 @@ class Flexible implements Widget {
   });
 
   @override
-  HtmlElement2 renderHtml(BuildContext context) {
-    return child.render(context);
-  }
+  HtmlElement2 renderHtml(
+    final BuildContext context,
+  ) =>
+      child.render(context);
 
   @override
-  CssStyleDeclaration2 renderCss(BuildContext context) {
-    final style = CssStyleDeclaration2BuilderImpl();
-    if (fit == FlexFit.tight) {
-      style.flexGrow = flex.toString();
-      style.flexShrink = '1';
-      style.flexBasis = '0';
-    } else {
-      style.flexGrow = '0';
-      style.flexShrink = flex.toString();
+  CssStyleDeclaration2 renderCss(
+    final BuildContext context,
+  ) {
+    switch (fit) {
+      case FlexFit.tight:
+        return CssStyleDeclaration2BuilderImpl.build(
+          flexGrow: flex.toString(),
+          flexShrink: '1',
+          flexBasis: '0',
+        );
+      case FlexFit.loose:
+        return CssStyleDeclaration2BuilderImpl.build(
+          flexGrow: '0',
+          flexShrink: flex.toString(),
+        );
     }
-    return style;
   }
 
   @override
-  HtmlElement2 render(BuildContext context) => renderWidget(this, context);
+  HtmlElement2 render(
+    final BuildContext context,
+  ) =>
+      renderWidget(this, context);
 }
 
 class Expanded extends Flexible {

@@ -72,7 +72,7 @@ class ServeDirectory implements Middleware {
     );
     final virtualPath = c.req.uri.path.substring(min(c.req.uri.path.length, usedRoute.indexOf('*')));
     final filePath = '${directory.path}/$virtualPath';
-    /// TODO separate logger.
+    // TODO separate logger.
     c.alfred.log.logTypeHandler(() => 'Resolve virtual path: $virtualPath');
     final fileCandidates = <File>[
       File(filePath),
@@ -81,7 +81,7 @@ class ServeDirectory implements Middleware {
     ];
     try {
       final match = fileCandidates.firstWhere((file) => file.existsSync());
-      /// TODO separate logger.
+      // TODO separate logger.
       c.alfred.log.logTypeHandler(() => 'Respond with file: ${match.path}');
       final c_ = c.res.headers.contentType;
       if (c_ == null || c_.mimeType == 'text/plain') {
@@ -91,7 +91,7 @@ class ServeDirectory implements Middleware {
       await c.res.close();
       // ignore: avoid_catching_errors
     } on StateError {
-      /// TODO separate logger.
+      // TODO separate logger.
       c.alfred.log.logTypeHandler(() => 'Could not match with any file. Expected file at: $filePath');
     }
   }

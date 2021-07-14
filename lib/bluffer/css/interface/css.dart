@@ -1,3 +1,4 @@
+/// TODO add a css_ property to each field to allow for future memory optimizations.
 abstract class CssStyleDeclaration2 {
   String? get margin; //
   String? get maxHeight; //

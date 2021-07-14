@@ -1,69 +1,136 @@
 // ignore: implementation_imports
 import 'package:universal_html/src/html.dart' as html;
 
-import '../../../css/impl/builder.dart';
 import '../../../html/impl/html.dart';
 import '../../../html/interface/html.dart';
 
-String elementToStringViaUniversal(HtmlElement2 entity) => //
-    entity
-        .acceptHtmlElementOneArg(
-          const HtmlElementToUniversalVisitorImpl(),
-          null,
-        )
-        .outerHtml!;
+String elementToStringViaUniversal(
+  final HtmlElement2 entity,
+) => //
+    entity.acceptHtmlElementOneArg(const HtmlElementToUniversalVisitorImpl(), null).outerHtml!;
 
 class _Selector implements HtmlEntityVisitorOneArg<html.Node, void> {
   const _Selector();
 
   @override
-  html.Node visitEntityElement(HtmlElement2 node, void arg) => //
+  html.Node visitEntityElement(
+    final HtmlElement2 node,
+    final void arg,
+  ) => //
       node.acceptHtmlElementOneArg(const HtmlElementToUniversalVisitorImpl(), null);
 
   @override
-  html.Node visitEntityNode(HtmlNode node, void arg) => //
+  html.Node visitEntityNode(
+    final HtmlNode node,
+    final void arg,
+  ) => //
       node.acceptHtmlNodeOneArg(const _Nodes(), null);
 }
 
 class HtmlElementToUniversalVisitorImpl implements HtmlElementVisitorOneArg<html.HtmlElement, void> {
   static R passOnHtmlElementValues<R extends html.HtmlElement>(
-    HtmlElement2 element,
-    R other,
+    final HtmlElement2 element,
+    final R other,
   ) {
-    if (element.style.margin != null) other.style.margin = element.style.margin;
-    if (element.style.maxHeight != null) other.style.maxHeight = element.style.maxHeight;
-    if (element.style.maxWidth != null) other.style.maxWidth = element.style.maxWidth;
-    if (element.style.minHeight != null) other.style.minHeight = element.style.minHeight;
-    if (element.style.minWidth != null) other.style.minWidth = element.style.minWidth;
-    if (element.style.display != null) other.style.display = element.style.display;
-    if (element.style.backgroundColor != null) other.style.backgroundColor = element.style.backgroundColor;
-    if (element.style.backgroundImage != null) other.style.backgroundImage = element.style.backgroundImage;
-    if (element.style.backgroundPosition != null) other.style.backgroundPosition = element.style.backgroundPosition;
-    if (element.style.backgroundSize != null) other.style.backgroundSize = element.style.backgroundSize;
-    if (element.style.borderTopLeftRadius != null) other.style.borderTopLeftRadius = element.style.borderTopLeftRadius;
-    if (element.style.borderTopRightRadius != null) other.style.borderTopRightRadius = element.style.borderTopRightRadius;
-    if (element.style.borderBottomLeftRadius != null) other.style.borderBottomLeftRadius = element.style.borderBottomLeftRadius;
-    if (element.style.borderBottomRightRadius != null) other.style.borderBottomRightRadius = element.style.borderBottomRightRadius;
-    if (element.style.boxShadow != null) other.style.boxShadow = element.style.boxShadow;
-    if (element.style.flexDirection != null) other.style.flexDirection = element.style.flexDirection;
-    if (element.style.justifyContent != null) other.style.justifyContent = element.style.justifyContent;
-    if (element.style.alignItems != null) other.style.alignItems = element.style.alignItems;
-    if (element.style.flexGrow != null) other.style.flexGrow = element.style.flexGrow;
-    if (element.style.flexShrink != null) other.style.flexShrink = element.style.flexShrink;
-    if (element.style.flexBasis != null) other.style.flexBasis = element.style.flexBasis;
-    if (element.style.height != null) other.style.height = element.style.height;
-    if (element.style.textAlign != null) other.style.textAlign = element.style.textAlign;
-    if (element.style.lineHeight != null) other.style.lineHeight = element.style.lineHeight;
-    if (element.style.fontSize != null) other.style.fontSize = element.style.fontSize;
-    if (element.style.color != null) other.style.color = element.style.color;
-    if (element.style.fontWeight != null) other.style.fontWeight = element.style.fontWeight;
-    if (element.style.fontFamily != null) other.style.fontFamily = element.style.fontFamily;
-    if (element.id != null) other.id = element.id!;
-    if (element.className != null) other.className = element.className;
-    return other
-      ..childNodes.addAll(
-        element.childNodes.map((a) => a.acceptHtmlEntityOneArg(const _Selector(), null)),
-      );
+    final a = element.style;
+    final b = other.style;
+    if (a.margin != null) {
+      b.margin = a.margin;
+    }
+    if (a.maxHeight != null) {
+      b.maxHeight = a.maxHeight;
+    }
+    if (a.maxWidth != null) {
+      b.maxWidth = a.maxWidth;
+    }
+    if (a.minHeight != null) {
+      b.minHeight = a.minHeight;
+    }
+    if (a.minWidth != null) {
+      b.minWidth = a.minWidth;
+    }
+    if (a.display != null) {
+      b.display = a.display;
+    }
+    if (a.backgroundColor != null) {
+      b.backgroundColor = a.backgroundColor;
+    }
+    if (a.backgroundImage != null) {
+      b.backgroundImage = a.backgroundImage;
+    }
+    if (a.backgroundPosition != null) {
+      b.backgroundPosition = a.backgroundPosition;
+    }
+    if (a.backgroundSize != null) {
+      b.backgroundSize = a.backgroundSize;
+    }
+    if (a.borderTopLeftRadius != null) {
+      b.borderTopLeftRadius = a.borderTopLeftRadius;
+    }
+    if (a.borderTopRightRadius != null) {
+      b.borderTopRightRadius = a.borderTopRightRadius;
+    }
+    if (a.borderBottomLeftRadius != null) {
+      b.borderBottomLeftRadius = a.borderBottomLeftRadius;
+    }
+    if (a.borderBottomRightRadius != null) {
+      b.borderBottomRightRadius = a.borderBottomRightRadius;
+    }
+    if (a.boxShadow != null) {
+      b.boxShadow = a.boxShadow;
+    }
+    if (a.flexDirection != null) {
+      b.flexDirection = a.flexDirection;
+    }
+    if (a.justifyContent != null) {
+      b.justifyContent = a.justifyContent;
+    }
+    if (a.alignItems != null) {
+      b.alignItems = a.alignItems;
+    }
+    if (a.flexGrow != null) {
+      b.flexGrow = a.flexGrow;
+    }
+    if (a.flexShrink != null) {
+      b.flexShrink = a.flexShrink;
+    }
+    if (a.flexBasis != null) {
+      b.flexBasis = a.flexBasis;
+    }
+    if (a.height != null) {
+      b.height = a.height;
+    }
+    if (a.textAlign != null) {
+      b.textAlign = a.textAlign;
+    }
+    if (a.lineHeight != null) {
+      b.lineHeight = a.lineHeight;
+    }
+    if (a.fontSize != null) {
+      b.fontSize = a.fontSize;
+    }
+    if (a.color != null) {
+      b.color = a.color;
+    }
+    if (a.fontWeight != null) {
+      b.fontWeight = a.fontWeight;
+    }
+    if (a.fontFamily != null) {
+      b.fontFamily = a.fontFamily;
+    }
+    if (element.id != null) {
+      other.id = element.id!;
+    }
+    if (element.className != null) {
+      other.className = element.className;
+    }
+    final otherChildNodes = other.childNodes;
+    final additionalNodes = [
+      for (final child in element.childNodes) //
+        child.acceptHtmlEntityOneArg(const _Selector(), null),
+    ];
+    otherChildNodes.addAll(additionalNodes);
+    return other;
   }
 
   const HtmlElementToUniversalVisitorImpl();
@@ -171,10 +238,12 @@ class _Nodes implements HtmlNodeVisitorOneArg<html.Node, void> {
   html.Node visitNodeStyle(
     CssTextElement2 node,
     void arg,
-  ) => //
-      html.Text(
-        '.${node.key} { ${const HtmlElementToUniversalVisitorImpl().visitElementDiv(DivElement2Impl.customStyle(node.css as CssStyleDeclaration2BuilderImpl), null).style.toString()} }',
-      );
+  ) {
+    final key = node.key;
+    final content = const HtmlElementToUniversalVisitorImpl().visitElementDiv(DivElement2Impl.custom(node.css), null).style.toString();
+    final text = '.${key} { $content }';
+    return html.Text(text);
+  }
 
   @override
   html.Node visitNodeText(

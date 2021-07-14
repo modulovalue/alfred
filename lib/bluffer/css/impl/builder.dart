@@ -1,67 +1,97 @@
-import '../interface/builder.dart';
+import '../interface/css.dart';
 
-/// TODO make this be immutable and remove the mutable and builder interfaces
-class CssStyleDeclaration2BuilderImpl implements CssStyleDeclaration2Builder {
+class CssStyleDeclaration2BuilderImpl implements CssStyleDeclaration2 {
   @override
-  String? margin;
+  final String? margin;
   @override
-  String? maxHeight;
+  final String? maxHeight;
   @override
-  String? maxWidth;
+  final String? maxWidth;
   @override
-  String? minHeight;
+  final String? minHeight;
   @override
-  String? minWidth;
+  final String? minWidth;
   @override
-  String? backgroundColor;
+  final String? backgroundColor;
   @override
-  String? backgroundImage;
+  final String? backgroundImage;
   @override
-  String? display;
+  final String? display;
   @override
-  String? backgroundPosition;
+  final String? backgroundPosition;
   @override
-  String? backgroundSize;
+  final String? backgroundSize;
   @override
-  String? borderTopLeftRadius;
+  final String? borderTopLeftRadius;
   @override
-  String? borderTopRightRadius;
+  final String? borderTopRightRadius;
   @override
-  String? borderBottomLeftRadius;
+  final String? borderBottomLeftRadius;
   @override
-  String? borderBottomRightRadius;
+  final String? borderBottomRightRadius;
   @override
-  String? boxShadow;
+  final String? boxShadow;
   @override
-  String? flexDirection;
+  final String? flexDirection;
   @override
-  String? justifyContent;
+  final String? justifyContent;
   @override
-  String? alignItems;
+  final String? alignItems;
   @override
-  String? flexGrow;
+  final String? flexGrow;
   @override
-  String? flexShrink;
+  final String? flexShrink;
   @override
-  String? flexBasis;
+  final String? flexBasis;
   @override
-  String? objectFit;
+  final String? objectFit;
   @override
-  String? width;
+  final String? width;
   @override
-  String? height;
+  final String? height;
   @override
-  String? textAlign;
+  final String? textAlign;
   @override
-  String? lineHeight;
+  final String? lineHeight;
   @override
-  String? fontSize;
+  final String? fontSize;
   @override
-  String? color;
+  final String? color;
   @override
-  String? fontWeight;
+  final String? fontWeight;
   @override
-  String? fontFamily;
+  final String? fontFamily;
 
-  CssStyleDeclaration2BuilderImpl();
+  const CssStyleDeclaration2BuilderImpl.build({
+    final this.margin,
+    final this.maxHeight,
+    final this.maxWidth,
+    final this.minHeight,
+    final this.minWidth,
+    final this.backgroundColor,
+    final this.backgroundImage,
+    final this.display,
+    final this.backgroundPosition,
+    final this.backgroundSize,
+    final this.borderTopLeftRadius,
+    final this.borderTopRightRadius,
+    final this.borderBottomLeftRadius,
+    final this.borderBottomRightRadius,
+    final this.boxShadow,
+    final this.flexDirection,
+    final this.justifyContent,
+    final this.alignItems,
+    final this.flexGrow,
+    final this.flexShrink,
+    final this.flexBasis,
+    final this.objectFit,
+    final this.width,
+    final this.height,
+    final this.textAlign,
+    final this.lineHeight,
+    final this.fontSize,
+    final this.color,
+    final this.fontWeight,
+    final this.fontFamily,
+  });
 }

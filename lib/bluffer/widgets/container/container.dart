@@ -25,35 +25,40 @@ class Container extends StatelessWidget {
     this.constraints,
     this.padding,
     Key? key,
-  }) : super(
-          key: key,
-        );
+  }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    var result = child;
+  Widget build(BuildContext context) => SizedBox(
+        width: width,
+        height: height,
+        child: _constrainedBox(
+          _decoratedBox(
+            _padding(child),
+          ),
+        ),
+      );
+
+  Widget? _padding(Widget? child) {
     if (padding != null) {
-      result = Padding(
-        child: result,
-        padding: padding,
-      );
+      return Padding(child: child, padding: padding);
+    } else {
+      return child;
     }
+  }
+
+  Widget? _decoratedBox(Widget? child) {
     if (decoration != null) {
-      result = DecoratedBox(
-        child: result,
-        decoration: decoration,
-      );
+      return DecoratedBox(child: child, decoration: decoration);
+    } else {
+      return child;
     }
+  }
+
+  Widget? _constrainedBox(Widget? child) {
     if (constraints != null) {
-      result = ConstrainedBox(
-        child: result,
-        constraints: constraints,
-      );
+      return ConstrainedBox(child: child, constraints: constraints);
+    } else {
+      return child;
     }
-    return SizedBox(
-      width: width,
-      height: height,
-      child: result,
-    );
   }
 }

@@ -12,6 +12,28 @@ import 'package:alfred/alfred/impl/parse_http_body.dart';
 import 'package:alfred/alfred/interface/parse_http_body.dart';
 import 'package:test/test.dart';
 
+void main() {
+  test('client response body', _testHttpClientResponseBody);
+  test('server request body', _testHttpServerRequestBody);
+  test('Does not close stream while requests are pending', () async {
+    final data = StreamController<Uint8List>();
+    final requests = Stream<HttpRequest>.fromIterable([FakeHttpRequest(Uri(), data: data.stream)]);
+    var isDone = false;
+    requests.transform(const HttpBodyHandlerImpl(utf8)).listen((_) {}, onDone: () => isDone = true);
+    await pumpEventQueue();
+    expect(isDone, isFalse);
+    await data.close();
+    expect(isDone, isTrue);
+  });
+  test('Closes stream while no requests are pending', () async {
+    const requests = Stream<HttpRequest>.empty();
+    var isDone = false;
+    requests.transform(const HttpBodyHandlerImpl(utf8)).listen((_) {}, onDone: () => isDone = true);
+    await pumpEventQueue();
+    expect(isDone, isTrue);
+  });
+}
+
 void _testHttpClientResponseBody() {
   Future<void> check(
     String mimeType,
@@ -234,30 +256,10 @@ File content\r
   check('application/x-www-form-urlencoded', 'name=%C8%A4%C8%A4'.codeUnits, {'name': 'ȤȤ'}, 'form');
 }
 
-void main() {
-  test('client response body', _testHttpClientResponseBody);
-  test('server request body', _testHttpServerRequestBody);
-  test('Does not close stream while requests are pending', () async {
-    final data = StreamController<Uint8List>();
-    final requests = Stream<HttpRequest>.fromIterable([FakeHttpRequest(Uri(), data: data.stream)]);
-    var isDone = false;
-    requests.transform(const HttpBodyHandlerImpl(utf8)).listen((_) {}, onDone: () => isDone = true);
-    await pumpEventQueue();
-    expect(isDone, isFalse);
-    await data.close();
-    expect(isDone, isTrue);
-  });
-  test('Closes stream while no requests are pending', () async {
-    const requests = Stream<HttpRequest>.empty();
-    var isDone = false;
-    requests.transform(const HttpBodyHandlerImpl(utf8)).listen((_) {}, onDone: () => isDone = true);
-    await pumpEventQueue();
-    expect(isDone, isTrue);
-  });
-}
-
 class FakeHttpHeaders implements HttpHeaders {
   final Map<String, List<String>> _headers = HashMap<String, List<String>>();
+
+  FakeHttpHeaders();
 
   @override
   List<String>? operator [](String key) => _headers[key];

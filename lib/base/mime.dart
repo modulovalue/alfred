@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:mime_type/mime_type.dart' as _m;
 
 /// Get the contentType header from the given file.
-ContentType? fileContentType(File file) {
+ContentType? fileContentType(
+  final File file,
+) {
   // Get the mimeType as a string from the name of the given file.
   final mimeType = _m.mime(file.path);
   if (mimeType != null) {
@@ -14,4 +16,7 @@ ContentType? fileContentType(File file) {
   }
 }
 
-String? mimeFromExtension(String extension) => _m.mimeFromExtension(extension);
+String? mimeFromExtension(
+  final String extension,
+) =>
+    _m.mimeFromExtension(extension);

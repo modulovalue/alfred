@@ -4,7 +4,9 @@ import '../alfred/interface/alfred.dart';
 ///
 /// Helpful to see whats available.
 /// TODO consider giving Method a visitor instead of a matcher.
-void printRoutes(Alfred alfred) {
+void printRoutes(
+  final Alfred alfred,
+) {
   for (final route in alfred.routes) {
     print(
       route.route +

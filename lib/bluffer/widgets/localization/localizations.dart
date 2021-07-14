@@ -62,11 +62,9 @@ class Localizations extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final typeToResources = <Type, dynamic>{};
-
     for (final delegate in delegates) {
       typeToResources[delegate.type] = waitFor(delegate.load(locale).then((dynamic a) => a as Type));
     }
-
     return _LocalizationsScope(
       child: child,
       typeToResources: typeToResources,
@@ -114,7 +112,6 @@ abstract class LocalizationsDelegate<T> {
 class _LocalizationsScope with InheritedWidgetMixin {
   /// The resources returned by [Localizations.of] will be specific to this locale.
   final Locale locale;
-
   final Map<Type, dynamic> typeToResources;
   @override
   final Widget child;

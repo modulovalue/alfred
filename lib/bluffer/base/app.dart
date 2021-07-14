@@ -58,6 +58,8 @@ class Application implements Widget {
 }
 
 class ApplicationWidget<ROUTE extends WidgetRoute> implements Widget {
+  static const List<MediaSize> availableSizes = MediaSize.values;
+
   final ROUTE route;
   final List<String> stylesheetLinks;
   final List<String> scriptLinks;
@@ -74,7 +76,6 @@ class ApplicationWidget<ROUTE extends WidgetRoute> implements Widget {
     this.scriptLinks = const <String>[],
   });
 
-  static const availableSizes = MediaSize.values;
 
   @override
   HtmlElement2 renderHtml(BuildContext context) {

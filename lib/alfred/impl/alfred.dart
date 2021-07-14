@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import '../../base/method.dart';
+import '../../base/parse_method.dart';
 import '../../base/unawaited.dart';
 import '../interface/alfred.dart';
 import '../interface/http_route_factory.dart';
@@ -87,7 +88,7 @@ class AlfredImpl with HttpRouteFactoryBoilerplateMixin implements Alfred {
       log.onResponseSent();
     }));
     // Work out all the routes we need to process
-    final matchedRoutes = matchRoute(request.uri.toString(), routes, Methods.tryParse(request.method) ?? Methods.get);
+    final matchedRoutes = matchRoute(request.uri.toString(), routes, parseHttpMethod(request.method) ?? Methods.get);
     try {
       if (matchedRoutes.isEmpty) {
         log.onNoMatchingRouteFound();

@@ -1,5 +1,6 @@
 import '../../base/keys.dart';
 import '../../css/impl/builder.dart';
+import '../../css/impl/empty.dart';
 import '../../css/interface/css.dart';
 import '../../html/impl/html.dart';
 import '../../html/interface/html.dart';
@@ -15,31 +16,39 @@ class ConstrainedBox implements Widget {
   final Key? key;
 
   const ConstrainedBox({
-    required this.child,
-    this.constraints,
-    this.key,
+    required final this.child,
+    final this.constraints,
+    final this.key,
   });
 
   @override
-  CssStyleDeclaration2 renderCss(BuildContext context) {
-    final style = CssStyleDeclaration2BuilderImpl();
+  CssStyleDeclaration2 renderCss(
+    final BuildContext context,
+  ) {
     if (constraints != null) {
-      style.margin = 'auto';
-      style.maxHeight = '${constraints!.maxHeight}px';
-      style.maxWidth = '${constraints!.maxWidth}px';
-      style.minHeight = '${constraints!.minHeight}px';
-      style.minWidth = '${constraints!.minWidth}px';
+      return CssStyleDeclaration2BuilderImpl.build(
+        margin: 'auto',
+        maxHeight: '${constraints!.maxHeight}px',
+        maxWidth: '${constraints!.maxWidth}px',
+        minHeight: '${constraints!.minHeight}px',
+        minWidth: '${constraints!.minWidth}px',
+      );
+    } else {
+      return const CssStyleDeclaration2EmptyImpl();
     }
-    return style;
   }
 
   @override
-  HtmlElement2 renderHtml(BuildContext context) {
-    return child?.render(context) ?? DivElement2Impl();
-  }
+  HtmlElement2 renderHtml(
+    final BuildContext context,
+  ) => //
+      child?.render(context) ?? DivElement2Impl();
 
   @override
-  HtmlElement2 render(BuildContext context) => renderWidget(this, context);
+  HtmlElement2 render(
+    final BuildContext context,
+  ) =>
+      renderWidget(this, context);
 }
 
 class BoxConstraints {
@@ -59,10 +68,10 @@ class BoxConstraints {
   /// Might be [double.infinity].
   final double maxHeight;
 
-  BoxConstraints({
-    required this.minWidth,
-    required this.maxWidth,
-    required this.minHeight,
-    required this.maxHeight,
+  const BoxConstraints({
+    required final this.minWidth,
+    required final this.maxWidth,
+    required final this.minHeight,
+    required final this.maxHeight,
   });
 }

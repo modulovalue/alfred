@@ -16,7 +16,7 @@ import 'package:test/test.dart';
 
 import 'common.dart';
 
-/// TODO replace image.jpg with something neutral.
+// TODO replace image.jpg with something neutral.
 void main() {
   test('runTest should be called', () async {
     bool called = false;

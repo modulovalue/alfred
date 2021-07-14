@@ -1,6 +1,9 @@
 /// A [Servet] is a server widget.
 abstract class Servet<TYPE> {
-  R acceptServet1<R, A>(ServetVisitorOneArg<TYPE, R, A> v, A a);
+  R acceptServet1<R, A>(
+    final ServetVisitorOneArg<TYPE, R, A> v,
+    final A a,
+  );
 }
 
 /// A [Servet] without any children.
@@ -10,7 +13,7 @@ abstract class LeafServet<TYPE> implements Servet<TYPE> {}
 abstract class PolyServet<TYPE> implements Servet<TYPE> {
   int get length;
 
-  TYPE elementAt(int index);
+  TYPE elementAt(final int index);
 }
 
 /// A [Servet] with one child.
@@ -20,9 +23,18 @@ abstract class MonoServet<TYPE> implements Servet<TYPE> {
 
 /// A one argument [Servet] visitor.
 abstract class ServetVisitorOneArg<TYPE, R, A> {
-  R visitServetLeaf(LeafServet<TYPE> node, A arg);
+  R visitServetLeaf(
+    final LeafServet<TYPE> node,
+    final A arg,
+  );
 
-  R visitServetPoly(PolyServet<TYPE> node, A arg);
+  R visitServetPoly(
+    final PolyServet<TYPE> node,
+    final A arg,
+  );
 
-  R visitServetMono(MonoServet<TYPE> node, A arg);
+  R visitServetMono(
+    final MonoServet<TYPE> node,
+    final A arg,
+  );
 }

@@ -80,77 +80,77 @@ abstract class BoxBorder extends ShapeBorder {
   @override
   BoxBorder? add(ShapeBorder other, {bool reversed = false}) => null;
 
-  // /// Linearly interpolate between two borders.
-  // ///
-  // /// If a border is null, it is treated as having four [BorderSide.none]
-  // /// borders.
-  // ///
-  // /// This supports interpolating between [Border] and [BorderDirectional]
-  // /// objects. If both objects are different types but both have sides on one or
-  // /// both of their lateral edges (the two sides that aren't the top and bottom)
-  // /// other than [BorderSide.none], then the sides are interpolated by reducing
-  // /// `a`'s lateral edges to [BorderSide.none] over the first half of the
-  // /// animation, and then bringing `b`'s lateral edges _from_ [BorderSide.none]
-  // /// over the second half of the animation.
-  // ///
-  // /// For a more flexible approach, consider [ShapeBorder.lerp], which would
-  // /// instead [add] the two sets of sides and interpolate them simultaneously.
-  // ///
-  // /// {@macro dart.ui.shadow.lerp}
-  // static BoxBorder? lerp(BoxBorder? a, BoxBorder? b, double t) {
-  //   assert(t != null);
-  //   if ((a is Border || a == null) && (b is Border || b == null)) {
-  //     return Border.lerp(a, b, t);
-  //   }
-  //   if ((a is BorderDirectional || a == null) && (b is BorderDirectional || b == null)) {
-  //     return BorderDirectional.lerp(a, b, t);
-  //   }
-  //   if (b is Border && a is BorderDirectional) {
-  //     final BoxBorder c = b;
-  //     b = a;
-  //     a = c;
-  //     t = 1.0 - t;
-  //     // fall through to next case
-  //   }
-  //   if (a is Border && b is BorderDirectional) {
-  //     if (b.start == BorderSide.none && b.end == BorderSide.none) {
-  //       // The fact that b is a BorderDirectional really doesn't matter, it turns out.
-  //       return Border(
-  //         top: BorderSide.lerp(a.top, b.top, t),
-  //         right: BorderSide.lerp(a.right, BorderSide.none, t),
-  //         bottom: BorderSide.lerp(a.bottom, b.bottom, t),
-  //         left: BorderSide.lerp(a.left, BorderSide.none, t),
-  //       );
-  //     }
-  //     if (a.left == BorderSide.none && a.right == BorderSide.none) {
-  //       // The fact that a is a Border really doesn't matter, it turns out.
-  //       return BorderDirectional(
-  //         top: BorderSide.lerp(a.top, b.top, t),
-  //         start: BorderSide.lerp(BorderSide.none, b.start, t),
-  //         end: BorderSide.lerp(BorderSide.none, b.end, t),
-  //         bottom: BorderSide.lerp(a.bottom, b.bottom, t),
-  //       );
-  //     }
-  //     // Since we have to swap a visual border for a directional one,
-  //     // we speed up the horizontal sides' transitions and switch from
-  //     // one mode to the other at t=0.5.
-  //     if (t < 0.5) {
-  //       return Border(
-  //         top: BorderSide.lerp(a.top, b.top, t),
-  //         right: BorderSide.lerp(a.right, BorderSide.none, t * 2.0),
-  //         bottom: BorderSide.lerp(a.bottom, b.bottom, t),
-  //         left: BorderSide.lerp(a.left, BorderSide.none, t * 2.0),
-  //       );
-  //     }
-  //     return BorderDirectional(
-  //       top: BorderSide.lerp(a.top, b.top, t),
-  //       start: BorderSide.lerp(BorderSide.none, b.start, (t - 0.5) * 2.0),
-  //       end: BorderSide.lerp(BorderSide.none, b.end, (t - 0.5) * 2.0),
-  //       bottom: BorderSide.lerp(a.bottom, b.bottom, t),
-  //     );
-  //   }
-  //   throw Exception();
-  // }
+// /// Linearly interpolate between two borders.
+// ///
+// /// If a border is null, it is treated as having four [BorderSide.none]
+// /// borders.
+// ///
+// /// This supports interpolating between [Border] and [BorderDirectional]
+// /// objects. If both objects are different types but both have sides on one or
+// /// both of their lateral edges (the two sides that aren't the top and bottom)
+// /// other than [BorderSide.none], then the sides are interpolated by reducing
+// /// `a`'s lateral edges to [BorderSide.none] over the first half of the
+// /// animation, and then bringing `b`'s lateral edges _from_ [BorderSide.none]
+// /// over the second half of the animation.
+// ///
+// /// For a more flexible approach, consider [ShapeBorder.lerp], which would
+// /// instead [add] the two sets of sides and interpolate them simultaneously.
+// ///
+// /// {@macro dart.ui.shadow.lerp}
+// static BoxBorder? lerp(BoxBorder? a, BoxBorder? b, double t) {
+//   assert(t != null);
+//   if ((a is Border || a == null) && (b is Border || b == null)) {
+//     return Border.lerp(a, b, t);
+//   }
+//   if ((a is BorderDirectional || a == null) && (b is BorderDirectional || b == null)) {
+//     return BorderDirectional.lerp(a, b, t);
+//   }
+//   if (b is Border && a is BorderDirectional) {
+//     final BoxBorder c = b;
+//     b = a;
+//     a = c;
+//     t = 1.0 - t;
+//     // fall through to next case
+//   }
+//   if (a is Border && b is BorderDirectional) {
+//     if (b.start == BorderSide.none && b.end == BorderSide.none) {
+//       // The fact that b is a BorderDirectional really doesn't matter, it turns out.
+//       return Border(
+//         top: BorderSide.lerp(a.top, b.top, t),
+//         right: BorderSide.lerp(a.right, BorderSide.none, t),
+//         bottom: BorderSide.lerp(a.bottom, b.bottom, t),
+//         left: BorderSide.lerp(a.left, BorderSide.none, t),
+//       );
+//     }
+//     if (a.left == BorderSide.none && a.right == BorderSide.none) {
+//       // The fact that a is a Border really doesn't matter, it turns out.
+//       return BorderDirectional(
+//         top: BorderSide.lerp(a.top, b.top, t),
+//         start: BorderSide.lerp(BorderSide.none, b.start, t),
+//         end: BorderSide.lerp(BorderSide.none, b.end, t),
+//         bottom: BorderSide.lerp(a.bottom, b.bottom, t),
+//       );
+//     }
+//     // Since we have to swap a visual border for a directional one,
+//     // we speed up the horizontal sides' transitions and switch from
+//     // one mode to the other at t=0.5.
+//     if (t < 0.5) {
+//       return Border(
+//         top: BorderSide.lerp(a.top, b.top, t),
+//         right: BorderSide.lerp(a.right, BorderSide.none, t * 2.0),
+//         bottom: BorderSide.lerp(a.bottom, b.bottom, t),
+//         left: BorderSide.lerp(a.left, BorderSide.none, t * 2.0),
+//       );
+//     }
+//     return BorderDirectional(
+//       top: BorderSide.lerp(a.top, b.top, t),
+//       start: BorderSide.lerp(BorderSide.none, b.start, (t - 0.5) * 2.0),
+//       end: BorderSide.lerp(BorderSide.none, b.end, (t - 0.5) * 2.0),
+//       bottom: BorderSide.lerp(a.bottom, b.bottom, t),
+//     );
+//   }
+//   throw Exception();
+// }
 }
 
 /// A border of a box, comprised of four sides: top, right, bottom, left.
@@ -285,45 +285,54 @@ class Border extends BoxBorder {
   final BorderSide left;
 
   @override
-  EdgeInsetsGeometry get dimensions {
-    return EdgeInsets.fromLTRB(left.width, top.width, right.width, bottom.width);
-  }
+  EdgeInsetsGeometry get dimensions => EdgeInsets.fromLTRB(
+        left.width,
+        top.width,
+        right.width,
+        bottom.width,
+      );
 
   @override
   bool get isUniform {
     final Color topColor = top.color;
-    if (right.color != topColor || bottom.color != topColor || left.color != topColor) return false;
-
+    if (right.color != topColor || bottom.color != topColor || left.color != topColor) {
+      return false;
+    }
     final double topWidth = top.width;
-    if (right.width != topWidth || bottom.width != topWidth || left.width != topWidth) return false;
-
+    if (right.width != topWidth || bottom.width != topWidth || left.width != topWidth) {
+      return false;
+    }
     final BorderStyle topStyle = top.style;
-    if (right.style != topStyle || bottom.style != topStyle || left.style != topStyle) return false;
-
+    if (right.style != topStyle || bottom.style != topStyle || left.style != topStyle) {
+      return false;
+    }
     return true;
   }
 
   @override
   Border? add(ShapeBorder other, {bool reversed = false}) {
-    if (other is! Border) return null;
-    if (other is Border && BorderSide.canMerge(top, other.top) &&
-        BorderSide.canMerge(right, other.right) &&
-        BorderSide.canMerge(bottom, other.bottom) &&
-        BorderSide.canMerge(left, other.left)) {
-      return Border.merge(this, other);
+    if (other is! Border) {
+      return null;
+    } else {
+      if (other is Border &&
+          BorderSide.canMerge(top, other.top) &&
+          BorderSide.canMerge(right, other.right) &&
+          BorderSide.canMerge(bottom, other.bottom) &&
+          BorderSide.canMerge(left, other.left)) {
+        return Border.merge(this, other);
+      } else {
+        return null;
+      }
     }
-    return null;
   }
 
   @override
-  Border scale(double t) {
-    return Border(
+  Border scale(double t) => Border(
       top: top.scale(t),
       right: right.scale(t),
       bottom: bottom.scale(t),
       left: left.scale(t),
     );
-  }
 
   @override
   ShapeBorder? lerpFrom(ShapeBorder? a, double t) {
@@ -472,21 +481,25 @@ class BorderDirectional extends BoxBorder {
   @override
   bool get isUniform {
     final Color topColor = top.color;
-    if (start.color != topColor || end.color != topColor || bottom.color != topColor) return false;
-
+    if (start.color != topColor || end.color != topColor || bottom.color != topColor) {
+      return false;
+    }
     final double topWidth = top.width;
-    if (start.width != topWidth || end.width != topWidth || bottom.width != topWidth) return false;
-
+    if (start.width != topWidth || end.width != topWidth || bottom.width != topWidth) {
+      return false;
+    }
     final BorderStyle topStyle = top.style;
-    if (start.style != topStyle || end.style != topStyle || bottom.style != topStyle) return false;
-
+    if (start.style != topStyle || end.style != topStyle || bottom.style != topStyle) {
+      return false;
+    }
     return true;
   }
 
   @override
   BoxBorder? add(ShapeBorder other, {bool reversed = false}) {
     if (other is BorderDirectional) {
-      if (other is BorderDirectional && BorderSide.canMerge(top, other.top) &&
+      if (other is BorderDirectional &&
+          BorderSide.canMerge(top, other.top) &&
           BorderSide.canMerge(start, other.start) &&
           BorderSide.canMerge(end, other.end) &&
           BorderSide.canMerge(bottom, other.bottom)) {

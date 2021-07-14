@@ -16,7 +16,7 @@ class CorsMiddleware implements Middleware {
   const CorsMiddleware({
     this.age = 86400,
     this.headers = '*',
-    this.methods = '${MethodPost.string}, ${MethodGet.string}, ${MethodOptions.string}, ${MethodPut.string}, ${MethodPatch.string}',
+    this.methods = '${MethodPost.postString}, ${MethodGet.getString}, ${MethodOptions.optionsString}, ${MethodPut.putString}, ${MethodPatch.patchString}',
     this.origin = '*',
   });
 
@@ -26,7 +26,7 @@ class CorsMiddleware implements Middleware {
     c.res.headers.set('Access-Control-Allow-Methods', methods);
     c.res.headers.set('Access-Control-Allow-Headers', headers);
     c.res.headers.set('Access-Control-Max-Age', age);
-    if (c.req.method == MethodOptions.string) {
+    if (c.req.method == MethodOptions.optionsString) {
       await c.res.close();
     }
   }

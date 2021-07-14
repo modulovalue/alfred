@@ -10,210 +10,163 @@ abstract class Methods {
   static const MethodOptions options = MethodOptions._();
   static const MethodAll all = MethodAll._();
   static const MethodPatch patch = MethodPatch._();
-
-  // TODO This should add no overhead. benchmark [tryParse] against [tryParseIfElse].
-  static const Map<String, BuiltinMethod> parseMap = {
-    ...MethodGet.parseContributor,
-    ...MethodPost.parseContributor,
-    ...MethodPut.parseContributor,
-    ...MethodDelete.parseContributor,
-    ...MethodOptions.parseContributor,
-    ...MethodAll.parseContributor,
-    ...MethodPatch.parseContributor,
-  };
-
-  static Method? tryParse(String str) => parseMap[str];
-
-  static Method? tryParseIfElse(String str) {
-    if (str == MethodGet.string) {
-      return Methods.get;
-    } else if (str == MethodPost.string) {
-      return Methods.post;
-    } else if (str == MethodPut.string) {
-      return Methods.put;
-    } else if (str == MethodDelete.string) {
-      return Methods.delete;
-    } else if (str == MethodOptions.string) {
-      return Methods.options;
-    } else if (str == MethodAll.string) {
-      return Methods.all;
-    } else if (str == MethodPatch.string) {
-      return Methods.patch;
-    } else {
-      return null;
-    }
-  }
 }
 
 abstract class BuiltinMethod implements Method {
   R matchBuiltinMethods<R>({
-    required R Function(MethodGet) get,
-    required R Function(MethodPost) post,
-    required R Function(MethodPut) put,
-    required R Function(MethodDelete) delete,
-    required R Function(MethodOptions) options,
-    required R Function(MethodAll) all,
-    required R Function(MethodPatch) patch,
+    required final R Function(MethodGet) get,
+    required final R Function(MethodPost) post,
+    required final R Function(MethodPut) put,
+    required final R Function(MethodDelete) delete,
+    required final R Function(MethodOptions) options,
+    required final R Function(MethodAll) all,
+    required final R Function(MethodPatch) patch,
   });
 }
 
 class MethodGet implements BuiltinMethod {
-  static const Map<String, MethodGet> parseContributor = {string: MethodGet._()};
-
-  static const String string = "GET";
+  static const String getString = "GET";
 
   const MethodGet._();
 
   @override
-  String get description => string;
+  String get description => getString;
 
   @override
   R matchBuiltinMethods<R>({
-    required R Function(MethodGet) get,
-    required R Function(MethodPost) post,
-    required R Function(MethodPut) put,
-    required R Function(MethodDelete) delete,
-    required R Function(MethodOptions) options,
-    required R Function(MethodAll) all,
-    required R Function(MethodPatch) patch,
+    required final R Function(MethodGet) get,
+    required final R Function(MethodPost) post,
+    required final R Function(MethodPut) put,
+    required final R Function(MethodDelete) delete,
+    required final R Function(MethodOptions) options,
+    required final R Function(MethodAll) all,
+    required final R Function(MethodPatch) patch,
   }) =>
       get(this);
 }
 
 class MethodPost implements BuiltinMethod {
-  static const Map<String, MethodPost> parseContributor = {string: MethodPost._()};
-
-  static const String string = "POST";
+  static const String postString = "POST";
 
   const MethodPost._();
 
   @override
-  String get description => string;
+  String get description => postString;
 
   @override
   R matchBuiltinMethods<R>({
-    required R Function(MethodGet) get,
-    required R Function(MethodPost) post,
-    required R Function(MethodPut) put,
-    required R Function(MethodDelete) delete,
-    required R Function(MethodOptions) options,
-    required R Function(MethodAll) all,
-    required R Function(MethodPatch) patch,
+    required final R Function(MethodGet) get,
+    required final R Function(MethodPost) post,
+    required final R Function(MethodPut) put,
+    required final R Function(MethodDelete) delete,
+    required final R Function(MethodOptions) options,
+    required final R Function(MethodAll) all,
+    required final R Function(MethodPatch) patch,
   }) =>
       post(this);
 }
 
 class MethodPut implements BuiltinMethod {
-  static const Map<String, MethodPut> parseContributor = {string: MethodPut._()};
-
-  static const String string = "PUT";
+  static const String putString = "PUT";
 
   const MethodPut._();
 
   @override
-  String get description => string;
+  String get description => putString;
 
   @override
   R matchBuiltinMethods<R>({
-    required R Function(MethodGet) get,
-    required R Function(MethodPost) post,
-    required R Function(MethodPut) put,
-    required R Function(MethodDelete) delete,
-    required R Function(MethodOptions) options,
-    required R Function(MethodAll) all,
-    required R Function(MethodPatch) patch,
+    required final R Function(MethodGet) get,
+    required final R Function(MethodPost) post,
+    required final R Function(MethodPut) put,
+    required final R Function(MethodDelete) delete,
+    required final R Function(MethodOptions) options,
+    required final R Function(MethodAll) all,
+    required final R Function(MethodPatch) patch,
   }) =>
       put(this);
 }
 
 class MethodDelete implements BuiltinMethod {
-  static const Map<String, MethodDelete> parseContributor = {string: MethodDelete._()};
-
-  static const String string = "DELETE";
+  static const String deleteString = "DELETE";
 
   const MethodDelete._();
 
   @override
-  String get description => string;
+  String get description => deleteString;
 
   @override
   R matchBuiltinMethods<R>({
-    required R Function(MethodGet) get,
-    required R Function(MethodPost) post,
-    required R Function(MethodPut) put,
-    required R Function(MethodDelete) delete,
-    required R Function(MethodOptions) options,
-    required R Function(MethodAll) all,
-    required R Function(MethodPatch) patch,
+    required final R Function(MethodGet) get,
+    required final R Function(MethodPost) post,
+    required final R Function(MethodPut) put,
+    required final R Function(MethodDelete) delete,
+    required final R Function(MethodOptions) options,
+    required final R Function(MethodAll) all,
+    required final R Function(MethodPatch) patch,
   }) =>
       delete(this);
 }
 
 class MethodOptions implements BuiltinMethod {
-  static const Map<String, MethodOptions> parseContributor = {string: MethodOptions._()};
-
-  static const String string = "OPTIONS";
+  static const String optionsString = "OPTIONS";
 
   const MethodOptions._();
 
   @override
-  String get description => string;
+  String get description => optionsString;
 
   @override
   R matchBuiltinMethods<R>({
-    required R Function(MethodGet) get,
-    required R Function(MethodPost) post,
-    required R Function(MethodPut) put,
-    required R Function(MethodDelete) delete,
-    required R Function(MethodOptions) options,
-    required R Function(MethodAll) all,
-    required R Function(MethodPatch) patch,
+    required final R Function(MethodGet) get,
+    required final R Function(MethodPost) post,
+    required final R Function(MethodPut) put,
+    required final R Function(MethodDelete) delete,
+    required final R Function(MethodOptions) options,
+    required final R Function(MethodAll) all,
+    required final R Function(MethodPatch) patch,
   }) =>
       options(this);
 }
 
 class MethodAll implements BuiltinMethod {
-  static const Map<String, MethodAll> parseContributor = {string: MethodAll._()};
-
-  static const String string = "ALL";
+  static const String allString = "ALL";
 
   const MethodAll._();
 
   @override
-  String get description => string;
+  String get description => allString;
 
   @override
   R matchBuiltinMethods<R>({
-    required R Function(MethodGet) get,
-    required R Function(MethodPost) post,
-    required R Function(MethodPut) put,
-    required R Function(MethodDelete) delete,
-    required R Function(MethodOptions) options,
-    required R Function(MethodAll) all,
-    required R Function(MethodPatch) patch,
+    required final R Function(MethodGet) get,
+    required final R Function(MethodPost) post,
+    required final R Function(MethodPut) put,
+    required final R Function(MethodDelete) delete,
+    required final R Function(MethodOptions) options,
+    required final R Function(MethodAll) all,
+    required final R Function(MethodPatch) patch,
   }) =>
       all(this);
 }
 
 class MethodPatch implements BuiltinMethod {
-  static const Map<String, MethodPatch> parseContributor = {string: MethodPatch._()};
-
-  static const String string = "PATCH";
+  static const String patchString = "PATCH";
 
   const MethodPatch._();
 
   @override
-  String get description => string;
+  String get description => patchString;
 
   @override
   R matchBuiltinMethods<R>({
-    required R Function(MethodGet) get,
-    required R Function(MethodPost) post,
-    required R Function(MethodPut) put,
-    required R Function(MethodDelete) delete,
-    required R Function(MethodOptions) options,
-    required R Function(MethodAll) all,
-    required R Function(MethodPatch) patch,
+    required final R Function(MethodGet) get,
+    required final R Function(MethodPost) post,
+    required final R Function(MethodPut) put,
+    required final R Function(MethodDelete) delete,
+    required final R Function(MethodOptions) options,
+    required final R Function(MethodAll) all,
+    required final R Function(MethodPatch) patch,
   }) =>
       patch(this);
 }
