@@ -1,5 +1,5 @@
 import '../../base/keys.dart';
-import '../../html/interface/html.dart';
+import '../../html/html.dart';
 import '../widget/impl/widget_mixin.dart';
 import '../widget/interface/build_context.dart';
 import '../widget/interface/widget.dart';

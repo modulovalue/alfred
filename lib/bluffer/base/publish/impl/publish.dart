@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import '../../../html/interface/html.dart';
+import '../../../html/html.dart';
 import '../../../widgets/localization/localizations.dart';
 import '../../../widgets/widget/impl/build_context.dart';
 import '../../../widgets/widget/interface/build_context.dart';
@@ -11,10 +11,10 @@ import '../interface/publishing_log.dart';
 import 'print_log.dart';
 
 void publishApp({
-  required Application root,
-  required void Function(String targetPath, HtmlElement2 element) serializeTo,
-  Directory? directory,
-  Directory? assets,
+  required final Application root,
+  required final void Function(String targetPath, HtmlElement2 element) serializeTo,
+  final Directory? directory,
+  final Directory? assets,
 }) =>
     publishRaw(
       application: root ,
@@ -26,12 +26,12 @@ void publishApp({
     );
 
 void publishRaw({
-  required Application application,
-  required Directory directory,
-  required Directory assetsDirectory,
-  required PublishingLog log,
-  required Assets assets,
-  required void Function(String targetPath, HtmlElement2 element) serializeTo,
+  required final Application application,
+  required final Directory directory,
+  required final Directory assetsDirectory,
+  required final PublishingLog log,
+  required final Assets assets,
+  required final void Function(String targetPath, HtmlElement2 element) serializeTo,
 }) {
   final context = BuildContextImpl(assets: assets);
   for (final locale in application.supportedLocales) {
@@ -56,9 +56,9 @@ void publishRaw({
 }
 
 void processAssets({
-  required Directory assets,
-  required Directory localeDirectory,
-  required PublishingAssetLog log,
+  required final Directory assets,
+  required final Directory localeDirectory,
+  required final PublishingAssetLog log,
 }) {
   if (assets.existsSync()) {
     log.processingAssets(assets);
@@ -86,12 +86,12 @@ void processAssets({
 }
 
 void processRoutes({
-  required Application application,
-  required PublishingRouteLog log,
-  required BuildContext context,
-  required Locale locale,
-  required Directory localeDirectory,
-  required void Function(String targetPath, HtmlElement2 element) serializeTo,
+  required final Application application,
+  required final PublishingRouteLog log,
+  required final BuildContext context,
+  required final Locale locale,
+  required final Directory localeDirectory,
+  required final void Function(String targetPath, HtmlElement2 element) serializeTo,
 }) {
   for (final route in application.routes) {
     log.processingRoute(route);

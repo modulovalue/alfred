@@ -2,10 +2,10 @@ import '../../base/color.dart';
 import '../../base/keys.dart';
 import '../../base/locale.dart';
 import '../../base/text.dart';
-import '../../css/impl/builder.dart';
-import '../../css/interface/css.dart';
-import '../../html/impl/html.dart';
-import '../../html/interface/html.dart';
+import '../../css/builder.dart';
+import '../../css/css.dart';
+import '../../html/html.dart';
+import '../../html/html_impl.dart';
 import '../theme/theme.dart';
 import '../widget/impl/widget_mixin.dart';
 import '../widget/interface/build_context.dart';
@@ -127,8 +127,8 @@ class Text implements Widget {
     final BuildContext context,
   ) {
     final textStyles = this.style ?? Theme.of(context)!.text.paragraph;
-    return CssStyleDeclaration2BuilderImpl.build(
-      textAlign: () {
+    return CssStyleDeclaration2Impl(
+      css_textAlign: () {
         if (textAlign != null) {
           switch (textAlign!) {
             case TextAlign.end:
@@ -151,17 +151,17 @@ class Text implements Widget {
           return null;
         }
       }(),
-      lineHeight: () {
+      css_lineHeight: () {
         if (textStyles.height != null) {
           return '${textStyles.height}';
         } else {
           return null;
         }
       }(),
-      display: 'flex',
-      fontSize: (textStyles.fontSize ?? 12).toString(),
-      color: (textStyles.color ?? const Color(0xFF000000)).toCss(),
-      fontWeight: const <int, String>{
+      css_display: 'flex',
+      css_fontSize: (textStyles.fontSize ?? 12).toString(),
+      css_color: (textStyles.color ?? const Color(0xFF000000)).toCss(),
+      css_fontWeight: const <int, String>{
         0: '100',
         1: '200',
         2: '300',
@@ -172,7 +172,7 @@ class Text implements Widget {
         7: '800',
         8: '900',
       }[textStyles.fontWeight?.index ?? FontWeight.w400.index],
-      fontFamily: <String>[
+      css_fontFamily: <String>[
         if (textStyles.fontFamily != null) "'" + textStyles.fontFamily! + "'",
         if (textStyles.fontFamilyFallback != null) ...textStyles.fontFamilyFallback!
       ].join(', '),

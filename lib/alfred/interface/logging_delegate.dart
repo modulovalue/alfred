@@ -1,18 +1,29 @@
-
 abstract class AlfredLoggingDelegate {
-  void onIsListening(int port);
+  void onIsListening(
+    final int port,
+  );
 
-  void onIncomingRequest(String method, Uri uri);
+  void onIncomingRequest(
+    final String method,
+    final Uri uri,
+  );
 
   void onResponseSent();
 
   void onNoMatchingRouteFound();
 
-  void onMatchingRoute(String route);
+  void onMatchingRoute(
+    final String route,
+  );
 
   void onExecuteRouteCallbackFunction();
 
-  void onIncomingRequestException(Object e, StackTrace s);
+  void onIncomingRequestException(
+    final Object e,
+    final StackTrace s,
+  );
 
-  void logTypeHandler(String Function() msgFn);
+  void logTypeHandler(
+    final String Function() msgFn,
+  );
 }

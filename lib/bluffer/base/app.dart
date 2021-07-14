@@ -1,6 +1,5 @@
-import '../css/interface/css.dart';
-import '../html/impl/html.dart';
-import '../html/interface/html.dart';
+import '../html/html.dart';
+import '../html/html_impl.dart';
 import '../widgets/builder/builder.dart';
 import '../widgets/localization/localizations.dart';
 import '../widgets/theme/theme.dart';
@@ -25,15 +24,15 @@ class Application implements Widget {
   final List<LocalizationsDelegate<dynamic>> delegates;
 
   Application({
-    required this.routes,
-    required this.application,
-    this.currentRoute,
-    this.supportedLocales = const <Locale>[Locale('en', 'US')],
-    this.delegates = const <LocalizationsDelegate<dynamic>>[],
+    required final this.routes,
+    required final this.application,
+    final this.currentRoute,
+    final this.supportedLocales = const <Locale>[Locale('en', 'US')],
+    final this.delegates = const <LocalizationsDelegate<dynamic>>[],
   });
 
   Application withCurrentRoute(
-    String currentRoute,
+    final String currentRoute,
   ) =>
       Application(
         currentRoute: currentRoute,
@@ -42,19 +41,26 @@ class Application implements Widget {
       );
 
   @override
-  HtmlElement2 renderHtml(BuildContext context) {
+  HtmlElement2 renderHtml(
+    final BuildContext context,
+  ) {
     final currentRoute = routes.firstWhere((x) => x.relativeUrl == this.currentRoute);
     return application(currentRoute).renderHtml(context);
   }
 
   @override
-  HtmlElement2 render(BuildContext context) {
+  HtmlElement2 render(
+    final BuildContext context,
+  ) {
     final currentRoute = routes.firstWhere((x) => x.relativeUrl == this.currentRoute);
     return application(currentRoute).render(context);
   }
 
   @override
-  Null renderCss(BuildContext context) => null;
+  Null renderCss(
+    final BuildContext context,
+  ) =>
+      null;
 }
 
 class ApplicationWidget<ROUTE extends WidgetRoute> implements Widget {
@@ -69,61 +75,63 @@ class ApplicationWidget<ROUTE extends WidgetRoute> implements Widget {
   final Key? key = null;
 
   ApplicationWidget({
-    required this.route,
-    this.theme,
-    this.builder,
-    this.stylesheetLinks = const <String>[],
-    this.scriptLinks = const <String>[],
+    required final this.route,
+    final this.theme,
+    final this.builder,
+    final this.stylesheetLinks = const <String>[],
+    final this.scriptLinks = const <String>[],
   });
 
-
   @override
-  HtmlElement2 renderHtml(BuildContext context) {
-    return HtmlHtmlElement2Impl.make([
-      HeadElement2Impl.make(
-        [
-          MetaElement2Impl()
-            ..setAttribute('charset', 'UTF-8')
-            ..setAttribute('name', 'viewport')
-            ..setAttribute('content', 'width=device-width, initial-scale=1'),
-          for (final link in stylesheetLinks) //
-            LinkElement2Impl(href: link, rel: 'stylesheet'),
-          ...route.head(context),
-        ],
-      ),
-      StyleElement2Impl.make([
-        const RawTextElement2Impl(resetCss),
-        const RawTextElement2Impl(baseCss),
-        for (final size in availableSizes) //
-          RawTextElement2Impl(mediaClassForMediaSize(availableSizes, size)),
-      ]),
-      BodyElement2Impl.make([
-        for (final size in availableSizes)
-          DivElement2Impl.make(
-            className: 'size' + size.index.toString(),
-            nodes: [
-              MediaQuery(
-                data: MediaQueryDataImpl(size: size),
-                child: Builder(
-                  builder: (context) => Theme(
-                    data: theme?.call(context),
-                    child: builder != null ? builder!(context, route) : route.build(context),
+  HtmlElement2 renderHtml(
+    final BuildContext context,
+  ) =>
+      HtmlHtmlElement2Impl.make([
+        HeadElement2Impl.make(
+          [
+            MetaElement2Impl()
+              ..setAttribute('charset', 'UTF-8')
+              ..setAttribute('name', 'viewport')
+              ..setAttribute('content', 'width=device-width, initial-scale=1'),
+            for (final link in stylesheetLinks) //
+              LinkElement2Impl(href: link, rel: 'stylesheet'),
+            ...route.head(context),
+          ],
+        ),
+        StyleElement2Impl.make([
+          const RawTextElement2Impl(resetCss),
+          const RawTextElement2Impl(baseCss),
+          for (final size in availableSizes) //
+            RawTextElement2Impl(mediaClassForMediaSize(availableSizes, size)),
+        ]),
+        BodyElement2Impl.make([
+          for (final size in availableSizes)
+            DivElement2Impl.make(
+              className: 'size' + size.index.toString(),
+              nodes: [
+                MediaQuery(
+                  data: MediaQueryDataImpl(size: size),
+                  child: Builder(
+                    builder: (context) => Theme(
+                      data: theme?.call(context),
+                      child: builder != null ? builder!(context, route) : route.build(context),
+                    ),
                   ),
-                ),
-              ).render(context)
-            ],
-          ),
-        for (final link in scriptLinks)
-          ScriptElement2Impl()
-            ..src = link
-            ..async = true
-            ..defer = true,
-      ])
-    ]);
-  }
+                ).render(context)
+              ],
+            ),
+          for (final link in scriptLinks)
+            ScriptElement2Impl()
+              ..src = link
+              ..async = true
+              ..defer = true,
+        ])
+      ]);
 
   @override
-  HtmlElement2 render(BuildContext context) {
+  HtmlElement2 render(
+    final BuildContext context,
+  ) {
     final result = renderWidget(this, context);
     for (final x in result.childNodes) {
       if (x is StyleElement2) {
@@ -142,17 +150,24 @@ class ApplicationWidget<ROUTE extends WidgetRoute> implements Widget {
   }
 
   @override
-  CssStyleDeclaration2? renderCss(BuildContext context) {
-    return null;
-  }
+  Null renderCss(
+    final BuildContext context,
+  ) =>
+      null;
 }
 
 abstract class WidgetRoute {
-  String makeTitle(BuildContext context);
+  String makeTitle(
+    final BuildContext context,
+  );
 
-  Widget build(BuildContext context);
+  Widget build(
+    final BuildContext context,
+  );
 
-  Iterable<HtmlElement2> head(BuildContext context);
+  Iterable<HtmlElement2> head(
+    final BuildContext context,
+  );
 }
 
 class WidgetRouteImpl with WidgetRouteMixin {
@@ -162,8 +177,8 @@ class WidgetRouteImpl with WidgetRouteMixin {
   final Widget Function(BuildContext context) builder;
 
   const WidgetRouteImpl({
-    required this.title,
-    required this.builder,
+    required final this.title,
+    required final this.builder,
   });
 }
 
@@ -173,15 +188,21 @@ mixin WidgetRouteMixin implements WidgetRoute {
   Widget Function(BuildContext context) get builder;
 
   @override
-  Iterable<HtmlElement2> head(BuildContext context) => //
+  Iterable<HtmlElement2> head(
+    final BuildContext context,
+  ) =>
       [TitleElement2Impl()..text = title(context)];
 
   @override
-  Widget build(BuildContext context) => //
+  Widget build(
+    final BuildContext context,
+  ) =>
       builder(context);
 
   @override
-  String makeTitle(BuildContext context) => //
+  String makeTitle(
+    final BuildContext context,
+  ) =>
       title(context);
 }
 
@@ -193,13 +214,16 @@ class UrlWidgetRoute with WidgetRouteMixin {
   final Widget Function(BuildContext context) builder;
 
   const UrlWidgetRoute({
-    required this.relativeUrl,
-    required this.title,
-    required this.builder,
+    required final this.relativeUrl,
+    required final this.title,
+    required final this.builder,
   });
 }
 
-String mediaClassForMediaSize(List<MediaSize> all, MediaSize size) {
+String mediaClassForMediaSize(
+  final List<MediaSize> all,
+  final MediaSize size,
+) {
   final index = all.indexOf(size);
   assert(index != -1, "The given size $size was not in $all");
   return [
@@ -246,6 +270,7 @@ const baseCss = '''
   cursor: pointer;
 }
 ''';
+
 const resetCss = '''
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,

@@ -51,18 +51,19 @@ abstract class BorderRadiusGeometry {
   /// This method returns the same result as [add] applied to the result of
   /// negating the argument (using the prefix unary `-` operator or multiplying
   /// the argument by -1.0 using the `*` operator).
-  BorderRadiusGeometry subtract(BorderRadiusGeometry other) {
-    return _MixedBorderRadius(
-      _topLeft - other._topLeft,
-      _topRight - other._topRight,
-      _bottomLeft - other._bottomLeft,
-      _bottomRight - other._bottomRight,
-      _topStart - other._topStart,
-      _topEnd - other._topEnd,
-      _bottomStart - other._bottomStart,
-      _bottomEnd - other._bottomEnd,
-    );
-  }
+  BorderRadiusGeometry subtract(
+    final BorderRadiusGeometry other,
+  ) =>
+      _MixedBorderRadius(
+        _topLeft - other._topLeft,
+        _topRight - other._topRight,
+        _bottomLeft - other._bottomLeft,
+        _bottomRight - other._bottomRight,
+        _topStart - other._topStart,
+        _topEnd - other._topEnd,
+        _bottomStart - other._bottomStart,
+        _bottomEnd - other._bottomEnd,
+      );
 
   /// Returns the sum of two [BorderRadiusGeometry] objects.
   ///
@@ -75,18 +76,19 @@ abstract class BorderRadiusGeometry {
   /// this is not reflected in the type system). Otherwise, an object
   /// representing a combination of both is returned. That object can be turned
   /// into a concrete [BorderRadius] using [resolve].
-  BorderRadiusGeometry add(BorderRadiusGeometry other) {
-    return _MixedBorderRadius(
-      _topLeft + other._topLeft,
-      _topRight + other._topRight,
-      _bottomLeft + other._bottomLeft,
-      _bottomRight + other._bottomRight,
-      _topStart + other._topStart,
-      _topEnd + other._topEnd,
-      _bottomStart + other._bottomStart,
-      _bottomEnd + other._bottomEnd,
-    );
-  }
+  BorderRadiusGeometry add(
+    final BorderRadiusGeometry other,
+  ) =>
+      _MixedBorderRadius(
+        _topLeft + other._topLeft,
+        _topRight + other._topRight,
+        _bottomLeft + other._bottomLeft,
+        _bottomRight + other._bottomRight,
+        _topStart + other._topStart,
+        _topEnd + other._topEnd,
+        _bottomStart + other._bottomStart,
+        _bottomEnd + other._bottomEnd,
+      );
 
   /// Returns the [BorderRadiusGeometry] object with each corner radius negated.
   ///
@@ -98,12 +100,16 @@ abstract class BorderRadiusGeometry {
   /// Scales the [BorderRadiusGeometry] object's corners by the given factor.
   ///
   /// This operator returns an object of the same type as the operand.
-  BorderRadiusGeometry operator *(double other);
+  BorderRadiusGeometry operator *(
+    final double other,
+  );
 
   /// Divides the [BorderRadiusGeometry] object's corners by the given factor.
   ///
   /// This operator returns an object of the same type as the operand.
-  BorderRadiusGeometry operator /(double other);
+  BorderRadiusGeometry operator /(
+    final double other,
+  );
 
   /// Integer divides the [BorderRadiusGeometry] object's corners by the given factor.
   ///
@@ -111,7 +117,9 @@ abstract class BorderRadiusGeometry {
   ///
   /// This operator may have unexpected results when applied to a mixture of
   /// [BorderRadius] and [BorderRadiusDirectional] objects.
-  BorderRadiusGeometry operator ~/(double other);
+  BorderRadiusGeometry operator ~/(
+    final double other,
+  );
 
   /// Computes the remainder of each corner by the given factor.
   ///
@@ -119,7 +127,9 @@ abstract class BorderRadiusGeometry {
   ///
   /// This operator may have unexpected results when applied to a mixture of
   /// [BorderRadius] and [BorderRadiusDirectional] objects.
-  BorderRadiusGeometry operator %(double other);
+  BorderRadiusGeometry operator %(
+    final double other,
+  );
 
   /// Linearly interpolate between two [BorderRadiusGeometry] objects.
   ///
@@ -134,7 +144,11 @@ abstract class BorderRadiusGeometry {
   /// into a concrete [BorderRadius] using [resolve].
   ///
   /// {@macro dart.ui.shadow.lerp}
-  static BorderRadiusGeometry? lerp(BorderRadiusGeometry? a, BorderRadiusGeometry? b, double t) {
+  static BorderRadiusGeometry? lerp(
+    BorderRadiusGeometry? a,
+    BorderRadiusGeometry? b,
+    final double t,
+  ) {
     if (a == null && b == null) return null;
     // ignore: parameter_assignments
     a ??= BorderRadius.zero;
@@ -152,11 +166,14 @@ abstract class BorderRadiusGeometry {
   ///  * [BorderRadius], for which this is a no-op (returns itself).
   ///  * [BorderRadiusDirectional], which flips the horizontal direction
   ///    based on the `direction` argument.
-  BorderRadius resolve(TextDirection direction);
+  BorderRadius resolve(
+    final TextDirection direction,
+  );
 
   @override
   String toString() {
-    String? visual, logical;
+    String? visual;
+    String? logical;
     if (_topLeft == _topRight && _topRight == _bottomLeft && _bottomLeft == _bottomRight) {
       if (_topLeft != Radius.zero) {
         if (_topLeft.x == _topLeft.y) {
@@ -167,7 +184,7 @@ abstract class BorderRadiusGeometry {
       }
     } else {
       // visuals aren't the same and at least one isn't zero
-      final StringBuffer result = StringBuffer();
+      final result = StringBuffer();
       result.write('BorderRadius.only(');
       bool comma = false;
       if (_topLeft != Radius.zero) {
@@ -201,7 +218,7 @@ abstract class BorderRadiusGeometry {
       }
     } else {
       // logicals aren't the same and at least one isn't zero
-      final StringBuffer result = StringBuffer();
+      final result = StringBuffer();
       result.write('BorderRadiusDirectional.only(');
       bool comma = false;
       if (_topStart != Radius.zero) {
@@ -232,7 +249,7 @@ abstract class BorderRadiusGeometry {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(final Object other) {
     if (identical(this, other)) return true;
     if (runtimeType != other.runtimeType) return false;
     return other is BorderRadiusGeometry &&
@@ -247,18 +264,16 @@ abstract class BorderRadiusGeometry {
   }
 
   @override
-  int get hashCode {
-    return hashValues(
-      _topLeft,
-      _topRight,
-      _bottomLeft,
-      _bottomRight,
-      _topStart,
-      _topEnd,
-      _bottomStart,
-      _bottomEnd,
-    );
-  }
+  int get hashCode => hashValues(
+        _topLeft,
+        _topRight,
+        _bottomLeft,
+        _bottomRight,
+        _topStart,
+        _topEnd,
+        _bottomStart,
+        _bottomEnd,
+      );
 }
 
 /// An immutable set of radii for each corner of a rectangle.

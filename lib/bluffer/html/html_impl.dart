@@ -1,6 +1,6 @@
-import '../../css/impl/empty.dart';
-import '../../css/interface/css.dart';
-import '../interface/html.dart';
+import '../css/css.dart';
+import '../css/empty.dart';
+import 'html.dart';
 
 mixin HtmlElementMixin implements HtmlElement2 {
   @override

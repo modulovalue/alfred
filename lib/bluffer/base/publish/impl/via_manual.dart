@@ -1,47 +1,59 @@
-import '../../../css/interface/css.dart';
-import '../../../html/interface/html.dart';
+import '../../../css/css.dart';
+import '../../../html/html.dart';
 
-String elementToStringViaManual(HtmlElement2 element) => //
-    element.acceptHtmlElementOneArg(const HtmlElementSerializerVisitorImpl(), null);
+String elementToStringViaManual(
+  final HtmlElement2 element,
+) => //
+    element.acceptHtmlElementOneArg(
+      const HtmlElementSerializerVisitorImpl(),
+      null,
+    );
 
 class HtmlElementSerializerVisitorImpl //
     implements
         HtmlElementVisitorOneArg<String, void>,
         HtmlNodeVisitorOneArg<String, void> {
-  static String serializeCss(CssStyleDeclaration2 css) {
+  static String serializeCss(
+    final CssStyleDeclaration2 css,
+  ) {
     return [
-      if (css.margin != null) "margin: " + css.margin!,
-      if (css.maxHeight != null) "max-height: " + css.maxHeight!,
-      if (css.maxWidth != null) "max-width: " + css.maxWidth!,
-      if (css.display != null) "display: " + css.display!,
-      if (css.backgroundColor != null) "background-color: " + css.backgroundColor!,
-      if (css.backgroundImage != null) "background-image: " + css.backgroundImage!,
-      if (css.backgroundPosition != null) "background-position: " + css.backgroundPosition!,
-      if (css.backgroundSize != null) "background-size: " + css.backgroundSize!,
-      if (css.borderTopLeftRadius != null) "border-top-left-radius: " + css.borderTopLeftRadius!,
-      if (css.borderTopRightRadius != null) "border-top-right-radius: " + css.borderTopRightRadius!,
-      if (css.borderBottomLeftRadius != null) "border-bottom-left-radius: " + css.borderBottomLeftRadius!,
-      if (css.borderBottomRightRadius != null) "border-bottom-right-radius: " + css.borderBottomRightRadius!,
-      if (css.boxShadow != null) "box-shadow: " + css.boxShadow!,
-      if (css.flexDirection != null) "flex-direction: " + css.flexDirection!,
-      if (css.justifyContent != null) "justify-content: " + css.justifyContent!,
-      if (css.alignItems != null) "align-items: " + css.alignItems!,
-      if (css.flexGrow != null) "flex-grow: " + css.flexGrow!,
-      if (css.flexShrink != null) "flex-shrink: " + css.flexShrink!,
-      if (css.flexBasis != null) "flex-basis: " + css.flexBasis!,
-      if (css.objectFit != null) "object-fit: " + css.objectFit!,
-      if (css.width != null) "width: " + css.width!,
-      if (css.height != null) "height: " + css.height!,
-      if (css.textAlign != null) "text-align: " + css.textAlign!,
-      if (css.lineHeight != null) "line-height: " + css.lineHeight!,
-      if (css.fontSize != null) "font-size: " + css.fontSize!,
-      if (css.color != null) "color: " + css.color!,
-      if (css.fontWeight != null) "font-weight: " + css.fontWeight!,
-      if (css.fontFamily != null) "font-family: " + css.fontFamily!,
+      if (css.css_margin != null) "margin: " + css.css_margin!,
+      if (css.css_maxHeight != null) "max-height: " + css.css_maxHeight!,
+      if (css.css_maxWidth != null) "max-width: " + css.css_maxWidth!,
+      if (css.css_display != null) "display: " + css.css_display!,
+      if (css.css_backgroundColor != null) "background-color: " + css.css_backgroundColor!,
+      if (css.css_backgroundImage != null) "background-image: " + css.css_backgroundImage!,
+      if (css.css_backgroundPosition != null) "background-position: " + css.css_backgroundPosition!,
+      if (css.css_backgroundSize != null) "background-size: " + css.css_backgroundSize!,
+      if (css.css_borderTopLeftRadius != null) "border-top-left-radius: " + css.css_borderTopLeftRadius!,
+      if (css.css_borderTopRightRadius != null) "border-top-right-radius: " + css.css_borderTopRightRadius!,
+      if (css.css_borderBottomLeftRadius != null) "border-bottom-left-radius: " + css.css_borderBottomLeftRadius!,
+      if (css.css_borderBottomRightRadius != null) "border-bottom-right-radius: " + css.css_borderBottomRightRadius!,
+      if (css.css_boxShadow != null) "box-shadow: " + css.css_boxShadow!,
+      if (css.css_flexDirection != null) "flex-direction: " + css.css_flexDirection!,
+      if (css.css_justifyContent != null) "justify-content: " + css.css_justifyContent!,
+      if (css.css_alignItems != null) "align-items: " + css.css_alignItems!,
+      if (css.css_flexGrow != null) "flex-grow: " + css.css_flexGrow!,
+      if (css.css_flexShrink != null) "flex-shrink: " + css.css_flexShrink!,
+      if (css.css_flexBasis != null) "flex-basis: " + css.css_flexBasis!,
+      if (css.css_objectFit != null) "object-fit: " + css.css_objectFit!,
+      if (css.css_width != null) "width: " + css.css_width!,
+      if (css.css_height != null) "height: " + css.css_height!,
+      if (css.css_textAlign != null) "text-align: " + css.css_textAlign!,
+      if (css.css_lineHeight != null) "line-height: " + css.css_lineHeight!,
+      if (css.css_fontSize != null) "font-size: " + css.css_fontSize!,
+      if (css.css_color != null) "color: " + css.css_color!,
+      if (css.css_fontWeight != null) "font-weight: " + css.css_fontWeight!,
+      if (css.css_fontFamily != null) "font-family: " + css.css_fontFamily!,
     ].join("; ");
   }
 
-  static String singleElementToString(String tag, List<String> additionalAttrib, HtmlElement2 element, String? altContent) {
+  static String singleElementToString(
+    final String tag,
+    final List<String> additionalAttrib,
+    final HtmlElement2 element,
+    final String? altContent,
+  ) {
     final id = element.id;
     final className = element.className;
     final css = element.style;
@@ -59,14 +71,27 @@ class HtmlElementSerializerVisitorImpl //
       child.acceptHtmlEntityOneArg(collectorVisitor, null);
     }
     final content = altContent ??
-        "${_attributes.map((a) => a.acceptHtmlNodeOneArg(const HtmlElementSerializerVisitorImpl(), null)).join(" ")} ${_alements.map((a) => a.acceptHtmlElementOneArg(const HtmlElementSerializerVisitorImpl(), null)).join("\n")}";
+        _attributes
+                .map(
+                  (final a) => a.acceptHtmlNodeOneArg(const HtmlElementSerializerVisitorImpl(), null),
+                )
+                .join(" ") +
+            " " +
+            _alements
+                .map(
+                  (final a) => a.acceptHtmlElementOneArg(const HtmlElementSerializerVisitorImpl(), null),
+                )
+                .join("\n");
     return "<$tag${attributes.isEmpty ? "" : " " + attributes}>${content}</$tag>";
   }
 
   const HtmlElementSerializerVisitorImpl();
 
   @override
-  String visitElementAnchor(AnchorElement2 node, void arg) => //
+  String visitElementAnchor(
+    final AnchorElement2 node,
+    final void arg,
+  ) =>
       singleElementToString(
         "a",
         [
@@ -78,27 +103,45 @@ class HtmlElementSerializerVisitorImpl //
       );
 
   @override
-  String visitElementBody(BodyElement2 node, void arg) => //
+  String visitElementBody(
+    final BodyElement2 node,
+    final void arg,
+  ) =>
       singleElementToString("body", [], node, null);
 
   @override
-  String visitElementBr(BRElement2 node, void arg) => //
+  String visitElementBr(
+    final BRElement2 node,
+    final void arg,
+  ) =>
       singleElementToString("br", [], node, null);
 
   @override
-  String visitElementDiv(DivElement2 node, void arg) => //
+  String visitElementDiv(
+    final DivElement2 node,
+    final void arg,
+  ) =>
       singleElementToString("div", [], node, null);
 
   @override
-  String visitElementHead(HeadElement2 node, void arg) => //
+  String visitElementHead(
+    final HeadElement2 node,
+    final void arg,
+  ) =>
       singleElementToString("head", [], node, null);
 
   @override
-  String visitElementHtmlHtml(HtmlHtmlElement2 node, void arg) => //
+  String visitElementHtmlHtml(
+    final HtmlHtmlElement2 node,
+    final void arg,
+  ) =>
       singleElementToString("html", [], node, null);
 
   @override
-  String visitElementImage(ImageElement2 node, void arg) => //
+  String visitElementImage(
+    final ImageElement2 node,
+    final void arg,
+  ) =>
       singleElementToString(
         "img",
         [
@@ -110,7 +153,10 @@ class HtmlElementSerializerVisitorImpl //
       );
 
   @override
-  String visitElementLink(LinkElement2 node, void arg) => //
+  String visitElementLink(
+    final LinkElement2 node,
+    final void arg,
+  ) =>
       singleElementToString(
         "link",
         [
@@ -122,7 +168,10 @@ class HtmlElementSerializerVisitorImpl //
       );
 
   @override
-  String visitElementMeta(MetaElement2 node, void arg) => //
+  String visitElementMeta(
+    final MetaElement2 node,
+    final void arg,
+  ) =>
       singleElementToString(
         "meta",
         () {
@@ -135,11 +184,17 @@ class HtmlElementSerializerVisitorImpl //
       );
 
   @override
-  String visitElementParagraph(ParagraphElement2 node, void arg) => //
+  String visitElementParagraph(
+    final ParagraphElement2 node,
+    final void arg,
+  ) =>
       singleElementToString("p", [], node, null);
 
   @override
-  String visitElementScript(ScriptElement2 node, void arg) => //
+  String visitElementScript(
+    final ScriptElement2 node,
+    final void arg,
+  ) =>
       singleElementToString(
         "script",
         [
@@ -152,11 +207,17 @@ class HtmlElementSerializerVisitorImpl //
       );
 
   @override
-  String visitElementStyle(StyleElement2 node, void arg) => //
+  String visitElementStyle(
+    final StyleElement2 node,
+    final void arg,
+  ) =>
       singleElementToString("style", [], node, null);
 
   @override
-  String visitElementTitle(TitleElement2 node, void arg) => //
+  String visitElementTitle(
+    final TitleElement2 node,
+    final void arg,
+  ) =>
       singleElementToString(
         "title",
         [],
@@ -165,11 +226,17 @@ class HtmlElementSerializerVisitorImpl //
       );
 
   @override
-  String visitNodeStyle(CssTextElement2 node, void arg) => //
+  String visitNodeStyle(
+    final CssTextElement2 node,
+    final void arg,
+  ) =>
       ".${node.key} { " + serializeCss(node.css) + " }";
 
   @override
-  String visitNodeText(RawTextElement2 node, void arg) => //
+  String visitNodeText(
+    final RawTextElement2 node,
+    final void arg,
+  ) =>
       node.text;
 }
 
@@ -179,11 +246,22 @@ class MatchNodeVisitor //
   final void Function(HtmlNode) onAttribute;
   final void Function(HtmlElement2) onContent;
 
-  const MatchNodeVisitor(this.onAttribute, this.onContent);
+  const MatchNodeVisitor(
+    final this.onAttribute,
+    final this.onContent,
+  );
 
   @override
-  void visitEntityElement(HtmlElement2 node, void arg) => onContent(node);
+  void visitEntityElement(
+    final HtmlElement2 node,
+    final void arg,
+  ) =>
+      onContent(node);
 
   @override
-  void visitEntityNode(HtmlNode node, void arg) => onAttribute(node);
+  void visitEntityNode(
+    final HtmlNode node,
+    final void arg,
+  ) =>
+      onAttribute(node);
 }

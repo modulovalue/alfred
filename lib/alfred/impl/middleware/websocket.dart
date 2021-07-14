@@ -6,20 +6,30 @@ import '../../interface/serve_context.dart';
 class WebSocketFunctionMiddleware implements Middleware {
   final WebSocketSession Function() websocketSessionFactory;
 
-  const WebSocketFunctionMiddleware(this.websocketSessionFactory);
+  const WebSocketFunctionMiddleware(
+    final this.websocketSessionFactory,
+  );
 
   @override
-  Future<void> process(ServeContext c) async => //
-      websocketSessionFactory().start(await WebSocketTransformer.upgrade(c.req));
+  Future<void> process(
+    final ServeContext c,
+  ) async {
+    final websocket = await WebSocketTransformer.upgrade(c.req);
+    websocketSessionFactory().start(websocket);
+  }
 }
 
 class WebSocketValueMiddleware implements Middleware {
   final WebSocketSession websocketSession;
 
-  const WebSocketValueMiddleware(this.websocketSession);
+  const WebSocketValueMiddleware(
+    final this.websocketSession,
+  );
 
   @override
-  Future<void> process(ServeContext c) async => //
+  Future<void> process(
+    final ServeContext c,
+  ) async =>
       websocketSession.start(await WebSocketTransformer.upgrade(c.req));
 }
 
@@ -29,7 +39,9 @@ mixin WebSocketSessionStartMixin implements WebSocketSession {
   late WebSocket socket;
 
   @override
-  void start(WebSocket webSocket) {
+  void start(
+    final WebSocket webSocket,
+  ) {
     socket = webSocket;
     try {
       onOpen(socket);
@@ -66,13 +78,25 @@ mixin WebSocketSessionStartMixin implements WebSocketSession {
 abstract class WebSocketSession {
   WebSocket get socket;
 
-  void start(WebSocket webSocket);
+  void start(
+    final WebSocket webSocket,
+  );
 
-  void onOpen(WebSocket webSocket);
+  void onOpen(
+    final WebSocket webSocket,
+  );
 
-  void onMessage(WebSocket webSocket, dynamic data);
+  void onMessage(
+    final WebSocket webSocket,
+    final dynamic data,
+  );
 
-  void onClose(WebSocket webSocket);
+  void onClose(
+    final WebSocket webSocket,
+  );
 
-  void onError(WebSocket webSocket, dynamic error);
+  void onError(
+    final WebSocket webSocket,
+    final dynamic error,
+  );
 }

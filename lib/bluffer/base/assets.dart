@@ -8,7 +8,9 @@ class AssetsImpl implements Assets {
   @override
   final Directory local;
 
-  const AssetsImpl(this.local);
+  const AssetsImpl(
+    final this.local,
+  );
 }
 
 class AssetsDefaultImpl implements Assets {

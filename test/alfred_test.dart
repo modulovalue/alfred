@@ -397,10 +397,16 @@ void main() {
 class TestLogger with AlfredLoggingDelegateGeneralizingMixin {
   final void Function(String) add;
 
-  const TestLogger(this.add);
+  const TestLogger(
+    final this.add,
+  );
 
   @override
-  void log(dynamic Function() messageFn, LogType type) => add(type.description + ' ${messageFn()}');
+  void log(
+    final dynamic Function() messageFn,
+    final LogType type,
+  ) =>
+      add(type.description + ' ${messageFn()}');
 
   @override
   LogType get logLevel => LogType.info;
@@ -417,12 +423,17 @@ class _AlfredExceptionImpl implements AlfredException {
   @override
   final int statusCode;
 
-  const _AlfredExceptionImpl(this.statusCode, this.response);
+  const _AlfredExceptionImpl(
+    final this.statusCode,
+    final this.response,
+  );
 }
 
 class NonClosingMiddleware implements Middleware {
   const NonClosingMiddleware();
 
   @override
-  Future<void> process(ServeContext context) async {}
+  Future<void> process(
+    final ServeContext context,
+  ) async {}
 }

@@ -91,7 +91,9 @@ enum Axis {
 /// See also:
 ///
 ///  * [flipAxisDirection], which does the same thing for [AxisDirection] values.
-Axis flipAxis(Axis direction) {
+Axis flipAxis(
+  final Axis direction,
+) {
   switch (direction) {
     case Axis.horizontal:
       return Axis.vertical;
@@ -158,7 +160,9 @@ enum AxisDirection {
 /// Specifically, returns [Axis.vertical] for [AxisDirection.up] and
 /// [AxisDirection.down] and returns [Axis.horizontal] for [AxisDirection.left]
 /// and [AxisDirection.right].
-Axis axisDirectionToAxis(AxisDirection axisDirection) {
+Axis axisDirectionToAxis(
+  final AxisDirection axisDirection,
+) {
   switch (axisDirection) {
     case AxisDirection.up:
       return Axis.vertical;
@@ -175,7 +179,9 @@ Axis axisDirectionToAxis(AxisDirection axisDirection) {
 ///
 /// Specifically, returns [AxisDirection.left] for [TextDirection.rtl] and
 /// [AxisDirection.right] for [TextDirection.ltr].
-AxisDirection textDirectionToAxisDirection(TextDirection textDirection) {
+AxisDirection textDirectionToAxisDirection(
+  final TextDirection textDirection,
+) {
   switch (textDirection) {
     case TextDirection.rtl:
       return AxisDirection.left;
@@ -193,7 +199,9 @@ AxisDirection textDirectionToAxisDirection(TextDirection textDirection) {
 /// See also:
 ///
 ///  * [flipAxis], which does the same thing for [Axis] values.
-AxisDirection flipAxisDirection(AxisDirection axisDirection) {
+AxisDirection flipAxisDirection(
+  final AxisDirection axisDirection,
+) {
   switch (axisDirection) {
     case AxisDirection.up:
       return AxisDirection.down;
@@ -211,7 +219,9 @@ AxisDirection flipAxisDirection(AxisDirection axisDirection) {
 ///
 /// Specifically, returns true for [AxisDirection.up] and [AxisDirection.left]
 /// and false for [AxisDirection.down] and [AxisDirection.right].
-bool axisDirectionIsReversed(AxisDirection axisDirection) {
+bool axisDirectionIsReversed(
+  final AxisDirection axisDirection,
+) {
   switch (axisDirection) {
     case AxisDirection.up:
       return true;

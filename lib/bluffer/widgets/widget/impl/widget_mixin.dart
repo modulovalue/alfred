@@ -1,7 +1,7 @@
 import '../../../base/keys.dart';
 import '../../../base/media_query_data.dart';
-import '../../../css/interface/css.dart';
-import '../../../html/interface/html.dart';
+import '../../../css/css.dart';
+import '../../../html/html.dart';
 import '../interface/build_context.dart';
 import '../interface/inherited_widget.dart';
 import '../interface/widget.dart';

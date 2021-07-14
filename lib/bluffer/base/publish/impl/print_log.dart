@@ -7,25 +7,38 @@ import '../interface/publishing_log.dart';
 class PublishingLogPrintImpl implements PublishingLog {
   final void Function(String) output;
 
-  const PublishingLogPrintImpl(this.output);
+  const PublishingLogPrintImpl(
+    final this.output,
+  );
 
   @override
-  void processingLocale(Locale locale) => //
-      output('Processing $locale...');
+  void processingLocale(
+    final Locale locale,
+  ) => //
+      output('Processing ' + locale.localeDebugToString() + '...');
 
   @override
-  void processingAssets(Directory assets) => //
-      output('Processing Assets ${assets.path}...');
+  void processingAssets(
+    final Directory assets,
+  ) => //
+      output('Processing Assets ' + assets.path + '...');
 
   @override
-  void processingAssetFile(File item, File destination) => //
-      output("  - '${item.path}' into > '${destination.path}'");
+  void processingAssetFile(
+    final File item,
+    final File destination,
+  ) => //
+      output("  - '" + item.path + "' into > '" + destination.path + "'");
 
   @override
-  void processingRoute(UrlWidgetRoute route) => //
-      output('  [Route(${route.relativeUrl})]');
+  void processingRoute(
+    final UrlWidgetRoute route,
+  ) => //
+      output('  [Route(' + route.relativeUrl + ")]");
 
   @override
-  void processingRouteFile(File file) => //
-      output("   - '${file.path}");
+  void processingRouteFile(
+    final File file,
+  ) => //
+      output("   - '" + file.path + "'");
 }

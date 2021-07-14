@@ -1,9 +1,9 @@
 import '../../base/keys.dart';
-import '../../css/impl/builder.dart';
-import '../../css/impl/empty.dart';
-import '../../css/interface/css.dart';
-import '../../html/impl/html.dart';
-import '../../html/interface/html.dart';
+import '../../css/builder.dart';
+import '../../css/css.dart';
+import '../../css/empty.dart';
+import '../../html/html.dart';
+import '../../html/html_impl.dart';
 import '../widget/impl/widget_mixin.dart';
 import '../widget/interface/build_context.dart';
 import '../widget/interface/widget.dart';
@@ -26,12 +26,12 @@ class ConstrainedBox implements Widget {
     final BuildContext context,
   ) {
     if (constraints != null) {
-      return CssStyleDeclaration2BuilderImpl.build(
-        margin: 'auto',
-        maxHeight: '${constraints!.maxHeight}px',
-        maxWidth: '${constraints!.maxWidth}px',
-        minHeight: '${constraints!.minHeight}px',
-        minWidth: '${constraints!.minWidth}px',
+      return CssStyleDeclaration2Impl(
+        css_margin: 'auto',
+        css_maxHeight: '${constraints!.maxHeight}px',
+        css_maxWidth: '${constraints!.maxWidth}px',
+        css_minHeight: '${constraints!.minHeight}px',
+        css_minWidth: '${constraints!.minWidth}px',
       );
     } else {
       return const CssStyleDeclaration2EmptyImpl();

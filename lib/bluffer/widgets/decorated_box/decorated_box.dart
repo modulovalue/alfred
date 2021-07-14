@@ -2,10 +2,10 @@ import '../../base/border_radius.dart';
 import '../../base/decoration.dart';
 import '../../base/image.dart';
 import '../../base/keys.dart';
-import '../../css/impl/builder.dart';
-import '../../css/interface/css.dart';
-import '../../html/impl/html.dart';
-import '../../html/interface/html.dart';
+import '../../css/builder.dart';
+import '../../css/css.dart';
+import '../../html/html.dart';
+import '../../html/html_impl.dart';
 import '../flex/flex.dart';
 import '../widget/impl/resolve_url.dart';
 import '../widget/impl/widget_mixin.dart';
@@ -28,9 +28,9 @@ class DecoratedBox implements Widget {
   CssStyleDeclaration2 renderCss(
     final BuildContext context,
   ) =>
-      CssStyleDeclaration2BuilderImpl.build(
-        display: "flex",
-        backgroundColor: () {
+      CssStyleDeclaration2Impl(
+        css_display: "flex",
+        css_backgroundColor: () {
           if (decoration?.color != null) {
             final _color = decoration!.color!.toCss();
             return _color;
@@ -38,7 +38,7 @@ class DecoratedBox implements Widget {
             return 'url(' + resolveUrl(context, decoration!.image!.image.url) + ')';
           }
         }(),
-        backgroundPosition: () {
+        css_backgroundPosition: () {
           if (decoration != null) {
             if (decoration!.image?.fit != null) {
               return 'center';
@@ -49,7 +49,7 @@ class DecoratedBox implements Widget {
             return null;
           }
         }(),
-        backgroundSize: () {
+        css_backgroundSize: () {
           if (decoration != null) {
             if (decoration!.image?.fit != null) {
               switch (decoration!.image!.fit!) {
@@ -71,7 +71,7 @@ class DecoratedBox implements Widget {
             return null;
           }
         }(),
-        boxShadow: () {
+        css_boxShadow: () {
           if (decoration != null) {
             if (decoration!.boxShadow.isNotEmpty) {
               final shadow = decoration!.boxShadow.first;
@@ -84,7 +84,7 @@ class DecoratedBox implements Widget {
             return null;
           }
         }(),
-        borderTopLeftRadius: () {
+        css_borderTopLeftRadius: () {
           if (decoration != null) {
             final borderRadius = decoration!.borderRadius;
             if (borderRadius is BorderRadius) {
@@ -96,7 +96,7 @@ class DecoratedBox implements Widget {
             return null;
           }
         }(),
-        borderBottomLeftRadius: () {
+        css_borderBottomLeftRadius: () {
           if (decoration != null) {
             final borderRadius = decoration!.borderRadius;
             if (borderRadius is BorderRadius) {
@@ -108,7 +108,7 @@ class DecoratedBox implements Widget {
             return null;
           }
         }(),
-        borderBottomRightRadius: () {
+        css_borderBottomRightRadius: () {
           if (decoration != null) {
             final borderRadius = decoration!.borderRadius;
             if (borderRadius is BorderRadius) {
@@ -120,7 +120,7 @@ class DecoratedBox implements Widget {
             return null;
           }
         }(),
-        borderTopRightRadius: () {
+        css_borderTopRightRadius: () {
           if (decoration != null) {
             final borderRadius = decoration!.borderRadius;
             if (borderRadius is BorderRadius) {

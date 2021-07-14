@@ -33,9 +33,9 @@ class AlfredImpl with HttpRouteFactoryBoilerplateMixin implements Alfred {
   /// time. If the amount of unprocessed incoming requests exceed this number,
   /// the requests will be queued.
   factory AlfredImpl({
-    Middleware? onNotFound,
-    AlfredLoggingDelegate? log,
-    Middleware Function(dynamic error)? onInternalError,
+    final Middleware? onNotFound,
+    final AlfredLoggingDelegate? log,
+    final Middleware Function(dynamic error)? onInternalError,
   }) =>
       AlfredImpl.raw(
         routes: <HttpRoute>[],
@@ -45,18 +45,18 @@ class AlfredImpl with HttpRouteFactoryBoilerplateMixin implements Alfred {
       );
 
   AlfredImpl.raw({
-    required this.routes,
-    required this.log,
-    required this.onNotFound,
-    required this.onInternalError,
+    required final this.routes,
+    required final this.log,
+    required final this.onNotFound,
+    required final this.onInternalError,
   });
 
   @override
   Future<BuiltAlfredImpl> build([
-    int port = 80,
-    String bindIp = '0.0.0.0',
-    bool shared = true,
-    int simultaneousProcessing = 50,
+    final int port = 80,
+    final String bindIp = '0.0.0.0',
+    final bool shared = true,
+    final int simultaneousProcessing = 50,
   ]) async =>
       BuiltAlfredImpl.make(
         port: port,
@@ -68,11 +68,18 @@ class AlfredImpl with HttpRouteFactoryBoilerplateMixin implements Alfred {
       );
 
   @override
-  HttpRouteFactoryImpl route(String path) => //
-      HttpRouteFactoryImpl(alfred: this, basePath: path);
+  HttpRouteFactoryImpl route(
+    final String path,
+  ) =>
+      HttpRouteFactoryImpl(
+        alfred: this,
+        basePath: path,
+      );
 
   /// Handles and routes an incoming request.
-  Future<void> _incomingRequest(HttpRequest request) async {
+  Future<void> _incomingRequest(
+    final HttpRequest request,
+  ) async {
     // Variable to track the close of the response.
     var isDone = false;
     log.onIncomingRequest(request.method, request.uri);
@@ -83,12 +90,16 @@ class AlfredImpl with HttpRouteFactoryBoilerplateMixin implements Alfred {
     );
     // We track if the response has been resolved in order to exit out early
     // the list of routes (ie the middleware returned)
-    unawaited(request.response.done.then((dynamic _) {
+    unawaited(request.response.done.then((final dynamic _) {
       isDone = true;
       log.onResponseSent();
     }));
     // Work out all the routes we need to process
-    final matchedRoutes = matchRoute(request.uri.toString(), routes, parseHttpMethod(request.method) ?? Methods.get);
+    final matchedRoutes = matchRoute(
+      request.uri.toString(),
+      routes,
+      parseHttpMethod(request.method) ?? Methods.get,
+    );
     try {
       if (matchedRoutes.isEmpty) {
         log.onNoMatchingRouteFound();
@@ -148,40 +159,46 @@ class AlfredImpl with HttpRouteFactoryBoilerplateMixin implements Alfred {
 
   @override
   void createRoute(
-    String path,
-    Middleware callback,
-    BuiltinMethod method,
-  ) =>
-      routes.add(HttpRouteImpl(path, callback, method));
+    final String path,
+    final Middleware callback,
+    final BuiltinMethod method,
+  ) {
+    final route = HttpRouteImpl(path, callback, method);
+    routes.add(route);
+  }
 }
 
-List<HttpRoute> matchRoute(String input, List<HttpRoute> options, Method method) {
+List<HttpRoute> matchRoute(
+  final String input,
+  final List<HttpRoute> options,
+  final Method method,
+) {
   final output = <HttpRoute>[];
   final inputPath = normalizePath(Uri.parse(input).path);
   for (final option in options) {
-// Check if http method matches.
+    // Check if http method matches.
     if (option.method == method || option.method == Methods.all) {
       if (RegExp(
         [
           '^',
           ...() sync* {
-// Split route path into segments.
+            // Split route path into segments.
             final segments = Uri.parse(normalizePath(option.route)).pathSegments;
             for (final segment in segments) {
               if (segment == '*' && segment != segments.first && segment == segments.last) {
-// Generously match path if last segment is wildcard (*)
-// Example: 'some/path/*' => should match 'some/path'.
+                // Generously match path if last segment is wildcard (*)
+                // Example: 'some/path/*' => should match 'some/path'.
                 yield '/?.*';
               } else if (segment != segments.first) {
-// Add path separators.
+                // Add path separators.
                 yield '/';
               }
               yield segment
-// Escape period character.
+                  // Escape period character.
                   .replaceAll('.', r'\.')
-// Parameter (':something') to anything but slash.
+                  // Parameter (':something') to anything but slash.
                   .replaceAll(RegExp(':.+'), '[^/]+?')
-// Wildcard ('*') to anything.
+                  // Wildcard ('*') to anything.
                   .replaceAll('*', '.*?');
             }
           }(),
@@ -197,7 +214,9 @@ List<HttpRoute> matchRoute(String input, List<HttpRoute> options, Method method)
 }
 
 /// Trims all slashes at the start and end.
-String normalizePath(String self) {
+String normalizePath(
+  final String self,
+) {
   if (self.startsWith('/')) {
     return normalizePath(self.substring('/'.length));
   } else if (self.endsWith('/')) {

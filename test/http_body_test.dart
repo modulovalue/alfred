@@ -43,13 +43,18 @@ void _testHttpClientResponseBody() {
     bool shouldFail = false,
   ]) async {
     final server = await HttpServer.bind('localhost', 0);
-    server.listen((request) {
-      request.listen((_) {}, onDone: () {
-        request.response.headers.contentType = ContentType.parse(mimeType);
-        request.response.add(content);
-        request.response.close();
-      });
-    });
+    server.listen(
+      (final request) {
+        request.listen(
+          (final _) {},
+          onDone: () {
+            request.response.headers.contentType = ContentType.parse(mimeType);
+            request.response.add(content);
+            request.response.close();
+          },
+        );
+      },
+    );
     final client = HttpClient();
     try {
       final request = await client.get('localhost', server.port, '/');
@@ -68,7 +73,9 @@ void _testHttpClientResponseBody() {
       }
       // ignore: avoid_catches_without_on_clauses
     } catch (_) {
-      if (!shouldFail) rethrow;
+      if (!shouldFail) {
+        rethrow;
+      }
     } finally {
       client.close();
       await server.close();
@@ -88,12 +95,12 @@ void _testHttpClientResponseBody() {
 
 void _testHttpServerRequestBody() {
   Future<void> check(
-    String? mimeType,
-    List<int> content,
-    dynamic expectedBody,
-    String type, {
-    bool shouldFail = false,
-    Encoding defaultEncoding = utf8,
+    final String? mimeType,
+    final List<int> content,
+    final dynamic expectedBody,
+    final String type, {
+    final bool shouldFail = false,
+    final Encoding defaultEncoding = utf8,
   }) async {
     final server = await HttpServer.bind('localhost', 0);
     server.transform(HttpBodyHandlerImpl(defaultEncoding)).listen((body) {
@@ -262,7 +269,10 @@ class FakeHttpHeaders implements HttpHeaders {
   FakeHttpHeaders();
 
   @override
-  List<String>? operator [](String key) => _headers[key];
+  List<String>? operator [](
+    final String key,
+  ) =>
+      _headers[key];
 
   @override
   int get contentLength => int.parse(_headers[HttpHeaders.contentLengthHeader]![0]);
@@ -281,7 +291,9 @@ class FakeHttpHeaders implements HttpHeaders {
   }
 
   @override
-  set ifModifiedSince(DateTime? ifModifiedSince) {
+  set ifModifiedSince(
+    final DateTime? ifModifiedSince,
+  ) {
     ArgumentError.checkNotNull(ifModifiedSince);
     // Format "ifModifiedSince" header with date in Greenwich Mean Time (GMT).
     final formatted = HttpDate.format(ifModifiedSince!.toUtc());
@@ -292,7 +304,11 @@ class FakeHttpHeaders implements HttpHeaders {
   ContentType? contentType;
 
   @override
-  void set(String name, Object value, {bool preserveHeaderCase = false}) {
+  void set(
+    final String name,
+    final Object value, {
+    final bool preserveHeaderCase = false,
+  }) {
     if (preserveHeaderCase) {
       throw ArgumentError('preserveHeaderCase not supported');
     } else {
@@ -303,7 +319,9 @@ class FakeHttpHeaders implements HttpHeaders {
   }
 
   @override
-  String? value(String name) {
+  String? value(
+    final String name,
+  ) {
     final _name = name.toLowerCase();
     final values = _headers[_name];
     if (values == null) {
@@ -320,8 +338,11 @@ class FakeHttpHeaders implements HttpHeaders {
   @override
   String toString() => '$runtimeType : $_headers';
 
-  // [name] must be a lower-case version of the name.
-  void _add(String name, Object value) {
+  /// [name] must be a lower-case version of the name.
+  void _add(
+    final String name,
+    final Object value,
+  ) {
     if (name == HttpHeaders.ifModifiedSinceHeader) {
       if (value is DateTime) {
         ifModifiedSince = value;
@@ -335,7 +356,10 @@ class FakeHttpHeaders implements HttpHeaders {
     }
   }
 
-  void _addAll(String name, Object value) {
+  void _addAll(
+    final String name,
+    final Object value,
+  ) {
     if (value is List) {
       for (var i = 0; i < value.length; i++) {
         _add(name, value[i] as Object);
@@ -345,7 +369,10 @@ class FakeHttpHeaders implements HttpHeaders {
     }
   }
 
-  void _addValue(String name, Object value) {
+  void _addValue(
+    final String name,
+    final Object value,
+  ) {
     var values = _headers[name];
     if (values == null) {
       values = <String>[];
@@ -358,13 +385,18 @@ class FakeHttpHeaders implements HttpHeaders {
     }
   }
 
-  void _set(String name, String value) {
+  void _set(
+    final String name,
+    final String value,
+  ) {
     assert(name == name.toLowerCase(), "$name must be canonicalized to its lowercase version.");
     _headers[name] = [value];
   }
 
   @override
-  dynamic noSuchMethod(Invocation invocation) {
+  dynamic noSuchMethod(
+    final Invocation invocation,
+  ) {
     print([invocation.memberName, invocation.isGetter, invocation.isSetter, invocation.isMethod, invocation.isAccessor]);
     return super.noSuchMethod(invocation);
   }
@@ -383,10 +415,10 @@ class FakeHttpRequest extends StreamView<Uint8List> implements HttpRequest {
   final bool followRedirects;
 
   FakeHttpRequest(
-    this.uri, {
-    required Stream<Uint8List> data,
-    this.followRedirects = true,
-    DateTime? ifModifiedSince,
+    final this.uri, {
+    required final Stream<Uint8List> data,
+    final this.followRedirects = true,
+    final DateTime? ifModifiedSince,
   }) : super(data) {
     if (ifModifiedSince != null) {
       headers.ifModifiedSince = ifModifiedSince;
@@ -394,7 +426,10 @@ class FakeHttpRequest extends StreamView<Uint8List> implements HttpRequest {
   }
 
   @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+  dynamic noSuchMethod(
+    final Invocation invocation,
+  ) =>
+      super.noSuchMethod(invocation);
 }
 
 class FakeHttpResponse implements HttpResponse {
@@ -422,7 +457,10 @@ class FakeHttpResponse implements HttpResponse {
   String get reasonPhrase => _findReasonPhrase(statusCode)!;
 
   @override
-  set reasonPhrase(String value) => _reasonPhrase = value;
+  set reasonPhrase(
+    final String value,
+  ) =>
+      _reasonPhrase = value;
 
   @override
   Future<dynamic> get done => _doneFuture;
@@ -434,25 +472,40 @@ class FakeHttpResponse implements HttpResponse {
   }
 
   @override
-  void add(List<int> data) => _buffer.addAll(data);
+  void add(
+    final List<int> data,
+  ) =>
+      _buffer.addAll(data);
 
   @override
-  void addError(dynamic error, [StackTrace? stackTrace]) {
+  void addError(
+    final dynamic error, [
+    final StackTrace? stackTrace,
+  ]) {
     // doesn't seem to be hit...hmm...
   }
 
   @override
-  Future<dynamic> redirect(Uri location, {int status = HttpStatus.movedTemporarily}) {
+  Future<dynamic> redirect(
+    final Uri location, {
+    final int status = HttpStatus.movedTemporarily,
+  }) {
     statusCode = status;
     headers.set(HttpHeaders.locationHeader, location.toString());
     return close();
   }
 
   @override
-  void write(Object? obj) => add(utf8.encode(obj.toString()));
+  void write(
+    final Object? obj,
+  ) =>
+      add(utf8.encode(obj.toString()));
 
   @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+  dynamic noSuchMethod(
+    final Invocation invocation,
+  ) =>
+      super.noSuchMethod(invocation);
 
   String get fakeContent => utf8.decode(_buffer);
 
@@ -462,7 +515,9 @@ class FakeHttpResponse implements HttpResponse {
 
   // Copied from SDK http_impl.dart @ 845 on 2014-01-05
   // TODO: file an SDK bug to expose this on HttpStatus in some way
-  String? _findReasonPhrase(int statusCode) {
+  String? _findReasonPhrase(
+    final int statusCode,
+  ) {
     if (_reasonPhrase != null) {
       return _reasonPhrase;
     } else {

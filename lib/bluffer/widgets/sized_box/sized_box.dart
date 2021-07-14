@@ -1,8 +1,8 @@
 import '../../base/keys.dart';
-import '../../css/impl/builder.dart';
-import '../../css/interface/css.dart';
-import '../../html/impl/html.dart';
-import '../../html/interface/html.dart';
+import '../../css/builder.dart';
+import '../../css/css.dart';
+import '../../html/html.dart';
+import '../../html/html_impl.dart';
 import '../widget/impl/widget_mixin.dart';
 import '../widget/interface/build_context.dart';
 import '../widget/interface/widget.dart';
@@ -25,16 +25,16 @@ class SizedBox implements Widget {
   CssStyleDeclaration2 renderCss(
     final BuildContext context,
   ) =>
-      CssStyleDeclaration2BuilderImpl.build(
-        flexShrink: '0',
-        width: () {
+      CssStyleDeclaration2Impl(
+        css_flexShrink: '0',
+        css_width: () {
           if (width != null) {
             return '${width}px';
           } else {
             return null;
           }
         }(),
-        height: () {
+        css_height: () {
           if (height != null) {
             return '${height}px';
           } else {

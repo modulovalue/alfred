@@ -45,23 +45,35 @@ class WebSocketSessionTest2Impl with WebSocketSessionStartMixin {
   WebSocketSessionTest2Impl();
 
   @override
-  void onClose(WebSocket _) {
+  void onClose(
+    final WebSocket _,
+  ) {
     // Do nothing.
   }
 
   @override
-  void onMessage(WebSocket _, Object? data) {
+  void onMessage(
+    final WebSocket _,
+    final Object? data,
+  ) {
     // ignore: only_throw_errors
     throw "Test";
   }
 
   @override
-  void onError(WebSocket _, dynamic error) {
+  void onError(
+    final WebSocket _,
+    final dynamic error,
+  ) {
     this.error++;
   }
 
   @override
-  void onOpen(WebSocket _) {}
+  void onOpen(
+    final WebSocket _,
+  ) {
+    // Do nothing.
+  }
 }
 
 class WebSocketSessionTest1Impl with WebSocketSessionStartMixin {
@@ -74,21 +86,31 @@ class WebSocketSessionTest1Impl with WebSocketSessionStartMixin {
   WebSocketSessionTest1Impl();
 
   @override
-  void onClose(WebSocket _) => closed = true;
+  void onClose(
+    final WebSocket _,
+  ) =>
+      closed = true;
 
   @override
-  void onError(WebSocket _, dynamic error) {
+  void onError(
+    final WebSocket _,
+    final dynamic error,
+  ) {
     // Do nothing.
   }
 
   @override
-  void onMessage(WebSocket _, dynamic data) {
+  void onMessage(
+    final WebSocket _,
+    final dynamic data,
+  ) {
     message = data as String;
     socket.add('echo $data');
   }
 
   @override
-  void onOpen(WebSocket _) {
-    opened = true;
-  }
+  void onOpen(
+    final WebSocket _,
+  ) =>
+      opened = true;
 }

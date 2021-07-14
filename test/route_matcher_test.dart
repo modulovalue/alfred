@@ -122,7 +122,9 @@ void main() {
 }
 
 List<String> match(
-  String input,
-  List<HttpRoute> routes,
-) =>
-    matchRoute(input, routes, Methods.get).map((e) => e.route).toList();
+  final String input,
+  final List<HttpRoute> routes,
+) {
+  final matchedRoute = matchRoute(input, routes, Methods.get);
+  return matchedRoute.map((e) => e.route).toList();
+}

@@ -245,6 +245,8 @@ class Locale {
   /// This identifier happens to be a valid Unicode Locale Identifier using
   /// underscores as separator, however it is intended to be used for debugging
   /// purposes only. For parseable results, use [toLanguageTag] instead.
+  String localeDebugToString() => toString();
+
   @override
   String toString() {
     if (!identical(cachedLocale, this)) {

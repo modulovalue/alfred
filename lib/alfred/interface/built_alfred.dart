@@ -10,7 +10,9 @@ abstract class BuiltAlfred {
   ///
   /// Call this if you are shutting down the server
   /// but continuing to run the app.
-  Future<dynamic> close({bool force});
+  Future<dynamic> close({
+    final bool force,
+  });
 
   int get port;
 

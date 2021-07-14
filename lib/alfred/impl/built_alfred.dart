@@ -17,12 +17,12 @@ class BuiltAlfredImpl implements BuiltAlfred {
   bool closed = false;
 
   static Future<BuiltAlfredImpl> make({
-    required int port,
-    required String bindIp,
-    required bool shared,
-    required int simultaneousProcessing,
-    required AlfredLoggingDelegate log,
-    required Future<void> Function(HttpRequest request) requestHandler,
+    required final int port,
+    required final String bindIp,
+    required final bool shared,
+    required final int simultaneousProcessing,
+    required final AlfredLoggingDelegate log,
+    required final Future<void> Function(HttpRequest request) requestHandler,
   }) async {
     final requestQueue = Queue(parallel: simultaneousProcessing);
     final _server = await HttpServer.bind(bindIp, port, shared: shared);
@@ -39,15 +39,17 @@ class BuiltAlfredImpl implements BuiltAlfred {
   }
 
   BuiltAlfredImpl._({
-    required this.server,
-    required this.port,
-    required this.boundIp,
-    required this.requestQueue,
-    required this.shared,
+    required final this.server,
+    required final this.port,
+    required final this.boundIp,
+    required final this.requestQueue,
+    required final this.shared,
   });
 
   @override
-  Future<dynamic> close({bool force = true}) async {
+  Future<dynamic> close({
+    final bool force = true,
+  }) async {
     if (!closed) {
       await server.close(force: force);
       closed = true;

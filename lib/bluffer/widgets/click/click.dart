@@ -1,7 +1,7 @@
 import '../../base/keys.dart';
-import '../../css/interface/css.dart';
-import '../../html/impl/html.dart';
-import '../../html/interface/html.dart';
+import '../../css/css.dart';
+import '../../html/html.dart';
+import '../../html/html_impl.dart';
 import '../widget/impl/resolve_url.dart';
 import '../widget/impl/widget_mixin.dart';
 import '../widget/interface/build_context.dart';

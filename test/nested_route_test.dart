@@ -5,7 +5,7 @@ import 'common.dart';
 
 void main() {
   test('it can compose requests', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       final path = app.route('path');
       path.get('a', const ClosingMiddleware());
       path.post('b', const ClosingMiddleware());
@@ -14,7 +14,7 @@ void main() {
       path.delete('e', const ClosingMiddleware());
       path.options('f', const ClosingMiddleware());
       path.all('g', const ClosingMiddleware());
-      expect(app.routes.map((r) => r.route + ':' + r.method.description).toList(), [
+      expect(app.routes.map((final r) => r.route + ':' + r.method.description).toList(), [
         'path/a:GET',
         'path/b:POST',
         'path/c:PUT',
@@ -26,13 +26,13 @@ void main() {
     });
   });
   test('it can compose multiple times', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       app.route('first/and').route('second/and').get('third', const ClosingMiddleware());
       expect(app.routes.first.route, 'first/and/second/and/third');
     });
   });
   test('it can handle slashes when composing', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       app.route('first/').get('/second', const ClosingMiddleware());
       app.route('first').get('/second', const ClosingMiddleware());
       app.route('first/').get('second', const ClosingMiddleware());
@@ -44,7 +44,7 @@ void main() {
     });
   });
   test('it can correctly inherit middleware', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       final first = app.route('first');
       first.get('a', const ClosingMiddleware());
       first.get('b', const ClosingMiddleware());

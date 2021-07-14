@@ -1,6 +1,6 @@
 import '../../../base/assets.dart';
 import '../../../base/keys.dart';
-import '../../../css/interface/css.dart';
+import '../../../css/css.dart';
 import '../interface/build_context.dart';
 import '../interface/inherited_widget.dart';
 

@@ -12,9 +12,9 @@ extension AlfredTestExtension on Alfred {
 }
 
 Future<void> runTest({
-  required Future<void> Function(Alfred app, BuiltAlfred built, int port) fn,
-  AlfredLoggingDelegate LOG = const AlfredLoggingDelegatePrintImpl(LogType.info),
-  Middleware notFound = const NotFound404Middleware(),
+  required final Future<void> Function(Alfred app, BuiltAlfred built, int port) fn,
+  final AlfredLoggingDelegate LOG = const AlfredLoggingDelegatePrintImpl(LogType.info),
+  final Middleware notFound = const NotFound404Middleware(),
 }) async {
   final app = AlfredImpl(log: LOG, onNotFound: notFound);
   final built = await app.listenForTest();

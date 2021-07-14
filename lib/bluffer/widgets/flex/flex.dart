@@ -1,9 +1,9 @@
 import '../../base/basic_types.dart';
 import '../../base/keys.dart';
-import '../../css/impl/builder.dart';
-import '../../css/interface/css.dart';
-import '../../html/impl/html.dart';
-import '../../html/interface/html.dart';
+import '../../css/builder.dart';
+import '../../css/css.dart';
+import '../../html/html.dart';
+import '../../html/html_impl.dart';
 import '../widget/impl/widget_mixin.dart';
 import '../widget/interface/build_context.dart';
 import '../widget/interface/widget.dart';
@@ -83,10 +83,10 @@ class Flex implements Widget {
   CssStyleDeclaration2 renderCss(
     final BuildContext context,
   ) =>
-      CssStyleDeclaration2BuilderImpl.build(
-        display: 'flex',
-        flexDirection: direction == Axis.horizontal ? 'row' : 'column',
-        justifyContent: () {
+      CssStyleDeclaration2Impl(
+        css_display: 'flex',
+        css_flexDirection: direction == Axis.horizontal ? 'row' : 'column',
+        css_justifyContent: () {
           switch (mainAxisSize) {
             case MainAxisSize.max:
               return 'stretch';
@@ -107,7 +107,7 @@ class Flex implements Widget {
               }
           }
         }(),
-        alignItems: () {
+        css_alignItems: () {
           switch (crossAxisAlignment) {
             case CrossAxisAlignment.end:
               return 'flex-end';
@@ -165,15 +165,15 @@ class Flexible implements Widget {
   ) {
     switch (fit) {
       case FlexFit.tight:
-        return CssStyleDeclaration2BuilderImpl.build(
-          flexGrow: flex.toString(),
-          flexShrink: '1',
-          flexBasis: '0',
+        return CssStyleDeclaration2Impl(
+          css_flexGrow: flex.toString(),
+          css_flexShrink: '1',
+          css_flexBasis: '0',
         );
       case FlexFit.loose:
-        return CssStyleDeclaration2BuilderImpl.build(
-          flexGrow: '0',
-          flexShrink: flex.toString(),
+        return CssStyleDeclaration2Impl(
+          css_flexGrow: '0',
+          css_flexShrink: flex.toString(),
         );
     }
   }

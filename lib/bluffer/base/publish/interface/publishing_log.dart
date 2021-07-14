@@ -4,19 +4,34 @@ import '../../app.dart';
 import '../../locale.dart';
 
 abstract class PublishingAssetLog {
-  void processingAssets(Directory assets);
+  void processingAssets(
+    final Directory assets,
+  );
 
-  void processingAssetFile(File item, File destination);
+  void processingAssetFile(
+    final File item,
+    final File destination,
+  );
 }
 
 abstract class PublishingRouteLog {
-  void processingRoute(UrlWidgetRoute route);
+  void processingRoute(
+    final UrlWidgetRoute route,
+  );
 
-  void processingRouteFile(File file);
+  void processingRouteFile(
+    final File file,
+  );
 }
 
 abstract class PublishingLocaleLog {
-  void processingLocale(Locale locale);
+  void processingLocale(
+    final Locale locale,
+  );
 }
 
-abstract class PublishingLog implements PublishingLocaleLog, PublishingAssetLog, PublishingRouteLog {}
+abstract class PublishingLog
+    implements //
+        PublishingLocaleLog,
+        PublishingAssetLog,
+        PublishingRouteLog {}

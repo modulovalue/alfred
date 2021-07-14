@@ -17,10 +17,10 @@ abstract class Alfred implements HttpRouteFactory {
 
   /// Call this function to fire off the server.
   Future<BuiltAlfred> build([
-    int port,
-    String bindIp,
-    bool shared,
-    int simultaneousProcessing,
+    final int port,
+    final String bindIp,
+    final bool shared,
+    final int simultaneousProcessing,
   ]);
 
   /// Writer to handle internal logging.

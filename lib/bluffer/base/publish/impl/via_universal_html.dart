@@ -1,13 +1,18 @@
 // ignore: implementation_imports
 import 'package:universal_html/src/html.dart' as html;
 
-import '../../../html/impl/html.dart';
-import '../../../html/interface/html.dart';
+import '../../../html/html.dart';
+import '../../../html/html_impl.dart';
 
 String elementToStringViaUniversal(
   final HtmlElement2 entity,
-) => //
-    entity.acceptHtmlElementOneArg(const HtmlElementToUniversalVisitorImpl(), null).outerHtml!;
+) =>
+    entity
+        .acceptHtmlElementOneArg(
+          const HtmlElementToUniversalVisitorImpl(),
+          null,
+        )
+        .outerHtml!;
 
 class _Selector implements HtmlEntityVisitorOneArg<html.Node, void> {
   const _Selector();
@@ -34,89 +39,89 @@ class HtmlElementToUniversalVisitorImpl implements HtmlElementVisitorOneArg<html
   ) {
     final a = element.style;
     final b = other.style;
-    if (a.margin != null) {
-      b.margin = a.margin;
+    if (a.css_margin != null) {
+      b.margin = a.css_margin;
     }
-    if (a.maxHeight != null) {
-      b.maxHeight = a.maxHeight;
+    if (a.css_maxHeight != null) {
+      b.maxHeight = a.css_maxHeight;
     }
-    if (a.maxWidth != null) {
-      b.maxWidth = a.maxWidth;
+    if (a.css_maxWidth != null) {
+      b.maxWidth = a.css_maxWidth;
     }
-    if (a.minHeight != null) {
-      b.minHeight = a.minHeight;
+    if (a.css_minHeight != null) {
+      b.minHeight = a.css_minHeight;
     }
-    if (a.minWidth != null) {
-      b.minWidth = a.minWidth;
+    if (a.css_minWidth != null) {
+      b.minWidth = a.css_minWidth;
     }
-    if (a.display != null) {
-      b.display = a.display;
+    if (a.css_display != null) {
+      b.display = a.css_display;
     }
-    if (a.backgroundColor != null) {
-      b.backgroundColor = a.backgroundColor;
+    if (a.css_backgroundColor != null) {
+      b.backgroundColor = a.css_backgroundColor;
     }
-    if (a.backgroundImage != null) {
-      b.backgroundImage = a.backgroundImage;
+    if (a.css_backgroundImage != null) {
+      b.backgroundImage = a.css_backgroundImage;
     }
-    if (a.backgroundPosition != null) {
-      b.backgroundPosition = a.backgroundPosition;
+    if (a.css_backgroundPosition != null) {
+      b.backgroundPosition = a.css_backgroundPosition;
     }
-    if (a.backgroundSize != null) {
-      b.backgroundSize = a.backgroundSize;
+    if (a.css_backgroundSize != null) {
+      b.backgroundSize = a.css_backgroundSize;
     }
-    if (a.borderTopLeftRadius != null) {
-      b.borderTopLeftRadius = a.borderTopLeftRadius;
+    if (a.css_borderTopLeftRadius != null) {
+      b.borderTopLeftRadius = a.css_borderTopLeftRadius;
     }
-    if (a.borderTopRightRadius != null) {
-      b.borderTopRightRadius = a.borderTopRightRadius;
+    if (a.css_borderTopRightRadius != null) {
+      b.borderTopRightRadius = a.css_borderTopRightRadius;
     }
-    if (a.borderBottomLeftRadius != null) {
-      b.borderBottomLeftRadius = a.borderBottomLeftRadius;
+    if (a.css_borderBottomLeftRadius != null) {
+      b.borderBottomLeftRadius = a.css_borderBottomLeftRadius;
     }
-    if (a.borderBottomRightRadius != null) {
-      b.borderBottomRightRadius = a.borderBottomRightRadius;
+    if (a.css_borderBottomRightRadius != null) {
+      b.borderBottomRightRadius = a.css_borderBottomRightRadius;
     }
-    if (a.boxShadow != null) {
-      b.boxShadow = a.boxShadow;
+    if (a.css_boxShadow != null) {
+      b.boxShadow = a.css_boxShadow;
     }
-    if (a.flexDirection != null) {
-      b.flexDirection = a.flexDirection;
+    if (a.css_flexDirection != null) {
+      b.flexDirection = a.css_flexDirection;
     }
-    if (a.justifyContent != null) {
-      b.justifyContent = a.justifyContent;
+    if (a.css_justifyContent != null) {
+      b.justifyContent = a.css_justifyContent;
     }
-    if (a.alignItems != null) {
-      b.alignItems = a.alignItems;
+    if (a.css_alignItems != null) {
+      b.alignItems = a.css_alignItems;
     }
-    if (a.flexGrow != null) {
-      b.flexGrow = a.flexGrow;
+    if (a.css_flexGrow != null) {
+      b.flexGrow = a.css_flexGrow;
     }
-    if (a.flexShrink != null) {
-      b.flexShrink = a.flexShrink;
+    if (a.css_flexShrink != null) {
+      b.flexShrink = a.css_flexShrink;
     }
-    if (a.flexBasis != null) {
-      b.flexBasis = a.flexBasis;
+    if (a.css_flexBasis != null) {
+      b.flexBasis = a.css_flexBasis;
     }
-    if (a.height != null) {
-      b.height = a.height;
+    if (a.css_height != null) {
+      b.height = a.css_height;
     }
-    if (a.textAlign != null) {
-      b.textAlign = a.textAlign;
+    if (a.css_textAlign != null) {
+      b.textAlign = a.css_textAlign;
     }
-    if (a.lineHeight != null) {
-      b.lineHeight = a.lineHeight;
+    if (a.css_lineHeight != null) {
+      b.lineHeight = a.css_lineHeight;
     }
-    if (a.fontSize != null) {
-      b.fontSize = a.fontSize;
+    if (a.css_fontSize != null) {
+      b.fontSize = a.css_fontSize;
     }
-    if (a.color != null) {
-      b.color = a.color;
+    if (a.css_color != null) {
+      b.color = a.css_color;
     }
-    if (a.fontWeight != null) {
-      b.fontWeight = a.fontWeight;
+    if (a.css_fontWeight != null) {
+      b.fontWeight = a.css_fontWeight;
     }
-    if (a.fontFamily != null) {
-      b.fontFamily = a.fontFamily;
+    if (a.css_fontFamily != null) {
+      b.fontFamily = a.css_fontFamily;
     }
     if (element.id != null) {
       other.id = element.id!;
@@ -136,7 +141,10 @@ class HtmlElementToUniversalVisitorImpl implements HtmlElementVisitorOneArg<html
   const HtmlElementToUniversalVisitorImpl();
 
   @override
-  html.HtmlElement visitElementAnchor(AnchorElement2 node, void arg) => //
+  html.HtmlElement visitElementAnchor(
+    final AnchorElement2 node,
+    final void arg,
+  ) =>
       passOnHtmlElementValues(
         node,
         html.AnchorElement()
@@ -145,42 +153,60 @@ class HtmlElementToUniversalVisitorImpl implements HtmlElementVisitorOneArg<html
       );
 
   @override
-  html.HtmlElement visitElementBody(BodyElement2 node, void arg) => //
+  html.HtmlElement visitElementBody(
+    final BodyElement2 node,
+    final void arg,
+  ) =>
       passOnHtmlElementValues(
         node,
         html.BodyElement(),
       );
 
   @override
-  html.HtmlElement visitElementBr(BRElement2 node, void arg) => //
+  html.HtmlElement visitElementBr(
+    final BRElement2 node,
+    final void arg,
+  ) =>
       passOnHtmlElementValues(
         node,
         html.BRElement(),
       );
 
   @override
-  html.HtmlElement visitElementDiv(DivElement2 node, void arg) => //
+  html.HtmlElement visitElementDiv(
+    final DivElement2 node,
+    final void arg,
+  ) =>
       passOnHtmlElementValues(
         node,
         html.DivElement(),
       );
 
   @override
-  html.HtmlElement visitElementHead(HeadElement2 node, void arg) => //
+  html.HtmlElement visitElementHead(
+    final HeadElement2 node,
+    final void arg,
+  ) =>
       passOnHtmlElementValues(
         node,
         html.HeadElement(),
       );
 
   @override
-  html.HtmlElement visitElementHtmlHtml(HtmlHtmlElement2 node, void arg) => //
+  html.HtmlElement visitElementHtmlHtml(
+    final HtmlHtmlElement2 node,
+    final void arg,
+  ) =>
       passOnHtmlElementValues(
         node,
         html.HtmlHtmlElement(),
       );
 
   @override
-  html.HtmlElement visitElementImage(ImageElement2 node, void arg) => //
+  html.HtmlElement visitElementImage(
+    final ImageElement2 node,
+    final void arg,
+  ) =>
       passOnHtmlElementValues(
         node,
         html.ImageElement()
@@ -189,7 +215,10 @@ class HtmlElementToUniversalVisitorImpl implements HtmlElementVisitorOneArg<html
       );
 
   @override
-  html.HtmlElement visitElementLink(LinkElement2 node, void arg) {
+  html.HtmlElement visitElementLink(
+    final LinkElement2 node,
+    final void arg,
+  ) {
     final element = html.LinkElement();
     if (node.rel != null) element.rel = node.rel!;
     element.href = node.href;
@@ -197,34 +226,61 @@ class HtmlElementToUniversalVisitorImpl implements HtmlElementVisitorOneArg<html
   }
 
   @override
-  html.HtmlElement visitElementMeta(MetaElement2 node, void arg) {
+  html.HtmlElement visitElementMeta(
+    final MetaElement2 node,
+    final void arg,
+  ) {
     final element = html.MetaElement();
     node.forEachAttribute(element.setAttribute);
     return passOnHtmlElementValues(node, element);
   }
 
   @override
-  html.HtmlElement visitElementParagraph(ParagraphElement2 node, void arg) => //
-      passOnHtmlElementValues(node, html.ParagraphElement());
+  html.HtmlElement visitElementParagraph(
+    final ParagraphElement2 node,
+    final void arg,
+  ) => //
+      passOnHtmlElementValues(
+        node,
+        html.ParagraphElement(),
+      );
 
   @override
-  html.HtmlElement visitElementScript(ScriptElement2 node, void arg) {
+  html.HtmlElement visitElementScript(
+    final ScriptElement2 node,
+    final void arg,
+  ) {
     final element = html.ScriptElement();
-    if (node.src != null) element.src = node.src!;
-    if (node.defer != null) element.defer = node.defer;
-    if (node.async != null) element.async = node.async!;
-    return passOnHtmlElementValues(node, element);
+    if (node.src != null) {
+      element.src = node.src!;
+    }
+    if (node.defer != null) {
+      element.defer = node.defer;
+    }
+    if (node.async != null) {
+      element.async = node.async!;
+    }
+    return passOnHtmlElementValues(
+      node,
+      element,
+    );
   }
 
   @override
-  html.HtmlElement visitElementStyle(StyleElement2 node, void arg) => //
+  html.HtmlElement visitElementStyle(
+    final StyleElement2 node,
+    final void arg,
+  ) => //
       passOnHtmlElementValues(
         node,
         html.StyleElement(),
       );
 
   @override
-  html.HtmlElement visitElementTitle(TitleElement2 node, void arg) {
+  html.HtmlElement visitElementTitle(
+    final TitleElement2 node,
+    final void arg,
+  ) {
     final element = html.TitleElement();
     element.text = node.text;
     return passOnHtmlElementValues(node, element);
@@ -236,8 +292,8 @@ class _Nodes implements HtmlNodeVisitorOneArg<html.Node, void> {
 
   @override
   html.Node visitNodeStyle(
-    CssTextElement2 node,
-    void arg,
+    final CssTextElement2 node,
+    final void arg,
   ) {
     final key = node.key;
     final content = const HtmlElementToUniversalVisitorImpl().visitElementDiv(DivElement2Impl.custom(node.css), null).style.toString();
@@ -247,8 +303,8 @@ class _Nodes implements HtmlNodeVisitorOneArg<html.Node, void> {
 
   @override
   html.Node visitNodeText(
-    RawTextElement2 node,
-    void arg,
-  ) => //
+    final RawTextElement2 node,
+    final void arg,
+  ) =>
       html.Text(node.text);
 }

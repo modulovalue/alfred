@@ -1,6 +1,6 @@
 import '../../../base/keys.dart';
-import '../../../css/interface/css.dart';
-import '../../../html/interface/html.dart';
+import '../../../css/css.dart';
+import '../../../html/html.dart';
 import 'build_context.dart';
 
 abstract class KeyWidget<KEY extends Key?> {
