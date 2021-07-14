@@ -5,12 +5,16 @@ import '../../interface/serve_context.dart';
 
 /// Responds with a generic 5000 internal error.
 class InternalError500Middleware implements Middleware {
-  static InternalError500Middleware make(dynamic error) => //
+  static InternalError500Middleware make(
+    final dynamic error,
+  ) =>
       InternalError500Middleware(error);
 
   final dynamic error;
 
-  const InternalError500Middleware(this.error);
+  const InternalError500Middleware(
+    final this.error,
+  );
 
   @override
   Future<void> process(ServeContext c) async {
@@ -27,7 +31,9 @@ class NotFound404Middleware implements Middleware {
   const NotFound404Middleware();
 
   @override
-  Future<void> process(ServeContext c) async {
+  Future<void> process(
+    final ServeContext c,
+  ) async {
     c.res.statusCode = 404;
     c.res.write('404 not found');
     await c.res.close();

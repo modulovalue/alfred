@@ -17,7 +17,7 @@ String singlePage(
           size: MediaSize.medium,
         ),
         child: Builder(
-          builder: (context) => Theme(
+          builder: (final context) => Theme(
             data: ThemeData.base(context),
             child: child(context),
           ),

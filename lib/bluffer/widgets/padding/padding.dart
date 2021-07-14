@@ -40,7 +40,7 @@ class Padding implements Widget {
     final BuildContext context,
   ) {
     if (child == null) {
-      return DivElement2Impl();
+      return DivElement2Impl.empty();
     } else {
       return child!.render(context);
     }

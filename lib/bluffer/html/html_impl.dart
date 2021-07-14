@@ -2,7 +2,7 @@ import '../css/css.dart';
 import '../css/empty.dart';
 import 'html.dart';
 
-mixin HtmlElementMixin implements HtmlElement2 {
+mixin HtmlElementMixin2 implements HtmlElement2 {
   @override
   String? className;
   @override
@@ -11,14 +11,11 @@ mixin HtmlElementMixin implements HtmlElement2 {
   final List<HtmlEntity> childNodes = [];
 
   @override
-  CssStyleDeclaration2 get style;
+  CssStyleDeclaration2EmptyImpl get style => const CssStyleDeclaration2EmptyImpl();
 }
 
-class BRElement2Impl with HtmlElementMixin implements BRElement2 {
+class BRElement2Impl with HtmlElementMixin2 implements BRElement2 {
   BRElement2Impl();
-
-  @override
-  CssStyleDeclaration2EmptyImpl get style => const CssStyleDeclaration2EmptyImpl();
 
   @override
   R acceptHtmlElementOneArg<R, A>(
@@ -35,7 +32,7 @@ class BRElement2Impl with HtmlElementMixin implements BRElement2 {
       v.visitEntityElement(this, a);
 }
 
-class HtmlHtmlElement2Impl with HtmlElementMixin implements HtmlHtmlElement2 {
+class HtmlHtmlElement2Impl with HtmlElementMixin2 implements HtmlHtmlElement2 {
   factory HtmlHtmlElement2Impl.make(
     final Iterable<HtmlEntity> nodes,
   ) {
@@ -45,9 +42,6 @@ class HtmlHtmlElement2Impl with HtmlElementMixin implements HtmlHtmlElement2 {
   }
 
   HtmlHtmlElement2Impl._();
-
-  @override
-  CssStyleDeclaration2EmptyImpl get style => const CssStyleDeclaration2EmptyImpl();
 
   @override
   R acceptHtmlElementOneArg<R, A>(
@@ -64,13 +58,10 @@ class HtmlHtmlElement2Impl with HtmlElementMixin implements HtmlHtmlElement2 {
       v.visitEntityElement(this, a);
 }
 
-class MetaElement2Impl with HtmlElementMixin implements MetaElement2 {
+class MetaElement2Impl with HtmlElementMixin2 implements MetaElement2 {
   final Map<String, String> attributes = {};
 
   MetaElement2Impl();
-
-  @override
-  CssStyleDeclaration2EmptyImpl get style => const CssStyleDeclaration2EmptyImpl();
 
   @override
   void setAttribute(
@@ -100,7 +91,7 @@ class MetaElement2Impl with HtmlElementMixin implements MetaElement2 {
       v.visitEntityElement(this, a);
 }
 
-class BodyElement2Impl with HtmlElementMixin implements BodyElement2 {
+class BodyElement2Impl with HtmlElementMixin2 implements BodyElement2 {
   factory BodyElement2Impl.make(
     final Iterable<HtmlEntity> nodes,
   ) {
@@ -110,9 +101,6 @@ class BodyElement2Impl with HtmlElementMixin implements BodyElement2 {
   }
 
   BodyElement2Impl._();
-
-  @override
-  CssStyleDeclaration2 get style => const CssStyleDeclaration2EmptyImpl();
 
   @override
   R acceptHtmlElementOneArg<R, A>(
@@ -178,7 +166,7 @@ class CssTextElement2Impl implements CssTextElement2 {
       v.visitEntityNode(this, a);
 }
 
-class ScriptElement2Impl with HtmlElementMixin implements ScriptElement2 {
+class ScriptElement2Impl with HtmlElementMixin2 implements ScriptElement2 {
   @override
   bool? async;
   @override
@@ -187,9 +175,6 @@ class ScriptElement2Impl with HtmlElementMixin implements ScriptElement2 {
   String? src;
 
   ScriptElement2Impl();
-
-  @override
-  CssStyleDeclaration2 get style => const CssStyleDeclaration2EmptyImpl();
 
   @override
   R acceptHtmlElementOneArg<R, A>(
@@ -206,7 +191,7 @@ class ScriptElement2Impl with HtmlElementMixin implements ScriptElement2 {
       v.visitEntityElement(this, a);
 }
 
-class LinkElement2Impl with HtmlElementMixin implements LinkElement2 {
+class LinkElement2Impl with HtmlElementMixin2 implements LinkElement2 {
   @override
   String? href;
   @override
@@ -216,9 +201,6 @@ class LinkElement2Impl with HtmlElementMixin implements LinkElement2 {
     required final this.href,
     required final this.rel,
   });
-
-  @override
-  CssStyleDeclaration2EmptyImpl get style => const CssStyleDeclaration2EmptyImpl();
 
   @override
   R acceptHtmlElementOneArg<R, A>(
@@ -235,14 +217,11 @@ class LinkElement2Impl with HtmlElementMixin implements LinkElement2 {
       v.visitEntityElement(this, a);
 }
 
-class TitleElement2Impl with HtmlElementMixin implements TitleElement2 {
+class TitleElement2Impl with HtmlElementMixin2 implements TitleElement2 {
   @override
   String? text;
 
   TitleElement2Impl();
-
-  @override
-  CssStyleDeclaration2 get style => const CssStyleDeclaration2EmptyImpl();
 
   @override
   R acceptHtmlElementOneArg<R, A>(
@@ -259,7 +238,7 @@ class TitleElement2Impl with HtmlElementMixin implements TitleElement2 {
       v.visitEntityElement(this, a);
 }
 
-class StyleElement2Impl with HtmlElementMixin implements StyleElement2 {
+class StyleElement2Impl with HtmlElementMixin2 implements StyleElement2 {
   factory StyleElement2Impl.make(
     final Iterable<HtmlEntity> nodes,
   ) {
@@ -269,9 +248,6 @@ class StyleElement2Impl with HtmlElementMixin implements StyleElement2 {
   }
 
   StyleElement2Impl._();
-
-  @override
-  CssStyleDeclaration2 get style => const CssStyleDeclaration2EmptyImpl();
 
   @override
   R acceptHtmlElementOneArg<R, A>(
@@ -288,11 +264,8 @@ class StyleElement2Impl with HtmlElementMixin implements StyleElement2 {
       v.visitEntityElement(this, a);
 }
 
-class ParagraphElement2Impl with HtmlElementMixin implements ParagraphElement2 {
+class ParagraphElement2Impl with HtmlElementMixin2 implements ParagraphElement2 {
   ParagraphElement2Impl();
-
-  @override
-  CssStyleDeclaration2 get style => const CssStyleDeclaration2EmptyImpl();
 
   @override
   R acceptHtmlElementOneArg<R, A>(
@@ -309,16 +282,13 @@ class ParagraphElement2Impl with HtmlElementMixin implements ParagraphElement2 {
       v.visitEntityElement(this, a);
 }
 
-class ImageElement2Impl with HtmlElementMixin implements ImageElement2 {
+class ImageElement2Impl with HtmlElementMixin2 implements ImageElement2 {
   @override
   String? alt;
   @override
   String? src;
 
   ImageElement2Impl();
-
-  @override
-  CssStyleDeclaration2 get style => const CssStyleDeclaration2EmptyImpl();
 
   @override
   R acceptHtmlElementOneArg<R, A>(
@@ -335,24 +305,33 @@ class ImageElement2Impl with HtmlElementMixin implements ImageElement2 {
       v.visitEntityElement(this, a);
 }
 
-class DivElement2Impl with HtmlElementMixin implements DivElement2 {
+class DivElement2Impl implements DivElement2 {
   @override
-  // ignore: overridden_fields
+  String? className;
+  @override
+  String? id;
+  @override
+  final List<HtmlEntity> childNodes;
+  @override
   final CssStyleDeclaration2 style;
 
-  DivElement2Impl() : style = const CssStyleDeclaration2EmptyImpl();
+  DivElement2Impl.empty()
+      : childNodes = [],
+        style = const CssStyleDeclaration2EmptyImpl(),
+        className = null,
+        id = null;
 
-  DivElement2Impl.custom(this.style);
+  DivElement2Impl.make({
+    required final this.className,
+    required final this.id,
+    required final this.childNodes,
+  }) : style = const CssStyleDeclaration2EmptyImpl();
 
-  factory DivElement2Impl.make({
-    required String className,
-    required Iterable<HtmlEntity> nodes,
-  }) {
-    final node = DivElement2Impl();
-    node.className = className;
-    node.childNodes.addAll(nodes);
-    return node;
-  }
+  DivElement2Impl.custom(
+    final this.style,
+  )   : className = null,
+        id = null,
+        childNodes = [];
 
   @override
   R acceptHtmlElementOneArg<R, A>(
@@ -369,16 +348,13 @@ class DivElement2Impl with HtmlElementMixin implements DivElement2 {
       v.visitEntityElement(this, a);
 }
 
-class AnchorElement2Impl with HtmlElementMixin implements AnchorElement2 {
+class AnchorElement2Impl with HtmlElementMixin2 implements AnchorElement2 {
   @override
   String? href;
   @override
   String? target;
 
   AnchorElement2Impl();
-
-  @override
-  CssStyleDeclaration2 get style => const CssStyleDeclaration2EmptyImpl();
 
   @override
   R acceptHtmlElementOneArg<R, A>(
@@ -395,7 +371,7 @@ class AnchorElement2Impl with HtmlElementMixin implements AnchorElement2 {
       v.visitEntityElement(this, a);
 }
 
-class HeadElement2Impl with HtmlElementMixin implements HeadElement2 {
+class HeadElement2Impl with HtmlElementMixin2 implements HeadElement2 {
   factory HeadElement2Impl.make(
     final Iterable<HtmlEntity> children,
   ) {
@@ -405,9 +381,6 @@ class HeadElement2Impl with HtmlElementMixin implements HeadElement2 {
   }
 
   HeadElement2Impl._();
-
-  @override
-  CssStyleDeclaration2 get style => const CssStyleDeclaration2EmptyImpl();
 
   @override
   R acceptHtmlElementOneArg<R, A>(

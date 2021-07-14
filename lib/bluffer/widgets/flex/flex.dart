@@ -10,12 +10,12 @@ import '../widget/interface/widget.dart';
 
 class Column extends Flex {
   const Column({
-    MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
-    MainAxisSize mainAxisSize = MainAxisSize.min,
-    CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+    final MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
+    final MainAxisSize mainAxisSize = MainAxisSize.min,
+    final CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
     // VerticalDirection verticalDirection = VerticalDirection.down,
-    List<Widget> children = const <Widget>[],
-    Key? key,
+    final List<Widget> children = const <Widget>[],
+    final Key? key,
   }) : super(
           key: key,
           direction: Axis.vertical,
@@ -28,12 +28,12 @@ class Column extends Flex {
 
 class Row extends Flex {
   const Row({
-    MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
-    MainAxisSize mainAxisSize = MainAxisSize.min,
-    CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+    final MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
+    final MainAxisSize mainAxisSize = MainAxisSize.min,
+    final CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
     // VerticalDirection verticalDirection = VerticalDirection.down,
-    List<Widget> children = const <Widget>[],
-    Key? key,
+    final List<Widget> children = const <Widget>[],
+    final Key? key,
   }) : super(
           key: key,
           direction: Axis.horizontal,
@@ -54,16 +54,18 @@ class Flex implements Widget {
   final Key? key;
 
   const Flex({
-    required this.direction,
-    this.mainAxisAlignment = MainAxisAlignment.start,
-    this.mainAxisSize = MainAxisSize.max,
-    this.crossAxisAlignment = CrossAxisAlignment.center,
-    this.children = const <Widget>[],
-    this.key,
+    required final this.direction,
+    final this.mainAxisAlignment = MainAxisAlignment.start,
+    final this.mainAxisSize = MainAxisSize.max,
+    final this.crossAxisAlignment = CrossAxisAlignment.center,
+    final this.children = const <Widget>[],
+    final this.key,
   });
 
   @override
-  HtmlElement2 render(BuildContext context) {
+  HtmlElement2 render(
+    final BuildContext context,
+  ) {
     final result = renderWidget(this, context);
     if (children != null) {
       for (final child in children!) {
@@ -77,7 +79,7 @@ class Flex implements Widget {
   HtmlElement2 renderHtml(
     final BuildContext context,
   ) =>
-      DivElement2Impl();
+      DivElement2Impl.empty();
 
   @override
   CssStyleDeclaration2 renderCss(
@@ -147,10 +149,10 @@ class Flexible implements Widget {
   final Key? key;
 
   const Flexible({
-    required this.child,
-    this.flex = 1,
-    this.fit = FlexFit.loose,
-    this.key,
+    required final this.child,
+    final this.flex = 1,
+    final this.fit = FlexFit.loose,
+    final this.key,
   });
 
   @override
@@ -190,9 +192,9 @@ class Expanded extends Flexible {
   /// so that the child fills the available space along the flex widget's
   /// main axis.
   const Expanded({
-    required Widget child,
-    int flex = 1,
-    Key? key,
+    required final Widget child,
+    final int flex = 1,
+    final Key? key,
   }) : super(
           key: key,
           flex: flex,

@@ -1,4 +1,4 @@
-import 'package:alfred/alfred/impl/middleware/value.dart';
+import 'package:alfred/alfred/impl/middleware/closing.dart';
 import 'package:test/test.dart';
 
 import 'common.dart';

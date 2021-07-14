@@ -1,5 +1,5 @@
 import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/alfred/impl/middleware/value.dart';
+import 'package:alfred/alfred/impl/middleware/closing.dart';
 import 'package:alfred/util/print_routes.dart';
 
 Future<void> main() async {

@@ -2,9 +2,10 @@ import 'dart:math' as math;
 
 import 'lerp.dart';
 
-Color _scaleAlpha(Color a, double factor) {
-  return a.withAlpha((a.alpha * factor).round().clamp(0, 255).toInt());
-}
+Color _scaleAlpha(
+  final Color a,
+  final double factor,
+) => a.withAlpha((a.alpha * factor).round().clamp(0, 255).toInt());
 
 /// An immutable 32 bit color value in ARGB format.
 ///

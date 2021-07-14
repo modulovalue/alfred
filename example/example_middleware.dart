@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/alfred/impl/middleware/value.dart';
+import 'package:alfred/alfred/impl/middleware/closing.dart';
 import 'package:alfred/alfred/interface/alfred.dart';
 import 'package:alfred/alfred/interface/middleware.dart';
 import 'package:alfred/alfred/interface/serve_context.dart';
@@ -9,7 +9,7 @@ import 'package:alfred/alfred/interface/serve_context.dart';
 Future<void> main() async {
   final app = AlfredImpl();
   app.all('/example/:id/:name', const ClosingMiddleware());
-  await app.build(); //Listening on port 3000
+  await app.build();
 }
 
 class ExampleMiddleware implements Middleware {

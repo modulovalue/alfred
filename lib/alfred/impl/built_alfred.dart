@@ -51,7 +51,9 @@ class BuiltAlfredImpl implements BuiltAlfred {
     final bool force = true,
   }) async {
     if (!closed) {
-      await server.close(force: force);
+      await server.close(
+        force: force,
+      );
       closed = true;
     } else {
       closed = false;

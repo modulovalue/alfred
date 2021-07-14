@@ -1,5 +1,5 @@
 import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/alfred/impl/middleware/value.dart';
+import 'package:alfred/alfred/impl/middleware/string.dart';
 
 void main() {
   final app = AlfredImpl();

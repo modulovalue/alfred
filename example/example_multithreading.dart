@@ -1,7 +1,7 @@
 import 'dart:isolate';
 
 import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/alfred/impl/middleware/value.dart';
+import 'package:alfred/alfred/impl/middleware/string.dart';
 import 'package:alfred/base/unawaited.dart';
 
 Future<void> main() async {

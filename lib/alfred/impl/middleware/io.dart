@@ -12,12 +12,15 @@ class ServeDownload implements Middleware {
   final ServeFile child;
 
   const ServeDownload({
-    required this.filename,
-    required this.child,
+    required final this.filename,
+    required final this.child,
   });
 
   @override
-  Future<void> process(ServeContext c) async {
+  Future<void> process(
+    final ServeContext c,
+  ) async {
+    // TODO extract and centralise header.
     c.res.headers.add('Content-Disposition', 'attachment; filename=$filename');
     await child.process(c);
   }
@@ -26,12 +29,18 @@ class ServeDownload implements Middleware {
 class ServeFile implements Middleware {
   final File file;
 
-  const ServeFile(this.file);
+  const ServeFile(
+    final this.file,
+  );
 
-  ServeFile.at(String path) : file = File(path);
+  ServeFile.at(
+    final String path,
+  ) : file = File(path);
 
   @override
-  Future<void> process(ServeContext c) async {
+  Future<void> process(
+    final ServeContext c,
+  ) async {
     if (file.existsSync()) {
       c.res.headers.contentType = fileContentType(file);
       final c_ = c.res.headers.contentType;
@@ -50,7 +59,10 @@ class FileNotFoundException implements NotFoundException {
   final File file;
   final ServeContext c;
 
-  const FileNotFoundException(this.c, this.file);
+  const FileNotFoundException(
+    final this.c,
+    final this.file,
+  );
 
   @override
   String toString() => 'FileNotFoundException{file: $file}';
@@ -59,12 +71,18 @@ class FileNotFoundException implements NotFoundException {
 class ServeDirectory implements Middleware {
   final Directory directory;
 
-  const ServeDirectory(this.directory);
+  const ServeDirectory(
+    final this.directory,
+  );
 
-  ServeDirectory.at(String path) : directory = Directory(path);
+  ServeDirectory.at(
+    final String path,
+  ) : directory = Directory(path);
 
   @override
-  Future<void> process(ServeContext c) async {
+  Future<void> process(
+    final ServeContext c,
+  ) async {
     final usedRoute = c.route.route;
     assert(
       usedRoute.contains('*'),

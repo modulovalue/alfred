@@ -14,19 +14,33 @@ class CorsMiddleware implements Middleware {
   final String origin;
 
   const CorsMiddleware({
-    this.age = 86400,
-    this.headers = '*',
-    this.methods = '${MethodPost.postString}, ${MethodGet.getString}, ${MethodOptions.optionsString}, ${MethodPut.putString}, ${MethodPatch.patchString}',
-    this.origin = '*',
+    final this.age = 86400,
+    final this.headers = '*',
+    final this.methods = MethodPost.postString +
+        ', ' +
+        MethodGet.getString +
+        ', ' +
+        MethodOptions.optionsString +
+        ', ' +
+        MethodPut.putString +
+        ', ' +
+        MethodPatch.patchString,
+    final this.origin = '*',
   });
 
   @override
-  Future<void> process(ServeContext c) async {
+  Future<void> process(
+    final ServeContext c,
+  ) async {
+    // TODO extract and centralise header key.
     c.res.headers.set('Access-Control-Allow-Origin', origin);
+    // TODO extract and centralise header key.
     c.res.headers.set('Access-Control-Allow-Methods', methods);
+    // TODO extract and centralise header key.
     c.res.headers.set('Access-Control-Allow-Headers', headers);
+    // TODO extract and centralise header key.
     c.res.headers.set('Access-Control-Max-Age', age);
-    if (c.req.method == MethodOptions.optionsString) {
+    if (Methods.options.isMethod(c.req.method)) {
       await c.res.close();
     }
   }

@@ -1,5 +1,7 @@
 abstract class Method {
   String get description;
+
+  bool isMethod(final String method);
 }
 
 abstract class Methods {
@@ -43,6 +45,12 @@ class MethodGet implements BuiltinMethod {
     required final R Function(MethodPatch) patch,
   }) =>
       get(this);
+
+  @override
+  bool isMethod(
+    final String method,
+  ) =>
+      method == getString;
 }
 
 class MethodPost implements BuiltinMethod {
@@ -52,6 +60,12 @@ class MethodPost implements BuiltinMethod {
 
   @override
   String get description => postString;
+
+  @override
+  bool isMethod(
+    final String method,
+  ) =>
+      method == postString;
 
   @override
   R matchBuiltinMethods<R>({
@@ -75,6 +89,12 @@ class MethodPut implements BuiltinMethod {
   String get description => putString;
 
   @override
+  bool isMethod(
+    final String method,
+  ) =>
+      method == putString;
+
+  @override
   R matchBuiltinMethods<R>({
     required final R Function(MethodGet) get,
     required final R Function(MethodPost) post,
@@ -94,6 +114,12 @@ class MethodDelete implements BuiltinMethod {
 
   @override
   String get description => deleteString;
+
+  @override
+  bool isMethod(
+    final String method,
+  ) =>
+      method == deleteString;
 
   @override
   R matchBuiltinMethods<R>({
@@ -117,6 +143,12 @@ class MethodOptions implements BuiltinMethod {
   String get description => optionsString;
 
   @override
+  bool isMethod(
+    final String method,
+  ) =>
+      method == optionsString;
+
+  @override
   R matchBuiltinMethods<R>({
     required final R Function(MethodGet) get,
     required final R Function(MethodPost) post,
@@ -138,6 +170,12 @@ class MethodAll implements BuiltinMethod {
   String get description => allString;
 
   @override
+  bool isMethod(
+    final String method,
+  ) =>
+      method == allString;
+
+  @override
   R matchBuiltinMethods<R>({
     required final R Function(MethodGet) get,
     required final R Function(MethodPost) post,
@@ -157,6 +195,12 @@ class MethodPatch implements BuiltinMethod {
 
   @override
   String get description => patchString;
+
+  @override
+  bool isMethod(
+    final String method,
+  ) =>
+      method == patchString;
 
   @override
   R matchBuiltinMethods<R>({

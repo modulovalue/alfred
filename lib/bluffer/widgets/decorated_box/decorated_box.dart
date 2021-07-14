@@ -135,8 +135,10 @@ class DecoratedBox implements Widget {
       );
 
   @override
-  HtmlElement2 renderHtml(BuildContext context) {
-    final result = DivElement2Impl();
+  HtmlElement2 renderHtml(
+    final BuildContext context,
+  ) {
+    final result = DivElement2Impl.empty();
     if (child != null) {
       result.childNodes.add(Expanded(child: child!).render(context));
     }
@@ -144,5 +146,8 @@ class DecoratedBox implements Widget {
   }
 
   @override
-  HtmlElement2 render(BuildContext context) => renderWidget(this, context);
+  HtmlElement2 render(
+    final BuildContext context,
+  ) =>
+      renderWidget(this, context);
 }

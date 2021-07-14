@@ -42,7 +42,7 @@ class ConstrainedBox implements Widget {
   HtmlElement2 renderHtml(
     final BuildContext context,
   ) => //
-      child?.render(context) ?? DivElement2Impl();
+      child?.render(context) ?? DivElement2Impl.empty();
 
   @override
   HtmlElement2 render(

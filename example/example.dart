@@ -1,6 +1,8 @@
 import 'package:alfred/alfred/impl/alfred.dart';
+import 'package:alfred/alfred/impl/middleware/html.dart';
 import 'package:alfred/alfred/impl/middleware/io.dart';
-import 'package:alfred/alfred/impl/middleware/value.dart';
+import 'package:alfred/alfred/impl/middleware/json.dart';
+import 'package:alfred/alfred/impl/middleware/string.dart';
 
 Future<void> main() async {
   final app = AlfredImpl();

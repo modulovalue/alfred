@@ -107,8 +107,9 @@ class ApplicationWidget<ROUTE extends WidgetRoute> implements Widget {
         BodyElement2Impl.make([
           for (final size in availableSizes)
             DivElement2Impl.make(
+              id: null,
               className: 'size' + size.index.toString(),
-              nodes: [
+              childNodes: [
                 MediaQuery(
                   data: MediaQueryDataImpl(size: size),
                   child: Builder(

@@ -7,7 +7,11 @@ import '../widget/impl/widget_mixin.dart';
 import '../widget/interface/build_context.dart';
 import '../widget/interface/widget.dart';
 
-enum ClickState { inactive, hover, active }
+enum ClickState {
+  inactive,
+  hover,
+  active,
+}
 
 class Click implements Widget {
   final String url;
@@ -17,14 +21,16 @@ class Click implements Widget {
   final Key? key;
 
   const Click({
-    required this.url,
-    required this.builder,
-    this.newTab = false,
-    this.key,
+    required final this.url,
+    required final this.builder,
+    final this.newTab = false,
+    final this.key,
   });
 
   @override
-  HtmlElement2 renderHtml(BuildContext context) {
+  HtmlElement2 renderHtml(
+    final BuildContext context,
+  ) {
     final result = AnchorElement2Impl();
     result.className = 'click';
     result.href = resolveUrl(context, url);
@@ -44,8 +50,14 @@ class Click implements Widget {
   }
 
   @override
-  HtmlElement2 render(BuildContext context) => renderWidget(this, context);
+  HtmlElement2 render(
+    final BuildContext context,
+  ) =>
+      renderWidget(this, context);
 
   @override
-  CssStyleDeclaration2? renderCss(BuildContext context) => null;
+  CssStyleDeclaration2? renderCss(
+    final BuildContext context,
+  ) =>
+      null;
 }

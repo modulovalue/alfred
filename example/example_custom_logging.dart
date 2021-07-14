@@ -1,7 +1,7 @@
 import 'package:alfred/alfred/impl/alfred.dart';
 import 'package:alfred/alfred/impl/logging/log_type.dart';
 import 'package:alfred/alfred/impl/logging/mixin.dart';
-import 'package:alfred/alfred/impl/middleware/value.dart';
+import 'package:alfred/alfred/impl/middleware/string.dart';
 import 'package:logging/logging.dart';
 
 // Use 'logging' package instead of default logger
@@ -20,7 +20,6 @@ void main() {
   app.build();
 }
 
-
 // Create custom logWriter and map to logging package
 class CustomLogger with AlfredLoggingDelegateGeneralizingMixin {
   const CustomLogger();
@@ -34,7 +33,7 @@ class CustomLogger with AlfredLoggingDelegateGeneralizingMixin {
     final logger = Logger('HttpServer');
     switch (type) {
       case LogType.debug:
-      // avoid evaluating too much debug messages
+        // avoid evaluating too much debug messages
         if (logger.level <= Level.FINE) {
           logger.fine(messageFn());
         }
@@ -50,5 +49,4 @@ class CustomLogger with AlfredLoggingDelegateGeneralizingMixin {
         break;
     }
   }
-
 }

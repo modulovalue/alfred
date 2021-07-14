@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/alfred/impl/middleware/value.dart';
+import 'package:alfred/alfred/impl/middleware/html.dart';
 import 'package:alfred/alfred/impl/middleware/websocket.dart';
 
 Future<void> main() async {

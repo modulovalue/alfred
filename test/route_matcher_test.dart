@@ -1,5 +1,5 @@
 import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/alfred/impl/middleware/value.dart';
+import 'package:alfred/alfred/impl/middleware/closing.dart';
 import 'package:alfred/alfred/impl/route_factory.dart';
 import 'package:alfred/alfred/impl/serve_context.dart';
 import 'package:alfred/alfred/interface/http_route_factory.dart';

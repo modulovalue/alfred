@@ -4,10 +4,14 @@ import 'dart:io';
 import 'package:alfred/alfred/impl/alfred.dart';
 import 'package:alfred/alfred/impl/logging/log_type.dart';
 import 'package:alfred/alfred/impl/logging/mixin.dart';
+import 'package:alfred/alfred/impl/middleware/bytes.dart';
+import 'package:alfred/alfred/impl/middleware/closing.dart';
 import 'package:alfred/alfred/impl/middleware/cors.dart';
-import 'package:alfred/alfred/impl/middleware/impl.dart';
 import 'package:alfred/alfred/impl/middleware/io.dart';
-import 'package:alfred/alfred/impl/middleware/value.dart';
+import 'package:alfred/alfred/impl/middleware/json.dart';
+import 'package:alfred/alfred/impl/middleware/middleware.dart';
+import 'package:alfred/alfred/impl/middleware/stream_of_bytes.dart';
+import 'package:alfred/alfred/impl/middleware/string.dart';
 import 'package:alfred/alfred/interface/alfred.dart';
 import 'package:alfred/alfred/interface/middleware.dart';
 import 'package:alfred/alfred/interface/serve_context.dart';
@@ -20,20 +24,20 @@ import 'common.dart';
 void main() {
   test('runTest should be called', () async {
     bool called = false;
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       called = true;
     });
     expect(called, true);
   });
   test('it should return a string correctly', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       app.get('/test', const ServeString('test string'));
       final response = await http.get(Uri.parse('http://localhost:$port/test'));
       expect(response.body, 'test string');
     });
   });
   test('it should return json', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       app.get('/test', const ServeJson.map({'test': true}));
       final response = await http.get(Uri.parse('http://localhost:$port/test'));
       expect(response.headers['content-type'], 'application/json; charset=utf-8');
