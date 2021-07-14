@@ -17,14 +17,19 @@ class HttpBodyHandlerImpl extends StreamTransformerBase<HttpRequest, HttpRequest
   /// [defaultEncoding] accordingly. This is required for parsing
   /// `multipart/form-data` content correctly. See the class comment
   /// for more information on `multipart/form-data`.
-  const HttpBodyHandlerImpl(this.defaultEncoding);
+  const HttpBodyHandlerImpl(
+    final this.defaultEncoding,
+  );
 
   /// Process and parse an incoming [HttpRequest].
   ///
   /// The returned [HttpRequestBody] contains a `response` field for accessing the [HttpResponse].
   ///
   /// See [new HttpBodyHandler] for more info on [defaultEncoding].
-  static Future<HttpRequestBody<dynamic>> processRequest(HttpRequest request, {Encoding defaultEncoding = utf8}) async {
+  static Future<HttpRequestBody<dynamic>> processRequest(
+    final HttpRequest request, {
+    final Encoding defaultEncoding = utf8,
+  }) async {
     try {
       final body = await _process(request, request.headers, defaultEncoding);
       return HttpRequestBodyImpl<dynamic>._(request, body);
@@ -40,18 +45,23 @@ class HttpBodyHandlerImpl extends StreamTransformerBase<HttpRequest, HttpRequest
   /// Process and parse an incoming [HttpClientResponse].
   ///
   /// See [new HttpBodyHandler] for more info on [defaultEncoding].
-  static Future<HttpClientResponseBody<dynamic>> processResponse(HttpClientResponse response, {Encoding defaultEncoding = utf8}) async {
+  static Future<HttpClientResponseBody<dynamic>> processResponse(
+    final HttpClientResponse response, {
+    final Encoding defaultEncoding = utf8,
+  }) async {
     final body = await _process(response, response.headers, defaultEncoding);
     return HttpClientResponseBodyImpl<dynamic>._(response, body);
   }
 
   @override
-  Stream<HttpRequestBody<dynamic>> bind(Stream<HttpRequest> stream) {
+  Stream<HttpRequestBody<dynamic>> bind(
+    final Stream<HttpRequest> stream,
+  ) {
     var pending = 0;
     var closed = false;
     return stream.transform(
       StreamTransformer.fromHandlers(
-        handleData: (request, sink) async {
+        handleData: (final request, final sink) async {
           pending++;
           try {
             final body = await processRequest(request, defaultEncoding: defaultEncoding);
@@ -64,9 +74,11 @@ class HttpBodyHandlerImpl extends StreamTransformerBase<HttpRequest, HttpRequest
             if (closed && pending == 0) sink.close();
           }
         },
-        handleDone: (sink) {
+        handleDone: (final sink) {
           closed = true;
-          if (pending == 0) sink.close();
+          if (pending == 0) {
+            sink.close();
+          }
         },
       ),
     );
@@ -80,7 +92,10 @@ class HttpBodyImpl<T> implements HttpBody<T> {
   @override
   final T body;
 
-  const HttpBodyImpl._(this.type, this.body);
+  const HttpBodyImpl._(
+    final this.type,
+    final this.body,
+  );
 }
 
 class HttpClientResponseBodyImpl<T> implements HttpClientResponseBody<T> {
@@ -89,7 +104,10 @@ class HttpClientResponseBodyImpl<T> implements HttpClientResponseBody<T> {
 
   final HttpBody<T> _body;
 
-  const HttpClientResponseBodyImpl._(this.response, this._body);
+  const HttpClientResponseBodyImpl._(
+    final this.response,
+    final this._body,
+  );
 
   @override
   T get body => _body.body;
@@ -103,7 +121,10 @@ class HttpRequestBodyImpl<T> implements HttpRequestBody<T> {
   final HttpRequest request;
   final HttpBody<T> _body;
 
-  const HttpRequestBodyImpl._(this.request, this._body);
+  const HttpRequestBodyImpl._(
+    final this.request,
+    final this._body,
+  );
 
   @override
   T get body => _body.body;
@@ -120,13 +141,17 @@ class HttpBodyFileUploadImpl<T> implements HttpBodyFileUpload<T> {
   @override
   final T content;
 
-  const HttpBodyFileUploadImpl._(this.contentType, this.filename, this.content);
+  const HttpBodyFileUploadImpl._(
+    final this.contentType,
+    final this.filename,
+    final this.content,
+  );
 }
 
 Future<HttpBody<dynamic>> _process(
-  Stream<List<int>> stream,
-  HttpHeaders headers,
-  Encoding defaultEncoding,
+  final Stream<List<int>> stream,
+  final HttpHeaders headers,
+  final Encoding defaultEncoding,
 ) async {
   Future<HttpBody<Uint8List>> asBinary() async {
     final builder = await stream.fold<BytesBuilder>(BytesBuilder(), (builder, data) => builder..add(data));
@@ -137,7 +162,9 @@ Future<HttpBody<dynamic>> _process(
     return asBinary();
   } else {
     final contentType = headers.contentType!;
-    Future<HttpBody<String>> asText(Encoding defaultEncoding) async {
+    Future<HttpBody<String>> asText(
+      final Encoding defaultEncoding,
+    ) async {
       Encoding? encoding;
       final charset = contentType.charset;
       if (charset != null) {
@@ -146,14 +173,14 @@ Future<HttpBody<dynamic>> _process(
       encoding ??= defaultEncoding;
       final dynamic buffer = await encoding.decoder.bind(stream).fold<dynamic>(
             // ignore: avoid_dynamic_calls
-            StringBuffer(), (dynamic buffer, data) => buffer..write(data),
+            StringBuffer(), (final dynamic buffer, final data) => buffer..write(data),
           );
       return HttpBodyImpl._('text', buffer.toString());
     }
 
     Future<HttpBody<Map<String, dynamic>>> asFormData() async {
       final values = await m.MimeMultipartTransformer(contentType.parameters['boundary']!).bind(stream).map(
-        (part) async {
+        (final part) async {
           final multipart = HttpMultipartFormData.parse(part, defaultEncoding: defaultEncoding);
           dynamic data;
           if (multipart.isText) {
@@ -274,7 +301,10 @@ class HttpMultipartFormData extends Stream<dynamic> {
   /// information in the
   /// [HTML5 spec](http://dev.w3.org/html5/spec-preview/
   /// constraints.html#multipart-form-data).
-  static HttpMultipartFormData parse(m.MimeMultipart multipart, {Encoding defaultEncoding = utf8}) {
+  static HttpMultipartFormData parse(
+    final m.MimeMultipart multipart, {
+    final Encoding defaultEncoding = utf8,
+  }) {
     ContentType? contentType;
     HeaderValue? encoding;
     HeaderValue? disposition;
@@ -295,23 +325,24 @@ class HttpMultipartFormData extends Stream<dynamic> {
     }
     if (disposition == null) {
       throw const HttpException("Mime Multipart doesn't contain a Content-Disposition header value");
-    }
-    if (encoding != null && !_transparentEncodings.contains(encoding.value.toLowerCase())) {
-      // TODO(ajohnsen): Support BASE64, etc.
-      throw HttpException('Unsupported contentTransferEncoding: '
-          '${encoding.value}');
-    }
-    Stream<dynamic> stream = multipart;
-    final isText = contentType == null || contentType.primaryType == 'text' || contentType.mimeType == 'application/json';
-    if (isText) {
-      Encoding? encoding;
-      if (contentType?.charset != null) {
-        encoding = Encoding.getByName(contentType!.charset);
+    } else {
+      if (encoding != null && !_transparentEncodings.contains(encoding.value.toLowerCase())) {
+        // TODO(ajohnsen): Support BASE64, etc.
+        throw HttpException('Unsupported contentTransferEncoding: '
+            '${encoding.value}');
       }
-      encoding ??= defaultEncoding;
-      stream = stream.transform<dynamic>(encoding.decoder);
+      Stream<dynamic> stream = multipart;
+      final isText = contentType == null || contentType.primaryType == 'text' || contentType.mimeType == 'application/json';
+      if (isText) {
+        Encoding? encoding;
+        if (contentType?.charset != null) {
+          encoding = Encoding.getByName(contentType!.charset);
+        }
+        encoding ??= defaultEncoding;
+        stream = stream.transform<dynamic>(encoding.decoder);
+      }
+      return HttpMultipartFormData._(contentType, disposition, encoding, multipart, stream, isText);
     }
-    return HttpMultipartFormData._(contentType, disposition, encoding, multipart, stream, isText);
   }
 
   final m.MimeMultipart _mimeMultipart;
@@ -319,20 +350,20 @@ class HttpMultipartFormData extends Stream<dynamic> {
   final Stream<dynamic> _stream;
 
   HttpMultipartFormData._(
-    this.contentType,
-    this.contentDisposition,
-    this.contentTransferEncoding,
-    this._mimeMultipart,
-    this._stream,
-    this.isText,
+    final this.contentType,
+    final this.contentDisposition,
+    final this.contentTransferEncoding,
+    final this._mimeMultipart,
+    final this._stream,
+    final this.isText,
   );
 
   @override
   StreamSubscription<dynamic> listen(
-    void Function(dynamic)? onData, {
-    void Function()? onDone,
-    Function? onError,
-    bool? cancelOnError,
+    final void Function(dynamic)? onData, {
+    final void Function()? onDone,
+    final Function? onError,
+    final bool? cancelOnError,
   }) =>
       _stream.listen(onData, onDone: onDone, onError: onError, cancelOnError: cancelOnError);
 
@@ -342,5 +373,8 @@ class HttpMultipartFormData extends Stream<dynamic> {
   ///
   /// Use this method to index other headers available in the original
   /// MimeMultipart.
-  String? value(String name) => _mimeMultipart.headers[name];
+  String? value(
+    final String name,
+  ) =>
+      _mimeMultipart.headers[name];
 }

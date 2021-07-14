@@ -397,7 +397,13 @@ class FakeHttpHeaders implements HttpHeaders {
   dynamic noSuchMethod(
     final Invocation invocation,
   ) {
-    print([invocation.memberName, invocation.isGetter, invocation.isSetter, invocation.isMethod, invocation.isAccessor]);
+    print([
+      invocation.memberName,
+      invocation.isGetter,
+      invocation.isSetter,
+      invocation.isMethod,
+      invocation.isAccessor,
+    ]);
     return super.noSuchMethod(invocation);
   }
 }

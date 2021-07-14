@@ -9,11 +9,14 @@ class HttpRouteFactoryImpl with HttpRouteFactoryBoilerplateMixin {
   final String basePath;
 
   const HttpRouteFactoryImpl({
-    required this.alfred,
-    required this.basePath,
+    required final this.alfred,
+    required final this.basePath,
   });
 
-  static String _composePath(String first, String second) {
+  static String _composePath(
+    final String first,
+    final String second,
+  ) {
     if (first.endsWith('/') && second.startsWith('/')) {
       return first + second.substring(1);
     } else if (!first.endsWith('/') && !second.startsWith('/')) {
@@ -24,15 +27,27 @@ class HttpRouteFactoryImpl with HttpRouteFactoryBoilerplateMixin {
   }
 
   @override
-  HttpRouteFactory route(String path, ) => //
+  HttpRouteFactory route(
+    final String path,
+  ) => //
       HttpRouteFactoryImpl(
         alfred: alfred,
         basePath: _composePath(basePath, path),
       );
 
   @override
-  void createRoute(String path, Middleware callback, BuiltinMethod method) =>
-      alfred.routes.add(HttpRouteImpl(_composePath(basePath, path), callback, method));
+  void createRoute(
+    final String path,
+    final Middleware callback,
+    final BuiltinMethod method,
+  ) =>
+      alfred.routes.add(
+        HttpRouteImpl(
+          _composePath(basePath, path),
+          callback,
+          method,
+        ),
+      );
 }
 
 class HttpRouteImpl implements HttpRoute {
@@ -43,7 +58,11 @@ class HttpRouteImpl implements HttpRoute {
   @override
   final BuiltinMethod method;
 
-  const HttpRouteImpl(this.route, this.callback, this.method);
+  const HttpRouteImpl(
+    final this.route,
+    final this.callback,
+    final this.method,
+  );
 
   @override
   bool get usesWildcardMatcher => route.contains('*');

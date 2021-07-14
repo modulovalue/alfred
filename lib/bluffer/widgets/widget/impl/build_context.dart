@@ -30,11 +30,18 @@ class BuildContextImpl implements BuildContext {
 
   @override
   T? dependOnInheritedWidgetOfExactType<T extends InheritedWidget>() {
-    assert(
-      _inheritedWidgets.containsKey(T),
-      'No inherited widget with type $T found in tree',
-    );
-    return _inheritedWidgets[T] as T?;
+    if (_inheritedWidgets.containsKey(T)) {
+      final atT = _inheritedWidgets[T];
+      if (atT is T?) {
+        return atT;
+      } else {
+        assert(false, 'Invalid type, no inherited widget for $T found but found ${atT}');
+        return null;
+      }
+    } else {
+      assert(false, 'No inherited widget with type $T found in tree');
+      return null;
+    }
   }
 
   @override

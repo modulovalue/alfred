@@ -6,17 +6,17 @@ import '../../interface/serve_context.dart';
 import 'html.dart';
 
 class ServeWidgetBuilder implements Middleware {
-  final Widget Function(BuildContext) child;
+  final Widget Function(ServeContext c, BuildContext context) builder;
 
   const ServeWidgetBuilder({
-    required final this.child,
+    required final this.builder,
   });
 
   @override
   Future<void> process(
     final ServeContext c,
   ) {
-    final html = singlePage(child);
+    final html = singlePage((context) => builder(c, context));
     return ServeHtml(html).process(c);
   }
 }

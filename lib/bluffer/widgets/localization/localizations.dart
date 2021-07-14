@@ -12,8 +12,8 @@ class Localizations extends StatelessWidget {
   /// Create a widget from which localizations (like translated strings) can be obtained.
   const Localizations({
     required this.locale,
-    required this.delegates,
-    required this.child,
+    required final this.delegates,
+    required final this.child,
     Key? key,
   }) : super(key: key);
 
@@ -32,7 +32,10 @@ class Localizations extends StatelessWidget {
   /// If no [Localizations] widget is in scope then the [Localizations.localeOf]
   /// method will throw an exception, unless the `nullOk` argument is set to
   /// true, in which case it returns null.
-  static Locale? localeOf(BuildContext context, {bool nullOk = false}) {
+  static Locale? localeOf(
+    final BuildContext context, {
+    final bool nullOk = false,
+  }) {
     final scope = context.dependOnInheritedWidgetOfExactType<_LocalizationsScope>();
     if (nullOk && scope == null) return null;
     assert(scope != null, 'a Localizations ancestor was not found');
@@ -54,13 +57,18 @@ class Localizations extends StatelessWidget {
   ///    return Localizations.of<MaterialLocalizations>(context, MaterialLocalizations);
   /// }
   /// ```
-  static T of<T>(BuildContext context, Type type) {
+  static T of<T>(
+    final BuildContext context,
+    final Type type,
+  ) {
     final scope = context.dependOnInheritedWidgetOfExactType<_LocalizationsScope>();
     return scope?.typeToResources[T] as T;
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    final BuildContext context,
+  ) {
     final typeToResources = <Type, dynamic>{};
     for (final delegate in delegates) {
       typeToResources[delegate.type] = waitFor(delegate.load(locale).then((dynamic a) => a as Type));
@@ -82,7 +90,9 @@ abstract class LocalizationsDelegate<T> {
   ///
   /// Return true if the instance of `T` loaded by this delegate's [load]
   /// method supports the given `locale`'s language.
-  bool isSupported(Locale locale);
+  bool isSupported(
+    final Locale locale,
+  );
 
   /// Start loading the resources for `locale`. The returned future completes
   /// when the resources have finished loading.
@@ -90,7 +100,9 @@ abstract class LocalizationsDelegate<T> {
   /// It's assumed that this method will return an object that contains
   /// a collection of related resources (typically defined with one method per
   /// resource). The object will be retrieved with [Localizations.of].
-  Future<T> load(Locale locale);
+  Future<T> load(
+    final Locale locale,
+  );
 
   /// The type of the object returned by the [load] method, T by default.
   ///
@@ -119,8 +131,8 @@ class _LocalizationsScope with InheritedWidgetMixin {
   final Key? key = null;
 
   const _LocalizationsScope({
-    required this.locale,
-    required this.typeToResources,
-    required this.child,
+    required final this.locale,
+    required final this.typeToResources,
+    required final this.child,
   });
 }
