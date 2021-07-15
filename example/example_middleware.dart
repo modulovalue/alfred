@@ -26,7 +26,7 @@ class ExampleMiddleware implements Middleware {
 
 /// Throw these exceptions to bubble up an error from sub functions and have them
 /// handled automatically for the client
-class _AlfredExceptionImpl implements AlfredException {
+class _AlfredExceptionImpl implements AlfredResponseException {
   /// The response to send to the client
   @override
   final Object? response;

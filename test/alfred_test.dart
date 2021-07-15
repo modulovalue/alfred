@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:alfred/alfred/impl/alfred.dart';
 import 'package:alfred/alfred/impl/logging/log_type.dart';
 import 'package:alfred/alfred/impl/logging/mixin.dart';
+import 'package:alfred/alfred/impl/logging/print.dart';
 import 'package:alfred/alfred/impl/middleware/bytes.dart';
 import 'package:alfred/alfred/impl/middleware/closing.dart';
 import 'package:alfred/alfred/impl/middleware/cors.dart';
@@ -79,7 +80,7 @@ void main() {
           },
         ),
       );
-      await app.build(port);
+      await app.build(port: port);
       app.get('/throwserror', MiddlewareBuilder((_) => throw Exception('generic exception')));
       expect((await http.get(Uri.parse('http://localhost:$port/throwserror'))).body, '{"message":"error not handled"}');
     });
@@ -88,7 +89,7 @@ void main() {
     await runTest(fn: (app, built, port) async {
       await built.close();
       app = AlfredImpl();
-      await app.build(port);
+      await app.build(port: port);
       app.get('/throwserror', MiddlewareBuilder((_) => throw Exception('generic exception')));
       final response = await http.get(Uri.parse('http://localhost:$port/throwserror'));
       expect(response.body, 'Exception: generic exception');
@@ -101,7 +102,7 @@ void main() {
         c.res.statusCode = 404;
         return const ServeJson.map({'message': 'not found'}).process(c);
       }));
-      await app.build(port);
+      await app.build(port: port);
       final response = await http.get(Uri.parse('http://localhost:$port/notfound'));
       expect(response.body, '{"message":"not found"}');
       expect(response.statusCode, 404);
@@ -111,7 +112,7 @@ void main() {
     await runTest(fn: (app, built, port) async {
       await built.close();
       app = AlfredImpl();
-      await app.build(port);
+      await app.build(port: port);
       final response = await http.get(Uri.parse('http://localhost:$port/notfound'));
       expect(response.body, '404 not found');
       expect(response.statusCode, 404);
@@ -131,7 +132,8 @@ void main() {
   });
   test('not found with directory type handler', () async {
     await runTest(fn: (app, built, port) async {
-      app.get('/files/*', ServeDirectory.at('test/files'));
+      const log = AlfredLoggingDelegatePrintImpl();
+      app.get('/files/*', ServeDirectory.at('test/files', log));
       final r = await http.get(Uri.parse('http://localhost:$port/files/no-file.zip'));
       expect(r.body, '404 not found');
       expect(r.statusCode, 404);
@@ -291,7 +293,8 @@ void main() {
   });
   test('it serves static files', () async {
     await runTest(fn: (app, built, port) async {
-      app.get('/files/*', ServeDirectory.at('test/files'));
+      const log = AlfredLoggingDelegatePrintImpl();
+      app.get('/files/*', ServeDirectory.at('test/files', log));
       final response = await http.get(Uri.parse('http://localhost:$port/files/dummy.pdf'));
       expect(response.statusCode, 200);
       expect(response.headers['content-type'], 'application/pdf');
@@ -299,7 +302,8 @@ void main() {
   });
   test('it serves static files although directories do not match', () async {
     await runTest(fn: (app, built, port) async {
-      app.get('/my/directory/*', ServeDirectory.at('test/files'));
+      const log = AlfredLoggingDelegatePrintImpl();
+      app.get('/my/directory/*', ServeDirectory.at('test/files', log));
       final response = await http.get(Uri.parse('http://localhost:$port/my/directory/dummy.pdf'));
       expect(response.statusCode, 200);
       expect(response.headers['content-type'], 'application/pdf');
@@ -307,7 +311,8 @@ void main() {
   });
   test('it serves static files with basic filtering', () async {
     await runTest(fn: (app, built, port) async {
-      app.get('/my/directory/*.pdf', ServeDirectory.at('test/files'));
+      const log = AlfredLoggingDelegatePrintImpl();
+      app.get('/my/directory/*.pdf', ServeDirectory.at('test/files', log));
       final r1 = await http.get(Uri.parse('http://localhost:$port/my/directory/dummy.pdf'));
       expect(r1.statusCode, 200);
       expect(r1.headers['content-type'], 'application/pdf');
@@ -317,7 +322,8 @@ void main() {
   });
   test('it serves SPA projects', () async {
     await runTest(fn: (app, built, port) async {
-      app.get('/spa/*', ServeDirectory.at('test/files/spa'));
+      const log = AlfredLoggingDelegatePrintImpl();
+      app.get('/spa/*', ServeDirectory.at('test/files/spa', log));
       app.get('/spa/*', ServeFile.at('test/files/spa/index.html'));
       final r1 = await http.get(Uri.parse('http://localhost:$port/spa'));
       expect(r1.statusCode, 200);
@@ -356,7 +362,7 @@ void main() {
   test('it handles params', () async {
     await runTest(fn: (app, built, port) async {
       app.get('/test/:id', MiddlewareBuilder((context) async {
-        context.res.write(context.params!['id']);
+        context.res.write(context.arguments!['id']);
       }));
       final response = await http.get(Uri.parse('http://localhost:$port/test/15'));
       expect(response.body, '15');
@@ -418,7 +424,7 @@ class TestLogger with AlfredLoggingDelegateGeneralizingMixin {
 
 /// Throw these exceptions to bubble up an error from sub functions and have them
 /// handled automatically for the client
-class _AlfredExceptionImpl implements AlfredException {
+class _AlfredExceptionImpl implements AlfredResponseException {
   /// The response to send to the client
   @override
   final Object? response;

@@ -11,5 +11,5 @@ Future<void> main() async {
   app.get('/jsonExpressStyle', const ServeJson.map({'type': 'traditional_json_response'}));
   app.get('/file', ServeFile.at('test/files/image.jpg'));
   app.get('/html', const ServeHtml('<html><body><h1>Test HTML</h1></body></html>'));
-  await app.build(6565); // Listening on port 6565.
+  await app.build(port: 6565); // Listening on port 6565.
 }

@@ -37,6 +37,7 @@ class Click implements Widget {
     if (newTab) {
       result.target = '_blank';
     }
+    // TODO when is a button inactive?
     final inactive = builder(context, ClickState.inactive).render(context);
     final active = builder(context, ClickState.active).render(context);
     final hover = builder(context, ClickState.hover).render(context);

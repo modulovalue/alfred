@@ -7,7 +7,8 @@ import 'package:alfred/alfred/impl/middleware/string.dart';
 import 'package:alfred/alfred/interface/middleware.dart';
 
 Future<void> main() async {
-  /// TODO flatten and add as routes.
+  // TODO flatten and add as routes.
+  // TODO support widget like route tree that replaces this concept entirely.
   final _ = RootRouteTree(
     const NotFound404Middleware(),
     [
@@ -29,27 +30,30 @@ Future<void> main() async {
     ],
   );
   final app = AlfredImpl();
-  await app.build(6565); // Listening on port 6565.
+  await app.build(port: 6565); // Listening on port 6565.
 }
 
 class RootRouteTree {
   final Middleware slash;
   final List<RouteTree> routes;
 
-  const RootRouteTree(this.slash, this.routes);
+  const RootRouteTree(
+    final this.slash,
+    final this.routes,
+  );
 }
 
 extension RouteAsStringExtension on String {
   MiddlewareRouteTree get(
-    Middleware middleware,
+    final Middleware middleware,
   ) =>
       MiddlewareRouteTree(this, middleware);
 }
 
 abstract class RouteTree {
   Z matchRouteTree<Z>({
-    required Z Function(PathRouteTree) path,
-    required Z Function(MiddlewareRouteTree) middleware,
+    required final Z Function(PathRouteTree) path,
+    required final Z Function(MiddlewareRouteTree) middleware,
   });
 }
 
@@ -57,12 +61,15 @@ class PathRouteTree implements RouteTree {
   final String at;
   final List<RouteTree> children;
 
-  const PathRouteTree(this.at, this.children);
+  const PathRouteTree(
+    final this.at,
+    final this.children,
+  );
 
   @override
   Z matchRouteTree<Z>({
-    required Z Function(PathRouteTree p1) path,
-    required Z Function(MiddlewareRouteTree p1) middleware,
+    required final Z Function(PathRouteTree p1) path,
+    required final Z Function(MiddlewareRouteTree p1) middleware,
   }) =>
       path(this);
 }
@@ -71,12 +78,15 @@ class MiddlewareRouteTree implements RouteTree {
   final String route;
   final Middleware middleware;
 
-  const MiddlewareRouteTree(this.route, this.middleware);
+  const MiddlewareRouteTree(
+    final this.route,
+    final this.middleware,
+  );
 
   @override
   Z matchRouteTree<Z>({
-    required Z Function(PathRouteTree p1) path,
-    required Z Function(MiddlewareRouteTree p1) middleware,
+    required final Z Function(PathRouteTree p1) path,
+    required final Z Function(MiddlewareRouteTree p1) middleware,
   }) =>
       middleware(this);
 }

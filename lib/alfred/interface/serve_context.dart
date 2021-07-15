@@ -10,11 +10,11 @@ abstract class ServeContext {
 
   Alfred get alfred;
 
-  /// Parse the body automatically and return the result
+  /// Parse the body automatically and return the result.
   Future<Object?> get body;
 
-  /// Get params.
-  Map<String, String>? get params;
+  /// Get arguments.
+  Map<String, String>? get arguments;
 
   /// Will not be available in 404 responses.
   HttpRoute get route;

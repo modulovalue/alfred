@@ -1,7 +1,3 @@
-// Copyright 2013 The Flutter Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 import 'dart:typed_data';
 
 import 'color.dart';
@@ -25,7 +21,9 @@ enum FontStyle {
 
 /// The thickness of the glyphs used to draw the text
 class FontWeight {
-  const FontWeight._(this.index);
+  const FontWeight._(
+    final this.index,
+  );
 
   /// The encoded integer value of this font weight.
   final int index;
@@ -611,18 +609,18 @@ class TextStyle {
 //  - Element 5: The value of |maxLines|.
 //
 Int32List _encodeParagraphStyle(
-    TextAlign? textAlign,
-    TextDirection? textDirection,
-    int? maxLines,
-    String? fontFamily,
-    double? fontSize,
-    double? height,
-    FontWeight? fontWeight,
-    FontStyle? fontStyle,
-    StrutStyle? strutStyle,
-    String? ellipsis,
-    Locale? locale,
-    ) {
+  TextAlign? textAlign,
+  TextDirection? textDirection,
+  int? maxLines,
+  String? fontFamily,
+  double? fontSize,
+  double? height,
+  FontWeight? fontWeight,
+  FontStyle? fontStyle,
+  StrutStyle? strutStyle,
+  String? ellipsis,
+  Locale? locale,
+) {
   final Int32List result = Int32List(7); // also update paragraph_builder.cc
   if (textAlign != null) {
     result[0] |= 1 << 1;
@@ -670,7 +668,6 @@ Int32List _encodeParagraphStyle(
   }
   return result;
 }
-
 
 /// An opaque object that determines the configuration used by
 /// ParagraphBuilder to position lines within a Paragraph of text.
@@ -816,15 +813,8 @@ class ParagraphStyle {
 // We serialize this more thoroughly than ParagraphStyle because it is
 // much more likely that the strut is empty/null and we wish to add
 // minimal overhead for non-strut cases.
-ByteData _encodeStrut(
-    String? fontFamily,
-    List<String>? fontFamilyFallback,
-    double? fontSize,
-    double? height,
-    double? leading,
-    FontWeight? fontWeight,
-    FontStyle? fontStyle,
-    bool? forceStrutHeight) {
+ByteData _encodeStrut(String? fontFamily, List<String>? fontFamilyFallback, double? fontSize, double? height, double? leading,
+    FontWeight? fontWeight, FontStyle? fontStyle, bool? forceStrutHeight) {
   if (fontFamily == null &&
       fontSize == null &&
       height == null &&
@@ -847,7 +837,7 @@ ByteData _encodeStrut(
     data.setInt8(byteCount, fontStyle.index);
     byteCount += 1;
   }
-  if (fontFamily != null || (fontFamilyFallback != null && fontFamilyFallback.isNotEmpty)){
+  if (fontFamily != null || (fontFamilyFallback != null && fontFamilyFallback.isNotEmpty)) {
     bitmask |= 1 << 2;
     // passed separately to native
   }
@@ -874,8 +864,9 @@ ByteData _encodeStrut(
   // ignore: prefer_asserts_with_message
   assert(byteCount <= 16);
   assert(bitmask >> 8 == 0, 'strut bitmask overflow: $bitmask');
-  return ByteData.view(data.buffer, 0,  byteCount);
+  return ByteData.view(data.buffer, 0, byteCount);
 }
+
 /// See also:
 ///
 ///  * [StrutStyle](https://api.flutter.dev/flutter/painting/StrutStyle-class.html), the class in the painting library.

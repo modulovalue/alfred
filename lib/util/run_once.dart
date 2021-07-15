@@ -4,8 +4,8 @@ class RunOnce<T> {
 
   RunOnce();
 
-  /// Runs [every] on every call to [run].
-  /// Runs [first] on the first call to [run].
+  /// Runs [every] on every call to [everyFirst].
+  /// Runs [first] on the first call to [everyFirst].
   Future<void> everyFirst({
     required final Future<T> Function(T? last) every,
     required final void Function(T) first,
@@ -17,8 +17,7 @@ class RunOnce<T> {
       firstTime = false;
     }
   }
-  /// Runs [every] on every call to [run].
-  /// Runs [first] on the first call to [run].
+  /// Runs [every] on every call to [every].
   Future<void> every({
     required final Future<T> Function(T? last) every,
   }) async {

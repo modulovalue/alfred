@@ -4,32 +4,57 @@ import '../interface/middleware.dart';
 
 mixin HttpRouteFactoryBoilerplateMixin implements HttpRouteFactory {
   @override
-  void get(String path, Middleware callback) => //
+  void get(
+    final String path,
+    final Middleware callback,
+  ) =>
       createRoute(path, callback, Methods.get);
 
   @override
-  void post(String path, Middleware callback) => //
+  void post(
+    final String path,
+    final Middleware callback,
+  ) =>
       createRoute(path, callback, Methods.post);
 
   @override
-  void put(String path, Middleware callback) => //
+  void put(
+    final String path,
+    final Middleware callback,
+  ) =>
       createRoute(path, callback, Methods.put);
 
   @override
-  void delete(String path, Middleware callback) => //
+  void delete(
+    final String path,
+    final Middleware callback,
+  ) =>
       createRoute(path, callback, Methods.delete);
 
   @override
-  void patch(String path, Middleware callback) => //
+  void patch(
+    final String path,
+    final Middleware callback,
+  ) =>
       createRoute(path, callback, Methods.patch);
 
   @override
-  void options(String path, Middleware callback) => //
+  void options(
+    final String path,
+    final Middleware callback,
+  ) =>
       createRoute(path, callback, Methods.options);
 
   @override
-  void all(String path, Middleware callback) => //
+  void all(
+    final String path,
+    final Middleware callback,
+  ) =>
       createRoute(path, callback, Methods.all);
 
-  void createRoute(String path, Middleware callback, BuiltinMethod method);
+  void createRoute(
+    final String path,
+    final Middleware callback,
+    final BuiltinMethod method,
+  );
 }

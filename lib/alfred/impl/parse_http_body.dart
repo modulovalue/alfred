@@ -330,18 +330,26 @@ class HttpMultipartFormData extends Stream<dynamic> {
         // TODO(ajohnsen): Support BASE64, etc.
         throw HttpException('Unsupported contentTransferEncoding: '
             '${encoding.value}');
-      }
-      Stream<dynamic> stream = multipart;
-      final isText = contentType == null || contentType.primaryType == 'text' || contentType.mimeType == 'application/json';
-      if (isText) {
-        Encoding? encoding;
-        if (contentType?.charset != null) {
-          encoding = Encoding.getByName(contentType!.charset);
+      } else {
+        Stream<dynamic> stream = multipart;
+        final isText = contentType == null || contentType.primaryType == 'text' || contentType.mimeType == 'application/json';
+        if (isText) {
+          Encoding? encoding;
+          if (contentType?.charset != null) {
+            encoding = Encoding.getByName(contentType!.charset);
+          }
+          encoding ??= defaultEncoding;
+          stream = stream.transform<dynamic>(encoding.decoder);
         }
-        encoding ??= defaultEncoding;
-        stream = stream.transform<dynamic>(encoding.decoder);
+        return HttpMultipartFormData._(
+          contentType,
+          disposition,
+          encoding,
+          multipart,
+          stream,
+          isText,
+        );
       }
-      return HttpMultipartFormData._(contentType, disposition, encoding, multipart, stream, isText);
     }
   }
 

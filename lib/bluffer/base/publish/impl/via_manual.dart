@@ -3,7 +3,7 @@ import '../../../html/html.dart';
 
 String elementToStringViaManual(
   final HtmlElement2 element,
-) => //
+) =>
     element.acceptHtmlElementOneArg(
       const HtmlElementSerializerVisitorImpl(),
       null,
@@ -71,18 +71,14 @@ class HtmlElementSerializerVisitorImpl //
       child.acceptHtmlEntityOneArg(collectorVisitor, null);
     }
     final content = altContent ??
-        _attributes
-                .map(
-                  (final a) => a.acceptHtmlNodeOneArg(const HtmlElementSerializerVisitorImpl(), null),
-                )
+        _attributes //
+                .map((final a) => a.acceptHtmlNodeOneArg(const HtmlElementSerializerVisitorImpl(), null))
                 .join(" ") +
             " " +
-            _alements
-                .map(
-                  (final a) => a.acceptHtmlElementOneArg(const HtmlElementSerializerVisitorImpl(), null),
-                )
+            _alements //
+                .map((final a) => a.acceptHtmlElementOneArg(const HtmlElementSerializerVisitorImpl(), null))
                 .join("\n");
-    return "<$tag${attributes.isEmpty ? "" : " " + attributes}>${content}</$tag>";
+    return "<" + tag + (attributes.isEmpty ? "" : " " + attributes) + ">" + content + "</" + tag + ">";
   }
 
   const HtmlElementSerializerVisitorImpl();

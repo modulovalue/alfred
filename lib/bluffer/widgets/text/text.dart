@@ -126,13 +126,21 @@ class Text implements Widget {
   CssStyleDeclaration2 renderCss(
     final BuildContext context,
   ) {
-    final textStyles = this.style ?? Theme.of(context)!.text.paragraph;
+    final textStyles = () {
+      final _style = style;
+      final _themeStyle = Theme.of(context)!.text.paragraph;
+      if (_style == null) {
+        return _themeStyle;
+      } else {
+        return _themeStyle.merge(_style);
+      }
+    }();
     return CssStyleDeclaration2Impl(
       css_textAlign: () {
         if (textAlign != null) {
           switch (textAlign!) {
             case TextAlign.end:
-              // TODO should be dynamic
+              // TODO should respect text direction.
               return 'right';
             case TextAlign.right:
               return 'right';
@@ -144,7 +152,7 @@ class Text implements Widget {
               // TODO is this correct?
               return 'left';
             case TextAlign.start:
-              // TODO should be dynamic
+              // TODO should respect text direction.
               return 'left';
           }
         } else {

@@ -5,7 +5,7 @@ import '../interface/http_route_factory.dart';
 import '../interface/serve_context.dart';
 import 'parse_http_body.dart';
 
-class ServeContextImpl with ServeContextMixin implements ServeContext {
+class ServeContextImpl implements ServeContext {
   @override
   final Alfred alfred;
   @override
@@ -16,33 +16,26 @@ class ServeContextImpl with ServeContextMixin implements ServeContext {
   late HttpRoute route;
 
   ServeContextImpl({
-    required this.alfred,
-    required this.req,
-    required this.res,
+    required final this.alfred,
+    required final this.req,
+    required final this.res,
   });
-}
-
-mixin ServeContextMixin implements ServeContext {
-  @override
-  Alfred get alfred;
-
-  @override
-  HttpRequest get req;
-
-  @override
-  HttpResponse get res;
 
   @override
   Future<Object?> get body async => (await HttpBodyHandlerImpl.processRequest(req)).body;
 
   @override
-  Map<String, String>? get params => getParams(route.route, req.uri.path);
+  Map<String, String>? get arguments => getParams(route.route, req.uri.path);
 }
 
-Map<String, String>? getParams(String route, String input) {
+Map<String, String>? getParams(
+  final String route,
+  final String input,
+) {
   final routeParts = route.split('/')..remove('');
   final inputParts = input.split('/')..remove('');
   if (inputParts.length != routeParts.length) {
+    // TODO expose the reason for the empty map.
     return null;
   } else {
     final output = <String, String>{};

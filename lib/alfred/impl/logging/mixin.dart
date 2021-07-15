@@ -1,3 +1,4 @@
+import '../../interface/alfred.dart';
 import '../../interface/logging_delegate.dart';
 import 'log_type.dart';
 
@@ -12,10 +13,18 @@ mixin AlfredLoggingDelegateGeneralizingMixin implements AlfredLoggingDelegate {
 
   @override
   void onIsListening(
-    final int port,
+    final ServerArguments args,
   ) =>
       log(
-        () => 'HTTP Server listening on port ' + port.toString(),
+        () =>
+            'HTTP Server listening on port: ' +
+            args.port.toString() +
+            " boundIp: " +
+            args.bindIp +
+            " shared: " +
+            args.shared.toString() +
+            " simultaneousProcessing: " +
+            args.simultaneousProcessing.toString(),
         LogType.info,
       );
 

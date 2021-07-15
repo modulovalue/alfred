@@ -63,7 +63,7 @@ Future<void> main() async {
   // Track connected clients
   // WebSocket chat relay implementation
   app.get('/ws', WebSocketValueMiddleware(session));
-  final server = await app.build(6565);
+  final server = await app.build(port: 6565);
   print('Listening on ${server.server.port}');
 }
 

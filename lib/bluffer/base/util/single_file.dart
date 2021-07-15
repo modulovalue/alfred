@@ -10,21 +10,17 @@ import '../publish/impl/via_manual.dart';
 
 String singlePage(
   final Widget Function(BuildContext) child,
-) => //
-    elementToStringViaManual(
-      MediaQuery(
-        data: const MediaQueryDataImpl(
-          size: MediaSize.medium,
-        ),
-        child: Builder(
-          builder: (final context) => Theme(
-            data: ThemeData.base(context),
-            child: child(context),
-          ),
-        ),
-      ).render(
-        BuildContextImpl(
-          assets: const AssetsDefaultImpl(),
-        ),
+) {
+  final finalChild = MediaQuery(
+    data: const MediaQueryDataImpl(size: MediaSize.medium),
+    child: Builder(
+      builder: (final context) => Theme(
+        data: ThemeData.base(context),
+        child: child(context),
       ),
-    );
+    ),
+  );
+  final buildContext = BuildContextImpl(assets: const AssetsDefaultImpl());
+  final element = finalChild.render(buildContext);
+  return elementToStringViaManual(element);
+}

@@ -1,6 +1,8 @@
+import 'alfred.dart';
+
 abstract class AlfredLoggingDelegate {
   void onIsListening(
-    final int port,
+    final ServerArguments arguments,
   );
 
   void onIncomingRequest(

@@ -1,7 +1,9 @@
 abstract class Method {
   String get description;
 
-  bool isMethod(final String method);
+  bool isMethod(
+    final String method,
+  );
 }
 
 abstract class Methods {

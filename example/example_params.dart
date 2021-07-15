@@ -8,9 +8,9 @@ Future<void> main() async {
     MiddlewareBuilder(
       (final context) async {
         // ignore: unnecessary_statements
-        print(context.params!['id']);
+        print(context.arguments!['id']);
         // ignore: unnecessary_statements
-        print(context.params!['name']);
+        print(context.arguments!['name']);
       },
     ),
   );

@@ -16,7 +16,6 @@ class ServeWidget implements Middleware {
     final ServeContext c,
   ) {
     final html = singlePage((final context) => child);
-    print(html.length);
     return ServeHtml(html).process(c);
   }
 }

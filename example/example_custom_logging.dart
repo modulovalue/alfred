@@ -7,33 +7,39 @@ import 'package:logging/logging.dart';
 // Use 'logging' package instead of default logger
 
 void main() {
-  final app = AlfredImpl(
-    log: const CustomLogger(),
-  );
-  // Configure root logger
-  Logger.root.level = Level.ALL; // defaults to Level.INFO
-  Logger.root.onRecord.listen((record) {
-    print('${record.level.name}: ${record.time}: ${record.message}');
-  });
-  // Configure routing...
+  final app = AlfredImpl();
   app.get('/resource', const ServeString('response'));
-  app.build();
+  app.build(log: CustomLogger());
 }
 
 // Create custom logWriter and map to logging package
 class CustomLogger with AlfredLoggingDelegateGeneralizingMixin {
-  const CustomLogger();
+  CustomLogger() {
+    // Configure root logger
+    // defaults to Level.INFO
+    Logger.root
+      ..level = Level.ALL
+      ..onRecord.listen(
+        (record) => print(
+          record.level.name + ': ' + record.time.toString() + ': ' + record.message,
+        ),
+      );
+  }
 
   @override
   LogType get logLevel => LogType.info;
 
+  // Create logger for Alfred app.
+  final Logger logger = Logger('Alfred');
+
   @override
-  void log(dynamic Function() messageFn, LogType type) {
-    // Create logger for Alfred app
-    final logger = Logger('HttpServer');
+  void log(
+    final dynamic Function() messageFn,
+    final LogType type,
+  ) {
     switch (type) {
       case LogType.debug:
-        // avoid evaluating too much debug messages
+        // avoid evaluating too many debug messages.
         if (logger.level <= Level.FINE) {
           logger.fine(messageFn());
         }

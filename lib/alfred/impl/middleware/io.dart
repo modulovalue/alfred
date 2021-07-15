@@ -4,6 +4,7 @@ import 'dart:math';
 
 import '../../../base/mime.dart';
 import '../../interface/alfred.dart';
+import '../../interface/logging_delegate.dart';
 import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
 
@@ -55,7 +56,7 @@ class ServeFile implements Middleware {
   }
 }
 
-class FileNotFoundException implements NotFoundException {
+class FileNotFoundException implements AlfredNotFoundException {
   final File file;
   final ServeContext c;
 
@@ -70,13 +71,17 @@ class FileNotFoundException implements NotFoundException {
 
 class ServeDirectory implements Middleware {
   final Directory directory;
+  // TODO too capable for this middleware.
+  final AlfredLoggingDelegate log;
 
   const ServeDirectory(
     final this.directory,
+    final this.log,
   );
 
   ServeDirectory.at(
     final String path,
+    final this.log,
   ) : directory = Directory(path);
 
   @override
@@ -90,8 +95,7 @@ class ServeDirectory implements Middleware {
     );
     final virtualPath = c.req.uri.path.substring(min(c.req.uri.path.length, usedRoute.indexOf('*')));
     final filePath = '${directory.path}/$virtualPath';
-    // TODO separate logger.
-    c.alfred.log.logTypeHandler(() => 'Resolve virtual path: $virtualPath');
+    log.logTypeHandler(() => 'Resolve virtual path: $virtualPath');
     final fileCandidates = <File>[
       File(filePath),
       File('$filePath/index.html'),
@@ -99,8 +103,7 @@ class ServeDirectory implements Middleware {
     ];
     try {
       final match = fileCandidates.firstWhere((file) => file.existsSync());
-      // TODO separate logger.
-      c.alfred.log.logTypeHandler(() => 'Respond with file: ${match.path}');
+      log.logTypeHandler(() => 'Respond with file: ${match.path}');
       final c_ = c.res.headers.contentType;
       if (c_ == null || c_.mimeType == 'text/plain') {
         c.res.headers.contentType = fileContentType(match);
@@ -109,8 +112,7 @@ class ServeDirectory implements Middleware {
       await c.res.close();
       // ignore: avoid_catching_errors
     } on StateError {
-      // TODO separate logger.
-      c.alfred.log.logTypeHandler(() => 'Could not match with any file. Expected file at: $filePath');
+      log.logTypeHandler(() => 'Could not match with any file. Expected file at: $filePath');
     }
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:isolate';
 
 import 'package:alfred/alfred/impl/alfred.dart';
+import 'package:alfred/alfred/impl/logging/print.dart';
 import 'package:alfred/alfred/impl/middleware/html.dart';
 import 'package:alfred/alfred/impl/middleware/io.dart';
 import 'package:alfred/alfred/impl/middleware/middleware.dart';
@@ -17,6 +18,7 @@ Future<void> main() async {
 Future<void> runIsolate(
   dynamic message,
 ) async {
+  const log = AlfredLoggingDelegatePrintImpl();
   final app = AlfredImpl()
     ..all(
       '/example',
@@ -45,8 +47,8 @@ Future<void> runIsolate(
     )
     ..get(
       '/files',
-      ServeDirectory.at('test/files'),
+      ServeDirectory.at('test/files', log),
     );
-  final server = await app.build();
+  final server = await app.build(log: log);
   print('Listening on ' + server.server.port.toStringAsFixed(0));
 }

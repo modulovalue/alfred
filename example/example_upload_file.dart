@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:alfred/alfred/impl/alfred.dart';
+import 'package:alfred/alfred/impl/logging/print.dart';
 import 'package:alfred/alfred/impl/middleware/io.dart';
 import 'package:alfred/alfred/impl/middleware/json_builder.dart';
 import 'package:alfred/alfred/interface/parse_http_body.dart';
@@ -8,7 +9,8 @@ import 'package:alfred/alfred/interface/parse_http_body.dart';
 Future<void> main() async {
   final _uploadDirectory = Directory('uploadedFiles');
   final app = AlfredImpl();
-  app.get('/files/*', ServeDirectory(_uploadDirectory));
+  const log = AlfredLoggingDelegatePrintImpl();
+  app.get('/files/*', ServeDirectory(_uploadDirectory, log));
   // Example of handling a multipart/form-data file upload.
   app.post(
     '/upload',
@@ -35,5 +37,5 @@ Future<void> main() async {
       },
     ),
   );
-  await app.build();
+  await app.build(log: log);
 }

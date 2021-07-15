@@ -29,8 +29,10 @@ class WebSocketValueMiddleware implements Middleware {
   @override
   Future<void> process(
     final ServeContext c,
-  ) async =>
-      websocketSession.start(await WebSocketTransformer.upgrade(c.req));
+  ) async {
+    final websocket = await WebSocketTransformer.upgrade(c.req);
+    websocketSession.start(websocket);
+  }
 }
 
 /// Convenience wrapper around Dart IO WebSocket implementation.
@@ -46,14 +48,16 @@ mixin WebSocketSessionStartMixin implements WebSocketSession {
     try {
       onOpen(socket);
       socket.listen(
-        (dynamic data) {
+        (final dynamic data) {
           try {
             if (data is String) {
               onMessage(socket, data);
             } else if (data is List<int>) {
               onMessage(socket, data);
             } else {
-              throw Exception("Unknown data type emitted by socket. ${data.runtimeType}");
+              throw Exception(
+                "Unknown data type emitted by socket. " + data.runtimeType.toString(),
+              );
             }
             // ignore: avoid_catches_without_on_clauses
           } catch (e) {
