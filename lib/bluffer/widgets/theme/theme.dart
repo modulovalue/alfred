@@ -13,16 +13,20 @@ class Theme extends StatelessWidget {
   final Widget child;
 
   const Theme({
-    required this.child,
-    required this.data,
-    Key? key,
+    required final this.child,
+    required final this.data,
+    final Key? key,
   }) : super(key: key);
 
-  static ThemeData? of(BuildContext context) => //
+  static ThemeData? of(
+    final BuildContext context,
+  ) =>
       Provider.of<ThemeData>(context);
 
   @override
-  Widget build(BuildContext context) => //
+  Widget build(
+    final BuildContext context,
+  ) =>
       ValueProvider<ThemeData>(
         value: data ?? ThemeData.base(context),
         child: child,
@@ -33,10 +37,12 @@ class ThemeData {
   final ThemeTextData text;
 
   const ThemeData({
-    required this.text,
+    required final this.text,
   });
 
-  static double defaultParagraphFontSize(MediaSize size) {
+  static double defaultParagraphFontSize(
+    final MediaSize size,
+  ) {
     switch (size) {
       case MediaSize.xsmall:
         return 9;
@@ -51,7 +57,9 @@ class ThemeData {
     }
   }
 
-  static double defaultHeader1FontSize(MediaSize size) {
+  static double defaultHeader1FontSize(
+    final MediaSize size,
+  ) {
     switch (size) {
       case MediaSize.xsmall:
         return 18;
@@ -66,7 +74,9 @@ class ThemeData {
     }
   }
 
-  static double defaultHeader2FontSize(MediaSize size) {
+  static double defaultHeader2FontSize(
+    final MediaSize size,
+  ) {
     switch (size) {
       case MediaSize.xsmall:
         return 14;
@@ -81,7 +91,9 @@ class ThemeData {
     }
   }
 
-  static double defaultHeader3FontSize(MediaSize size) {
+  static double defaultHeader3FontSize(
+    final MediaSize size,
+  ) {
     switch (size) {
       case MediaSize.xsmall:
         return 10;
@@ -96,10 +108,14 @@ class ThemeData {
     }
   }
 
-  factory ThemeData.base(BuildContext context, {String? fontFamily}) {
+  factory ThemeData.base(
+    final BuildContext context, {
+    final String? fontFamily,
+  }) {
     final size = MediaQuery.of(context)!.size;
     return ThemeData(
       text: ThemeTextData(
+        // TODO move defaults out.
         paragraph: TextStyle(
           color: const Color(0xFF000000),
           fontSize: defaultParagraphFontSize(size),
@@ -107,6 +123,7 @@ class ThemeData {
           fontWeight: FontWeight.w400,
           fontFamilyFallback: ['sans-serif'],
         ),
+        // TODO move defaults out.
         header1: TextStyle(
           color: const Color(0xFF000000),
           fontSize: defaultHeader1FontSize(size),
@@ -114,6 +131,7 @@ class ThemeData {
           fontWeight: FontWeight.w700,
           fontFamilyFallback: ['sans-serif'],
         ),
+        // TODO move defaults out.
         header2: TextStyle(
           color: const Color(0xFF000000),
           fontSize: defaultHeader2FontSize(size),
@@ -121,6 +139,7 @@ class ThemeData {
           fontWeight: FontWeight.w700,
           fontFamilyFallback: ['sans-serif'],
         ),
+        // TODO move defaults out.
         header3: TextStyle(
           color: const Color(0xFF000000),
           fontSize: defaultHeader3FontSize(size),
@@ -128,6 +147,7 @@ class ThemeData {
           fontWeight: FontWeight.w700,
           fontFamilyFallback: ['sans-serif'],
         ),
+        // TODO move defaults out.
         activeLink: TextStyle(
           color: const Color(0xFF000000),
           fontSize: defaultParagraphFontSize(size),
@@ -135,6 +155,7 @@ class ThemeData {
           fontWeight: FontWeight.w400,
           fontFamilyFallback: ['sans-serif'],
         ),
+        // TODO move defaults out.
         inactiveLink: TextStyle(
           color: const Color(0xFF000000),
           fontSize: defaultParagraphFontSize(size),
@@ -142,6 +163,7 @@ class ThemeData {
           fontWeight: FontWeight.w400,
           fontFamilyFallback: ['sans-serif'],
         ),
+        // TODO move defaults out.
         hoverLink: TextStyle(
           color: const Color(0xFF000000),
           fontSize: defaultParagraphFontSize(size),
@@ -164,12 +186,12 @@ class ThemeTextData {
   final TextStyle hoverLink;
 
   const ThemeTextData({
-    required this.paragraph,
-    required this.header1,
-    required this.header2,
-    required this.header3,
-    required this.inactiveLink,
-    required this.activeLink,
-    required this.hoverLink,
+    required final this.paragraph,
+    required final this.header1,
+    required final this.header2,
+    required final this.header3,
+    required final this.inactiveLink,
+    required final this.activeLink,
+    required final this.hoverLink,
   });
 }

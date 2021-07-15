@@ -8,11 +8,15 @@ abstract class KeyWidget<KEY extends Key?> {
 }
 
 abstract class HtmlWidget<HTML extends HtmlElement2> {
-  HTML renderHtml(BuildContext context);
+  HTML renderHtml(
+    final BuildContext context,
+  );
 }
 
 abstract class CssWidget<CSS extends CssStyleDeclaration2?> {
-  CSS renderCss(BuildContext context);
+  CSS renderCss(
+    final BuildContext context,
+  );
 }
 
 abstract class HtmlCssWidget<
@@ -33,7 +37,9 @@ abstract class KeyedHtmlCssWidget<
         KeyWidget<KEY> {}
 
 abstract class RenderWidget<RENDER extends HtmlElement2> {
-  RENDER render(BuildContext context);
+  RENDER render(
+    final BuildContext context,
+  );
 }
 
 abstract class Widget<

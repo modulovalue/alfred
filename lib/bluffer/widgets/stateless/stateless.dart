@@ -8,16 +8,29 @@ abstract class StatelessWidget implements Widget {
   @override
   final Key? key;
 
-  const StatelessWidget({this.key});
+  const StatelessWidget({
+    final this.key,
+  });
 
-  Widget build(BuildContext context);
-
-  @override
-  HtmlElement2 renderHtml(BuildContext context) => build(context).render(context);
-
-  @override
-  HtmlElement2 render(BuildContext context) => renderWidget(this, context);
+  Widget build(
+    final BuildContext context,
+  );
 
   @override
-  Null renderCss(BuildContext context) => null;
+  HtmlElement2 renderHtml(
+    final BuildContext context,
+  ) =>
+      build(context).render(context);
+
+  @override
+  HtmlElement2 render(
+    final BuildContext context,
+  ) =>
+      renderWidget(this, context);
+
+  @override
+  Null renderCss(
+    final BuildContext context,
+  ) =>
+      null;
 }

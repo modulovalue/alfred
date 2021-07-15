@@ -5,7 +5,8 @@ import 'lerp.dart';
 Color _scaleAlpha(
   final Color a,
   final double factor,
-) => a.withAlpha((a.alpha * factor).round().clamp(0, 255).toInt());
+) =>
+    a.withAlpha((a.alpha * factor).round().clamp(0, 255).toInt());
 
 /// An immutable 32 bit color value in ARGB format.
 ///
@@ -55,7 +56,9 @@ class Color {
   /// Color(0xFFFF9000)` (`FF` for the alpha, `FF` for the red, `90` for the
   /// green, and `00` for the blue).
   @pragma('vm:entry-point')
-  const Color(int value) : value = value & 0xFFFFFFFF;
+  const Color(
+    final int value,
+  ) : value = value & 0xFFFFFFFF;
 
   /// Construct a color from the lower 8 bits of four integers.
   ///
@@ -69,8 +72,12 @@ class Color {
   ///
   /// See also fromRGBO, which takes the alpha value as a floating point
   /// value.
-  const Color.fromARGB(int a, int r, int g, int b)
-      : value = (((a & 0xff) << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | ((b & 0xff) << 0)) & 0xFFFFFFFF;
+  const Color.fromARGB(
+    final int a,
+    final int r,
+    final int g,
+    final int b,
+  ) : value = (((a & 0xff) << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | ((b & 0xff) << 0)) & 0xFFFFFFFF;
 
   /// Create a color from red, green, blue, and opacity, similar to `rgba()` in CSS.
   ///
@@ -83,8 +90,12 @@ class Color {
   /// Out of range values are brought into range using modulo 255.
   ///
   /// See also fromARGB, which takes the opacity as an integer value.
-  const Color.fromRGBO(int r, int g, int b, double opacity)
-      : value = ((((opacity * 0xff ~/ 1) & 0xff) << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | ((b & 0xff) << 0)) & 0xFFFFFFFF;
+  const Color.fromRGBO(
+    final int r,
+    final int g,
+    final int b,
+    final double opacity,
+  ) : value = ((((opacity * 0xff ~/ 1) & 0xff) << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | ((b & 0xff) << 0)) & 0xFFFFFFFF;
 
   /// A 32 bit value representing this color.
   ///
@@ -121,15 +132,18 @@ class Color {
   /// replaced with `a` (which ranges from 0 to 255).
   ///
   /// Out of range values will have unexpected effects.
-  Color withAlpha(int a) {
-    return Color.fromARGB(a, red, green, blue);
-  }
+  Color withAlpha(
+    final int a,
+  ) =>
+      Color.fromARGB(a, red, green, blue);
 
   /// Returns a new color that matches this color with the alpha channel
   /// replaced with the given `opacity` (which ranges from 0.0 to 1.0).
   ///
   /// Out of range values will have unexpected effects.
-  Color withOpacity(double opacity) {
+  Color withOpacity(
+    final double opacity,
+  ) {
     assert(opacity >= 0.0 && opacity <= 1.0, "Given opacity must be between 0.0 inclusive and 1.0 inclusive.");
     return withAlpha((255.0 * opacity).round());
   }
@@ -138,28 +152,33 @@ class Color {
   /// with `r` (which ranges from 0 to 255).
   ///
   /// Out of range values will have unexpected effects.
-  Color withRed(int r) {
-    return Color.fromARGB(alpha, r, green, blue);
-  }
+  Color withRed(
+    final int r,
+  ) =>
+      Color.fromARGB(alpha, r, green, blue);
 
   /// Returns a new color that matches this color with the green channel
   /// replaced with `g` (which ranges from 0 to 255).
   ///
   /// Out of range values will have unexpected effects.
-  Color withGreen(int g) {
-    return Color.fromARGB(alpha, red, g, blue);
-  }
+  Color withGreen(
+    final int g,
+  ) =>
+      Color.fromARGB(alpha, red, g, blue);
 
   /// Returns a new color that matches this color with the blue channel replaced
   /// with `b` (which ranges from 0 to 255).
   ///
   /// Out of range values will have unexpected effects.
-  Color withBlue(int b) {
-    return Color.fromARGB(alpha, red, green, b);
-  }
+  Color withBlue(
+    final int b,
+  ) =>
+      Color.fromARGB(alpha, red, green, b);
 
   // See <https://www.w3.org/TR/WCAG20/#relativeluminancedef>
-  static double _linearizeColorComponent(double component) {
+  static double _linearizeColorComponent(
+    final double component,
+  ) {
     if (component <= 0.03928) return component / 12.92;
     return math.pow((component + 0.055) / 1.055, 2.4).toDouble();
   }
@@ -200,7 +219,11 @@ class Color {
   ///
   /// Values for `t` are usually obtained from an [Animation<double>], such as
   /// an AnimationController.
-  static Color? lerp(Color? a, Color? b, double t) {
+  static Color? lerp(
+    final Color? a,
+    final Color? b,
+    final double t,
+  ) {
     if (a == null && b == null) return null;
     if (a == null) return _scaleAlpha(b!, t);
     if (b == null) return _scaleAlpha(a, 1.0 - t);
@@ -220,45 +243,52 @@ class Color {
   /// enhancement when trying to avoid needless alpha blending compositing
   /// operations for two things that are solid colors with the same shape, but
   /// overlay each other: instead, just paint one with the combined color.
-  static Color alphaBlend(Color foreground, Color background) {
+  static Color alphaBlend(
+    final Color foreground,
+    final Color background,
+  ) {
     final int alpha = foreground.alpha;
     if (alpha == 0x00) {
       // Foreground completely transparent.
       return background;
-    }
-    final int invAlpha = 0xff - alpha;
-    int backAlpha = background.alpha;
-    if (backAlpha == 0xff) {
-      // Opaque background case
-      return Color.fromARGB(
-        0xff,
-        (alpha * foreground.red + invAlpha * background.red) ~/ 0xff,
-        (alpha * foreground.green + invAlpha * background.green) ~/ 0xff,
-        (alpha * foreground.blue + invAlpha * background.blue) ~/ 0xff,
-      );
     } else {
-      // General case
-      backAlpha = (backAlpha * invAlpha) ~/ 0xff;
-      final outAlpha = alpha + backAlpha;
-      assert(outAlpha != 0x00, "Alpha can't be zero.");
-      return Color.fromARGB(
-        outAlpha,
-        (foreground.red * alpha + background.red * backAlpha) ~/ outAlpha,
-        (foreground.green * alpha + background.green * backAlpha) ~/ outAlpha,
-        (foreground.blue * alpha + background.blue * backAlpha) ~/ outAlpha,
-      );
+      final int invAlpha = 0xff - alpha;
+      int backAlpha = background.alpha;
+      if (backAlpha == 0xff) {
+        // Opaque background case
+        return Color.fromARGB(
+          0xff,
+          (alpha * foreground.red + invAlpha * background.red) ~/ 0xff,
+          (alpha * foreground.green + invAlpha * background.green) ~/ 0xff,
+          (alpha * foreground.blue + invAlpha * background.blue) ~/ 0xff,
+        );
+      } else {
+        // General case
+        backAlpha = (backAlpha * invAlpha) ~/ 0xff;
+        final outAlpha = alpha + backAlpha;
+        assert(outAlpha != 0x00, "Alpha can't be zero.");
+        return Color.fromARGB(
+          outAlpha,
+          (foreground.red * alpha + background.red * backAlpha) ~/ outAlpha,
+          (foreground.green * alpha + background.green * backAlpha) ~/ outAlpha,
+          (foreground.blue * alpha + background.blue * backAlpha) ~/ outAlpha,
+        );
+      }
     }
   }
 
   /// Returns an alpha value representative of the provided [opacity] value.
   ///
   /// The [opacity] value may not be null.
-  static int getAlphaFromOpacity(double opacity) {
-    return (opacity.clamp(0.0, 1.0) * 255).round();
-  }
+  static int getAlphaFromOpacity(
+    final double opacity,
+  ) =>
+      (opacity.clamp(0.0, 1.0) * 255).round();
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(
+    final dynamic other,
+  ) {
     if (identical(this, other)) return true;
     if (other.runtimeType != runtimeType) return false;
     return other is Color && value == other.value;
@@ -268,7 +298,7 @@ class Color {
   int get hashCode => value.hashCode;
 
   @override
-  String toString() => 'Color(0x${value.toRadixString(16).padLeft(8, '0')})';
+  String toString() => 'Color(0x' + value.toRadixString(16).padLeft(8, '0') + ')';
 
-  String toCss() => 'rgba(${red},${green},${blue},${alpha / 255.0})';
+  String toCss() => 'rgba(' + red.toString() + ',' + green.toString() + ',' + blue.toString() + ',' + (alpha / 255.0).toString() + ')';
 }

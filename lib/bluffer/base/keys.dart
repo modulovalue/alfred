@@ -6,5 +6,7 @@ class KeyImpl implements Key {
   @override
   final String className;
 
-  const KeyImpl(this.className);
+  const KeyImpl(
+    final this.className,
+  );
 }

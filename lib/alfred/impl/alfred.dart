@@ -90,10 +90,14 @@ class AlfredImpl with HttpRouteFactoryBoilerplateMixin implements Alfred {
     );
     // We track if the response has been resolved in order to exit out early
     // the list of routes (ie the middleware returned)
-    unawaited(request.response.done.then((final dynamic _) {
-      isDone = true;
-      log.onResponseSent();
-    }));
+    unawaited(
+      request.response.done.then(
+        (final dynamic _) {
+          isDone = true;
+          log.onResponseSent();
+        },
+      ),
+    );
     // Work out all the routes we need to process
     final matchedRoutes = matchRoute(
       request.uri.toString(),

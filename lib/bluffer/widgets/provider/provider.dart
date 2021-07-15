@@ -9,19 +9,19 @@ class Provider<T> extends StatelessWidget {
   final Widget child;
 
   const Provider({
-    required this.create,
-    required this.child,
-    Key? key,
+    required final this.create,
+    required final this.child,
+    final Key? key,
   }) : super(key: key);
 
   static T? of<T>(
-    BuildContext context,
+    final BuildContext context,
   ) =>
       ValueProvider.of<T>(context);
 
   @override
   Widget build(
-    BuildContext context,
+    final BuildContext context,
   ) =>
       ValueProvider<T>(
         value: create(context),
@@ -36,15 +36,17 @@ class ValueProvider<T> with InheritedWidgetMixin {
   @override
   final Widget child;
 
-  static T? of<T>(BuildContext context) {
+  static T? of<T>(
+    final BuildContext context,
+  ) {
     final provider = context.dependOnInheritedWidgetOfExactType<ValueProvider<T>>();
     assert(provider != null, "Couldn't find a value provider for the value $T");
     return provider!.value;
   }
 
   const ValueProvider({
-    required this.child,
-    required this.value,
-    this.key,
+    required final this.child,
+    required final this.value,
+    final this.key,
   });
 }
