@@ -71,7 +71,9 @@ class HttpBodyHandlerImpl extends StreamTransformerBase<HttpRequest, HttpRequest
             sink.addError(e, st);
           } finally {
             pending--;
-            if (closed && pending == 0) sink.close();
+            if (closed && pending == 0) {
+              sink.close();
+            }
           }
         },
         handleDone: (final sink) {

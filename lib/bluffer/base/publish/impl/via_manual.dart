@@ -78,7 +78,20 @@ class HtmlElementSerializerVisitorImpl //
             _alements //
                 .map((final a) => a.acceptHtmlElementOneArg(const HtmlElementSerializerVisitorImpl(), null))
                 .join("\n");
-    return "<" + tag + (attributes.isEmpty ? "" : " " + attributes) + ">" + content + "</" + tag + ">";
+    return "<" +
+        tag +
+        (() {
+          if (attributes.isEmpty) {
+            return "";
+          } else {
+            return " " + attributes;
+          }
+        }()) +
+        ">" +
+        content +
+        "</" +
+        tag +
+        ">";
   }
 
   const HtmlElementSerializerVisitorImpl();
@@ -218,7 +231,13 @@ class HtmlElementSerializerVisitorImpl //
         "title",
         [],
         node,
-        node.text != null ? node.text! : "",
+        () {
+          if (node.text != null) {
+            return node.text!;
+          } else {
+            return "";
+          }
+        }(),
       );
 
   @override

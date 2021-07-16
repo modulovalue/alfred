@@ -179,7 +179,9 @@ class Color {
   static double _linearizeColorComponent(
     final double component,
   ) {
-    if (component <= 0.03928) return component / 12.92;
+    if (component <= 0.03928) {
+      return component / 12.92;
+    }
     return math.pow((component + 0.055) / 1.055, 2.4).toDouble();
   }
 
@@ -224,9 +226,15 @@ class Color {
     final Color? b,
     final double t,
   ) {
-    if (a == null && b == null) return null;
-    if (a == null) return _scaleAlpha(b!, t);
-    if (b == null) return _scaleAlpha(a, 1.0 - t);
+    if (a == null && b == null) {
+      return null;
+    }
+    if (a == null) {
+      return _scaleAlpha(b!, t);
+    }
+    if (b == null) {
+      return _scaleAlpha(a, 1.0 - t);
+    }
     return Color.fromARGB(
       lerpDouble(a.alpha, b.alpha, t).toInt().clamp(0, 255).toInt(),
       lerpDouble(a.red, b.red, t).toInt().clamp(0, 255).toInt(),
@@ -289,8 +297,12 @@ class Color {
   bool operator ==(
     final dynamic other,
   ) {
-    if (identical(this, other)) return true;
-    if (other.runtimeType != runtimeType) return false;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
     return other is Color && value == other.value;
   }
 

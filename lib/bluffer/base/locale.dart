@@ -229,8 +229,12 @@ class Locale {
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
-    if (other is! Locale) return false;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other is! Locale) {
+      return false;
+    }
     return other is Locale && languageCode == other.languageCode && scriptCode == other.scriptCode && countryCode == other.countryCode;
   }
 
@@ -265,7 +269,9 @@ class Locale {
 
   String _rawToString(String separator) {
     final StringBuffer out = StringBuffer(languageCode);
-    if (scriptCode != null) out.write('$separator$scriptCode');
+    if (scriptCode != null) {
+      out.write('$separator$scriptCode');
+    }
     out.write('$separator$countryCode');
     return out.toString();
   }

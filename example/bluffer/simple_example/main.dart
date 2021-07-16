@@ -87,14 +87,26 @@ void main() {
                     child: Text(
                       'Button',
                       style: Theme.of(context)!.text.paragraph.merge(
-                            TextStyle(
-                              color: state == ClickState.hover ? const Color(0xFFFFFFFF) : const Color(0xFF0000FF),
-                            ),
-                          ),
+                        TextStyle(
+                          color: () {
+                            if (state == ClickState.hover) {
+                              return const Color(0xFFFFFFFF);
+                            } else {
+                              return const Color(0xFF0000FF);
+                            }
+                          }(),
+                        ),
+                      ),
                     ),
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: state == ClickState.hover ? const Color(0xFF0000FF) : const Color(0x440000FF),
+                      color: () {
+                        if (state == ClickState.hover) {
+                          return const Color(0xFF0000FF);
+                        } else {
+                          return const Color(0x440000FF);
+                        }
+                      }(),
                       borderRadius: BorderRadius.circular(5),
                     ),
                   ),

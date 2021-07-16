@@ -86,7 +86,9 @@ class FontWeight {
   /// Values for `t` are usually obtained from an [Animation<double>], such as
   /// an AnimationController.
   static FontWeight? lerp(FontWeight? a, FontWeight? b, double t) {
-    if (a == null && b == null) return null;
+    if (a == null && b == null) {
+      return null;
+    }
     return values[lerpDouble(a?.index ?? normal.index, b?.index ?? normal.index, t).round().clamp(0, 8).round()];
   }
 
@@ -300,8 +302,12 @@ class FontFeature {
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
-    if (other.runtimeType != runtimeType) return false;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
     return other is FontFeature && feature == other.feature && value == other.value;
   }
 
@@ -394,12 +400,22 @@ class TextDecoration {
 
   @override
   String toString() {
-    if (_mask == 0) return 'TextDecoration.none';
+    if (_mask == 0) {
+      return 'TextDecoration.none';
+    }
     final List<String> values = <String>[];
-    if (_mask & underline._mask != 0) values.add('underline');
-    if (_mask & overline._mask != 0) values.add('overline');
-    if (_mask & lineThrough._mask != 0) values.add('lineThrough');
-    if (values.length == 1) return 'TextDecoration.${values[0]}';
+    if (_mask & underline._mask != 0) {
+      values.add('underline');
+    }
+    if (_mask & overline._mask != 0) {
+      values.add('overline');
+    }
+    if (_mask & lineThrough._mask != 0) {
+      values.add('lineThrough');
+    }
+    if (values.length == 1) {
+      return 'TextDecoration.${values[0]}';
+    }
     return 'TextDecoration.combine([${values.join(", ")}])';
   }
 }
@@ -428,10 +444,16 @@ enum TextDecorationStyle {
 /// the same length, and contain the same elements in the same order. Returns
 /// false otherwise.
 bool _listEquals<T>(List<T>? a, List<T>? b) {
-  if (a == null) return b == null;
-  if (b == null || a.length != b.length) return false;
+  if (a == null) {
+    return b == null;
+  }
+  if (b == null || a.length != b.length) {
+    return false;
+  }
   for (int index = 0; index < a.length; index += 1) {
-    if (a[index] != b[index]) return false;
+    if (a[index] != b[index]) {
+      return false;
+    }
   }
   return true;
 }
@@ -533,8 +555,12 @@ class TextStyle {
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
-    if (other is! TextStyle) return false;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other is! TextStyle) {
+      return false;
+    }
     if (other is TextStyle) {
       if (fontFamily != other.fontFamily ||
           fontSize != other.fontSize ||
@@ -579,11 +605,35 @@ class TextStyle {
         'fontStyle: ${fontStyle ?? "unspecified"}, '
         'textBaseline: ${textBaseline ?? "unspecified"}, '
         'fontFamily: ${fontFamily ?? "unspecified"}, '
-        'fontFamilyFallback: ${fontFamilyFallback != null && fontFamilyFallback!.isNotEmpty ? fontFamilyFallback : "unspecified"}, '
+        'fontFamilyFallback: ${() {
+      if (fontFamilyFallback != null && fontFamilyFallback!.isNotEmpty) {
+        return fontFamilyFallback;
+      } else {
+        return "unspecified";
+      }
+    }()}, '
         'fontSize: ${fontSize ?? "unspecified"}, '
-        'letterSpacing: ${letterSpacing != null ? "${letterSpacing}x" : "unspecified"}, '
-        'wordSpacing: ${wordSpacing != null ? "${wordSpacing}x" : "unspecified"}, '
-        'height: ${height != null ? "${height}x" : "unspecified"}, '
+        'letterSpacing: ${() {
+      if (letterSpacing != null) {
+        return "${letterSpacing}x";
+      } else {
+        return "unspecified";
+      }
+    }()}, '
+        'wordSpacing: ${() {
+      if (wordSpacing != null) {
+        return "${wordSpacing}x";
+      } else {
+        return "unspecified";
+      }
+    }()}, '
+        'height: ${() {
+      if (height != null) {
+        return "${height}x";
+      } else {
+        return "unspecified";
+      }
+    }()}, '
         'locale: ${locale ?? "unspecified"}, '
         ')';
   }
@@ -766,17 +816,25 @@ class ParagraphStyle {
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
-    if (other.runtimeType != runtimeType) return false;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
     if (other is ParagraphStyle) {
       if (_fontFamily != other._fontFamily ||
           _fontSize != other._fontSize ||
           _height != other._height ||
           _strutStyle != other._strutStyle ||
           _ellipsis != other._ellipsis ||
-          _locale != other._locale) return false;
+          _locale != other._locale) {
+        return false;
+      }
       for (int index = 0; index < _encoded.length; index += 1) {
-        if (_encoded[index] != other._encoded[index]) return false;
+        if (_encoded[index] != other._encoded[index]) {
+          return false;
+        }
       }
       return true;
     } else {
@@ -790,16 +848,76 @@ class ParagraphStyle {
   @override
   String toString() {
     return 'ParagraphStyle('
-        'textAlign: ${_encoded[0] & 0x002 == 0x002 ? TextAlign.values[_encoded[1]] : "unspecified"}, '
-        'textDirection: ${_encoded[0] & 0x004 == 0x004 ? TextDirection.values[_encoded[2]] : "unspecified"}, '
-        'fontWeight: ${_encoded[0] & 0x008 == 0x008 ? FontWeight.values[_encoded[3]] : "unspecified"}, '
-        'fontStyle: ${_encoded[0] & 0x010 == 0x010 ? FontStyle.values[_encoded[4]] : "unspecified"}, '
-        'maxLines: ${_encoded[0] & 0x020 == 0x020 ? _encoded[5] : "unspecified"}, '
-        'fontFamily: ${_encoded[0] & 0x040 == 0x040 ? _fontFamily : "unspecified"}, '
-        'fontSize: ${_encoded[0] & 0x080 == 0x080 ? _fontSize : "unspecified"}, '
-        'height: ${_encoded[0] & 0x100 == 0x100 ? "${_height}x" : "unspecified"}, '
-        'ellipsis: ${_encoded[0] & 0x200 == 0x200 ? "\"$_ellipsis\"" : "unspecified"}, '
-        'locale: ${_encoded[0] & 0x400 == 0x400 ? _locale : "unspecified"}'
+        'textAlign: ${() {
+      if (_encoded[0] & 0x002 == 0x002) {
+        return TextAlign.values[_encoded[1]];
+      } else {
+        return "unspecified";
+      }
+    }()}, '
+        'textDirection: ${() {
+      if (_encoded[0] & 0x004 == 0x004) {
+        return TextDirection.values[_encoded[2]];
+      } else {
+        return "unspecified";
+      }
+    }()}, '
+        'fontWeight: ${() {
+      if (_encoded[0] & 0x008 == 0x008) {
+        return FontWeight.values[_encoded[3]];
+      } else {
+        return "unspecified";
+      }
+    }()}, '
+        'fontStyle: ${() {
+      if (_encoded[0] & 0x010 == 0x010) {
+        return FontStyle.values[_encoded[4]];
+      } else {
+        return "unspecified";
+      }
+    }()}, '
+        'maxLines: ${() {
+      if (_encoded[0] & 0x020 == 0x020) {
+        return _encoded[5];
+      } else {
+        return "unspecified";
+      }
+    }()}, '
+        'fontFamily: ${() {
+      if (_encoded[0] & 0x040 == 0x040) {
+        return _fontFamily;
+      } else {
+        return "unspecified";
+      }
+    }()}, '
+        'fontSize: ${() {
+      if (_encoded[0] & 0x080 == 0x080) {
+        return _fontSize;
+      } else {
+        return "unspecified";
+      }
+    }()}, '
+        'height: ${() {
+      if (_encoded[0] & 0x100 == 0x100) {
+        return "${_height}x";
+      } else {
+        return "unspecified";
+      }
+    }()}, '
+        'ellipsis: ${() {
+      if (_encoded[0] & 0x200 == 0x200) {
+        return "\"$_ellipsis\"";
+      } else {
+        return "unspecified";
+      }
+    }()}, '
+        'locale: ${() {
+      if (_encoded[0] & 0x400 == 0x400) {
+        return _locale;
+      } else {
+        return "unspecified";
+      }
+    }()}'
         ')';
   }
 }
@@ -937,16 +1055,26 @@ class StrutStyle {
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
-    if (other.runtimeType != runtimeType) return false;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
     if (other is StrutStyle) {
-      if (_fontFamily != other._fontFamily) return false;
+      if (_fontFamily != other._fontFamily) {
+        return false;
+      }
       final Int8List encodedList = _encoded.buffer.asInt8List();
       final Int8List otherEncodedList = other._encoded.buffer.asInt8List();
       for (int index = 0; index < _encoded.lengthInBytes; index += 1) {
-        if (encodedList[index] != otherEncodedList[index]) return false;
+        if (encodedList[index] != otherEncodedList[index]) {
+          return false;
+        }
       }
-      if (!_listEquals<String>(_fontFamilyFallback, other._fontFamilyFallback)) return false;
+      if (!_listEquals<String>(_fontFamilyFallback, other._fontFamilyFallback)) {
+        return false;
+      }
       return true;
     } else {
       return false;
@@ -1089,7 +1217,11 @@ class TextBox {
   ///
   ///  * [direction], which specifies the text direction.
   double get start {
-    return (direction == TextDirection.ltr) ? left : right;
+    if (direction == TextDirection.ltr) {
+      return left;
+    } else {
+      return right;
+    }
   }
 
   /// The [right] edge of the box for left-to-right text; the [left] edge of the box for right-to-left text.
@@ -1098,13 +1230,21 @@ class TextBox {
   ///
   ///  * [direction], which specifies the text direction.
   double get end {
-    return (direction == TextDirection.ltr) ? right : left;
+    if (direction == TextDirection.ltr) {
+      return right;
+    } else {
+      return left;
+    }
   }
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
-    if (other.runtimeType != runtimeType) return false;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
     return other is TextBox &&
         other.left == left &&
         other.top == top &&
@@ -1213,7 +1353,9 @@ class TextPosition {
 
   @override
   bool operator ==(dynamic other) {
-    if (other.runtimeType != runtimeType) return false;
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
     return other is TextPosition && other.offset == offset && other.affinity == affinity;
   }
 
@@ -1297,8 +1439,12 @@ class TextRange {
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
-    if (other is! TextRange) return false;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other is! TextRange) {
+      return false;
+    }
     return other is TextRange && other.start == start && other.end == end;
   }
 

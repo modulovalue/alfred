@@ -81,9 +81,15 @@ class BorderSide {
     assert(canMerge(a, b), "The given BorderSides must be mergeable.");
     final bool aIsNone = a.style == BorderStyle.none && a.width == 0.0;
     final bool bIsNone = b.style == BorderStyle.none && b.width == 0.0;
-    if (aIsNone && bIsNone) return BorderSide.none;
-    if (aIsNone) return b;
-    if (bIsNone) return a;
+    if (aIsNone && bIsNone) {
+      return BorderSide.none;
+    }
+    if (aIsNone) {
+      return b;
+    }
+    if (bIsNone) {
+      return a;
+    }
     assert(a.color == b.color, "The given colors must be equal.");
     assert(a.style == b.style, "The given styles must be equal.");
     return BorderSide(
@@ -148,7 +154,13 @@ class BorderSide {
     return BorderSide(
       color: color,
       width: math.max(0.0, width * t),
-      style: t <= 0.0 ? BorderStyle.none : style,
+      style: () {
+        if (t <= 0.0) {
+          return BorderStyle.none;
+        } else {
+          return style;
+        }
+      }(),
     );
   }
 
@@ -160,7 +172,9 @@ class BorderSide {
   ///
   /// The arguments must not be null.
   static bool canMerge(BorderSide a, BorderSide b) {
-    if ((a.style == BorderStyle.none && a.width == 0.0) || (b.style == BorderStyle.none && b.width == 0.0)) return true;
+    if ((a.style == BorderStyle.none && a.width == 0.0) || (b.style == BorderStyle.none && b.width == 0.0)) {
+      return true;
+    }
     return a.style == b.style && a.color == b.color;
   }
 
@@ -170,10 +184,16 @@ class BorderSide {
   ///
   /// {@macro dart.ui.shadow.lerp}
   static BorderSide lerp(BorderSide a, BorderSide b, double t) {
-    if (t == 0.0) return a;
-    if (t == 1.0) return b;
+    if (t == 0.0) {
+      return a;
+    }
+    if (t == 1.0) {
+      return b;
+    }
     final width = lerpDouble(a.width, b.width, t);
-    if (width < 0.0) return BorderSide.none;
+    if (width < 0.0) {
+      return BorderSide.none;
+    }
     if (a.style == b.style) {
       return BorderSide(
         color: Color.lerp(a.color, b.color, t)!,
@@ -207,8 +227,12 @@ class BorderSide {
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
-    if (runtimeType != other.runtimeType) return false;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (runtimeType != other.runtimeType) {
+      return false;
+    }
     return other is BorderSide && color == other.color && width == other.width && style == other.style;
   }
 
@@ -327,7 +351,9 @@ abstract class ShapeBorder {
   ///
   /// Instead of calling this directly, use [ShapeBorder.lerp].
   ShapeBorder? lerpFrom(ShapeBorder? a, double t) {
-    if (a == null) return scale(t);
+    if (a == null) {
+      return scale(t);
+    }
     return null;
   }
 
@@ -357,7 +383,9 @@ abstract class ShapeBorder {
   ///
   /// Instead of calling this directly, use [ShapeBorder.lerp].
   ShapeBorder? lerpTo(ShapeBorder? b, double t) {
-    if (b == null) return scale(1.0 - t);
+    if (b == null) {
+      return scale(1.0 - t);
+    }
     return null;
   }
 
@@ -371,9 +399,20 @@ abstract class ShapeBorder {
   /// {@macro dart.ui.shadow.lerp}
   static ShapeBorder? lerp(ShapeBorder? a, ShapeBorder? b, double t) {
     ShapeBorder? result;
-    if (b != null) result = b.lerpFrom(a, t);
-    if (result == null && a != null) result = a.lerpTo(b, t);
-    return result ?? (t < 0.5 ? a : b);
+    if (b != null) {
+      result = b.lerpFrom(a, t);
+    }
+    if (result == null && a != null) {
+      result = a.lerpTo(b, t);
+    }
+    return result ??
+        (() {
+          if (t < 0.5) {
+            return a;
+          } else {
+            return b;
+          }
+        }());
   }
 
   @override
@@ -413,11 +452,23 @@ class _CompoundBorder extends ShapeBorder {
       // Here, "ours" is the border at the side where we're adding the new
       // border, and "merged" is the result of attempting to merge it with the
       // new border. If it's null, it couldn't be merged.
-      final ShapeBorder ours = reversed ? borders.last : borders.first;
+      final ShapeBorder ours = () {
+        if (reversed) {
+          return borders.last;
+        } else {
+          return borders.first;
+        }
+      }();
       final ShapeBorder? merged = ours.add(other, reversed: reversed) ?? other.add(ours, reversed: !reversed);
       if (merged != null) {
         final List<ShapeBorder> result = <ShapeBorder>[...borders];
-        result[reversed ? result.length - 1 : 0] = merged;
+        result[() {
+          if (reversed) {
+            return result.length - 1;
+          } else {
+            return 0;
+          }
+        }()] = merged;
         return _CompoundBorder(result);
       }
     }
@@ -446,14 +497,39 @@ class _CompoundBorder extends ShapeBorder {
   }
 
   static _CompoundBorder lerp(ShapeBorder? a, ShapeBorder? b, double t) {
-    assert(a is _CompoundBorder || b is _CompoundBorder, "Either a or b must be a compound border."); // Not really necessary, but all call sites currently intend this.
-    final List<ShapeBorder> aList = a is _CompoundBorder ? a.borders : <ShapeBorder>[a!];
-    final List<ShapeBorder> bList = b is _CompoundBorder ? b.borders : <ShapeBorder>[b!];
+    assert(a is _CompoundBorder || b is _CompoundBorder,
+        "Either a or b must be a compound border."); // Not really necessary, but all call sites currently intend this.
+    final List<ShapeBorder> aList = () {
+      if (a is _CompoundBorder) {
+        return a.borders;
+      } else {
+        return <ShapeBorder>[a!];
+      }
+    }();
+    final List<ShapeBorder> bList = () {
+      if (b is _CompoundBorder) {
+        return b.borders;
+      } else {
+        return <ShapeBorder>[b!];
+      }
+    }();
     final List<ShapeBorder> results = <ShapeBorder>[];
     final int length = math.max(aList.length, bList.length);
     for (int index = 0; index < length; index += 1) {
-      final localA = index < aList.length ? aList[index] : null;
-      final localB = index < bList.length ? bList[index] : null;
+      final localA = () {
+        if (index < aList.length) {
+          return aList[index];
+        } else {
+          return null;
+        }
+      }();
+      final localB = () {
+        if (index < bList.length) {
+          return bList[index];
+        } else {
+          return null;
+        }
+      }();
       if (localA != null && localB != null) {
         final localResult = localA.lerpTo(localB, t) ?? localB.lerpFrom(localA, t);
         if (localResult != null) {
@@ -465,21 +541,33 @@ class _CompoundBorder extends ShapeBorder {
       // is inserted before the shape that is going away, so that the outer path changes to
       // the new border earlier rather than later. (This affects, among other things, where
       // the ShapeDecoration class puts its background.)
-      if (localB != null) results.add(localB.scale(t));
-      if (localA != null) results.add(localA.scale(1.0 - t));
+      if (localB != null) {
+        results.add(localB.scale(t));
+      }
+      if (localA != null) {
+        results.add(localA.scale(1.0 - t));
+      }
     }
     return _CompoundBorder(results);
   }
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
+    if (identical(this, other)) {
+      return true;
+    }
     if (other is _CompoundBorder) {
       final typedOther = other;
-      if (borders == typedOther.borders) return true;
-      if (borders.length != typedOther.borders.length) return false;
+      if (borders == typedOther.borders) {
+        return true;
+      }
+      if (borders.length != typedOther.borders.length) {
+        return false;
+      }
       for (int index = 0; index < borders.length; index += 1) {
-        if (borders[index] != typedOther.borders[index]) return false;
+        if (borders[index] != typedOther.borders[index]) {
+          return false;
+        }
       }
       return true;
     } else {

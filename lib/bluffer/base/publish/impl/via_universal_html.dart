@@ -220,7 +220,9 @@ class HtmlElementToUniversalVisitorImpl implements HtmlElementVisitorOneArg<html
     final void arg,
   ) {
     final element = html.LinkElement();
-    if (node.rel != null) element.rel = node.rel!;
+    if (node.rel != null) {
+      element.rel = node.rel!;
+    }
     element.href = node.href;
     return passOnHtmlElementValues(node, element);
   }

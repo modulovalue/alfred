@@ -37,7 +37,9 @@ class Localizations extends StatelessWidget {
     final bool nullOk = false,
   }) {
     final scope = context.dependOnInheritedWidgetOfExactType<_LocalizationsScope>();
-    if (nullOk && scope == null) return null;
+    if (nullOk && scope == null) {
+      return null;
+    }
     assert(scope != null, 'a Localizations ancestor was not found');
     return scope!.locale;
   }

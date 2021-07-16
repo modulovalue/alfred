@@ -189,11 +189,21 @@ abstract class EdgeInsetsGeometry {
   ///
   /// {@macro dart.ui.shadow.lerp}
   static EdgeInsetsGeometry? lerp(EdgeInsetsGeometry? a, EdgeInsetsGeometry? b, double t) {
-    if (a == null && b == null) return null;
-    if (a == null) return b! * t;
-    if (b == null) return a * (1.0 - t);
-    if (a is EdgeInsets && b is EdgeInsets) return EdgeInsets.lerp(a, b, t);
-    if (a is EdgeInsetsDirectional && b is EdgeInsetsDirectional) return EdgeInsetsDirectional.lerp(a, b, t);
+    if (a == null && b == null) {
+      return null;
+    }
+    if (a == null) {
+      return b! * t;
+    }
+    if (b == null) {
+      return a * (1.0 - t);
+    }
+    if (a is EdgeInsets && b is EdgeInsets) {
+      return EdgeInsets.lerp(a, b, t);
+    }
+    if (a is EdgeInsetsDirectional && b is EdgeInsetsDirectional) {
+      return EdgeInsetsDirectional.lerp(a, b, t);
+    }
     return _MixedEdgeInsets.fromLRSETB(
       lerpDouble(a._left, b._left, t),
       lerpDouble(a._right, b._right, t),
@@ -218,8 +228,12 @@ abstract class EdgeInsetsGeometry {
   @override
   String toString() {
     if (_start == 0.0 && _end == 0.0) {
-      if (_left == 0.0 && _right == 0.0 && _top == 0.0 && _bottom == 0.0) return 'EdgeInsets.zero';
-      if (_left == _right && _right == _top && _top == _bottom) return 'EdgeInsets.all(${_left.toStringAsFixed(1)})';
+      if (_left == 0.0 && _right == 0.0 && _top == 0.0 && _bottom == 0.0) {
+        return 'EdgeInsets.zero';
+      }
+      if (_left == _right && _right == _top && _top == _bottom) {
+        return 'EdgeInsets.all(${_left.toStringAsFixed(1)})';
+      }
       return 'EdgeInsets(${_left.toStringAsFixed(1)}, '
           '${_top.toStringAsFixed(1)}, '
           '${_right.toStringAsFixed(1)}, '
@@ -244,7 +258,9 @@ abstract class EdgeInsetsGeometry {
 
   @override
   bool operator ==(dynamic other) {
-    if (other is! EdgeInsetsGeometry) return false;
+    if (other is! EdgeInsetsGeometry) {
+      return false;
+    }
     return other is EdgeInsetsGeometry &&
         _left == other._left &&
         _right == other._right &&
@@ -444,13 +460,17 @@ class EdgeInsets extends EdgeInsetsGeometry {
 
   @override
   EdgeInsetsGeometry subtract(EdgeInsetsGeometry other) {
-    if (other is EdgeInsets) return this - other;
+    if (other is EdgeInsets) {
+      return this - other;
+    }
     return super.subtract(other);
   }
 
   @override
   EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
-    if (other is EdgeInsets) return this + other;
+    if (other is EdgeInsets) {
+      return this + other;
+    }
     return super.add(other);
   }
 
@@ -537,9 +557,15 @@ class EdgeInsets extends EdgeInsetsGeometry {
   ///
   /// {@macro dart.ui.shadow.lerp}
   static EdgeInsets? lerp(EdgeInsets? a, EdgeInsets? b, double t) {
-    if (a == null && b == null) return null;
-    if (a == null) return b! * t;
-    if (b == null) return a * (1.0 - t);
+    if (a == null && b == null) {
+      return null;
+    }
+    if (a == null) {
+      return b! * t;
+    }
+    if (b == null) {
+      return a * (1.0 - t);
+    }
     return EdgeInsets.fromLTRB(
       lerpDouble(a.left, b.left, t),
       lerpDouble(a.top, b.top, t),
@@ -659,13 +685,17 @@ class EdgeInsetsDirectional extends EdgeInsetsGeometry {
 
   @override
   EdgeInsetsGeometry subtract(EdgeInsetsGeometry other) {
-    if (other is EdgeInsetsDirectional) return this - other;
+    if (other is EdgeInsetsDirectional) {
+      return this - other;
+    }
     return super.subtract(other);
   }
 
   @override
   EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
-    if (other is EdgeInsetsDirectional) return this + other;
+    if (other is EdgeInsetsDirectional) {
+      return this + other;
+    }
     return super.add(other);
   }
 
@@ -756,9 +786,15 @@ class EdgeInsetsDirectional extends EdgeInsetsGeometry {
   ///
   /// {@macro dart.ui.shadow.lerp}
   static EdgeInsetsDirectional? lerp(EdgeInsetsDirectional? a, EdgeInsetsDirectional? b, double t) {
-    if (a == null && b == null) return null;
-    if (a == null) return b! * t;
-    if (b == null) return a * (1.0 - t);
+    if (a == null && b == null) {
+      return null;
+    }
+    if (a == null) {
+      return b! * t;
+    }
+    if (b == null) {
+      return a * (1.0 - t);
+    }
     return EdgeInsetsDirectional.fromSTEB(
       lerpDouble(a.start, b.start, t),
       lerpDouble(a.top, b.top, t),

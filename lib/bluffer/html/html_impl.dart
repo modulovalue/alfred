@@ -166,6 +166,7 @@ class CssTextElement2Impl implements CssTextElement2 {
       v.visitEntityNode(this, a);
 }
 
+// Makes this immutable.
 class ScriptElement2Impl with HtmlElementMixin2 implements ScriptElement2 {
   @override
   bool? async;

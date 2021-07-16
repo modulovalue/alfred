@@ -61,6 +61,6 @@ abstract class HttpRoute {
 
   BuiltinMethod get method;
 
-  /// Returns `true` if route can match multiple routes due to usage of wildcards (`*`)
+  /// Returns `true` if route can match multiple routes due to usage of wildcards (`*`).
   bool get usesWildcardMatcher;
 }

@@ -165,8 +165,12 @@ class BoxDecoration {
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
-    if (runtimeType != other.runtimeType) return false;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (runtimeType != other.runtimeType) {
+      return false;
+    }
     return other is BoxDecoration && color == other.color &&
         image == other.image &&
         border == other.border &&

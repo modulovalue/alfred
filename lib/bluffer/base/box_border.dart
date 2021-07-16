@@ -336,13 +336,17 @@ class Border extends BoxBorder {
 
   @override
   ShapeBorder? lerpFrom(ShapeBorder? a, double t) {
-    if (a is Border) return Border.lerp(a, this, t);
+    if (a is Border) {
+      return Border.lerp(a, this, t);
+    }
     return super.lerpFrom(a, t);
   }
 
   @override
   ShapeBorder? lerpTo(ShapeBorder? b, double t) {
-    if (b is Border) return Border.lerp(this, b, t);
+    if (b is Border) {
+      return Border.lerp(this, b, t);
+    }
     return super.lerpTo(b, t);
   }
 
@@ -353,9 +357,15 @@ class Border extends BoxBorder {
   ///
   /// {@macro dart.ui.shadow.lerp}
   static Border? lerp(Border? a, Border? b, double t) {
-    if (a == null && b == null) return null;
-    if (a == null) return b!.scale(t);
-    if (b == null) return a.scale(1.0 - t);
+    if (a == null && b == null) {
+      return null;
+    }
+    if (a == null) {
+      return b!.scale(t);
+    }
+    if (b == null) {
+      return a.scale(1.0 - t);
+    }
     return Border(
       top: BorderSide.lerp(a.top, b.top, t),
       right: BorderSide.lerp(a.right, b.right, t),
@@ -366,8 +376,12 @@ class Border extends BoxBorder {
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
-    if (runtimeType != other.runtimeType) return false;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (runtimeType != other.runtimeType) {
+      return false;
+    }
     return other is Border && top == other.top && right == other.right && bottom == other.bottom && left == other.left;
   }
 
@@ -376,7 +390,9 @@ class Border extends BoxBorder {
 
   @override
   String toString() {
-    if (isUniform) return '$runtimeType.all($top)';
+    if (isUniform) {
+      return '$runtimeType.all($top)';
+    }
     final List<String> arguments = <String>[
       if (top != BorderSide.none) 'top: $top',
       if (right != BorderSide.none) 'right: $right',
@@ -509,9 +525,13 @@ class BorderDirectional extends BoxBorder {
     }
     if (other is Border) {
       final Border typedOther = other;
-      if (!BorderSide.canMerge(typedOther.top, top) || !BorderSide.canMerge(typedOther.bottom, bottom)) return null;
+      if (!BorderSide.canMerge(typedOther.top, top) || !BorderSide.canMerge(typedOther.bottom, bottom)) {
+        return null;
+      }
       if (start != BorderSide.none || end != BorderSide.none) {
-        if (typedOther.left != BorderSide.none || typedOther.right != BorderSide.none) return null;
+        if (typedOther.left != BorderSide.none || typedOther.right != BorderSide.none) {
+          return null;
+        }
         assert(typedOther.left == BorderSide.none, "The given left border can't be none");
         assert(typedOther.right == BorderSide.none, "The given right border can't be none");
         return BorderDirectional(
@@ -545,13 +565,17 @@ class BorderDirectional extends BoxBorder {
 
   @override
   ShapeBorder? lerpFrom(ShapeBorder? a, double t) {
-    if (a is BorderDirectional) return BorderDirectional.lerp(a, this, t);
+    if (a is BorderDirectional) {
+      return BorderDirectional.lerp(a, this, t);
+    }
     return super.lerpFrom(a, t);
   }
 
   @override
   ShapeBorder? lerpTo(ShapeBorder? b, double t) {
-    if (b is BorderDirectional) return BorderDirectional.lerp(this, b, t);
+    if (b is BorderDirectional) {
+      return BorderDirectional.lerp(this, b, t);
+    }
     return super.lerpTo(b, t);
   }
 
@@ -562,9 +586,15 @@ class BorderDirectional extends BoxBorder {
   ///
   /// {@macro dart.ui.shadow.lerp}
   static BorderDirectional? lerp(BorderDirectional? a, BorderDirectional? b, double t) {
-    if (a == null && b == null) return null;
-    if (a == null) return b!.scale(t);
-    if (b == null) return a.scale(1.0 - t);
+    if (a == null && b == null) {
+      return null;
+    }
+    if (a == null) {
+      return b!.scale(t);
+    }
+    if (b == null) {
+      return a.scale(1.0 - t);
+    }
     return BorderDirectional(
       top: BorderSide.lerp(a.top, b.top, t),
       end: BorderSide.lerp(a.end, b.end, t),
@@ -575,8 +605,12 @@ class BorderDirectional extends BoxBorder {
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
-    if (runtimeType != other.runtimeType) return false;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (runtimeType != other.runtimeType) {
+      return false;
+    }
     return other is BorderDirectional && top == other.top && start == other.start && end == other.end && bottom == other.bottom;
   }
 

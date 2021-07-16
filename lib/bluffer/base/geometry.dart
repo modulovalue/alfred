@@ -315,9 +315,15 @@ class Offset extends OffsetBase {
   /// Values for `t` are usually obtained from an [Animation<double>], such as
   /// an AnimationController.
   static Offset? lerp(Offset? a, Offset? b, double t) {
-    if (a == null && b == null) return null;
-    if (a == null) return b! * t;
-    if (b == null) return a * (1.0 - t);
+    if (a == null && b == null) {
+      return null;
+    }
+    if (a == null) {
+      return b! * t;
+    }
+    if (b == null) {
+      return a * (1.0 - t);
+    }
     return Offset(lerpDouble(a.dx, b.dx, t), lerpDouble(a.dy, b.dy, t));
   }
 
@@ -389,9 +395,15 @@ class Size extends OffsetBase {
   ///  * FittedBox, a widget that (in most modes) attempts to maintain a
   ///    child widget's aspect ratio while changing its size.
   double get aspectRatio {
-    if (height != 0.0) return width / height;
-    if (width > 0.0) return double.infinity;
-    if (width < 0.0) return double.negativeInfinity;
+    if (height != 0.0) {
+      return width / height;
+    }
+    if (width > 0.0) {
+      return double.infinity;
+    }
+    if (width < 0.0) {
+      return double.negativeInfinity;
+    }
     return 0.0;
   }
 
@@ -428,8 +440,12 @@ class Size extends OffsetBase {
   /// left-hand-side operand minus the [Offset.dy] dimension of the
   /// right-hand-side operand.
   OffsetBase operator -(OffsetBase other) {
-    if (other is Size) return Offset(width - other.width, height - other.height);
-    if (other is Offset) return Size(width - other.dx, height - other.dy);
+    if (other is Size) {
+      return Offset(width - other.width, height - other.height);
+    }
+    if (other is Offset) {
+      return Size(width - other.dx, height - other.dy);
+    }
     throw ArgumentError(other);
   }
 
@@ -568,9 +584,15 @@ class Size extends OffsetBase {
   /// Values for `t` are usually obtained from an [Animation<double>], such as
   /// an AnimationController.
   static Size? lerp(Size? a, Size? b, double t) {
-    if (a == null && b == null) return null;
-    if (a == null) return b! * t;
-    if (b == null) return a * (1.0 - t);
+    if (a == null && b == null) {
+      return null;
+    }
+    if (a == null) {
+      return b! * t;
+    }
+    if (b == null) {
+      return a * (1.0 - t);
+    }
     return Size(lerpDouble(a.width, b.width, t), lerpDouble(a.height, b.height, t));
   }
 
@@ -738,8 +760,12 @@ class Rect {
 
   /// Whether `other` has a nonzero area of overlap with this rectangle.
   bool overlaps(Rect other) {
-    if (right <= other.left || other.right <= left) return false;
-    if (bottom <= other.top || other.bottom <= top) return false;
+    if (right <= other.left || other.right <= left) {
+      return false;
+    }
+    if (bottom <= other.top || other.bottom <= top) {
+      return false;
+    }
     return true;
   }
 
@@ -823,8 +849,12 @@ class Rect {
   /// Values for `t` are usually obtained from an [Animation<double>], such as
   /// an AnimationController.
   static Rect? lerp(Rect? a, Rect? b, double t) {
-    if (a == null && b == null) return null;
-    if (a == null) return Rect.fromLTRB(b!.left * t, b.top * t, b.right * t, b.bottom * t);
+    if (a == null && b == null) {
+      return null;
+    }
+    if (a == null) {
+      return Rect.fromLTRB(b!.left * t, b.top * t, b.right * t, b.bottom * t);
+    }
     if (b == null) {
       final double k = 1.0 - t;
       return Rect.fromLTRB(a.left * k, a.top * k, a.right * k, a.bottom * k);
@@ -839,7 +869,9 @@ class Rect {
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
+    if (identical(this, other)) {
+      return true;
+    }
     return other is Rect && left == other.left && top == other.top && right == other.right && bottom == other.bottom;
   }
 
@@ -938,8 +970,12 @@ class Radius {
   /// Values for `t` are usually obtained from an [Animation<double>], such as
   /// an AnimationController.
   static Radius? lerp(Radius? a, Radius? b, double t) {
-    if (a == null && b == null) return null;
-    if (a == null) return Radius.elliptical(b!.x * t, b.y * t);
+    if (a == null && b == null) {
+      return null;
+    }
+    if (a == null) {
+      return Radius.elliptical(b!.x * t, b.y * t);
+    }
     if (b == null) {
       final double k = 1.0 - t;
       return Radius.elliptical(a.x * k, a.y * k);
@@ -952,8 +988,12 @@ class Radius {
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
-    if (runtimeType != other.runtimeType) return false;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (runtimeType != other.runtimeType) {
+      return false;
+    }
     return other is Radius && other.x == x && other.y == y;
   }
 
@@ -962,10 +1002,11 @@ class Radius {
 
   @override
   String toString() {
-    return x == y
-        ? 'Radius.circular(${x.toStringAsFixed(1)})'
-        : 'Radius.elliptical(${x.toStringAsFixed(1)}, '
-            '${y.toStringAsFixed(1)})';
+    if (x == y) {
+      return 'Radius.circular(${x.toStringAsFixed(1)})';
+    } else {
+      return 'Radius.elliptical(${x.toStringAsFixed(1)}, ${y.toStringAsFixed(1)})';
+    }
   }
 }
 
@@ -973,8 +1014,14 @@ class Radius {
 class RRect {
   /// Construct a rounded rectangle from its left, top, right, and bottom edges,
   /// and the same radii along its horizontal axis and its vertical axis.
-  const RRect.fromLTRBXY(double left, double top, double right, double bottom, double radiusX, double radiusY)
-      : this._raw(
+  const RRect.fromLTRBXY(
+    double left,
+    double top,
+    double right,
+    double bottom,
+    double radiusX,
+    double radiusY,
+  ) : this._raw(
           top: top,
           left: left,
           right: right,
@@ -991,8 +1038,13 @@ class RRect {
 
   /// Construct a rounded rectangle from its left, top, right, and bottom edges,
   /// and the same radius in each corner.
-  RRect.fromLTRBR(double left, double top, double right, double bottom, Radius radius)
-      : this._raw(
+  RRect.fromLTRBR(
+    double left,
+    double top,
+    double right,
+    double bottom,
+    Radius radius,
+  ) : this._raw(
           top: top,
           left: left,
           right: right,
@@ -1009,8 +1061,11 @@ class RRect {
 
   /// Construct a rounded rectangle from its bounding box and the same radii
   /// along its horizontal axis and its vertical axis.
-  RRect.fromRectXY(Rect rect, double radiusX, double radiusY)
-      : this._raw(
+  RRect.fromRectXY(
+    Rect rect,
+    double radiusX,
+    double radiusY,
+  ) : this._raw(
           top: rect.top,
           left: rect.left,
           right: rect.right,
@@ -1315,7 +1370,9 @@ class RRect {
   // should be scaled with in order not to exceed the limit.
   double _getMin(double min, double radius1, double radius2, double limit) {
     final double sum = radius1 + radius2;
-    if (sum > limit && sum != 0.0) return math.min(min, limit / sum);
+    if (sum > limit && sum != 0.0) {
+      return math.min(min, limit / sum);
+    }
     return min;
   }
 
@@ -1411,7 +1468,9 @@ class RRect {
       x = x / radiusX;
       y = y / radiusY;
       // check if the point is outside the unit circle
-      if (x * x + y * y > 1.0) return false;
+      if (x * x + y * y > 1.0) {
+        return false;
+      }
       return true;
     }
   }
@@ -1432,7 +1491,9 @@ class RRect {
   /// Values for `t` are usually obtained from an [Animation<double>], such as
   /// an AnimationController.
   static RRect? lerp(RRect? a, RRect? b, double t) {
-    if (a == null && b == null) return null;
+    if (a == null && b == null) {
+      return null;
+    }
     if (a == null) {
       return RRect._raw(
         left: b!.left * t,
@@ -1484,7 +1545,9 @@ class RRect {
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
+    if (identical(this, other)) {
+      return true;
+    }
     return other is RRect &&
         left == other.left &&
         top == other.top &&
@@ -1511,7 +1574,9 @@ class RRect {
         '${right.toStringAsFixed(1)}, '
         '${bottom.toStringAsFixed(1)}';
     if (tlRadius == trRadius && trRadius == brRadius && brRadius == blRadius) {
-      if (tlRadius.x == tlRadius.y) return 'RRect.fromLTRBR($rect, ${tlRadius.x.toStringAsFixed(1)})';
+      if (tlRadius.x == tlRadius.y) {
+        return 'RRect.fromLTRBR($rect, ${tlRadius.x.toStringAsFixed(1)})';
+      }
       return 'RRect.fromLTRBXY($rect, ${tlRadius.x.toStringAsFixed(1)}, ${tlRadius.y.toStringAsFixed(1)})';
     }
     return 'RRect.fromLTRBAndCorners('

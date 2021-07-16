@@ -87,7 +87,13 @@ class Flex implements Widget {
   ) =>
       CssStyleDeclaration2Impl(
         css_display: 'flex',
-        css_flexDirection: direction == Axis.horizontal ? 'row' : 'column',
+        css_flexDirection: () {
+          if (direction == Axis.horizontal) {
+            return 'row';
+          } else {
+            return 'column';
+          }
+        }(),
         css_justifyContent: () {
           switch (mainAxisSize) {
             case MainAxisSize.max:

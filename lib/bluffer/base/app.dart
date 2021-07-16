@@ -89,6 +89,7 @@ class ApplicationWidget<ROUTE extends WidgetRoute> implements Widget {
       HtmlHtmlElement2Impl.make([
         HeadElement2Impl.make(
           [
+            // TODO have a meta subclass that already has those attributes.
             MetaElement2Impl()
               ..setAttribute('charset', 'UTF-8')
               ..setAttribute('name', 'viewport')
@@ -115,7 +116,13 @@ class ApplicationWidget<ROUTE extends WidgetRoute> implements Widget {
                   child: Builder(
                     builder: (context) => Theme(
                       data: theme?.call(context),
-                      child: builder != null ? builder!(context, route) : route.build(context),
+                      child: () {
+                        if (builder != null) {
+                          return builder!(context, route);
+                        } else {
+                          return route.build(context);
+                        }
+                      }(),
                     ),
                   ),
                 ).render(context)
@@ -228,9 +235,21 @@ String mediaClassForMediaSize(
   final index = all.indexOf(size);
   assert(index != -1, "The given size $size was not in $all");
   return [
-    '@media all and ${'(min-width: ${Breakpoint.defaultBreakpointSize(size)}px)'}${index + 1 >= all.length ? "" : " and (max-width: ${Breakpoint.defaultBreakpointSize(all[index + 1]) - 1}px)"} {',
+    '@media all and ${'(min-width: ${Breakpoint.defaultBreakpointSize(size)}px)'}${() {
+      if (index + 1 >= all.length) {
+        return "";
+      } else {
+        return " and (max-width: ${Breakpoint.defaultBreakpointSize(all[index + 1]) - 1}px)";
+      }
+    }()} {',
     for (final current in all) //
-      '  .size${current.index} { display: ${size == current ? "block" : "none"}; }',
+      '  .size${current.index} { display: ${() {
+        if (size == current) {
+          return "block";
+        } else {
+          return "none";
+        }
+      }()}; }',
     '} \n',
   ].join("\n");
 }

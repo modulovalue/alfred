@@ -54,8 +54,12 @@ class DecorationImage {
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
-    if (runtimeType != other.runtimeType) return false;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (runtimeType != other.runtimeType) {
+      return false;
+    }
     return other is DecorationImage &&
         image == other.image &&
         fit == other.fit &&

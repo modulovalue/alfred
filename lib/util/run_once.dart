@@ -17,6 +17,7 @@ class RunOnce<T> {
       firstTime = false;
     }
   }
+
   /// Runs [every] on every call to [every].
   Future<void> every({
     required final Future<T> Function(T? last) every,

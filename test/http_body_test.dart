@@ -104,7 +104,9 @@ void _testHttpServerRequestBody() {
   }) async {
     final server = await HttpServer.bind('localhost', 0);
     server.transform(HttpBodyHandlerImpl(defaultEncoding)).listen((body) {
-      if (shouldFail) return;
+      if (shouldFail) {
+        return;
+      }
       expect(shouldFail, isFalse);
       expect(body.type, equals(type));
       switch (type) {
@@ -149,7 +151,9 @@ void _testHttpServerRequestBody() {
       body.request.response.close();
     }, onError: (Object error) {
       // ignore: only_throw_errors
-      if (!shouldFail) throw error;
+      if (!shouldFail) {
+        throw error;
+      }
     });
     final client = HttpClient();
     try {
@@ -165,7 +169,9 @@ void _testHttpServerRequestBody() {
       return response.drain();
       // ignore: avoid_catches_without_on_clauses
     } catch (_) {
-      if (!shouldFail) rethrow;
+      if (!shouldFail) {
+        rethrow;
+      }
     } finally {
       client.close();
       await server.close();
