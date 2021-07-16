@@ -36,11 +36,11 @@ void main() {
 
 void _testHttpClientResponseBody() {
   Future<void> check(
-    String mimeType,
-    List<int> content,
-    dynamic expectedBody,
-    String type, [
-    bool shouldFail = false,
+    final String mimeType,
+    final List<int> content,
+    final dynamic expectedBody,
+    final String type, [
+    final bool shouldFail = false,
   ]) async {
     final server = await HttpServer.bind('localhost', 0);
     server.listen(
@@ -103,58 +103,61 @@ void _testHttpServerRequestBody() {
     final Encoding defaultEncoding = utf8,
   }) async {
     final server = await HttpServer.bind('localhost', 0);
-    server.transform(HttpBodyHandlerImpl(defaultEncoding)).listen((body) {
-      if (shouldFail) {
-        return;
-      }
-      expect(shouldFail, isFalse);
-      expect(body.type, equals(type));
-      switch (type) {
-        case 'text':
-          expect(body.request.headers.contentType!.mimeType, equals('text/plain'));
-          expect(body.body, equals(expectedBody));
-          break;
-        case 'json':
-          expect(body.request.headers.contentType!.mimeType, equals('application/json'));
-          expect(body.body, equals(expectedBody));
-          break;
-        case 'binary':
-          expect(body.request.headers.contentType, isNull);
-          expect(body.body, equals(expectedBody));
-          break;
-        case 'form':
-          final mimeType = body.request.headers.contentType!.mimeType;
-          expect(mimeType, anyOf(equals('multipart/form-data'), equals('application/x-www-form-urlencoded')));
-          // ignore: avoid_dynamic_calls
-          expect(body.body.keys.toSet(), equals(expectedBody.keys.toSet()));
-          // ignore: avoid_dynamic_calls
-          for (final key in expectedBody.keys) {
+    server.transform(HttpBodyHandlerImpl(defaultEncoding)).listen(
+      (final body) {
+        if (shouldFail) {
+          return;
+        }
+        expect(shouldFail, isFalse);
+        expect(body.type, equals(type));
+        switch (type) {
+          case 'text':
+            expect(body.request.headers.contentType!.mimeType, equals('text/plain'));
+            expect(body.body, equals(expectedBody));
+            break;
+          case 'json':
+            expect(body.request.headers.contentType!.mimeType, equals('application/json'));
+            expect(body.body, equals(expectedBody));
+            break;
+          case 'binary':
+            expect(body.request.headers.contentType, isNull);
+            expect(body.body, equals(expectedBody));
+            break;
+          case 'form':
+            final mimeType = body.request.headers.contentType!.mimeType;
+            expect(mimeType, anyOf(equals('multipart/form-data'), equals('application/x-www-form-urlencoded')));
             // ignore: avoid_dynamic_calls
-            final dynamic found = body.body[key];
+            expect(body.body.keys.toSet(), equals(expectedBody.keys.toSet()));
             // ignore: avoid_dynamic_calls
-            final dynamic expected = expectedBody[key];
-            if (found is HttpBodyFileUpload) {
+            for (final key in expectedBody.keys) {
               // ignore: avoid_dynamic_calls
-              expect(found.contentType.toString(), equals(expected['contentType']));
+              final dynamic found = body.body[key];
               // ignore: avoid_dynamic_calls
-              expect(found.filename, equals(expected['filename']));
-              // ignore: avoid_dynamic_calls
-              expect(found.content, equals(expected['content']));
-            } else {
-              expect(found, equals(expected));
+              final dynamic expected = expectedBody[key];
+              if (found is HttpBodyFileUpload) {
+                // ignore: avoid_dynamic_calls
+                expect(found.contentType.toString(), equals(expected['contentType']));
+                // ignore: avoid_dynamic_calls
+                expect(found.filename, equals(expected['filename']));
+                // ignore: avoid_dynamic_calls
+                expect(found.content, equals(expected['content']));
+              } else {
+                expect(found, equals(expected));
+              }
             }
-          }
-          break;
-        default:
-          throw StateError('bad body type');
-      }
-      body.request.response.close();
-    }, onError: (Object error) {
-      // ignore: only_throw_errors
-      if (!shouldFail) {
-        throw error;
-      }
-    });
+            break;
+          default:
+            throw StateError('bad body type');
+        }
+        body.request.response.close();
+      },
+      onError: (final Object error) {
+        if (!shouldFail) {
+          // ignore: only_throw_errors
+          throw error;
+        }
+      },
+    );
     final client = HttpClient();
     try {
       final request = await client.post('localhost', server.port, '/');
@@ -366,9 +369,14 @@ class FakeHttpHeaders implements HttpHeaders {
     final String name,
     final Object value,
   ) {
-    if (value is List) {
+    if (value is List<dynamic>) {
       for (var i = 0; i < value.length; i++) {
-        _add(name, value[i] as Object);
+        final dynamic val = value[i];
+        if (val is Object) {
+          _add(name, val);
+        } else {
+          throw Exception("Expected a value of type Object.");
+        }
       }
     } else {
       _add(name, value);

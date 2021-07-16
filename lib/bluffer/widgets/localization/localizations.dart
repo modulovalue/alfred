@@ -64,7 +64,12 @@ class Localizations extends StatelessWidget {
     final Type type,
   ) {
     final scope = context.dependOnInheritedWidgetOfExactType<_LocalizationsScope>();
-    return scope?.typeToResources[T] as T;
+    final dynamic value = scope?.typeToResources[T];
+    if (value is T) {
+      return value;
+    } else {
+      throw Exception("Expected value to be of type " + T.toString());
+    }
   }
 
   @override
@@ -73,7 +78,17 @@ class Localizations extends StatelessWidget {
   ) {
     final typeToResources = <Type, dynamic>{};
     for (final delegate in delegates) {
-      typeToResources[delegate.type] = waitFor(delegate.load(locale).then((dynamic a) => a as Type));
+      final loaded = delegate.load(locale);
+      final value = loaded.then(
+        (final dynamic a) {
+          if (a is Type) {
+            return a;
+          } else {
+            throw Exception("Expected " + a.toString() + " to be of type Type.");
+          }
+        },
+      );
+      typeToResources[delegate.type] = waitFor(value);
     }
     return _LocalizationsScope(
       child: child,

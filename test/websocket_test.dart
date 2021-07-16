@@ -26,14 +26,18 @@ void main() {
         alfred.get('/ws', WebSocketValueMiddleware(ws));
         final channel = IOWebSocketChannel.connect('ws://localhost:$port/ws');
         channel.sink.add('hi');
-        final response = await channel.stream.first as String;
-        expect(ws.opened, true);
-        expect(ws.closed, false);
-        expect(ws.message, 'hi');
-        expect(response, 'echo hi');
-        await channel.sink.close();
-        await Future<void>.delayed(const Duration(milliseconds: 10));
-        expect(ws.closed, true);
+        final dynamic response = await channel.stream.first;
+        if (response is String) {
+          expect(ws.opened, true);
+          expect(ws.closed, false);
+          expect(ws.message, 'hi');
+          expect(response, 'echo hi');
+          await channel.sink.close();
+          await Future<void>.delayed(const Duration(milliseconds: 10));
+          expect(ws.closed, true);
+        } else {
+          throw Exception("Invalid response " + response.toString());
+        }
       });
     });
   });
@@ -104,8 +108,12 @@ class WebSocketSessionTest1Impl with WebSocketSessionStartMixin {
     final WebSocket _,
     final dynamic data,
   ) {
-    message = data as String;
-    socket.add('echo $data');
+    if (data is String) {
+      message = data;
+      socket.add('echo ' + data);
+    } else {
+      throw Exception("Expected a String " + data.toString());
+    }
   }
 
   @override

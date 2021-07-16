@@ -189,7 +189,16 @@ Future<HttpBody<dynamic>> _process(
             final buffer = await multipart.fold<StringBuffer>(StringBuffer(), (b, dynamic s) => b..write(s));
             data = buffer.toString();
           } else {
-            final buffer = await multipart.fold<BytesBuilder>(BytesBuilder(), (b, dynamic d) => b..add(d as List<int>));
+            final buffer = await multipart.fold<BytesBuilder>(
+              BytesBuilder(),
+              (final b, final dynamic d) {
+                if (d is List<int>) {
+                  return b..add(d);
+                } else {
+                  throw Exception("Expected d to be a list of integers.");
+                }
+              },
+            );
             data = buffer.takeBytes();
           }
           final filename = multipart.contentDisposition.parameters['filename'];
@@ -203,11 +212,20 @@ Future<HttpBody<dynamic>> _process(
         },
       ).toList();
       final parts = await Future.wait<List<dynamic>>(values);
+      final body = <String, dynamic>{
+        for (final part in parts) //
+          () {
+            final dynamic firstPart = part[0];
+            if (firstPart is String) {
+              return firstPart;
+            } else {
+              throw Exception("Expected first part to be of type String.");
+            }
+          }(): part[1], // Override existing entries.
+      };
       return HttpBodyImpl._(
         'form',
-        <String, dynamic>{
-          for (final part in parts) part[0] as String: part[1], // Override existing entries.
-        },
+        body,
       );
     }
 
