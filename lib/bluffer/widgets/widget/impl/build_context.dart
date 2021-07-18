@@ -8,17 +8,20 @@ class BuildContextImpl implements BuildContext {
   static int lastKeyIndex = 0;
   final Map<Type, InheritedWidget> _inheritedWidgets = {};
   @override
-  final Map<String, CssStyleDeclaration2> styles;
+  final Map<String, CssStyleDeclaration> styles;
   @override
   final Assets assets;
 
   BuildContextImpl({
-    required this.assets,
-    Map<String, CssStyleDeclaration2>? styles,
-  }) : styles = styles ?? <String, CssStyleDeclaration2>{};
+    required final this.assets,
+    required final this.styles,
+  });
 
   @override
-  BuildContext withInherited(InheritedWidget widget) => BuildContextImpl(
+  BuildContext withInherited(
+    final InheritedWidget widget,
+  ) =>
+      BuildContextImpl(
         styles: styles,
         assets: assets,
       )
@@ -45,5 +48,9 @@ class BuildContextImpl implements BuildContext {
   }
 
   @override
-  void setStyle(String className, CssStyleDeclaration2 css) => styles[className] = css;
+  void setStyle(
+    final String className,
+    final CssStyleDeclaration css,
+  ) =>
+      styles[className] = css;
 }

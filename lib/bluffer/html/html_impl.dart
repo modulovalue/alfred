@@ -19,14 +19,14 @@ class BRElement2Impl with HtmlElementMixin2 implements BRElement2 {
 
   @override
   R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitorOneArg<R, A> v,
+    final HtmlElementVisitor<R, A> v,
     final A a,
   ) =>
       v.visitElementBr(this, a);
 
   @override
   R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitorOneArg<R, A> v,
+    final HtmlEntityVisitor<R, A> v,
     final A a,
   ) =>
       v.visitEntityElement(this, a);
@@ -45,14 +45,14 @@ class HtmlHtmlElement2Impl with HtmlElementMixin2 implements HtmlHtmlElement2 {
 
   @override
   R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitorOneArg<R, A> v,
+    final HtmlElementVisitor<R, A> v,
     final A a,
   ) =>
       v.visitElementHtmlHtml(this, a);
 
   @override
   R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitorOneArg<R, A> v,
+    final HtmlEntityVisitor<R, A> v,
     final A a,
   ) =>
       v.visitEntityElement(this, a);
@@ -78,14 +78,14 @@ class MetaElement2Impl with HtmlElementMixin2 implements MetaElement2 {
 
   @override
   R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitorOneArg<R, A> v,
+    final HtmlElementVisitor<R, A> v,
     final A a,
   ) =>
       v.visitElementMeta(this, a);
 
   @override
   R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitorOneArg<R, A> v,
+    final HtmlEntityVisitor<R, A> v,
     final A a,
   ) =>
       v.visitEntityElement(this, a);
@@ -104,14 +104,14 @@ class BodyElement2Impl with HtmlElementMixin2 implements BodyElement2 {
 
   @override
   R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitorOneArg<R, A> v,
+    final HtmlElementVisitor<R, A> v,
     final A a,
   ) =>
       v.visitElementBody(this, a);
 
   @override
   R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitorOneArg<R, A> v,
+    final HtmlEntityVisitor<R, A> v,
     final A a,
   ) =>
       v.visitEntityElement(this, a);
@@ -127,14 +127,14 @@ class RawTextElement2Impl implements RawTextElement2 {
 
   @override
   R acceptHtmlNodeOneArg<R, A>(
-    final HtmlNodeVisitorOneArg<R, A> v,
+    final HtmlNodeVisitor<R, A> v,
     final A a,
   ) =>
       v.visitNodeText(this, a);
 
   @override
   R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitorOneArg<R, A> v,
+    final HtmlEntityVisitor<R, A> v,
     final A a,
   ) =>
       v.visitEntityNode(this, a);
@@ -144,7 +144,7 @@ class CssTextElement2Impl implements CssTextElement2 {
   @override
   final String key;
   @override
-  final CssStyleDeclaration2 css;
+  final CssStyleDeclaration css;
 
   const CssTextElement2Impl(
     final this.key,
@@ -153,14 +153,14 @@ class CssTextElement2Impl implements CssTextElement2 {
 
   @override
   R acceptHtmlNodeOneArg<R, A>(
-    final HtmlNodeVisitorOneArg<R, A> v,
+    final HtmlNodeVisitor<R, A> v,
     final A a,
   ) =>
       v.visitNodeStyle(this, a);
 
   @override
   R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitorOneArg<R, A> v,
+    final HtmlEntityVisitor<R, A> v,
     final A a,
   ) =>
       v.visitEntityNode(this, a);
@@ -179,14 +179,14 @@ class ScriptElement2Impl with HtmlElementMixin2 implements ScriptElement2 {
 
   @override
   R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitorOneArg<R, A> v,
+    final HtmlElementVisitor<R, A> v,
     final A a,
   ) =>
       v.visitElementScript(this, a);
 
   @override
   R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitorOneArg<R, A> v,
+    final HtmlEntityVisitor<R, A> v,
     final A a,
   ) =>
       v.visitEntityElement(this, a);
@@ -205,14 +205,14 @@ class LinkElement2Impl with HtmlElementMixin2 implements LinkElement2 {
 
   @override
   R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitorOneArg<R, A> v,
+    final HtmlElementVisitor<R, A> v,
     final A a,
   ) =>
       v.visitElementLink(this, a);
 
   @override
   R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitorOneArg<R, A> v,
+    final HtmlEntityVisitor<R, A> v,
     final A a,
   ) =>
       v.visitEntityElement(this, a);
@@ -226,14 +226,14 @@ class TitleElement2Impl with HtmlElementMixin2 implements TitleElement2 {
 
   @override
   R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitorOneArg<R, A> v,
+    final HtmlElementVisitor<R, A> v,
     final A a,
   ) =>
       v.visitElementTitle(this, a);
 
   @override
   R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitorOneArg<R, A> v,
+    final HtmlEntityVisitor<R, A> v,
     final A a,
   ) =>
       v.visitEntityElement(this, a);
@@ -252,14 +252,14 @@ class StyleElement2Impl with HtmlElementMixin2 implements StyleElement2 {
 
   @override
   R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitorOneArg<R, A> v,
+    final HtmlElementVisitor<R, A> v,
     final A a,
   ) =>
       v.visitElementStyle(this, a);
 
   @override
   R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitorOneArg<R, A> v,
+    final HtmlEntityVisitor<R, A> v,
     final A a,
   ) =>
       v.visitEntityElement(this, a);
@@ -270,14 +270,14 @@ class ParagraphElement2Impl with HtmlElementMixin2 implements ParagraphElement2 
 
   @override
   R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitorOneArg<R, A> v,
+    final HtmlElementVisitor<R, A> v,
     final A a,
   ) =>
       v.visitElementParagraph(this, a);
 
   @override
   R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitorOneArg<R, A> v,
+    final HtmlEntityVisitor<R, A> v,
     final A a,
   ) =>
       v.visitEntityElement(this, a);
@@ -293,14 +293,14 @@ class ImageElement2Impl with HtmlElementMixin2 implements ImageElement2 {
 
   @override
   R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitorOneArg<R, A> v,
+    final HtmlElementVisitor<R, A> v,
     final A a,
   ) =>
       v.visitElementImage(this, a);
 
   @override
   R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitorOneArg<R, A> v,
+    final HtmlEntityVisitor<R, A> v,
     final A a,
   ) =>
       v.visitEntityElement(this, a);
@@ -314,7 +314,7 @@ class DivElement2Impl implements DivElement2 {
   @override
   final List<HtmlEntity> childNodes;
   @override
-  final CssStyleDeclaration2 style;
+  final CssStyleDeclaration style;
 
   DivElement2Impl.empty()
       : childNodes = [],
@@ -336,14 +336,14 @@ class DivElement2Impl implements DivElement2 {
 
   @override
   R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitorOneArg<R, A> v,
+    final HtmlElementVisitor<R, A> v,
     final A a,
   ) =>
       v.visitElementDiv(this, a);
 
   @override
   R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitorOneArg<R, A> v,
+    final HtmlEntityVisitor<R, A> v,
     final A a,
   ) =>
       v.visitEntityElement(this, a);
@@ -359,14 +359,14 @@ class AnchorElement2Impl with HtmlElementMixin2 implements AnchorElement2 {
 
   @override
   R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitorOneArg<R, A> v,
+    final HtmlElementVisitor<R, A> v,
     final A a,
   ) =>
       v.visitElementAnchor(this, a);
 
   @override
   R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitorOneArg<R, A> v,
+    final HtmlEntityVisitor<R, A> v,
     final A a,
   ) =>
       v.visitEntityElement(this, a);
@@ -376,6 +376,7 @@ class HeadElement2Impl with HtmlElementMixin2 implements HeadElement2 {
   factory HeadElement2Impl.make(
     final Iterable<HtmlEntity> children,
   ) {
+    // TODO pass children directly to the element.
     final node = HeadElement2Impl._();
     node.childNodes.addAll(children);
     return node;
@@ -385,14 +386,14 @@ class HeadElement2Impl with HtmlElementMixin2 implements HeadElement2 {
 
   @override
   R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitorOneArg<R, A> v,
+    final HtmlElementVisitor<R, A> v,
     final A a,
   ) =>
       v.visitElementHead(this, a);
 
   @override
   R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitorOneArg<R, A> v,
+    final HtmlEntityVisitor<R, A> v,
     final A a,
   ) =>
       v.visitEntityElement(this, a);

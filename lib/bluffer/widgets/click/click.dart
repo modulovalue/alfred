@@ -57,7 +57,7 @@ class Click implements Widget {
       renderWidget(this, context);
 
   @override
-  CssStyleDeclaration2? renderCss(
+  CssStyleDeclaration? renderCss(
     final BuildContext context,
   ) =>
       null;

@@ -2,14 +2,14 @@ import '../css/css.dart';
 
 abstract class HtmlEntity {
   R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitorOneArg<R, A> v,
+    final HtmlEntityVisitor<R, A> v,
     final A a,
   );
 }
 
 abstract class HtmlNode implements HtmlEntity {
   R acceptHtmlNodeOneArg<R, A>(
-    final HtmlNodeVisitorOneArg<R, A> v,
+    final HtmlNodeVisitor<R, A> v,
     final A a,
   );
 }
@@ -18,12 +18,12 @@ abstract class HtmlElement2 implements HtmlEntity {
   abstract String? className;
   abstract String? id;
 
-  CssStyleDeclaration2 get style;
+  CssStyleDeclaration get style;
 
   List<HtmlEntity> get childNodes;
 
   R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitorOneArg<R, A> v,
+    final HtmlElementVisitor<R, A> v,
     final A a,
   );
 }
@@ -72,7 +72,7 @@ abstract class RawTextElement2 implements HtmlNode {
 abstract class CssTextElement2 implements HtmlNode {
   String get key;
 
-  CssStyleDeclaration2 get css;
+  CssStyleDeclaration get css;
 }
 
 abstract class BRElement2 implements HtmlElement2 {}
@@ -89,7 +89,7 @@ abstract class AnchorElement2 implements HtmlElement2 {
   abstract String? target;
 }
 
-abstract class HtmlElementVisitorOneArg<R, A> {
+abstract class HtmlElementVisitor<R, A> {
   R visitElementDiv(
     final DivElement2 node,
     final A arg,
@@ -156,7 +156,7 @@ abstract class HtmlElementVisitorOneArg<R, A> {
   );
 }
 
-abstract class HtmlEntityVisitorOneArg<R, A> {
+abstract class HtmlEntityVisitor<R, A> {
   R visitEntityElement(
     final HtmlElement2 node,
     final A arg,
@@ -168,7 +168,7 @@ abstract class HtmlEntityVisitorOneArg<R, A> {
   );
 }
 
-abstract class HtmlNodeVisitorOneArg<R, A> {
+abstract class HtmlNodeVisitor<R, A> {
   R visitNodeText(
     final RawTextElement2 node,
     final A arg,

@@ -1,7 +1,7 @@
 import 'css.dart';
 
 /// TODO remove this once all users have custom implementations.
-class CssStyleDeclaration2Impl implements CssStyleDeclaration2 {
+class CssStyleDeclaration2Impl implements CssStyleDeclaration {
   @override
   final String? css_margin;
   @override

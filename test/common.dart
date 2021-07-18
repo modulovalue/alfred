@@ -1,7 +1,7 @@
 import 'package:alfred/alfred/impl/alfred.dart';
 import 'package:alfred/alfred/impl/logging/log_type.dart';
 import 'package:alfred/alfred/impl/logging/print.dart';
-import 'package:alfred/alfred/impl/middleware/defaults.dart';
+import 'package:alfred/alfred/impl/middleware/default_404.dart';
 import 'package:alfred/alfred/interface/alfred.dart';
 import 'package:alfred/alfred/interface/logging_delegate.dart';
 import 'package:alfred/alfred/interface/middleware.dart';

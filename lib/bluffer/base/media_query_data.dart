@@ -11,4 +11,10 @@ class MediaQueryDataImpl implements MediaQueryData {
   });
 }
 
-enum MediaSize { xsmall, small, medium, large, xlarge }
+enum MediaSize {
+  xsmall,
+  small,
+  medium,
+  large,
+  xlarge,
+}

@@ -6,21 +6,35 @@ import '../../widgets/widget/interface/build_context.dart';
 import '../../widgets/widget/interface/widget.dart';
 import '../assets.dart';
 import '../media_query_data.dart';
-import '../publish/impl/via_manual.dart';
+import '../publish/serialize.dart';
 
-String singlePage(
-  final Widget Function(BuildContext) child,
-) {
-  final finalChild = MediaQuery(
-    data: const MediaQueryDataImpl(size: MediaSize.medium),
-    child: Builder(
-      builder: (final context) => Theme(
-        data: ThemeData.base(context),
-        child: child(context),
+String singlePage({
+  required final Widget Function(BuildContext) builder,
+}) =>
+    constructSinglePageWithMediaQuery(
+      child: Builder(
+        builder: (final context) => Theme(
+          data: ThemeData.base(context),
+          child: builder(context),
+        ),
       ),
-    ),
-  );
-  final buildContext = BuildContextImpl(assets: const AssetsDefaultImpl());
-  final element = finalChild.render(buildContext);
-  return elementToStringViaManual(element);
+    );
+
+String constructSinglePageWithMediaQuery({
+  required final Widget child,
+}) =>
+    constructSinglePage(
+      child: MediaQuery(
+        data: const MediaQueryDataImpl(size: MediaSize.medium),
+        child: child,
+      ),
+    );
+
+String constructSinglePage({
+  required final Widget child,
+}) {
+  const assets = AssetsDefaultImpl();
+  final buildContext = BuildContextImpl(assets: assets, styles: {});
+  final element = child.render(buildContext);
+  return serializeHtml(html: element);
 }

@@ -13,7 +13,7 @@ abstract class HtmlWidget<HTML extends HtmlElement2> {
   );
 }
 
-abstract class CssWidget<CSS extends CssStyleDeclaration2?> {
+abstract class CssWidget<CSS extends CssStyleDeclaration?> {
   CSS renderCss(
     final BuildContext context,
   );
@@ -21,7 +21,7 @@ abstract class CssWidget<CSS extends CssStyleDeclaration2?> {
 
 abstract class HtmlCssWidget<
         HTML extends HtmlElement2,
-        CSS extends CssStyleDeclaration2? //
+        CSS extends CssStyleDeclaration? //
         > //
     implements
         HtmlWidget<HTML>,
@@ -29,7 +29,7 @@ abstract class HtmlCssWidget<
 
 abstract class KeyedHtmlCssWidget<
         HTML extends HtmlElement2,
-        CSS extends CssStyleDeclaration2?,
+        CSS extends CssStyleDeclaration?,
         KEY extends Key? //
         > //
     implements
@@ -45,7 +45,7 @@ abstract class RenderWidget<RENDER extends HtmlElement2> {
 abstract class Widget<
         KEY extends Key?,
         HTML extends HtmlElement2,
-        CSS extends CssStyleDeclaration2?,
+        CSS extends CssStyleDeclaration?,
         RENDER extends HtmlElement2 //
         > //
     implements

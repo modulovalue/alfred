@@ -1,6 +1,6 @@
 import 'css.dart';
 
-class CssStyleDeclaration2EmptyImpl implements CssStyleDeclaration2 {
+class CssStyleDeclaration2EmptyImpl implements CssStyleDeclaration {
   @override
   Null get css_margin => null;
 

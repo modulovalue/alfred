@@ -7,22 +7,25 @@ import '../interface/inherited_widget.dart';
 import '../interface/widget.dart';
 
 HtmlElement2 renderWidget(
-  final Widget widget,
+  final Widget child,
   final BuildContext context,
 ) {
-  final html = widget.renderHtml(context);
-  final k = widget.key;
-  if (k != null) {
-    html.id = k.className + '-' + MediaQuery.of(context)!.size.index.toString();
+  final html = child.renderHtml(context);
+  final key = child.key;
+  if (key != null) {
+    final mediaQuerySize = MediaQuery.of(context)!.size;
+    final mediaQuerySizeIndex = mediaQuerySize.index.toString();
+    html.id = key.className + '-' + mediaQuerySizeIndex;
   }
   final newClassKey = context.createDefaultKey();
   final currentClasses = html.className;
   html.className = [
-    if (currentClasses != null && currentClasses != "") //
-      currentClasses,
+    if (currentClasses != null)
+      if (currentClasses != "") //
+        currentClasses,
     newClassKey.className,
   ].join(" ");
-  final css = widget.renderCss(context);
+  final css = child.renderCss(context);
   if (css != null) {
     context.setStyle(
       newClassKey.className,
@@ -48,7 +51,7 @@ mixin InheritedWidgetMixin implements InheritedWidget {
       child.render(context.withInherited(this));
 
   @override
-  CssStyleDeclaration2? renderCss(
+  CssStyleDeclaration? renderCss(
     final BuildContext context,
   ) =>
       child.renderCss(context.withInherited(this));
@@ -69,6 +72,6 @@ class MediaQuery with InheritedWidgetMixin {
 
   static MediaQueryData? of(
     final BuildContext context,
-  ) => //
+  ) =>
       context.dependOnInheritedWidgetOfExactType<MediaQuery>()?.data;
 }

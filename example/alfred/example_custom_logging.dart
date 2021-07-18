@@ -6,10 +6,10 @@ import 'package:logging/logging.dart';
 
 // Use 'logging' package instead of default logger
 
-void main() {
+Future<void> main() async {
   final app = AlfredImpl();
   app.get('/resource', const ServeString('response'));
-  app.build(log: CustomLogger());
+  await app.build(log: CustomLogger());
 }
 
 // Create custom logWriter and map to logging package

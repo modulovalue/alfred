@@ -1,4 +1,4 @@
-abstract class CssStyleDeclaration2 {
+abstract class CssStyleDeclaration {
   String? get css_margin; //
   String? get css_maxHeight; //
   String? get css_maxWidth; //

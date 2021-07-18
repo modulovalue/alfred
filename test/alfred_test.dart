@@ -11,7 +11,6 @@ import 'package:alfred/alfred/impl/middleware/cors.dart';
 import 'package:alfred/alfred/impl/middleware/io.dart';
 import 'package:alfred/alfred/impl/middleware/json.dart';
 import 'package:alfred/alfred/impl/middleware/middleware.dart';
-import 'package:alfred/alfred/impl/middleware/stream_of_bytes.dart';
 import 'package:alfred/alfred/impl/middleware/string.dart';
 import 'package:alfred/alfred/interface/alfred.dart';
 import 'package:alfred/alfred/interface/middleware.dart';

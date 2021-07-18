@@ -21,7 +21,7 @@ class Padding implements Widget {
   });
 
   @override
-  CssStyleDeclaration2 renderCss(
+  CssStyleDeclaration renderCss(
     final BuildContext context,
   ) =>
       CssStyleDeclaration2Impl(

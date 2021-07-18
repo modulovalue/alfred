@@ -1,5 +1,5 @@
 import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/alfred/impl/middleware/defaults.dart';
+import 'package:alfred/alfred/impl/middleware/default_404.dart';
 import 'package:alfred/alfred/impl/middleware/html.dart';
 import 'package:alfred/alfred/impl/middleware/io.dart';
 import 'package:alfred/alfred/impl/middleware/json.dart';

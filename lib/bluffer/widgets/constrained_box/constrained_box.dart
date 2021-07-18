@@ -22,7 +22,7 @@ class ConstrainedBox implements Widget {
   });
 
   @override
-  CssStyleDeclaration2 renderCss(
+  CssStyleDeclaration renderCss(
     final BuildContext context,
   ) {
     if (constraints != null) {

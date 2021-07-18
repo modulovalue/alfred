@@ -4,7 +4,7 @@ import '../../../css/css.dart';
 import 'inherited_widget.dart';
 
 abstract class BuildContext {
-  Map<String, CssStyleDeclaration2> get styles;
+  Map<String, CssStyleDeclaration> get styles;
 
   Assets get assets;
 
@@ -18,6 +18,6 @@ abstract class BuildContext {
 
   void setStyle(
     final String className,
-    final CssStyleDeclaration2 css,
+    final CssStyleDeclaration css,
   );
 }

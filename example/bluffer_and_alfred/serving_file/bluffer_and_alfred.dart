@@ -1,6 +1,6 @@
 import 'package:alfred/alfred/impl/alfred.dart';
 import 'package:alfred/alfred/impl/middleware/io.dart';
-import 'package:alfred/alfred/impl/middleware/widget_builder.dart';
+import 'package:alfred/alfred/impl/middleware/widget.dart';
 import 'package:alfred/bluffer/base/app.dart';
 import 'package:alfred/bluffer/base/border_radius.dart';
 import 'package:alfred/bluffer/base/color.dart';
@@ -17,18 +17,18 @@ import 'package:alfred/bluffer/widgets/text/text.dart';
 import 'package:alfred/bluffer/widgets/theme/theme.dart';
 
 Future<void> main() async {
-  const String dartLogoRelativePath = "/dartlogo.svg";
+  const dartLogoRelativePath = "/dartlogo.svg";
   final app = AlfredImpl()
     ..get(
       dartLogoRelativePath,
       ServeFile.at(
-        "example/bluffer/simple_example/assets/images/logo_dart_192px.svg",
+        "../../bluffer/example/assets/images/logo_dart_192px.svg",
       ),
     )
     ..get(
       "/",
       ServeWidgetBuilder(
-        builder: (c, context) => ApplicationWidget(
+        builder: (c, context) => AppWidget(
           route: WidgetRouteImpl(
             title: (final context) => "My title",
             builder: (final context) => Padding(

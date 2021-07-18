@@ -82,7 +82,7 @@ class Flex implements Widget {
       DivElement2Impl.empty();
 
   @override
-  CssStyleDeclaration2 renderCss(
+  CssStyleDeclaration renderCss(
     final BuildContext context,
   ) =>
       CssStyleDeclaration2Impl(
@@ -168,7 +168,7 @@ class Flexible implements Widget {
       child.render(context);
 
   @override
-  CssStyleDeclaration2 renderCss(
+  CssStyleDeclaration renderCss(
     final BuildContext context,
   ) {
     switch (fit) {

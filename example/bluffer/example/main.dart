@@ -8,8 +8,8 @@ import 'package:alfred/bluffer/base/edge_insets.dart';
 import 'package:alfred/bluffer/base/geometry.dart';
 import 'package:alfred/bluffer/base/image.dart';
 import 'package:alfred/bluffer/base/locale.dart';
-import 'package:alfred/bluffer/base/publish/impl/publish.dart';
-import 'package:alfred/bluffer/base/publish/impl/via_manual.dart';
+import 'package:alfred/bluffer/base/publish/publish.dart';
+import 'package:alfred/bluffer/base/publish/serialize.dart';
 import 'package:alfred/bluffer/base/text.dart';
 import 'package:alfred/bluffer/widgets/click/click.dart';
 import 'package:alfred/bluffer/widgets/container/container.dart';
@@ -24,13 +24,13 @@ import 'package:alfred/bluffer/widgets/widget/interface/widget.dart';
 
 void main() {
   publishApp(
-    serializeTo: (path, element) => File(path).writeAsStringSync(elementToStringViaManual(element)),
-    root: Application(
+    serializeTo: (path, element) => File(path).writeAsStringSync(serializeHtml(html: element)),
+    root: App(
       supportedLocales: [
         const Locale('fr', 'FR'),
         const Locale('en', 'US'),
       ],
-      application: (route) => ApplicationWidget(
+      application: (route) => AppWidget(
         route: route,
       ),
       routes: [

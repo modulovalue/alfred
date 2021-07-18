@@ -1,3 +1,4 @@
+import '../css/css.dart';
 import '../html/html.dart';
 import '../html/html_impl.dart';
 import '../widgets/builder/builder.dart';
@@ -11,19 +12,19 @@ import 'keys.dart';
 import 'locale.dart';
 import 'media_query_data.dart';
 
-class Application implements Widget {
+class App implements Widget {
   final String? currentRoute;
   final List<UrlWidgetRoute> routes;
-  final ApplicationWidget Function(WidgetRoute) application;
+  final AppWidget Function(WidgetRoute) application;
   @override
   final Key? key = null;
   final List<Locale> supportedLocales;
 
-  /// This list collectively defines the localized resources objects that can
-  /// be retrieved with [Localizations.of].
+  /// This list collectively defines the localized resources
+  /// objects that can be retrieved with [Localizations.of].
   final List<LocalizationsDelegate<dynamic>> delegates;
 
-  Application({
+  App({
     required final this.routes,
     required final this.application,
     final this.currentRoute,
@@ -31,10 +32,10 @@ class Application implements Widget {
     final this.delegates = const <LocalizationsDelegate<dynamic>>[],
   });
 
-  Application withCurrentRoute(
+  App withCurrentRoute(
     final String currentRoute,
   ) =>
-      Application(
+      App(
         currentRoute: currentRoute,
         routes: routes,
         application: application,
@@ -44,7 +45,7 @@ class Application implements Widget {
   HtmlElement2 renderHtml(
     final BuildContext context,
   ) {
-    final currentRoute = routes.firstWhere((x) => x.relativeUrl == this.currentRoute);
+    final currentRoute = routes.firstWhere((final x) => x.relativeUrl == this.currentRoute);
     return application(currentRoute).renderHtml(context);
   }
 
@@ -52,7 +53,7 @@ class Application implements Widget {
   HtmlElement2 render(
     final BuildContext context,
   ) {
-    final currentRoute = routes.firstWhere((x) => x.relativeUrl == this.currentRoute);
+    final currentRoute = routes.firstWhere((final x) => x.relativeUrl == this.currentRoute);
     return application(currentRoute).render(context);
   }
 
@@ -63,7 +64,7 @@ class Application implements Widget {
       null;
 }
 
-class ApplicationWidget<ROUTE extends WidgetRoute> implements Widget {
+class AppWidget<ROUTE extends WidgetRoute> implements Widget {
   static const List<MediaSize> availableSizes = MediaSize.values;
 
   final ROUTE route;
@@ -74,7 +75,7 @@ class ApplicationWidget<ROUTE extends WidgetRoute> implements Widget {
   @override
   final Key? key = null;
 
-  ApplicationWidget({
+  AppWidget({
     required final this.route,
     final this.theme,
     final this.builder,
@@ -86,55 +87,59 @@ class ApplicationWidget<ROUTE extends WidgetRoute> implements Widget {
   HtmlElement2 renderHtml(
     final BuildContext context,
   ) =>
-      HtmlHtmlElement2Impl.make([
-        HeadElement2Impl.make(
-          [
-            // TODO have a meta subclass that already has those attributes.
-            MetaElement2Impl()
-              ..setAttribute('charset', 'UTF-8')
-              ..setAttribute('name', 'viewport')
-              ..setAttribute('content', 'width=device-width, initial-scale=1'),
-            for (final link in stylesheetLinks) //
-              LinkElement2Impl(href: link, rel: 'stylesheet'),
-            ...route.head(context),
-          ],
-        ),
-        StyleElement2Impl.make([
-          const RawTextElement2Impl(resetCss),
-          const RawTextElement2Impl(baseCss),
-          for (final size in availableSizes) //
-            RawTextElement2Impl(mediaClassForMediaSize(availableSizes, size)),
-        ]),
-        BodyElement2Impl.make([
-          for (final size in availableSizes)
-            DivElement2Impl.make(
-              id: null,
-              className: 'size' + size.index.toString(),
-              childNodes: [
-                MediaQuery(
-                  data: MediaQueryDataImpl(size: size),
-                  child: Builder(
-                    builder: (context) => Theme(
-                      data: theme?.call(context),
-                      child: () {
-                        if (builder != null) {
-                          return builder!(context, route);
-                        } else {
-                          return route.build(context);
-                        }
-                      }(),
-                    ),
-                  ),
-                ).render(context)
-              ],
-            ),
-          for (final link in scriptLinks)
-            ScriptElement2Impl()
-              ..src = link
-              ..async = true
-              ..defer = true,
-        ])
-      ]);
+      HtmlHtmlElement2Impl.make(
+        [
+          HeadElement2Impl.make(
+            [
+              // TODO have a meta subclass that already has those attributes.
+              MetaElement2Impl()
+                ..setAttribute('charset', 'UTF-8')
+                ..setAttribute('name', 'viewport')
+                ..setAttribute('content', 'width=device-width, initial-scale=1'),
+              for (final link in stylesheetLinks) //
+                LinkElement2Impl(href: link, rel: 'stylesheet'),
+              ...route.head(context),
+            ],
+          ),
+          StyleElement2Impl.make([
+            const RawTextElement2Impl(resetCss),
+            const RawTextElement2Impl(baseCss),
+            for (final size in availableSizes) //
+              RawTextElement2Impl(mediaClassForMediaSize(availableSizes, size)),
+          ]),
+          BodyElement2Impl.make(
+            [
+              for (final size in availableSizes)
+                DivElement2Impl.make(
+                  id: null,
+                  className: 'size' + size.index.toString(),
+                  childNodes: [
+                    MediaQuery(
+                      data: MediaQueryDataImpl(size: size),
+                      child: Builder(
+                        builder: (final context) => Theme(
+                          data: theme?.call(context),
+                          child: () {
+                            if (builder != null) {
+                              return builder!(context, route);
+                            } else {
+                              return route.build(context);
+                            }
+                          }(),
+                        ),
+                      ),
+                    ).render(context)
+                  ],
+                ),
+              for (final link in scriptLinks)
+                ScriptElement2Impl()
+                  ..src = link
+                  ..async = true
+                  ..defer = true,
+            ],
+          )
+        ],
+      );
 
   @override
   HtmlElement2 render(
@@ -144,7 +149,7 @@ class ApplicationWidget<ROUTE extends WidgetRoute> implements Widget {
     for (final x in result.childNodes) {
       if (x is StyleElement2) {
         context.styles.entries.forEach(
-          (e) => x.childNodes.add(
+          (final e) => x.childNodes.add(
             CssTextElement2Impl(
               e.key,
               e.value,
@@ -169,37 +174,23 @@ abstract class WidgetRoute {
     final BuildContext context,
   );
 
-  Widget build(
+  Iterable<HtmlElement2> head(
     final BuildContext context,
   );
 
-  Iterable<HtmlElement2> head(
+  Widget build(
     final BuildContext context,
   );
 }
 
 class WidgetRouteImpl with WidgetRouteMixin {
-  @override
   final String Function(BuildContext context) title;
-  @override
   final Widget Function(BuildContext context) builder;
 
   const WidgetRouteImpl({
     required final this.title,
     required final this.builder,
   });
-}
-
-mixin WidgetRouteMixin implements WidgetRoute {
-  String Function(BuildContext context) get title;
-
-  Widget Function(BuildContext context) get builder;
-
-  @override
-  Iterable<HtmlElement2> head(
-    final BuildContext context,
-  ) =>
-      [TitleElement2Impl()..text = title(context)];
 
   @override
   Widget build(
@@ -214,11 +205,41 @@ mixin WidgetRouteMixin implements WidgetRoute {
       title(context);
 }
 
+class WidgetRouteSimpleImpl with WidgetRouteMixin {
+  final String title;
+  final Widget child;
+
+  const WidgetRouteSimpleImpl({
+    required final this.title,
+    required final this.child,
+  });
+
+  @override
+  String makeTitle(
+    final BuildContext context,
+  ) =>
+      title;
+
+  @override
+  Widget build(
+    final BuildContext context,
+  ) =>
+      child;
+}
+
+mixin WidgetRouteMixin implements WidgetRoute {
+  @override
+  Iterable<HtmlElement2> head(
+    final BuildContext context,
+  ) =>
+      [
+        TitleElement2Impl()..text = makeTitle(context),
+      ];
+}
+
 class UrlWidgetRoute with WidgetRouteMixin {
   final String relativeUrl;
-  @override
   final String Function(BuildContext context) title;
-  @override
   final Widget Function(BuildContext context) builder;
 
   const UrlWidgetRoute({
@@ -226,6 +247,18 @@ class UrlWidgetRoute with WidgetRouteMixin {
     required final this.title,
     required final this.builder,
   });
+
+  @override
+  Widget<Key?, HtmlElement2, CssStyleDeclaration?, HtmlElement2> build(
+    final BuildContext context,
+  ) =>
+      builder(context);
+
+  @override
+  String makeTitle(
+    final BuildContext context,
+  ) =>
+      title(context);
 }
 
 String mediaClassForMediaSize(

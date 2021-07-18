@@ -30,9 +30,7 @@ class ServeDownload implements Middleware {
 class ServeFile implements Middleware {
   final File file;
 
-  const ServeFile(
-    final this.file,
-  );
+  const ServeFile(final this.file);
 
   ServeFile.at(
     final String path,
@@ -51,26 +49,27 @@ class ServeFile implements Middleware {
       await c.res.addStream(file.openRead());
       return c.res.close();
     } else {
-      throw FileNotFoundException(c, file);
+      throw AlfredFileNotFoundExceptionImpl(c, file);
     }
   }
 }
 
-class FileNotFoundException implements AlfredNotFoundException {
+class AlfredFileNotFoundExceptionImpl implements AlfredNotFoundException {
   final File file;
   final ServeContext c;
 
-  const FileNotFoundException(
+  const AlfredFileNotFoundExceptionImpl(
     final this.c,
     final this.file,
   );
 
   @override
-  String toString() => 'FileNotFoundException{file: $file}';
+  String toString() => 'AlfredFileNotFoundExceptionImpl{file: $file}';
 }
 
 class ServeDirectory implements Middleware {
   final Directory directory;
+
   // TODO too capable for this middleware.
   final AlfredLoggingDelegate log;
 
