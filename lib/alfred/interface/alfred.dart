@@ -8,6 +8,7 @@ import 'logging_delegate.dart';
 ///
 /// This is the core of the server application. Generally you would create one
 /// for each app.
+/// TODO support swapping out darts http stack for different ones (i.e. ffi).
 abstract class Alfred implements HttpRouteFactory {
   /// List of routes.
   ///
@@ -16,13 +17,9 @@ abstract class Alfred implements HttpRouteFactory {
   List<HttpRoute> get routes;
 
   /// Call this function to fire off the server.
-  /// TODO replace args with [ServerArguments].
   Future<BuiltAlfred> build({
     final AlfredLoggingDelegate log,
-    final int port,
-    final String bindIp,
-    final bool shared,
-    final int simultaneousProcessing,
+    final ServerConfig config,
   });
 }
 
@@ -40,7 +37,7 @@ abstract class BuiltAlfred {
     final bool force,
   });
 
-  ServerArguments get args;
+  ServerConfig get args;
 }
 
 abstract class HttpServerArguments {
@@ -48,18 +45,27 @@ abstract class HttpServerArguments {
 
   int get port;
 
-  /// TODO consider replacing with [InternetAddress].
+  // TODO replace with [InternetAddress].
   String get bindIp;
 
   bool get shared;
 }
 
-abstract class ServerArguments implements HttpServerArguments {
+abstract class ServerConfig implements HttpServerArguments {
+  /// The number of requests doing work at any one
+  /// time. If the amount of unprocessed incoming
+  /// requests exceed this number, the requests will
+  /// be queued.
   int get simultaneousProcessing;
 }
 
 /// A base exception for this package.
-abstract class AlfredException implements Exception {}
+abstract class AlfredException implements Exception {
+  Z match<Z>({
+    required final Z Function(AlfredResponseException) response,
+    required final Z Function(AlfredNotFoundException) notFound,
+  });
+}
 
 abstract class AlfredResponseException implements AlfredException {
   /// The response to send to the client

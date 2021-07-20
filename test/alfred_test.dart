@@ -8,11 +8,14 @@ import 'package:alfred/alfred/impl/logging/print.dart';
 import 'package:alfred/alfred/impl/middleware/bytes.dart';
 import 'package:alfred/alfred/impl/middleware/closing.dart';
 import 'package:alfred/alfred/impl/middleware/cors.dart';
-import 'package:alfred/alfred/impl/middleware/io.dart';
+import 'package:alfred/alfred/impl/middleware/io_dir.dart';
+import 'package:alfred/alfred/impl/middleware/io_download.dart';
+import 'package:alfred/alfred/impl/middleware/io_file.dart';
 import 'package:alfred/alfred/impl/middleware/json.dart';
 import 'package:alfred/alfred/impl/middleware/middleware.dart';
 import 'package:alfred/alfred/impl/middleware/string.dart';
 import 'package:alfred/alfred/interface/alfred.dart';
+import 'package:alfred/alfred/interface/http_route_factory.dart';
 import 'package:alfred/alfred/interface/middleware.dart';
 import 'package:alfred/alfred/interface/serve_context.dart';
 import 'package:http/http.dart' as http;
@@ -31,45 +34,86 @@ void main() {
   });
   test('it should return a string correctly', () async {
     await runTest(fn: (final app, final built, final port) async {
-      app.get('/test', const ServeString('test string'));
+      app.addRoutes(
+        [
+          const RouteGet(
+            path: '/test',
+            middleware: ServeString('test string'),
+          ),
+        ],
+      );
       final response = await http.get(Uri.parse('http://localhost:$port/test'));
       expect(response.body, 'test string');
     });
   });
   test('it should return json', () async {
     await runTest(fn: (final app, final built, final port) async {
-      app.get('/test', const ServeJson.map({'test': true}));
+      app.addRoutes(
+        [
+          const RouteGet(
+            path: '/test',
+            middleware: ServeJson.map({'test': true}),
+          )
+        ],
+      );
       final response = await http.get(Uri.parse('http://localhost:$port/test'));
       expect(response.headers['content-type'], 'application/json; charset=utf-8');
       expect(response.body, '{"test":true}');
     });
   });
   test('it should return an image', () async {
-    await runTest(fn: (app, built, port) async {
-      app.get('/test', ServeFile.at('test/files/image.jpg'));
+    await runTest(fn: (final app, final built, final port) async {
+      app.addRoutes(
+        [
+          const RouteGet(
+            path: '/test',
+            middleware: ServeFile.at('test/files/image.jpg'),
+          ),
+        ],
+      );
       final response = await http.get(Uri.parse('http://localhost:$port/test'));
       expect(response.headers['content-type'], 'image/jpeg');
     });
   });
   test('it should return a pdf', () async {
-    await runTest(fn: (app, built, port) async {
-      app.get('/test', ServeFile.at('test/files/dummy.pdf'));
+    await runTest(fn: (final app, final built, final port) async {
+      app.addRoutes(
+        [
+          const RouteGet(
+            path: '/test',
+            middleware: ServeFile.at('test/files/dummy.pdf'),
+          ),
+        ],
+      );
       final response = await http.get(Uri.parse('http://localhost:$port/test'));
       expect(response.headers['content-type'], 'application/pdf');
     });
   });
   test('routing should, you know, work', () async {
-    await runTest(fn: (app, built, port) async {
-      app.get('/test', const ServeString('test_route'));
-      app.get('/testRoute', const ServeString('test_route_route'));
-      app.get('/a', const ServeString('a_route'));
+    await runTest(fn: (final app, final built, final port) async {
+      app.addRoutes(
+        [
+          const RouteGet(
+            path: '/test',
+            middleware: ServeString('test_route'),
+          ),
+          const RouteGet(
+            path: '/testRoute',
+            middleware: ServeString('test_route_route'),
+          ),
+          const RouteGet(
+            path: '/a',
+            middleware: ServeString('a_route'),
+          ),
+        ],
+      );
       expect((await http.get(Uri.parse('http://localhost:$port/test'))).body, 'test_route');
       expect((await http.get(Uri.parse('http://localhost:$port/testRoute'))).body, 'test_route_route');
       expect((await http.get(Uri.parse('http://localhost:$port/a'))).body, 'a_route');
     });
   });
   test('error handling', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (app, final built, final port) async {
       await built.close();
       app = AlfredImpl(
         onInternalError: (dynamic e) => MiddlewareBuilder(
@@ -79,48 +123,78 @@ void main() {
           },
         ),
       );
-      await app.build(port: port);
-      app.get('/throwserror', MiddlewareBuilder((_) => throw Exception('generic exception')));
+      await buildAlfred(alfred: app, port: port);
+      app.addRoutes(
+        [
+          RouteGet(
+            path: '/throwserror',
+            middleware: MiddlewareBuilder(
+              (_) => throw Exception('generic exception'),
+            ),
+          ),
+        ],
+      );
       expect((await http.get(Uri.parse('http://localhost:$port/throwserror'))).body, '{"message":"error not handled"}');
     });
   });
   test('error default handling', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (app, final built, final port) async {
       await built.close();
       app = AlfredImpl();
-      await app.build(port: port);
-      app.get('/throwserror', MiddlewareBuilder((_) => throw Exception('generic exception')));
+      await buildAlfred(alfred: app, port: port);
+      app.addRoutes(
+        [
+          RouteGet(
+            path: '/throwserror',
+            middleware: MiddlewareBuilder((_) => throw Exception('generic exception')),
+          ),
+        ],
+      );
       final response = await http.get(Uri.parse('http://localhost:$port/throwserror'));
       expect(response.body, 'Exception: generic exception');
     });
   });
   test('not found handling', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (app, final built, final port) async {
       await built.close();
-      app = AlfredImpl(onNotFound: MiddlewareBuilder((c) async {
-        c.res.statusCode = 404;
-        return const ServeJson.map({'message': 'not found'}).process(c);
-      }));
-      await app.build(port: port);
+      app = AlfredImpl(
+        onNotFound: MiddlewareBuilder(
+          (final c) async {
+            c.res.statusCode = 404;
+            return const ServeJson.map({'message': 'not found'}).process(c);
+          },
+        ),
+      );
+      await buildAlfred(alfred: app, port: port);
       final response = await http.get(Uri.parse('http://localhost:$port/notfound'));
       expect(response.body, '{"message":"not found"}');
       expect(response.statusCode, 404);
     });
   });
   test('not found default handling', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (app, final built, final port) async {
       await built.close();
       app = AlfredImpl();
-      await app.build(port: port);
+      await buildAlfred(alfred: app, port: port);
       final response = await http.get(Uri.parse('http://localhost:$port/notfound'));
       expect(response.body, '404 not found');
       expect(response.statusCode, 404);
     });
   });
   test('not found with middleware', () async {
-    await runTest(fn: (app, built, port) async {
-      app.all('*', const CorsMiddleware());
-      app.get('resource2', const ClosingMiddleware());
+    await runTest(fn: (final app, final built, final port) async {
+      app.addRoutes(
+        [
+          const RouteAll(
+            path: '*',
+            middleware: CorsMiddleware(),
+          ),
+          const RouteGet(
+            path: 'resource2',
+            middleware: ClosingMiddleware(),
+          ),
+        ],
+      );
       final r1 = await http.get(Uri.parse('http://localhost:$port/resource1'));
       expect(r1.body, '404 not found');
       expect(r1.statusCode, 404);
@@ -130,9 +204,18 @@ void main() {
     });
   });
   test('not found with directory type handler', () async {
-    await runTest(fn: (app, built, port) async {
-      const log = AlfredLoggingDelegatePrintImpl();
-      app.get('/files/*', ServeDirectory.at('test/files', log));
+    await runTest(fn: (final app, final built, final port) async {
+      app.addRoutes(
+        [
+          const RouteGet(
+            path: '/files/*',
+            middleware: ServeDirectory.at(
+              'test/files',
+              AlfredLoggingDelegatePrintImpl(),
+            ),
+          ),
+        ],
+      );
       final r = await http.get(Uri.parse('http://localhost:$port/files/no-file.zip'));
       expect(r.body, '404 not found');
       expect(r.statusCode, 404);
@@ -141,7 +224,14 @@ void main() {
   test('not found with file type handler', () async {
     await runTest(
       fn: (app, built, port) async {
-        app.get('/index.html', ServeFile.at('does-not.exists'));
+        app.addRoutes(
+          [
+            const RouteGet(
+              path: '/index.html',
+              middleware: ServeFile.at('does-not.exists'),
+            ),
+          ],
+        );
         final r = await http.get(Uri.parse('http://localhost:$port/index.html'));
         expect(r.body, 'Custom404Message');
         expect(r.statusCode, 404);
@@ -154,28 +244,54 @@ void main() {
   });
   test('it handles a post request', () async {
     await runTest(fn: (app, built, port) async {
-      app.post('/test', const ServeString('test string'));
+      app.addRoutes([
+        const RoutePut(
+          path: '/test',
+          middleware: ServeString('test string'),
+        ),
+      ]);
       final response = await http.post(Uri.parse('http://localhost:$port/test'));
       expect(response.body, 'test string');
     });
   });
   test('it handles a put request', () async {
     await runTest(fn: (app, built, port) async {
-      app.put('/test', const ServeString('test string'));
+      app.addRoutes(
+        [
+          const RoutePut(
+            path: '/test',
+            middleware: ServeString('test string'),
+          ),
+        ],
+      );
       final response = await http.put(Uri.parse('http://localhost:$port/test'));
       expect(response.body, 'test string');
     });
   });
   test('it handles a delete request', () async {
     await runTest(fn: (app, built, port) async {
-      app.delete('/test', const ServeString('test string'));
+      app.addRoutes(
+        [
+          const RoutePut(
+            path: '/test',
+            middleware: ServeString('test string'),
+          ),
+        ],
+      );
       final response = await http.delete(Uri.parse('http://localhost:$port/test'));
       expect(response.body, 'test string');
     });
   });
   test('it handles an options request', () async {
     await runTest(fn: (app, built, port) async {
-      app.options('/test', const ServeString('test string'));
+      app.addRoutes(
+        [
+          const RoutePut(
+            path: '/test',
+            middleware: ServeString('test string'),
+          ),
+        ],
+      );
       // TODO: Need to find a way to send an options request. The HTTP library doesn't
       /// seem to support it.
       // final response = await http.head(Uri.parse("http://localhost:$port/test"));
@@ -184,14 +300,28 @@ void main() {
   });
   test('it handles a patch request', () async {
     await runTest(fn: (app, built, port) async {
-      app.patch('/test', const ServeString('test string'));
+      app.addRoutes(
+        [
+          const RoutePut(
+            path: '/test',
+            middleware: ServeString('test string'),
+          ),
+        ],
+      );
       final response = await http.patch(Uri.parse('http://localhost:$port/test'));
       expect(response.body, 'test string');
     });
   });
   test('it handles a route that hits all methods', () async {
     await runTest(fn: (app, built, port) async {
-      app.all('/test', const ServeString('test all'));
+      app.addRoutes(
+        [
+          const RouteAll(
+            path: '/test',
+            middleware: ServeString('test all'),
+          ),
+        ],
+      );
       final responseGet = await http.get(Uri.parse('http://localhost:$port/test'));
       final responsePost = await http.post(Uri.parse('http://localhost:$port/test'));
       final responsePut = await http.put(Uri.parse('http://localhost:$port/test'));
@@ -204,16 +334,29 @@ void main() {
   });
   test('it closes out a request if you fail to', () async {
     await runTest(fn: (app, built, port) async {
-      app.get('/test', const NonClosingMiddleware());
+      app.addRoutes(
+        [
+          const RouteGet(
+            path: '/test',
+            middleware: NonClosingMiddleware(),
+          ),
+        ],
+      );
       final response = await http.get(Uri.parse('http://localhost:$port/test'));
       expect(response.body, '');
     });
   });
   test('it throws and handles an exception', () async {
     await runTest(fn: (app, built, port) async {
-      app.get(
-        '/test',
-        MiddlewareBuilder((_) async => throw const _AlfredExceptionImpl(360, 'exception')),
+      app.addRoutes(
+        [
+          RouteGet(
+            path: '/test',
+            middleware: MiddlewareBuilder(
+              (_) async => throw const _AlfredExceptionImpl(360, 'exception'),
+            ),
+          )
+        ],
       );
       final response = await http.get(Uri.parse('http://localhost:$port/test'));
       expect(response.body, 'exception');
@@ -222,7 +365,14 @@ void main() {
   });
   test('it handles a List<int>', () async {
     await runTest(fn: (app, built, port) async {
-      app.get('/test', const BytesMiddleware(<int>[1, 2, 3, 4, 5]));
+      app.addRoutes(
+        [
+          const RouteGet(
+            path: '/test',
+            middleware: BytesMiddleware(<int>[1, 2, 3, 4, 5]),
+          )
+        ],
+      );
       final response = await http.get(Uri.parse('http://localhost:$port/test'));
       expect(response.body, '\x01\x02\x03\x04\x05');
       expect(response.headers['content-type'], 'application/octet-stream');
@@ -230,11 +380,15 @@ void main() {
   });
   test('it handles a Stream<List<int>>', () async {
     await runTest(fn: (app, built, port) async {
-      app.get(
-        '/test',
-        StreamOfBytesMiddleware(Stream.fromIterable([
-          [1, 2, 3, 4, 5]
-        ])),
+      app.addRoutes(
+        [
+          RouteGet(
+            path: '/test',
+            middleware: StreamOfBytesMiddleware(Stream.fromIterable([
+              [1, 2, 3, 4, 5]
+            ])),
+          )
+        ],
       );
       final response = await http.get(Uri.parse('http://localhost:$port/test'));
       expect(response.body, '\x01\x02\x03\x04\x05');
@@ -243,25 +397,41 @@ void main() {
   });
   test('it parses a body', () async {
     await runTest(fn: (app, built, port) async {
-      app.post('/test', MiddlewareBuilder((context) async {
-        final body = await context.body;
-        expect(body is Map, true);
-        expect(context.req.headers.contentType!.mimeType, 'application/json');
-        context.res.write('test result');
-      }));
-      final response = await http.post(Uri.parse('http://localhost:$port/test'),
-          headers: {'Content-Type': 'application/json'}, body: jsonEncode({'test': true}));
+      app.addRoutes(
+        [
+          RoutePut(
+            path: '/test',
+            middleware: MiddlewareBuilder(
+              (final context) async {
+                final body = await context.body;
+                expect(body is Map, true);
+                expect(context.req.headers.contentType!.mimeType, 'application/json');
+                context.res.write('test result');
+              },
+            ),
+          )
+        ],
+      );
+      final response = await http.post(
+        Uri.parse('http://localhost:$port/test'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'test': true}),
+      );
       expect(response.body, 'test result');
     });
   });
   test('it serves a file for download', () async {
     await runTest(fn: (app, built, port) async {
-      app.get(
-        '/test',
-        ServeDownload(
-          filename: 'testfile.jpg',
-          child: ServeFile.at('./test/files/image.jpg'),
-        ),
+      app.addRoutes(
+        [
+          const RouteGet(
+            path: '/test',
+            middleware: ServeDownload(
+              filename: 'testfile.jpg',
+              child: ServeFile.at('./test/files/image.jpg'),
+            ),
+          )
+        ],
       );
       final response = await http.get(Uri.parse('http://localhost:$port/test'));
       expect(response.headers['content-type'], 'image/jpeg');
@@ -270,7 +440,14 @@ void main() {
   });
   test('it serves a pdf, setting the extension from the filename', () async {
     await runTest(fn: (app, built, port) async {
-      app.get('/test', ServeFile.at('./test/files/dummy.pdf'));
+      app.addRoutes(
+        [
+          const RouteGet(
+            path: '/test',
+            middleware: ServeFile.at('./test/files/dummy.pdf'),
+          ),
+        ],
+      );
       final response = await http.get(Uri.parse('http://localhost:$port/test'));
       expect(response.headers['content-type'], 'application/pdf');
       expect(response.headers['content-disposition'], null);
@@ -278,14 +455,28 @@ void main() {
   });
   test('it uses the json helper correctly', () async {
     await runTest(fn: (app, built, port) async {
-      app.get('/test', const ServeJson.map({'success': true}));
+      app.addRoutes(
+        [
+          const RouteGet(
+            path: '/test',
+            middleware: ServeJson.map({'success': true}),
+          )
+        ],
+      );
       final response = await http.get(Uri.parse('http://localhost:$port/test'));
       expect(response.body, '{"success":true}');
     });
   });
   test('it uses the send helper correctly', () async {
     await runTest(fn: (app, built, port) async {
-      app.get('/test', const ServeString('stuff'));
+      app.addRoutes(
+        [
+          const RouteGet(
+            path: '/test',
+            middleware: ServeString('stuff'),
+          ),
+        ],
+      );
       final response = await http.get(Uri.parse('http://localhost:$port/test'));
       expect(response.body, 'stuff');
     });
@@ -293,7 +484,14 @@ void main() {
   test('it serves static files', () async {
     await runTest(fn: (app, built, port) async {
       const log = AlfredLoggingDelegatePrintImpl();
-      app.get('/files/*', ServeDirectory.at('test/files', log));
+      app.addRoutes(
+        [
+          const RouteGet(
+            path: '/files/*',
+            middleware: ServeDirectory.at('test/files', log),
+          ),
+        ],
+      );
       final response = await http.get(Uri.parse('http://localhost:$port/files/dummy.pdf'));
       expect(response.statusCode, 200);
       expect(response.headers['content-type'], 'application/pdf');
@@ -302,7 +500,14 @@ void main() {
   test('it serves static files although directories do not match', () async {
     await runTest(fn: (app, built, port) async {
       const log = AlfredLoggingDelegatePrintImpl();
-      app.get('/my/directory/*', ServeDirectory.at('test/files', log));
+      app.addRoutes(
+        [
+          const RouteGet(
+            path: '/my/directory/*',
+            middleware: ServeDirectory.at('test/files', log),
+          ),
+        ],
+      );
       final response = await http.get(Uri.parse('http://localhost:$port/my/directory/dummy.pdf'));
       expect(response.statusCode, 200);
       expect(response.headers['content-type'], 'application/pdf');
@@ -311,7 +516,14 @@ void main() {
   test('it serves static files with basic filtering', () async {
     await runTest(fn: (app, built, port) async {
       const log = AlfredLoggingDelegatePrintImpl();
-      app.get('/my/directory/*.pdf', ServeDirectory.at('test/files', log));
+      app.addRoutes(
+        [
+          const RouteGet(
+            path: '/my/directory/*.pdf',
+            middleware: ServeDirectory.at('test/files', log),
+          ),
+        ],
+      );
       final r1 = await http.get(Uri.parse('http://localhost:$port/my/directory/dummy.pdf'));
       expect(r1.statusCode, 200);
       expect(r1.headers['content-type'], 'application/pdf');
@@ -322,8 +534,18 @@ void main() {
   test('it serves SPA projects', () async {
     await runTest(fn: (app, built, port) async {
       const log = AlfredLoggingDelegatePrintImpl();
-      app.get('/spa/*', ServeDirectory.at('test/files/spa', log));
-      app.get('/spa/*', ServeFile.at('test/files/spa/index.html'));
+      app.addRoutes(
+        [
+          const RouteGet(
+            path: '/spa/*',
+            middleware: ServeDirectory.at('test/files/spa', log),
+          ),
+          const RouteGet(
+            path: '/spa/*',
+            middleware: ServeFile.at('test/files/spa/index.html'),
+          ),
+        ],
+      );
       final r1 = await http.get(Uri.parse('http://localhost:$port/spa'));
       expect(r1.statusCode, 200);
       expect(r1.headers['content-type'], 'text/html');
@@ -344,8 +566,18 @@ void main() {
   });
   test('it does not crash when File not exists', () async {
     await runTest(fn: (app, built, port) async {
-      app.get('error', ServeFile.at('does-not-exists'));
-      app.get('works', const ServeString('works!'));
+      app.addRoutes(
+        [
+          const RouteGet(
+            path: 'error',
+            middleware: ServeFile.at('does-not-exists'),
+          ),
+          const RouteGet(
+            path: 'works',
+            middleware: ServeString('works!'),
+          ),
+        ],
+      );
       await http.get(Uri.parse('http://localhost:$port/error'));
       final request = await http.get(Uri.parse('http://localhost:$port/works'));
       expect(request.statusCode, 200);
@@ -353,23 +585,46 @@ void main() {
   });
   test('it routes correctly for a / url', () async {
     await runTest(fn: (app, built, port) async {
-      app.get('/', const ServeString('working'));
+      app.addRoutes(
+        [
+          const RouteGet(
+            path: '/',
+            middleware: ServeString('working'),
+          ),
+        ],
+      );
       final response = await http.get(Uri.parse('http://localhost:$port/'));
       expect(response.body, 'working');
     });
   });
   test('it handles params', () async {
     await runTest(fn: (app, built, port) async {
-      app.get('/test/:id', MiddlewareBuilder((context) async {
-        context.res.write(context.arguments!['id']);
-      }));
+      app.addRoutes(
+        [
+          RouteGet(
+            path: '/test/:id',
+            middleware: MiddlewareBuilder(
+              (context) async {
+                context.res.write(context.arguments!['id']);
+              },
+            ),
+          )
+        ],
+      );
       final response = await http.get(Uri.parse('http://localhost:$port/test/15'));
       expect(response.body, '15');
     });
   });
   test('it should implement cors correctly', () async {
     await runTest(fn: (app, built, port) async {
-      app.all('*', const CorsMiddleware(origin: 'test-origin'));
+      app.addRoutes(
+        [
+          const RouteAll(
+            path: '*',
+            middleware: CorsMiddleware(origin: 'test-origin'),
+          ),
+        ],
+      );
       final response = await http.get(Uri.parse('http://localhost:$port/test'));
       expect(response.headers.containsKey('access-control-allow-origin'), true);
       expect(response.headers['access-control-allow-origin'], 'test-origin');
@@ -388,8 +643,15 @@ void main() {
   test('it should log out request information', () async {
     final logs = <String>[];
     await runTest(
-      fn: (app, built, port) async {
-        app.get('/resource', const ServeString('response'));
+      fn: (final app, final built, final port) async {
+        app.addRoutes(
+          [
+            const RouteGet(
+              path: '/resource',
+              middleware: ServeString('response'),
+            ),
+          ],
+        );
         await http.get(Uri.parse('http://localhost:$port/resource'));
         bool inLog(String part) => logs.isNotEmpty && logs.where((log) => log.contains(part)).isNotEmpty;
         print(logs.join("\n"));
@@ -436,6 +698,13 @@ class _AlfredExceptionImpl implements AlfredResponseException {
     final this.statusCode,
     final this.response,
   );
+
+  @override
+  Z match<Z>({
+    required final Z Function(AlfredResponseException p1) response,
+    required final Z Function(AlfredNotFoundException p1) notFound,
+  }) =>
+      response(this);
 }
 
 class NonClosingMiddleware implements Middleware {

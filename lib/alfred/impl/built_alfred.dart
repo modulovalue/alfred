@@ -11,24 +11,24 @@ class BuiltAlfredImpl implements BuiltAlfred {
   final Queue requestQueue;
   bool closed = false;
   @override
-  final ServerArguments args;
+  final ServerConfig args;
 
   static Future<BuiltAlfredImpl> make({
-    required final ServerArguments args,
+    required final ServerConfig config,
     required final AlfredLoggingDelegate log,
     required final Future<void> Function(HttpRequest request) requestHandler,
   }) async {
-    final requestQueue = Queue(parallel: args.simultaneousProcessing);
-    final server = await _buildHttpServer(args);
+    final requestQueue = Queue(parallel: config.simultaneousProcessing);
+    final server = await _buildHttpServer(config);
     // ignore: cancel_subscriptions, unused_local_variable
     final serverSubscription = server.listen(
       (final request) => requestQueue.add(() => requestHandler(request)),
     );
-    log.onIsListening(args);
+    log.onIsListening(config);
     return BuiltAlfredImpl._(
       requestQueue: requestQueue,
       server: server,
-      args: args,
+      args: config,
     );
   }
 
@@ -64,7 +64,7 @@ Future<HttpServer> _buildHttpServer(
       ..idleTimeout = args.idleTimeout
       ..autoCompress = true;
 
-class ServerArgumentsImpl implements ServerArguments {
+class ServerConfigImpl implements ServerConfig {
   @override
   final String bindIp;
   @override
@@ -76,7 +76,7 @@ class ServerArgumentsImpl implements ServerArguments {
   @override
   final Duration idleTimeout;
 
-  const ServerArgumentsImpl({
+  const ServerConfigImpl({
     required final this.bindIp,
     required final this.shared,
     required final this.port,
@@ -85,14 +85,14 @@ class ServerArgumentsImpl implements ServerArguments {
   });
 }
 
-class ServerArgumentsDefault implements ServerArguments {
+class ServerConfigDefault implements ServerConfig {
   static const String defaultBindIp = '0.0.0.0';
   static const int defaultPort = 80;
   static const int defaultSimultaneousProcessing = 50;
   static const bool defaultShared = true;
   static const Duration defaultIdleTimeout = Duration(seconds: 1);
 
-  const ServerArgumentsDefault();
+  const ServerConfigDefault();
 
   @override
   String get bindIp => defaultBindIp;
@@ -110,23 +110,23 @@ class ServerArgumentsDefault implements ServerArguments {
   Duration get idleTimeout => defaultIdleTimeout;
 }
 
-class ServerArgumentsDefaultWithPort implements ServerArguments {
+class ServerConfigDefaultWithPort implements ServerConfig {
   @override
   final int port;
 
-  const ServerArgumentsDefaultWithPort(
+  const ServerConfigDefaultWithPort(
     final this.port,
   );
 
   @override
-  String get bindIp => ServerArgumentsDefault.defaultBindIp;
+  String get bindIp => ServerConfigDefault.defaultBindIp;
 
   @override
-  bool get shared => ServerArgumentsDefault.defaultShared;
+  bool get shared => ServerConfigDefault.defaultShared;
 
   @override
-  int get simultaneousProcessing => ServerArgumentsDefault.defaultSimultaneousProcessing;
+  int get simultaneousProcessing => ServerConfigDefault.defaultSimultaneousProcessing;
 
   @override
-  Duration get idleTimeout => ServerArgumentsDefault.defaultIdleTimeout;
+  Duration get idleTimeout => ServerConfigDefault.defaultIdleTimeout;
 }

@@ -16,22 +16,36 @@ import 'route_factory.dart';
 import 'route_factory_mixin.dart';
 import 'serve_context.dart';
 
+Future<BuiltAlfred> helloAlfred({
+  required final Iterable<Route> routes,
+  final int? port,
+}) =>
+    buildAlfred(
+      alfred: alfredWithRoutes(
+        routes: routes,
+      ),
+      port: port,
+    );
+
+AlfredImpl alfredWithRoutes({
+  required final Iterable<Route> routes,
+}) {
+  final alfred = AlfredImpl();
+  alfred.addRoutes(routes);
+  return alfred;
+}
+
 class AlfredImpl with HttpRouteFactoryBoilerplateMixin implements Alfred {
   @override
   final List<HttpRoute> routes;
 
   final Middleware onNotFound;
 
-  final Middleware Function(dynamic error) onInternalError;
+  final Middleware Function(Object error) onInternalError;
 
-  /// Creates a new Alfred application.
-  ///
-  /// simultaneousProcessing is the number of requests doing work at any one
-  /// time. If the amount of unprocessed incoming requests exceed this number,
-  /// the requests will be queued.
   factory AlfredImpl({
     final Middleware? onNotFound,
-    final Middleware Function(dynamic error)? onInternalError,
+    final Middleware Function(Object error)? onInternalError,
   }) =>
       AlfredImpl.raw(
         routes: <HttpRoute>[],
@@ -48,19 +62,10 @@ class AlfredImpl with HttpRouteFactoryBoilerplateMixin implements Alfred {
   @override
   Future<BuiltAlfredImpl> build({
     final AlfredLoggingDelegate log = const AlfredLoggingDelegatePrintImpl(),
-    final int port = 80,
-    final String bindIp = '0.0.0.0',
-    final bool shared = true,
-    final int simultaneousProcessing = 50,
+    final ServerConfig config = const ServerConfigDefault(),
   }) async =>
       BuiltAlfredImpl.make(
-        args: ServerArgumentsImpl(
-          bindIp: bindIp,
-          shared: shared,
-          port: port,
-          simultaneousProcessing: simultaneousProcessing,
-          idleTimeout: ServerArgumentsDefault.defaultIdleTimeout,
-        ),
+        config: config,
         log: log,
         requestHandler: (
           final HttpRequest request,
@@ -168,6 +173,19 @@ class AlfredImpl with HttpRouteFactoryBoilerplateMixin implements Alfred {
       method,
     );
     routes.add(route);
+  }
+}
+
+Future<BuiltAlfred> buildAlfred({
+  required final Alfred alfred,
+  final int? port,
+}) {
+  if (port == null) {
+    return alfred.build();
+  } else {
+    return alfred.build(
+      config: ServerConfigDefaultWithPort(port),
+    );
   }
 }
 

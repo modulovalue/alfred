@@ -1,4 +1,5 @@
 import 'package:alfred/alfred/impl/alfred.dart';
+import 'package:alfred/alfred/impl/built_alfred.dart';
 import 'package:alfred/alfred/impl/logging/log_type.dart';
 import 'package:alfred/alfred/impl/logging/print.dart';
 import 'package:alfred/alfred/impl/middleware/default_404.dart';
@@ -12,7 +13,10 @@ Future<void> runTest({
   final Middleware notFound = const NotFound404Middleware(),
 }) async {
   final app = AlfredImpl(onNotFound: notFound);
-  final built = await app.build(port: 0, log: LOG);
+  final built = await app.build(
+    config: const ServerConfigDefaultWithPort(0),
+    log: LOG,
+  );
   await fn(app, built, built.server.port);
   await built.close();
 }

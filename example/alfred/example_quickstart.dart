@@ -1,9 +1,14 @@
 import 'package:alfred/alfred/impl/alfred.dart';
 import 'package:alfred/alfred/impl/middleware/string.dart';
+import 'package:alfred/alfred/interface/http_route_factory.dart';
 
 Future<void> main() async {
-  final app = AlfredImpl();
-  app.get('/example', const ServeString('Hello world'));
-  await app.build();
+  await helloAlfred(
+    routes: [
+      const RouteGet(
+        path: "/example",
+        middleware: ServeString('Hello world'),
+      )
+    ],
+  );
 }
-

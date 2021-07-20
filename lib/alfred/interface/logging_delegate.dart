@@ -2,7 +2,7 @@ import 'alfred.dart';
 
 abstract class AlfredLoggingDelegate {
   void onIsListening(
-    final ServerArguments arguments,
+    final ServerConfig arguments,
   );
 
   void onIncomingRequest(

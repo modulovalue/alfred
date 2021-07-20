@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:alfred/alfred/impl/middleware/websocket.dart';
+import 'package:alfred/alfred/interface/http_route_factory.dart';
 import 'package:test/test.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -12,7 +13,14 @@ void main() {
     test('it correctly handles a websocket error', () async {
       await runTest(fn: (alfred, built, port) async {
         final ws = WebSocketSessionTest2Impl();
-        alfred.get('/ws', WebSocketValueMiddleware(ws));
+        alfred.addRoutes(
+          [
+            RouteGet(
+              path: '/ws',
+              middleware: WebSocketValueMiddleware(ws),
+            ),
+          ],
+        );
         final channel = IOWebSocketChannel.connect('ws://localhost:$port/ws');
         await Future<void>.delayed(const Duration(milliseconds: 500));
         channel.sink.add('test');
@@ -23,7 +31,14 @@ void main() {
     test('it can handle websockets', () async {
       await runTest(fn: (alfred, built, port) async {
         final ws = WebSocketSessionTest1Impl();
-        alfred.get('/ws', WebSocketValueMiddleware(ws));
+        alfred.addRoutes(
+          [
+            RouteGet(
+              path: '/ws',
+              middleware: WebSocketValueMiddleware(ws),
+            ),
+          ],
+        );
         final channel = IOWebSocketChannel.connect('ws://localhost:$port/ws');
         channel.sink.add('hi');
         final dynamic response = await channel.stream.first;

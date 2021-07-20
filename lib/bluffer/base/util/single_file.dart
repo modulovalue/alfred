@@ -25,7 +25,9 @@ String constructSinglePageWithMediaQuery({
 }) =>
     constructSinglePage(
       child: MediaQuery(
-        data: const MediaQueryDataImpl(size: MediaSize.medium),
+        data: const MediaQueryDataImpl(
+          size: MediaSize.medium,
+        ),
         child: child,
       ),
     );
@@ -34,7 +36,10 @@ String constructSinglePage({
   required final Widget child,
 }) {
   const assets = AssetsDefaultImpl();
-  final buildContext = BuildContextImpl(assets: assets, styles: {});
+  final buildContext = BuildContextImpl(
+    assets: assets,
+    styles: {},
+  );
   final element = child.render(buildContext);
   return serializeHtml(html: element);
 }

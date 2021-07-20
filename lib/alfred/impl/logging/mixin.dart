@@ -7,23 +7,23 @@ mixin AlfredLoggingDelegateGeneralizingMixin implements AlfredLoggingDelegate {
   LogType get logLevel;
 
   void log(
-    final dynamic Function() messageFn,
+    final String Function() messageFn,
     final LogType type,
   );
 
   @override
   void onIsListening(
-    final ServerArguments args,
+    final ServerConfig args,
   ) =>
       log(
         () =>
             'HTTP Server listening on port: ' +
             args.port.toString() +
-            " boundIp: " +
+            " • boundIp: " +
             args.bindIp +
-            " shared: " +
+            " • shared: " +
             args.shared.toString() +
-            " simultaneousProcessing: " +
+            " • simultaneousProcessing: " +
             args.simultaneousProcessing.toString(),
         LogType.info,
       );
@@ -71,11 +71,11 @@ mixin AlfredLoggingDelegateGeneralizingMixin implements AlfredLoggingDelegate {
     final StackTrace s,
   ) {
     log(
-      () => e,
+      () => e.toString(),
       LogType.error,
     );
     log(
-      () => s,
+      () => s.toString(),
       LogType.error,
     );
   }

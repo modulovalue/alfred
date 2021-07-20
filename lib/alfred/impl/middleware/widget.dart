@@ -14,6 +14,7 @@ abstract class ServeWidget implements Middleware {
   const factory ServeWidget.app({
     required final String title,
     required final Widget child,
+    final void Function()? onProcess,
   }) = _ServeWidgetAppImpl;
 }
 
@@ -56,16 +57,18 @@ class _ServeWidgetImpl implements ServeWidget {
 class _ServeWidgetAppImpl implements ServeWidget {
   final Widget child;
   final String title;
-
+  final void Function()? onProcess;
   const _ServeWidgetAppImpl({
     required final this.title,
     required final this.child,
+    final this.onProcess,
   });
 
   @override
   Future<void> process(
     final ServeContext c,
   ) {
+    onProcess?.call();
     final html = singlePage(
       builder: (final context) => AppWidget(
         route: WidgetRouteSimpleImpl(

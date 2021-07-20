@@ -14,5 +14,8 @@ class ServetBuilder implements Middleware {
   @override
   Future<void> process(
     final ServeContext c,
-  ) async => (await builder(c)).process(c);
+  ) async {
+    final built = await builder(c);
+    await built.process(c);
+  }
 }

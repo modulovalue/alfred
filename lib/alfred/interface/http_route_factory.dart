@@ -1,54 +1,142 @@
 import '../../base/method.dart';
 import 'middleware.dart';
 
-/// TODO have widget style routes.
+abstract class Route {
+  String get path;
+
+  BuiltinMethod get method;
+
+  // TODO find a better name for middleware.
+  Middleware get middleware;
+}
+
+class RouteImpl implements Route {
+  @override
+  final String path;
+  @override
+  final BuiltinMethod method;
+  @override
+  final Middleware middleware;
+
+  const RouteImpl({
+    required final this.path,
+    required final this.method,
+    required final this.middleware,
+  });
+}
+
+class RouteGet implements Route {
+  @override
+  final String path;
+  @override
+  final Middleware middleware;
+
+  const RouteGet({
+    required final this.path,
+    required final this.middleware,
+  });
+
+  @override
+  BuiltinMethod get method => Methods.get;
+}
+
+class RoutePut implements Route {
+  @override
+  final String path;
+  @override
+  final Middleware middleware;
+
+  const RoutePut({
+    required final this.path,
+    required final this.middleware,
+  });
+
+  @override
+  BuiltinMethod get method => Methods.put;
+}
+
+class RouteDelete implements Route {
+  @override
+  final String path;
+  @override
+  final Middleware middleware;
+
+  const RouteDelete({
+    required final this.path,
+    required final this.middleware,
+  });
+
+  @override
+  BuiltinMethod get method => Methods.delete;
+}
+
+class RouteOptions implements Route {
+  @override
+  final String path;
+  @override
+  final Middleware middleware;
+
+  const RouteOptions({
+    required final this.path,
+    required final this.middleware,
+  });
+
+  @override
+  BuiltinMethod get method => Methods.options;
+}
+
+class RoutePatch implements Route {
+  @override
+  final String path;
+  @override
+  final Middleware middleware;
+
+  const RoutePatch({
+    required final this.path,
+    required final this.middleware,
+  });
+
+  @override
+  BuiltinMethod get method => Methods.patch;
+}
+
+class RouteAll implements Route {
+  @override
+  final String path;
+  @override
+  final Middleware middleware;
+
+  const RouteAll({
+    required final this.path,
+    required final this.middleware,
+  });
+
+  @override
+  BuiltinMethod get method => Methods.all;
+}
+
+class RoutePost implements Route {
+  @override
+  final String path;
+  @override
+  final Middleware middleware;
+
+  const RoutePost({
+    required final this.path,
+    required final this.middleware,
+  });
+
+  @override
+  BuiltinMethod get method => Methods.post;
+}
+
 abstract class HttpRouteFactory {
-  /// Create a get route.
-  void get(
-    final String path,
-    final Middleware callback,
-  );
-
-  /// Create a post route.
-  void post(
-    final String path,
-    final Middleware callback,
-  );
-
-  /// Create a put route.
-  void put(
-    final String path,
-    final Middleware callback,
-  );
-
-  /// Create afinal  delete route.
-  void delete(
-    final String path,
-    final Middleware callback,
-  );
-
-  /// Create a patch route.
-  void patch(
-    final String path,
-    final Middleware callback,
-  );
-
-  /// Create an options route.
-  void options(
-    final String path,
-    final Middleware callback,
-  );
-
-  /// Create a route that listens on all methods.
-  void all(
-    final String path,
-    final Middleware callback,
+  void addRoutes(
+    final Iterable<Route> route,
   );
 
   /// Creates one or multiple route segments that can be used
-  /// as a common base for specifying routes with [get], [post], etc.
-  ///
-  /// You can define middleware that effects all sub-routes.
+  /// as a common base for specifying further routes.
   HttpRouteFactory route(
     final String path,
   );
@@ -61,6 +149,7 @@ abstract class HttpRoute {
 
   BuiltinMethod get method;
 
-  /// Returns `true` if route can match multiple routes due to usage of wildcards (`*`).
+  /// Returns `true` if route can match multiple
+  /// routes due to usage of wildcards (`*`).
   bool get usesWildcardMatcher;
 }

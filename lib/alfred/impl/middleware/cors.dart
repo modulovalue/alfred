@@ -8,6 +8,15 @@ import '../../interface/serve_context.dart';
 ///
 /// Has some sensible defaults. You probably want to change the origin
 class CorsMiddleware implements Middleware {
+  static const String defaultMethods = MethodPost.postString +
+      ', ' +
+      MethodGet.getString +
+      ', ' +
+      MethodOptions.optionsString +
+      ', ' +
+      MethodPut.putString +
+      ', ' +
+      MethodPatch.patchString;
   final int age;
   final String headers;
   final String methods;
@@ -16,15 +25,7 @@ class CorsMiddleware implements Middleware {
   const CorsMiddleware({
     final this.age = 86400,
     final this.headers = '*',
-    final this.methods = MethodPost.postString +
-        ', ' +
-        MethodGet.getString +
-        ', ' +
-        MethodOptions.optionsString +
-        ', ' +
-        MethodPut.putString +
-        ', ' +
-        MethodPatch.patchString,
+    final this.methods = defaultMethods,
     final this.origin = '*',
   });
 

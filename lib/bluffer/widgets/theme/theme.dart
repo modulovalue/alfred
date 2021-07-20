@@ -40,6 +40,129 @@ class ThemeData {
     required final this.text,
   });
 
+  factory ThemeData.base(
+    final BuildContext context,
+  ) {
+    final size = MediaQuery.of(context)!.size;
+    return ThemeData(
+      text: ThemeTextData(
+        paragraph: ThemeDataDefaults.paragraph(size: size),
+        header1: ThemeDataDefaults.header1(size: size),
+        header2: ThemeDataDefaults.header2(size: size),
+        header3: ThemeDataDefaults.header3(size: size),
+        activeLink: ThemeDataDefaults.activeLink(size: size),
+        inactiveLink: ThemeDataDefaults.inactiveLink(size: size),
+        hoverLink: ThemeDataDefaults.hoverLink(size: size),
+      ),
+    );
+  }
+}
+
+class ThemeTextData {
+  final TextStyle paragraph;
+  final TextStyle header1;
+  final TextStyle header2;
+  final TextStyle header3;
+  final TextStyle inactiveLink;
+  final TextStyle activeLink;
+  final TextStyle hoverLink;
+
+  const ThemeTextData({
+    required final this.paragraph,
+    required final this.header1,
+    required final this.header2,
+    required final this.header3,
+    required final this.inactiveLink,
+    required final this.activeLink,
+    required final this.hoverLink,
+  });
+}
+
+abstract class ThemeDataDefaults {
+  static TextStyle paragraph({
+    required final MediaSize size,
+    final String? fontFamily,
+  }) =>
+      TextStyle(
+        color: const Color(0xFF000000),
+        fontSize: defaultParagraphFontSize(size),
+        fontFamily: fontFamily,
+        fontWeight: FontWeight.w400,
+        fontFamilyFallback: ['sans-serif'],
+      );
+
+  static TextStyle header1({
+    required final MediaSize size,
+    final String? fontFamily,
+  }) =>
+      TextStyle(
+        color: const Color(0xFF000000),
+        fontSize: defaultHeader1FontSize(size),
+        fontFamily: fontFamily,
+        fontWeight: FontWeight.w700,
+        fontFamilyFallback: ['sans-serif'],
+      );
+
+  static TextStyle header2({
+    required final MediaSize size,
+    final String? fontFamily,
+  }) =>
+      TextStyle(
+        color: const Color(0xFF000000),
+        fontSize: defaultHeader2FontSize(size),
+        fontFamily: fontFamily,
+        fontWeight: FontWeight.w700,
+        fontFamilyFallback: ['sans-serif'],
+      );
+
+  static TextStyle header3({
+    required final MediaSize size,
+    final String? fontFamily,
+  }) =>
+      TextStyle(
+        color: const Color(0xFF000000),
+        fontSize: defaultHeader3FontSize(size),
+        fontFamily: fontFamily,
+        fontWeight: FontWeight.w700,
+        fontFamilyFallback: ['sans-serif'],
+      );
+
+  static TextStyle activeLink({
+    required final MediaSize size,
+    final String? fontFamily,
+  }) =>
+      TextStyle(
+        color: const Color(0xFF000000),
+        fontSize: defaultParagraphFontSize(size),
+        fontFamily: fontFamily,
+        fontWeight: FontWeight.w400,
+        fontFamilyFallback: ['sans-serif'],
+      );
+
+  static TextStyle inactiveLink({
+    required final MediaSize size,
+    final String? fontFamily,
+  }) =>
+      TextStyle(
+        color: const Color(0xFF000000),
+        fontSize: defaultParagraphFontSize(size),
+        fontFamily: fontFamily,
+        fontWeight: FontWeight.w400,
+        fontFamilyFallback: ['sans-serif'],
+      );
+
+  static TextStyle hoverLink({
+    required final MediaSize size,
+    final String? fontFamily,
+  }) =>
+      TextStyle(
+        color: const Color(0xFF000000),
+        fontSize: defaultParagraphFontSize(size),
+        fontFamily: fontFamily,
+        fontWeight: FontWeight.w400,
+        fontFamilyFallback: ['sans-serif'],
+      );
+
   static double defaultParagraphFontSize(
     final MediaSize size,
   ) {
@@ -107,91 +230,4 @@ class ThemeData {
         return 24;
     }
   }
-
-  factory ThemeData.base(
-    final BuildContext context, {
-    final String? fontFamily,
-  }) {
-    final size = MediaQuery.of(context)!.size;
-    return ThemeData(
-      text: ThemeTextData(
-        // TODO move defaults out.
-        paragraph: TextStyle(
-          color: const Color(0xFF000000),
-          fontSize: defaultParagraphFontSize(size),
-          fontFamily: fontFamily,
-          fontWeight: FontWeight.w400,
-          fontFamilyFallback: ['sans-serif'],
-        ),
-        // TODO move defaults out.
-        header1: TextStyle(
-          color: const Color(0xFF000000),
-          fontSize: defaultHeader1FontSize(size),
-          fontFamily: fontFamily,
-          fontWeight: FontWeight.w700,
-          fontFamilyFallback: ['sans-serif'],
-        ),
-        // TODO move defaults out.
-        header2: TextStyle(
-          color: const Color(0xFF000000),
-          fontSize: defaultHeader2FontSize(size),
-          fontFamily: fontFamily,
-          fontWeight: FontWeight.w700,
-          fontFamilyFallback: ['sans-serif'],
-        ),
-        // TODO move defaults out.
-        header3: TextStyle(
-          color: const Color(0xFF000000),
-          fontSize: defaultHeader3FontSize(size),
-          fontFamily: fontFamily,
-          fontWeight: FontWeight.w700,
-          fontFamilyFallback: ['sans-serif'],
-        ),
-        // TODO move defaults out.
-        activeLink: TextStyle(
-          color: const Color(0xFF000000),
-          fontSize: defaultParagraphFontSize(size),
-          fontFamily: fontFamily,
-          fontWeight: FontWeight.w400,
-          fontFamilyFallback: ['sans-serif'],
-        ),
-        // TODO move defaults out.
-        inactiveLink: TextStyle(
-          color: const Color(0xFF000000),
-          fontSize: defaultParagraphFontSize(size),
-          fontFamily: fontFamily,
-          fontWeight: FontWeight.w400,
-          fontFamilyFallback: ['sans-serif'],
-        ),
-        // TODO move defaults out.
-        hoverLink: TextStyle(
-          color: const Color(0xFF000000),
-          fontSize: defaultParagraphFontSize(size),
-          fontFamily: fontFamily,
-          fontWeight: FontWeight.w400,
-          fontFamilyFallback: ['sans-serif'],
-        ),
-      ),
-    );
-  }
-}
-
-class ThemeTextData {
-  final TextStyle paragraph;
-  final TextStyle header1;
-  final TextStyle header2;
-  final TextStyle header3;
-  final TextStyle inactiveLink;
-  final TextStyle activeLink;
-  final TextStyle hoverLink;
-
-  const ThemeTextData({
-    required final this.paragraph,
-    required final this.header1,
-    required final this.header2,
-    required final this.header3,
-    required final this.inactiveLink,
-    required final this.activeLink,
-    required final this.hoverLink,
-  });
 }
