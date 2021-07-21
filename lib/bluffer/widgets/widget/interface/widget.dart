@@ -7,7 +7,7 @@ abstract class KeyWidget<KEY extends Key?> {
   KEY get key;
 }
 
-abstract class HtmlWidget<HTML extends HtmlElement2> {
+abstract class HtmlWidget<HTML extends HtmlElement> {
   HTML renderHtml(
     final BuildContext context,
   );
@@ -20,7 +20,7 @@ abstract class CssWidget<CSS extends CssStyleDeclaration?> {
 }
 
 abstract class HtmlCssWidget<
-        HTML extends HtmlElement2,
+        HTML extends HtmlElement,
         CSS extends CssStyleDeclaration? //
         > //
     implements
@@ -28,7 +28,7 @@ abstract class HtmlCssWidget<
         CssWidget<CSS> {}
 
 abstract class KeyedHtmlCssWidget<
-        HTML extends HtmlElement2,
+        HTML extends HtmlElement,
         CSS extends CssStyleDeclaration?,
         KEY extends Key? //
         > //
@@ -36,7 +36,7 @@ abstract class KeyedHtmlCssWidget<
         HtmlCssWidget<HTML, CSS>,
         KeyWidget<KEY> {}
 
-abstract class RenderWidget<RENDER extends HtmlElement2> {
+abstract class RenderWidget<RENDER extends HtmlElement> {
   RENDER render(
     final BuildContext context,
   );
@@ -44,9 +44,9 @@ abstract class RenderWidget<RENDER extends HtmlElement2> {
 
 abstract class Widget<
         KEY extends Key?,
-        HTML extends HtmlElement2,
+        HTML extends HtmlElement,
         CSS extends CssStyleDeclaration?,
-        RENDER extends HtmlElement2 //
+        RENDER extends HtmlElement //
         > //
     implements
         KeyedHtmlCssWidget<HTML, CSS, KEY>,

@@ -2,7 +2,7 @@ import '../css/css.dart';
 import '../css/empty.dart';
 import 'html.dart';
 
-mixin HtmlElementMixin2 implements HtmlElement2 {
+mixin HtmlElementMixin implements HtmlElement {
   @override
   String? className;
   @override
@@ -14,8 +14,8 @@ mixin HtmlElementMixin2 implements HtmlElement2 {
   CssStyleDeclaration2EmptyImpl get style => const CssStyleDeclaration2EmptyImpl();
 }
 
-class BRElement2Impl with HtmlElementMixin2 implements BRElement2 {
-  BRElement2Impl();
+class BRElementImpl with HtmlElementMixin implements BRElement {
+  BRElementImpl();
 
   @override
   R acceptHtmlElementOneArg<R, A>(
@@ -32,16 +32,16 @@ class BRElement2Impl with HtmlElementMixin2 implements BRElement2 {
       v.visitEntityElement(this, a);
 }
 
-class HtmlHtmlElement2Impl with HtmlElementMixin2 implements HtmlHtmlElement2 {
-  factory HtmlHtmlElement2Impl.make(
+class HtmlHtmlElementImpl with HtmlElementMixin implements HtmlHtmlElement {
+  factory HtmlHtmlElementImpl.make(
     final Iterable<HtmlEntity> nodes,
   ) {
-    final node = HtmlHtmlElement2Impl._();
+    final node = HtmlHtmlElementImpl._();
     node.childNodes.addAll(nodes);
     return node;
   }
 
-  HtmlHtmlElement2Impl._();
+  HtmlHtmlElementImpl._();
 
   @override
   R acceptHtmlElementOneArg<R, A>(
@@ -58,10 +58,10 @@ class HtmlHtmlElement2Impl with HtmlElementMixin2 implements HtmlHtmlElement2 {
       v.visitEntityElement(this, a);
 }
 
-class MetaElement2Impl with HtmlElementMixin2 implements MetaElement2 {
+class MetaElementImpl with HtmlElementMixin implements MetaElement {
   final Map<String, String> attributes = {};
 
-  MetaElement2Impl();
+  MetaElementImpl();
 
   @override
   void setAttribute(
@@ -91,16 +91,16 @@ class MetaElement2Impl with HtmlElementMixin2 implements MetaElement2 {
       v.visitEntityElement(this, a);
 }
 
-class BodyElement2Impl with HtmlElementMixin2 implements BodyElement2 {
-  factory BodyElement2Impl.make(
+class BodyElementImpl with HtmlElementMixin implements BodyElement {
+  factory BodyElementImpl.make(
     final Iterable<HtmlEntity> nodes,
   ) {
-    final node = BodyElement2Impl._();
+    final node = BodyElementImpl._();
     node.childNodes.addAll(nodes);
     return node;
   }
 
-  BodyElement2Impl._();
+  BodyElementImpl._();
 
   @override
   R acceptHtmlElementOneArg<R, A>(
@@ -117,11 +117,11 @@ class BodyElement2Impl with HtmlElementMixin2 implements BodyElement2 {
       v.visitEntityElement(this, a);
 }
 
-class RawTextElement2Impl implements RawTextElement2 {
+class RawTextElementImpl implements RawTextElement {
   @override
   final String text;
 
-  const RawTextElement2Impl(
+  const RawTextElementImpl(
     final this.text,
   );
 
@@ -140,13 +140,13 @@ class RawTextElement2Impl implements RawTextElement2 {
       v.visitEntityNode(this, a);
 }
 
-class CssTextElement2Impl implements CssTextElement2 {
+class CssTextElementImpl implements CssTextElement {
   @override
   final String key;
   @override
   final CssStyleDeclaration css;
 
-  const CssTextElement2Impl(
+  const CssTextElementImpl(
     final this.key,
     final this.css,
   );
@@ -166,16 +166,22 @@ class CssTextElement2Impl implements CssTextElement2 {
       v.visitEntityNode(this, a);
 }
 
-// Makes this immutable.
-class ScriptElement2Impl with HtmlElementMixin2 implements ScriptElement2 {
+class ScriptElementImpl with HtmlElementMixin implements ScriptElement {
   @override
-  bool? async;
+  final bool? async;
   @override
-  bool? defer;
+  final bool? defer;
   @override
-  String? src;
+  final String? src;
+  @override
+  final String? content;
 
-  ScriptElement2Impl();
+  ScriptElementImpl({
+    final this.async,
+    final this.defer,
+    final this.src,
+    final this.content,
+  });
 
   @override
   R acceptHtmlElementOneArg<R, A>(
@@ -192,13 +198,13 @@ class ScriptElement2Impl with HtmlElementMixin2 implements ScriptElement2 {
       v.visitEntityElement(this, a);
 }
 
-class LinkElement2Impl with HtmlElementMixin2 implements LinkElement2 {
+class LinkElementImpl with HtmlElementMixin implements LinkElement {
   @override
-  String? href;
+  final String? href;
   @override
-  String? rel;
+  final String? rel;
 
-  LinkElement2Impl({
+  LinkElementImpl({
     required final this.href,
     required final this.rel,
   });
@@ -218,11 +224,13 @@ class LinkElement2Impl with HtmlElementMixin2 implements LinkElement2 {
       v.visitEntityElement(this, a);
 }
 
-class TitleElement2Impl with HtmlElementMixin2 implements TitleElement2 {
+class TitleElementImpl with HtmlElementMixin implements TitleElement {
   @override
-  String? text;
+  final String? text;
 
-  TitleElement2Impl();
+  TitleElementImpl({
+    required final this.text,
+  });
 
   @override
   R acceptHtmlElementOneArg<R, A>(
@@ -239,16 +247,16 @@ class TitleElement2Impl with HtmlElementMixin2 implements TitleElement2 {
       v.visitEntityElement(this, a);
 }
 
-class StyleElement2Impl with HtmlElementMixin2 implements StyleElement2 {
-  factory StyleElement2Impl.make(
+class StyleElementImpl with HtmlElementMixin implements StyleElement {
+  factory StyleElementImpl.make(
     final Iterable<HtmlEntity> nodes,
   ) {
-    final node = StyleElement2Impl._();
+    final node = StyleElementImpl._();
     node.childNodes.addAll(nodes);
     return node;
   }
 
-  StyleElement2Impl._();
+  StyleElementImpl._();
 
   @override
   R acceptHtmlElementOneArg<R, A>(
@@ -265,8 +273,8 @@ class StyleElement2Impl with HtmlElementMixin2 implements StyleElement2 {
       v.visitEntityElement(this, a);
 }
 
-class ParagraphElement2Impl with HtmlElementMixin2 implements ParagraphElement2 {
-  ParagraphElement2Impl();
+class ParagraphElementImpl with HtmlElementMixin implements ParagraphElement {
+  ParagraphElementImpl();
 
   @override
   R acceptHtmlElementOneArg<R, A>(
@@ -283,13 +291,16 @@ class ParagraphElement2Impl with HtmlElementMixin2 implements ParagraphElement2 
       v.visitEntityElement(this, a);
 }
 
-class ImageElement2Impl with HtmlElementMixin2 implements ImageElement2 {
+class ImageElementImpl with HtmlElementMixin implements ImageElement {
   @override
-  String? alt;
+  final String? alt;
   @override
-  String? src;
+  final String? src;
 
-  ImageElement2Impl();
+  ImageElementImpl({
+    required final this.alt,
+    required final this.src,
+  });
 
   @override
   R acceptHtmlElementOneArg<R, A>(
@@ -306,7 +317,7 @@ class ImageElement2Impl with HtmlElementMixin2 implements ImageElement2 {
       v.visitEntityElement(this, a);
 }
 
-class DivElement2Impl implements DivElement2 {
+class DivElementImpl implements DivElement {
   @override
   String? className;
   @override
@@ -316,19 +327,19 @@ class DivElement2Impl implements DivElement2 {
   @override
   final CssStyleDeclaration style;
 
-  DivElement2Impl.empty()
+  DivElementImpl.empty()
       : childNodes = [],
         style = const CssStyleDeclaration2EmptyImpl(),
         className = null,
         id = null;
 
-  DivElement2Impl.make({
+  DivElementImpl.make({
     required final this.className,
     required final this.id,
     required final this.childNodes,
   }) : style = const CssStyleDeclaration2EmptyImpl();
 
-  DivElement2Impl.custom(
+  DivElementImpl.custom(
     final this.style,
   )   : className = null,
         id = null,
@@ -349,13 +360,16 @@ class DivElement2Impl implements DivElement2 {
       v.visitEntityElement(this, a);
 }
 
-class AnchorElement2Impl with HtmlElementMixin2 implements AnchorElement2 {
+class AnchorElementImpl with HtmlElementMixin implements AnchorElement {
   @override
-  String? href;
+  final String? href;
   @override
-  String? target;
+  final String? target;
 
-  AnchorElement2Impl();
+  AnchorElementImpl({
+    required final this.href,
+    required final this.target,
+  });
 
   @override
   R acceptHtmlElementOneArg<R, A>(
@@ -372,17 +386,17 @@ class AnchorElement2Impl with HtmlElementMixin2 implements AnchorElement2 {
       v.visitEntityElement(this, a);
 }
 
-class HeadElement2Impl with HtmlElementMixin2 implements HeadElement2 {
-  factory HeadElement2Impl.make(
+class HeadElementImpl with HtmlElementMixin implements HeadElement {
+  factory HeadElementImpl.make(
     final Iterable<HtmlEntity> children,
   ) {
     // TODO pass children directly to the element.
-    final node = HeadElement2Impl._();
+    final node = HeadElementImpl._();
     node.childNodes.addAll(children);
     return node;
   }
 
-  HeadElement2Impl._();
+  HeadElementImpl._();
 
   @override
   R acceptHtmlElementOneArg<R, A>(

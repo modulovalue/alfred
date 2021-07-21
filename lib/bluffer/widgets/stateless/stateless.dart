@@ -17,13 +17,13 @@ abstract class StatelessWidget implements Widget {
   );
 
   @override
-  HtmlElement2 renderHtml(
+  HtmlElement renderHtml(
     final BuildContext context,
   ) =>
       build(context).render(context);
 
   @override
-  HtmlElement2 render(
+  HtmlElement render(
     final BuildContext context,
   ) =>
       renderWidget(this, context);

@@ -11,7 +11,7 @@ import 'print_log.dart';
 
 void publishApp({
   required final App root,
-  required final void Function(String targetPath, HtmlElement2 element) serializeTo,
+  required final void Function(String targetPath, HtmlElement element) serializeTo,
 }) {
   const log = PublishingLogPrintImpl(print);
   const assets = AssetsDefaultImpl();
@@ -48,7 +48,7 @@ abstract class PublishAppContext {
 
   void serializeTo(
     final String targetPath,
-    final HtmlElement2 element,
+    final HtmlElement element,
   );
 }
 
@@ -95,7 +95,7 @@ void publishRaw({
   required final PublishingAssetLog assetLog,
   required final PublishingRouteLog routeLog,
   required final Assets assets,
-  required final void Function(String targetPath, HtmlElement2 element) serializeTo,
+  required final void Function(String targetPath, HtmlElement element) serializeTo,
 }) {
   final context = BuildContextImpl(assets: assets, styles: {});
   final supportedLocales = application.supportedLocales;
@@ -169,7 +169,7 @@ void processRoutes({
   required final BuildContext context,
   required final Locale locale,
   required final Directory localeDirectory,
-  required final void Function(String targetPath, HtmlElement2 element) serializeTo,
+  required final void Function(String targetPath, HtmlElement element) serializeTo,
 }) {
   for (final route in application.routes) {
     log.processingRoute(route);

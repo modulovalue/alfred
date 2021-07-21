@@ -109,14 +109,14 @@ class Text implements Widget {
   });
 
   @override
-  HtmlElement2 renderHtml(
+  HtmlElement renderHtml(
     final BuildContext context,
   ) {
     final lines = data.split('\n');
-    return ParagraphElement2Impl()
+    return ParagraphElementImpl()
       ..childNodes.addAll(
         [
-          RawTextElement2Impl(lines.first),
+          RawTextElementImpl(lines.first),
           // if (lines.length > 1) ...lines.skip(1).expand((x) => [BRElement2Impl(), TextElement2Impl(x)]),
         ],
       );
@@ -188,7 +188,7 @@ class Text implements Widget {
   }
 
   @override
-  HtmlElement2 render(
+  HtmlElement render(
     final BuildContext context,
   ) =>
       renderWidget(this, context);

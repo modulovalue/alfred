@@ -67,14 +67,14 @@ class Image implements Widget {
         css_display: "flex",
         css_width: () {
           if (width != null) {
-            return '${width}px';
+            return width.toString() + 'px';
           } else {
             return null;
           }
         }(),
         css_height: () {
           if (height != null) {
-            return '${height}px';
+            return height.toString() + 'px';
           } else {
             return null;
           }
@@ -96,19 +96,22 @@ class Image implements Widget {
       );
 
   @override
-  HtmlElement2 renderHtml(
+  HtmlElement renderHtml(
     final BuildContext context,
-  ) {
-    final result = ImageElement2Impl();
-    result.src = resolveUrl(context, image.url);
-    if (semanticsLabel != null) {
-      result.alt = semanticsLabel;
-    }
-    return result;
-  }
+  ) =>
+      ImageElementImpl(
+        src: resolveUrl(context, image.url),
+        alt: () {
+          if (semanticsLabel != null) {
+            return semanticsLabel;
+          } else {
+            return null;
+          }
+        }(),
+      );
 
   @override
-  HtmlElement2 render(
+  HtmlElement render(
     final BuildContext context,
   ) =>
       renderWidget(this, context);

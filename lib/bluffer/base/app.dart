@@ -42,7 +42,7 @@ class App implements Widget {
       );
 
   @override
-  HtmlElement2 renderHtml(
+  HtmlElement renderHtml(
     final BuildContext context,
   ) {
     final currentRoute = routes.firstWhere((final x) => x.relativeUrl == this.currentRoute);
@@ -50,7 +50,7 @@ class App implements Widget {
   }
 
   @override
-  HtmlElement2 render(
+  HtmlElement render(
     final BuildContext context,
   ) {
     final currentRoute = routes.firstWhere((final x) => x.relativeUrl == this.currentRoute);
@@ -69,7 +69,7 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
 
   final ROUTE route;
   final List<String> stylesheetLinks;
-  final List<ScriptElement2Impl> scriptLinks;
+  final List<ScriptElement> scriptLinks;
   final ThemeData Function(BuildContext context)? theme;
   final Widget Function(BuildContext context, ROUTE child)? builder;
   @override
@@ -80,38 +80,39 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
     final this.theme,
     final this.builder,
     final this.stylesheetLinks = const <String>[],
-    final this.scriptLinks = const <ScriptElement2Impl>[],
+    final this.scriptLinks = const <ScriptElement>[],
   });
 
   @override
-  HtmlElement2 renderHtml(
+  HtmlElement renderHtml(
     final BuildContext context,
   ) =>
-      HtmlHtmlElement2Impl.make(
+      HtmlHtmlElementImpl.make(
         [
-          HeadElement2Impl.make(
+          HeadElementImpl.make(
             [
               // TODO have a meta subclass that already has those attributes.
-              // TODO safely support more attributes.
-              MetaElement2Impl()
+              MetaElementImpl()
                 ..setAttribute('charset', 'UTF-8')
                 ..setAttribute('name', 'viewport')
                 ..setAttribute('content', 'width=device-width, initial-scale=1'),
               for (final link in stylesheetLinks) //
-                LinkElement2Impl(href: link, rel: 'stylesheet'),
+                LinkElementImpl(href: link, rel: 'stylesheet'),
               ...route.head(context),
             ],
           ),
-          StyleElement2Impl.make([
-            const RawTextElement2Impl(resetCss),
-            const RawTextElement2Impl(baseCss),
-            for (final size in availableSizes) //
-              RawTextElement2Impl(mediaClassForMediaSize(availableSizes, size)),
-          ]),
-          BodyElement2Impl.make(
+          StyleElementImpl.make(
+            [
+              const RawTextElementImpl(resetCss),
+              const RawTextElementImpl(baseCss),
+              for (final size in availableSizes) //
+                RawTextElementImpl(mediaClassForMediaSize(availableSizes, size)),
+            ],
+          ),
+          BodyElementImpl.make(
             [
               for (final size in availableSizes)
-                DivElement2Impl.make(
+                DivElementImpl.make(
                   id: null,
                   className: 'size' + size.index.toString(),
                   childNodes: [
@@ -132,22 +133,22 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
                     ).render(context)
                   ],
                 ),
-              for (final link in scriptLinks) link,
+              ...scriptLinks,
             ],
           )
         ],
       );
 
   @override
-  HtmlElement2 render(
+  HtmlElement render(
     final BuildContext context,
   ) {
     final result = renderWidget(this, context);
-    for (final x in result.childNodes) {
-      if (x is StyleElement2) {
+    for (final child in result.childNodes) {
+      if (child is StyleElement) {
         context.styles.entries.forEach(
-          (final e) => x.childNodes.add(
-            CssTextElement2Impl(
+          (final e) => child.childNodes.add(
+            CssTextElementImpl(
               e.key,
               e.value,
             ),
@@ -171,7 +172,7 @@ abstract class WidgetRoute {
     final BuildContext context,
   );
 
-  Iterable<HtmlElement2> head(
+  Iterable<HtmlElement> head(
     final BuildContext context,
   );
 
@@ -226,11 +227,13 @@ class WidgetRouteSimpleImpl with WidgetRouteMixin {
 
 mixin WidgetRouteMixin implements WidgetRoute {
   @override
-  Iterable<HtmlElement2> head(
+  Iterable<HtmlElement> head(
     final BuildContext context,
   ) =>
       [
-        TitleElement2Impl()..text = makeTitle(context),
+        TitleElementImpl(
+          text: makeTitle(context),
+        ),
       ];
 }
 
@@ -246,7 +249,7 @@ class UrlWidgetRoute with WidgetRouteMixin {
   });
 
   @override
-  Widget<Key?, HtmlElement2, CssStyleDeclaration?, HtmlElement2> build(
+  Widget<Key?, HtmlElement, CssStyleDeclaration?, HtmlElement> build(
     final BuildContext context,
   ) =>
       builder(context);

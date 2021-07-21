@@ -4,17 +4,19 @@ import '../../html/html.dart';
 /// Serializes the given HtmlElement into an html string.
 /// TODO use StringBuffer, thread it through the visitors arg parameter.
 String serializeHtml({
-  required final HtmlElement2 html,
-}) => html.acceptHtmlElementOneArg(HtmlElementSerializerVisitor, null);
+  required final HtmlElement html,
+}) =>
+    html.acceptHtmlElementOneArg(HtmlElementSerializerVisitor, null);
 
 const _HtmlElementSerializerVisitorImpl HtmlElementSerializerVisitor = _HtmlElementSerializerVisitorImpl._();
 
+/// TODO extract constants into a spec.
 class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, void>, HtmlNodeVisitor<String, void> {
   const _HtmlElementSerializerVisitorImpl._();
 
   @override
   String visitElementAnchor(
-    final AnchorElement2 node,
+    final AnchorElement node,
     final void arg,
   ) =>
       serializeHtmlNode(
@@ -29,7 +31,7 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
 
   @override
   String visitElementBody(
-    final BodyElement2 node,
+    final BodyElement node,
     final void arg,
   ) =>
       serializeHtmlNode(
@@ -41,7 +43,7 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
 
   @override
   String visitElementBr(
-    final BRElement2 node,
+    final BRElement node,
     final void arg,
   ) =>
       serializeHtmlNode(
@@ -53,7 +55,7 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
 
   @override
   String visitElementDiv(
-    final DivElement2 node,
+    final DivElement node,
     final void arg,
   ) =>
       serializeHtmlNode(
@@ -65,7 +67,7 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
 
   @override
   String visitElementHead(
-    final HeadElement2 node,
+    final HeadElement node,
     final void arg,
   ) =>
       serializeHtmlNode(
@@ -77,7 +79,7 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
 
   @override
   String visitElementHtmlHtml(
-    final HtmlHtmlElement2 node,
+    final HtmlHtmlElement node,
     final void arg,
   ) =>
       serializeHtmlNode(
@@ -89,37 +91,49 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
 
   @override
   String visitElementImage(
-    final ImageElement2 node,
+    final ImageElement node,
     final void arg,
   ) =>
       serializeHtmlNode(
         tag: "img",
-        additionalAttrib: [
-          if (node.src != null) 'src="${node.src!}"',
-          if (node.alt != null) 'alt="${node.alt!}"',
-        ],
+        additionalAttrib: () sync* {
+          final src = node.src;
+          if (src != null) {
+            yield 'src="' + src + '"';
+          }
+          final alt = node.alt;
+          if (alt != null) {
+            yield 'alt="' + alt + '"';
+          }
+        }(),
         element: node,
         altContent: null,
       );
 
   @override
   String visitElementLink(
-    final LinkElement2 node,
+    final LinkElement node,
     final void arg,
   ) =>
       serializeHtmlNode(
         tag: "link",
-        additionalAttrib: [
-          if (node.href != null) 'href="${node.href!}"',
-          if (node.rel != null) 'rel="${node.rel!}"',
-        ],
+        additionalAttrib: () sync* {
+          final href = node.href;
+          if (href != null) {
+            yield 'href="' + href + '"';
+          }
+          final rel = node.rel;
+          if (rel != null) {
+            yield 'rel="' + rel + '"';
+          }
+        }(),
         element: node,
         altContent: null,
       );
 
   @override
   String visitElementMeta(
-    final MetaElement2 node,
+    final MetaElement node,
     final void arg,
   ) =>
       serializeHtmlNode(
@@ -127,7 +141,7 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
         additionalAttrib: () {
           final attributes = <String>[];
           node.forEachAttribute(
-            (final key, final value) => attributes.add('${key}="${value}"'),
+            (final key, final value) => attributes.add(key + '="' + value + '"'),
           );
           return attributes;
         }(),
@@ -137,7 +151,7 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
 
   @override
   String visitElementParagraph(
-    final ParagraphElement2 node,
+    final ParagraphElement node,
     final void arg,
   ) =>
       serializeHtmlNode(
@@ -149,7 +163,7 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
 
   @override
   String visitElementScript(
-    final ScriptElement2 node,
+    final ScriptElement node,
     final void arg,
   ) =>
       serializeHtmlNode(
@@ -160,12 +174,12 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
           if (node.defer != null) 'alt="${node.defer!}"',
         ],
         element: node,
-        altContent: null,
+        altContent: node.content,
       );
 
   @override
   String visitElementStyle(
-    final StyleElement2 node,
+    final StyleElement node,
     final void arg,
   ) =>
       serializeHtmlNode(
@@ -177,7 +191,7 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
 
   @override
   String visitElementTitle(
-    final TitleElement2 node,
+    final TitleElement node,
     final void arg,
   ) =>
       serializeHtmlNode(
@@ -195,67 +209,81 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
 
   @override
   String visitNodeStyle(
-    final CssTextElement2 node,
+    final CssTextElement node,
     final void arg,
   ) =>
       ".${node.key} { " + serializeCss(css: node.css) + " }";
 
   @override
   String visitNodeText(
-    final RawTextElement2 node,
+    final RawTextElement node,
     final void arg,
   ) =>
       node.text;
 }
 
+StringBuffer _sharedStringBuffer = StringBuffer();
+
 String serializeHtmlNode({
   required final String tag,
-  required final List<String> additionalAttrib,
-  required final HtmlElement2 element,
+  required final Iterable<String> additionalAttrib,
+  required final HtmlElement element,
   required final String? altContent,
-}) =>
-    "<" +
-    tag +
-    (() {
-      final className = element.className;
-      final id = element.id;
-      final css = element.style;
-      final cssContent = serializeCss(css: css);
-      final attributes = [
-        if (className != null) //
-          'class="$className"',
-        if (id != null) //
-          'id="$id"',
-        if (cssContent.isNotEmpty) //
-          'style="${cssContent}"',
-        ...additionalAttrib,
-      ].join(" ");
-      if (attributes.isEmpty) {
-        return "";
-      } else {
-        return " " + attributes;
-      }
-    }()) +
-    ">" +
-    () {
-      final visitor = _CollectingHtmlEntityVisitor();
-      for (final child in element.childNodes) {
-        child.acceptHtmlEntityOneArg(visitor, null);
-      }
-      return altContent ??
+}) {
+  final buffer = _sharedStringBuffer;
+  safeStringBufferWrite(buffer, "<");
+  safeStringBufferWrite(buffer, tag);
+  safeStringBufferWrite(buffer, () {
+    final className = element.className;
+    final id = element.id;
+    final css = element.style;
+    final cssContent = serializeCss(css: css);
+    final attributes = [
+      if (className != null) //
+        'class="' + className + '"',
+      if (id != null) //
+        'id="' + id + '"',
+      if (cssContent.isNotEmpty) //
+        'style="' + cssContent + '"',
+      ...additionalAttrib,
+    ].join(" ");
+    if (attributes.isEmpty) {
+      return "";
+    } else {
+      return " " + attributes;
+    }
+  }());
+  safeStringBufferWrite(buffer, ">");
+  safeStringBufferWrite(buffer, () {
+    final visitor = _CollectingHtmlEntityVisitor();
+    for (final child in element.childNodes) {
+      child.acceptHtmlEntityOneArg(visitor, null);
+    }
+    if (altContent != null) {
+      return altContent;
+    } else {
+      return visitor. //
+              attributes
+              .map(
+                (final a) => a.acceptHtmlNodeOneArg(HtmlElementSerializerVisitor, null),
+              )
+              .join(" ") +
+          " " +
           visitor. //
-                  attributes
-                  .map((final a) => a.acceptHtmlNodeOneArg(HtmlElementSerializerVisitor, null))
-                  .join(" ") +
-              " " +
-              visitor. //
-                  elements
-                  .map((final a) => a.acceptHtmlElementOneArg(HtmlElementSerializerVisitor, null))
-                  .join("\n");
-    }() +
-    "</" +
-    tag +
-    ">";
+              elements
+              .map(
+                (final a) => a.acceptHtmlElementOneArg(HtmlElementSerializerVisitor, null),
+              )
+              .join("\n");
+    }
+  }());
+  safeStringBufferWrite(buffer, "</");
+  safeStringBufferWrite(buffer, tag);
+  safeStringBufferWrite(buffer, ">");
+  final result = buffer.toString();
+  buffer.clear();
+  return result;
+}
 
 /// Converts the given [CssStyleDeclaration] into a css string.
 String serializeCss({
@@ -293,14 +321,14 @@ String serializeCss({
     ].join("; ");
 
 class _CollectingHtmlEntityVisitor implements HtmlEntityVisitor<void, void> {
-  final List<HtmlElement2> elements = <HtmlElement2>[];
+  final List<HtmlElement> elements = <HtmlElement>[];
   final List<HtmlNode> attributes = <HtmlNode>[];
 
   _CollectingHtmlEntityVisitor();
 
   @override
   void visitEntityElement(
-    final HtmlElement2 node,
+    final HtmlElement node,
     final void arg,
   ) =>
       elements.add(node);
@@ -312,3 +340,9 @@ class _CollectingHtmlEntityVisitor implements HtmlEntityVisitor<void, void> {
   ) =>
       attributes.add(node);
 }
+
+void safeStringBufferWrite(
+  final StringBuffer buffer,
+  final String value,
+) =>
+    buffer.write(value);

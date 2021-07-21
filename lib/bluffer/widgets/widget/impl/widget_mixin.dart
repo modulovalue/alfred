@@ -6,7 +6,7 @@ import '../interface/build_context.dart';
 import '../interface/inherited_widget.dart';
 import '../interface/widget.dart';
 
-HtmlElement2 renderWidget(
+HtmlElement renderWidget(
   final Widget child,
   final BuildContext context,
 ) {
@@ -15,10 +15,12 @@ HtmlElement2 renderWidget(
   if (key != null) {
     final mediaQuerySize = MediaQuery.of(context)!.size;
     final mediaQuerySizeIndex = mediaQuerySize.index.toString();
+    // TODO need a redirecting node that can mutate the id but redirect the rest.
     html.id = key.className + '-' + mediaQuerySizeIndex;
   }
   final newClassKey = context.createDefaultKey();
   final currentClasses = html.className;
+  // TODO need a redirecting node that can mutate the classname but redirect the rest.
   html.className = [
     if (currentClasses != null)
       if (currentClasses != "") //
@@ -39,13 +41,13 @@ mixin InheritedWidgetMixin implements InheritedWidget {
   Widget get child;
 
   @override
-  HtmlElement2 renderHtml(
+  HtmlElement renderHtml(
     final BuildContext context,
   ) =>
       child.renderHtml(context.withInherited(this));
 
   @override
-  HtmlElement2 render(
+  HtmlElement render(
     final BuildContext context,
   ) =>
       child.render(context.withInherited(this));

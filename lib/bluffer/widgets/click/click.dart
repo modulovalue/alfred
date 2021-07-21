@@ -28,19 +28,25 @@ class Click implements Widget {
   });
 
   @override
-  HtmlElement2 renderHtml(
+  HtmlElement renderHtml(
     final BuildContext context,
   ) {
-    final result = AnchorElement2Impl();
+    final result = AnchorElementImpl(
+      href: resolveUrl(context, url),
+      target: () {
+        if (newTab) {
+          return '_blank';
+        } else {
+          return null;
+        }
+      }(),
+    );
     result.className = 'click';
-    result.href = resolveUrl(context, url);
-    if (newTab) {
-      result.target = '_blank';
-    }
     // TODO when is a button inactive?
     final inactive = builder(context, ClickState.inactive).render(context);
     final active = builder(context, ClickState.active).render(context);
     final hover = builder(context, ClickState.hover).render(context);
+    // TODO need a redirecting node that can mutate the class name but redirect the rest
     inactive.className = inactive.className! + ' inactive';
     active.className = active.className! + ' active';
     hover.className = hover.className! + ' hover';
@@ -51,7 +57,7 @@ class Click implements Widget {
   }
 
   @override
-  HtmlElement2 render(
+  HtmlElement render(
     final BuildContext context,
   ) =>
       renderWidget(this, context);
