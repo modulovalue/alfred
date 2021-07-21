@@ -69,7 +69,7 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
 
   final ROUTE route;
   final List<String> stylesheetLinks;
-  final List<String> scriptLinks;
+  final List<ScriptElement2Impl> scriptLinks;
   final ThemeData Function(BuildContext context)? theme;
   final Widget Function(BuildContext context, ROUTE child)? builder;
   @override
@@ -80,7 +80,7 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
     final this.theme,
     final this.builder,
     final this.stylesheetLinks = const <String>[],
-    final this.scriptLinks = const <String>[],
+    final this.scriptLinks = const <ScriptElement2Impl>[],
   });
 
   @override
@@ -92,6 +92,7 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
           HeadElement2Impl.make(
             [
               // TODO have a meta subclass that already has those attributes.
+              // TODO safely support more attributes.
               MetaElement2Impl()
                 ..setAttribute('charset', 'UTF-8')
                 ..setAttribute('name', 'viewport')
@@ -131,11 +132,7 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
                     ).render(context)
                   ],
                 ),
-              for (final link in scriptLinks)
-                ScriptElement2Impl()
-                  ..src = link
-                  ..async = true
-                  ..defer = true,
+              for (final link in scriptLinks) link,
             ],
           )
         ],

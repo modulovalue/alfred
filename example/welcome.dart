@@ -59,18 +59,16 @@ Future<void> main() async {
                 children: [
                   const Text("Hello"),
                   for (final route in app.routes)
-                    () {
-                      return Row(
-                        children: [
-                          Text(route.method.description),
-                          const SizedBox(width: 12.0),
-                          Text(route.route),
-                          const SizedBox(width: 12.0),
-                          if (route.usesWildcardMatcher) //
-                            const Text("(Uses wildcard matcher)"),
-                        ],
-                      );
-                    }()
+                    Row(
+                      children: [
+                        Text(route.method.description),
+                        const SizedBox(width: 12.0),
+                        Text(route.route),
+                        const SizedBox(width: 12.0),
+                        if (route.usesWildcardMatcher) //
+                          const Text("(Uses a wildcard matcher)"),
+                      ],
+                    ),
                 ],
               ),
             ),
@@ -213,7 +211,7 @@ class ExampleAuthorizationMiddleware implements Middleware {
   ) async {
     if (context.req.headers.value('Authorization') != 'apikey') {
       print("Failure");
-      throw const _AlfredExceptionImpl(401, {'message': 'authentication failed'});
+      throw const _AlfredExceptionImpl(401, {'message': 'authentication failed.'});
     } else {
       print("success");
     }

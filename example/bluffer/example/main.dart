@@ -24,18 +24,18 @@ import 'package:alfred/bluffer/widgets/widget/interface/widget.dart';
 
 void main() {
   publishApp(
-    serializeTo: (path, element) => File(path).writeAsStringSync(serializeHtml(html: element)),
+    serializeTo: (final path, final element) => File(path).writeAsStringSync(serializeHtml(html: element)),
     root: App(
       supportedLocales: [
         const Locale('fr', 'FR'),
         const Locale('en', 'US'),
       ],
-      application: (route) => AppWidget(
+      application: (final route) => AppWidget(
         route: route,
       ),
       routes: [
         UrlWidgetRoute(
-          title: (context) {
+          title: (final context) {
             final locale = Localizations.localeOf(context);
             if (locale!.languageCode == 'fr') {
               return 'Accueil';
@@ -76,14 +76,14 @@ void main() {
                 ),
                 Column(
                   children: [
-                    ...List.generate(5, (index) => const Text('Hello world!')),
+                    ...List.generate(5, (final index) => const Text('Hello world!')),
                   ],
                 ),
                 const SizedBox(height: 20),
                 Click(
                   newTab: true,
                   url: 'https://www.google.com',
-                  builder: (context, state) => Container(
+                  builder: (final context, final state) => Container(
                     child: Text(
                       'Button',
                       style: Theme.of(context)!.text.paragraph.merge(
