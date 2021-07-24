@@ -21,13 +21,13 @@ abstract class StatelessWidget implements Widget {
     required final BuildContext context,
   }) {
     final built = build(context);
-    return built.render(
+    return built.renderElement(
       context: context,
     );
   }
 
   @override
-  HtmlElement render({
+  HtmlElement renderElement({
     required final BuildContext context,
   }) =>
       renderWidget(

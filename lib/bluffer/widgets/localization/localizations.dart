@@ -98,7 +98,7 @@ class Localizations extends StatelessWidget {
   }
 }
 
-abstract class LocalizationsDelegate<T> {
+abstract class LocalizationsDelegate<RESOURCE> {
   /// Abstract const constructor. This constructor enables subclasses to provide
   /// const constructors so that they can be used in const expressions.
   const LocalizationsDelegate();
@@ -117,7 +117,7 @@ abstract class LocalizationsDelegate<T> {
   /// It's assumed that this method will return an object that contains
   /// a collection of related resources (typically defined with one method per
   /// resource). The object will be retrieved with [Localizations.of].
-  Future<T> load(
+  Future<RESOURCE> load(
     final Locale locale,
   );
 
@@ -132,7 +132,7 @@ abstract class LocalizationsDelegate<T> {
   /// ```
   ///
   /// It's rarely necessary to override this getter.
-  Type get type => T;
+  Type get type => RESOURCE;
 
   @override
   String toString() => '$runtimeType[$type]';

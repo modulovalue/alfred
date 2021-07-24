@@ -116,11 +116,11 @@ class Text implements Widget {
     final splitLineIterable = LineSplitter.split(data);
     final lines = splitLineIterable.toList();
     return ParagraphElementImpl(
-      [
+      childNodes: [
         RawTextElementImpl(lines.first),
         if (lines.length > 1)
           for (final line in lines.skip(1)) ...[
-            BRElementImpl(),
+            BRElementImpl(childNodes: []),
             RawTextElementImpl(line),
           ],
       ],
@@ -197,7 +197,7 @@ class Text implements Widget {
   }
 
   @override
-  HtmlElement render({
+  HtmlElement renderElement({
     required final BuildContext context,
   }) =>
       renderWidget(

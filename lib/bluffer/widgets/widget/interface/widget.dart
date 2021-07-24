@@ -3,23 +3,18 @@ import '../../../css/css.dart';
 import '../../../html/html.dart';
 import 'build_context.dart';
 
-abstract class Widget<
-    KEY extends Key?,
-    HTML extends HtmlElement,
-    CSS extends CssStyleDeclaration?,
-    RENDER extends HtmlElement //
-    > {
-  KEY get key;
+abstract class Widget {
+  Key? get key;
 
-  HTML renderHtml({
+  HtmlElement renderHtml({
     required final BuildContext context,
   });
 
-  CSS renderCss({
+  CssStyleDeclaration? renderCss({
     required final BuildContext context,
   });
 
-  RENDER render({
+  HtmlElement renderElement({
     required final BuildContext context,
   });
 }

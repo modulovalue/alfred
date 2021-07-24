@@ -88,7 +88,16 @@ class DecoratedBox implements Widget {
             if (_boxShadow.isNotEmpty) {
               final shadow = _boxShadow.first;
               final shadowColor = shadow.color.toCss();
-              return '${shadow.offset.dx}px ${shadow.offset}px ${shadow.blurRadius}px ${shadow.spreadRadius}px ${shadowColor};';
+              return shadow.offset.dx.toString() +
+                  'px ' +
+                  shadow.offset.dy.toString() +
+                  'px ' +
+                  shadow.blurRadius.toString() +
+                  'px ' +
+                  shadow.spreadRadius.toString() +
+                  'px ' +
+                  shadowColor.toString() +
+                  ';';
             } else {
               return null;
             }
@@ -101,7 +110,7 @@ class DecoratedBox implements Widget {
           if (_decoration != null) {
             final borderRadius = _decoration.borderRadius;
             if (borderRadius is BorderRadius) {
-              return '${borderRadius.topLeft.x}px';
+              return borderRadius.topLeft.x.toString() + 'px';
             } else {
               return null;
             }
@@ -114,7 +123,7 @@ class DecoratedBox implements Widget {
           if (_decoration != null) {
             final borderRadius = _decoration.borderRadius;
             if (borderRadius is BorderRadius) {
-              return '${borderRadius.bottomLeft.x}px';
+              return borderRadius.bottomLeft.x.toString() + 'px';
             } else {
               return null;
             }
@@ -127,7 +136,7 @@ class DecoratedBox implements Widget {
           if (_decoration != null) {
             final borderRadius = _decoration.borderRadius;
             if (borderRadius is BorderRadius) {
-              return '${borderRadius.bottomRight.x}px';
+              return borderRadius.bottomRight.x.toString() + 'px';
             } else {
               return null;
             }
@@ -140,7 +149,7 @@ class DecoratedBox implements Widget {
           if (_decoration != null) {
             final borderRadius = _decoration.borderRadius;
             if (borderRadius is BorderRadius) {
-              return '${borderRadius.topRight.x}px';
+              return borderRadius.topRight.x.toString() + 'px';
             } else {
               return null;
             }
@@ -154,21 +163,20 @@ class DecoratedBox implements Widget {
   HtmlElement renderHtml({
     required final BuildContext context,
   }) {
-    final result = DivElementEmptyImpl();
-    if (child != null) {
-      final expandedChild = Expanded(
-        child: child!,
-      );
-      final rendered = expandedChild.render(
-        context: context,
-      );
-      result.childNodes.add(rendered);
-    }
-    return result;
+    final _child = child;
+    return DivElementImpl(
+      childNodes: [
+        if (_child != null)
+          () {
+            final expanded = Expanded(child: _child);
+            return expanded.renderElement(context: context);
+          }(),
+      ],
+    );
   }
 
   @override
-  HtmlElement render({
+  HtmlElement renderElement({
     required final BuildContext context,
   }) =>
       renderWidget(

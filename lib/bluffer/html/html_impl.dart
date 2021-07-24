@@ -1,49 +1,95 @@
 import '../css/css.dart';
 import 'html.dart';
+import 'html_mixin.dart';
 
 class BRElementImpl with BRElementMixin {
   @override
-  String? className;
-  @override
-  String? id;
-  @override
-  final List<HtmlEntity> childNodes = [];
-
-  BRElementImpl();
-
-  @override
-  Null get style => null;
-}
-
-class HtmlHtmlElementImpl with HtmlHtmlElementMixin {
-  @override
-  String? className;
+  final String? className;
   @override
   String? id;
   @override
   final List<HtmlEntity> childNodes;
 
-  HtmlHtmlElementImpl(
-    final this.childNodes,
-  );
+  BRElementImpl({
+    required final this.childNodes,
+    final this.className,
+    final this.id,
+  });
 
   @override
   Null get style => null;
+
+  @override
+  BRElementMixin copyWith({
+    final String? className,
+    final String? id,
+  }) =>
+      BRElementImpl(
+        childNodes: childNodes,
+        className: className ?? this.className,
+        id: id ?? this.id,
+      );
+}
+
+class HtmlHtmlElementImpl with HtmlHtmlElementMixin {
+  @override
+  final String? className;
+  @override
+  final String? id;
+  @override
+  final List<HtmlEntity> childNodes;
+
+  HtmlHtmlElementImpl({
+    required final this.childNodes,
+    final this.className,
+    final this.id,
+  });
+
+  @override
+  Null get style => null;
+
+  @override
+  HtmlHtmlElementImpl copyWith({
+    final String? className,
+    final String? id,
+  }) =>
+      HtmlHtmlElementImpl(
+        childNodes: childNodes,
+        className: className ?? this.className,
+        id: id ?? this.id,
+      );
 }
 
 class MetaElementImpl with MetaElementMixin {
   @override
-  String? className;
+  final String? className;
   @override
-  String? id;
+  final String? id;
   @override
-  final List<HtmlEntity> childNodes = [];
-  final Map<String, String> attributes = {};
+  final List<HtmlEntity> childNodes;
+  final Map<String, String> attributes;
 
-  MetaElementImpl();
+  MetaElementImpl({
+    required final this.childNodes,
+    required final this.attributes,
+    final this.className,
+    final this.id,
+  });
 
   @override
   Null get style => null;
+
+  @override
+  MetaElementImpl copyWith({
+    final String? className,
+    final String? id,
+  }) =>
+      MetaElementImpl(
+        childNodes: childNodes,
+        attributes: attributes,
+        className: className ?? this.className,
+        id: id ?? this.id,
+      );
 
   @override
   void setAttribute({
@@ -61,15 +107,28 @@ class MetaElementImpl with MetaElementMixin {
 
 class BodyElementImpl with BodyElementMixin {
   @override
-  String? className;
+  final String? className;
   @override
-  String? id;
+  final String? id;
   @override
   final List<HtmlEntity> childNodes;
 
-  BodyElementImpl(
-    final this.childNodes,
-  );
+  BodyElementImpl({
+    required final this.childNodes,
+    final this.className,
+    final this.id,
+  });
+
+  @override
+  BodyElementImpl copyWith({
+    final String? className,
+    final String? id,
+  }) =>
+      BodyElementImpl(
+        childNodes: childNodes,
+        className: className ?? this.className,
+        id: id ?? this.id,
+      );
 
   @override
   Null get style => null;
@@ -98,11 +157,11 @@ class CssTextElementImpl with CssTextElementMixin {
 
 class ScriptElementImpl with ScriptElementMixin {
   @override
-  String? className;
+  final String? className;
   @override
-  String? id;
+  final String? id;
   @override
-  final List<HtmlEntity> childNodes = [];
+  final List<HtmlEntity> childNodes;
   @override
   final bool? async;
   @override
@@ -113,11 +172,29 @@ class ScriptElementImpl with ScriptElementMixin {
   final String? content;
 
   ScriptElementImpl({
+    required final this.childNodes,
     final this.async,
     final this.defer,
     final this.src,
     final this.content,
+    final this.className,
+    final this.id,
   });
+
+  @override
+  ScriptElementImpl copyWith({
+    final String? className,
+    final String? id,
+  }) =>
+      ScriptElementImpl(
+        childNodes: childNodes,
+        async: async,
+        defer: defer,
+        src: src,
+        content: content,
+        className: className ?? this.className,
+        id: id ?? this.id,
+      );
 
   @override
   Null get style => null;
@@ -125,11 +202,11 @@ class ScriptElementImpl with ScriptElementMixin {
 
 class LinkElementImpl with LinkElementMixin {
   @override
-  String? className;
+  final String? className;
   @override
-  String? id;
+  final String? id;
   @override
-  final List<HtmlEntity> childNodes = [];
+  final List<HtmlEntity> childNodes;
   @override
   final String? href;
   @override
@@ -138,7 +215,23 @@ class LinkElementImpl with LinkElementMixin {
   LinkElementImpl({
     required final this.href,
     required final this.rel,
+    required final this.childNodes,
+    final this.className,
+    final this.id,
   });
+
+  @override
+  LinkElementImpl copyWith({
+    final String? className,
+    final String? id,
+  }) =>
+      LinkElementImpl(
+        href: href,
+        rel: rel,
+        childNodes: childNodes,
+        className: className ?? this.className,
+        id: id ?? this.id,
+      );
 
   @override
   Null get style => null;
@@ -146,17 +239,32 @@ class LinkElementImpl with LinkElementMixin {
 
 class TitleElementImpl with TitleElementMixin {
   @override
-  String? className;
+  final String? className;
   @override
-  String? id;
+  final String? id;
   @override
-  final List<HtmlEntity> childNodes = [];
+  final List<HtmlEntity> childNodes;
   @override
   final String? text;
 
   TitleElementImpl({
+    required final this.childNodes,
     required final this.text,
+    final this.className,
+    final this.id,
   });
+
+  @override
+  TitleElementImpl copyWith({
+    final String? className,
+    final String? id,
+  }) =>
+      TitleElementImpl(
+        childNodes: childNodes,
+        text: text,
+        className: className ?? this.className,
+        id: id ?? this.id,
+      );
 
   @override
   Null get style => null;
@@ -164,15 +272,28 @@ class TitleElementImpl with TitleElementMixin {
 
 class StyleElementImpl with StyleElementMixin {
   @override
-  String? className;
+  final String? className;
   @override
-  String? id;
+  final String? id;
   @override
   final List<HtmlEntity> childNodes;
 
-  StyleElementImpl(
-    final this.childNodes,
-  );
+  StyleElementImpl({
+    required final this.childNodes,
+    final this.className,
+    final this.id,
+  });
+
+  @override
+  StyleElementImpl copyWith({
+    final String? className,
+    final String? id,
+  }) =>
+      StyleElementImpl(
+        childNodes: childNodes,
+        className: className ?? this.className,
+        id: id ?? this.id,
+      );
 
   @override
   Null get style => null;
@@ -180,15 +301,28 @@ class StyleElementImpl with StyleElementMixin {
 
 class ParagraphElementImpl with ParagraphElementMixin {
   @override
-  String? className;
+  final String? className;
   @override
-  String? id;
+  final String? id;
   @override
   final List<HtmlEntity> childNodes;
 
-  ParagraphElementImpl(
-    final this.childNodes,
-  );
+  ParagraphElementImpl({
+    required final this.childNodes,
+    final this.className,
+    final this.id,
+  });
+
+  @override
+  ParagraphElementImpl copyWith({
+    final String? className,
+    final String? id,
+  }) =>
+      ParagraphElementImpl(
+        childNodes: childNodes,
+        className: className ?? this.className,
+        id: id ?? this.id,
+      );
 
   @override
   Null get style => null;
@@ -196,11 +330,11 @@ class ParagraphElementImpl with ParagraphElementMixin {
 
 class ImageElementImpl with ImageElementMixin {
   @override
-  String? className;
+  final String? className;
   @override
-  String? id;
+  final String? id;
   @override
-  final List<HtmlEntity> childNodes = [];
+  final List<HtmlEntity> childNodes;
   @override
   final String? alt;
   @override
@@ -209,39 +343,52 @@ class ImageElementImpl with ImageElementMixin {
   ImageElementImpl({
     required final this.alt,
     required final this.src,
-  });
-
-  @override
-  Null get style => null;
-}
-
-class DivElementImpl with DivElementMixin implements DivElement {
-  @override
-  String? className;
-  @override
-  String? id;
-  @override
-  final List<HtmlEntity> childNodes;
-
-  DivElementImpl.make({
     required final this.childNodes,
     final this.className,
     final this.id,
   });
 
   @override
+  ImageElementImpl copyWith({
+    final String? className,
+    final String? id,
+  }) =>
+      ImageElementImpl(
+        alt: alt,
+        src: src,
+        childNodes: childNodes,
+        className: className ?? this.className,
+        id: id ?? this.id,
+      );
+
+  @override
   Null get style => null;
 }
 
-class DivElementEmptyImpl with DivElementMixin implements DivElement {
+class DivElementImpl with DivElementMixin {
   @override
-  String? className;
+  final String? className;
   @override
-  String? id;
+  final String? id;
   @override
-  final List<HtmlEntity> childNodes = [];
+  final List<HtmlEntity> childNodes;
 
-  DivElementEmptyImpl();
+  DivElementImpl({
+    required final this.childNodes,
+    final this.className,
+    final this.id,
+  });
+
+  @override
+  DivElementMixin copyWith({
+    final String? className,
+    final String? id,
+  }) =>
+      DivElementImpl(
+        childNodes: childNodes,
+        className: className ?? this.className,
+        id: id ?? this.id,
+      );
 
   @override
   Null get style => null;
@@ -249,9 +396,9 @@ class DivElementEmptyImpl with DivElementMixin implements DivElement {
 
 class AnchorElementImpl with AnchorElementMixin {
   @override
-  String? className;
+  final String? className;
   @override
-  String? id;
+  final String? id;
   @override
   final List<HtmlEntity> childNodes;
   @override
@@ -262,25 +409,52 @@ class AnchorElementImpl with AnchorElementMixin {
   AnchorElementImpl({
     required final this.href,
     required final this.target,
-    required final this.className,
     required final this.childNodes,
+    final this.className,
+    final this.id,
   });
+
+  @override
+  AnchorElementImpl copyWith({
+    final String? className,
+    final String? id,
+  }) =>
+      AnchorElementImpl(
+        href: href,
+        target: target,
+        childNodes: childNodes,
+        className: className ?? this.className,
+        id: id ?? this.id,
+      );
 
   @override
   Null get style => null;
 }
 
-class HeadElementImpl with HeadElementMixin {
+class HeadElementImpl with HeadElementMixin<HeadElementImpl> {
   @override
-  String? className;
+  final String? className;
   @override
-  String? id;
+  final String? id;
   @override
   final List<HtmlEntity> childNodes;
 
-  HeadElementImpl(
-    final this.childNodes,
-  );
+  HeadElementImpl({
+    required final this.childNodes,
+    final this.className,
+    final this.id,
+  });
+
+  @override
+  HeadElementImpl copyWith({
+    final String? className,
+    final String? id,
+  }) =>
+      HeadElementImpl(
+        childNodes: childNodes,
+        className: className ?? this.className,
+        id: id ?? this.id,
+      );
 
   @override
   Null get style => null;

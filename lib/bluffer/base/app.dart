@@ -1,4 +1,3 @@
-import '../css/css.dart';
 import '../html/html.dart';
 import '../html/html_impl.dart';
 import '../widgets/builder/builder.dart';
@@ -13,6 +12,12 @@ import 'locale.dart';
 import 'media_query_data.dart';
 
 class App implements Widget {
+  static const List<Locale> defaultSupportedLocales = <Locale>[
+    Locale('en', 'US'),
+  ];
+
+  static const List<LocalizationsDelegate<dynamic>> defaultDelegates = <LocalizationsDelegate<dynamic>>[];
+
   final String? currentRoute;
   final List<UrlWidgetRoute> routes;
   final AppWidget Function(WidgetRoute) application;
@@ -28,8 +33,8 @@ class App implements Widget {
     required final this.routes,
     required final this.application,
     final this.currentRoute,
-    final this.supportedLocales = const <Locale>[Locale('en', 'US')],
-    final this.delegates = const <LocalizationsDelegate<dynamic>>[],
+    final this.supportedLocales = defaultSupportedLocales,
+    final this.delegates = defaultDelegates,
   });
 
   App withCurrentRoute(
@@ -55,14 +60,14 @@ class App implements Widget {
   }
 
   @override
-  HtmlElement render({
+  HtmlElement renderElement({
     required final BuildContext context,
   }) {
     final currentRoute = routes.firstWhere(
       (final x) => x.relativeUrl == this.currentRoute,
     );
     final appWidget = application(currentRoute);
-    return appWidget.render(
+    return appWidget.renderElement(
       context: context,
     );
   }
@@ -98,27 +103,23 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
     required final BuildContext context,
   }) =>
       HtmlHtmlElementImpl(
-        [
+        childNodes: [
           HeadElementImpl(
-            [
+            childNodes: [
               // TODO have a meta subclass that already has those attributes.
               // TODO look for and support more attributes
               // TODO have an all-attribute-type-safe meta implementation.
-              MetaElementImpl()
-                ..setAttribute(
-                  key: 'charset',
-                  value: 'UTF-8',
-                )
-                ..setAttribute(
-                  key: 'name',
-                  value: 'viewport',
-                )
-                ..setAttribute(
-                  key: 'content',
-                  value: 'width=device-width, initial-scale=1',
-                ),
+              MetaElementImpl(
+                childNodes: [],
+                attributes: {
+                  'charset': 'UTF-8',
+                  'name': 'viewport',
+                  'content': 'width=device-width, initial-scale=1',
+                },
+              ),
               for (final link in stylesheetLinks) //
                 LinkElementImpl(
+                  childNodes: [],
                   href: link,
                   rel: 'stylesheet',
                 ),
@@ -126,7 +127,7 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
             ],
           ),
           StyleElementImpl(
-            [
+            childNodes: [
               const RawTextElementImpl(resetCss),
               const RawTextElementImpl(baseCss),
               for (final size in availableSizes) //
@@ -134,10 +135,9 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
             ],
           ),
           BodyElementImpl(
-            [
+            childNodes: [
               for (final size in availableSizes)
-                DivElementImpl.make(
-                  id: null,
+                DivElementImpl(
                   className: 'size' + size.index.toString(),
                   childNodes: [
                     MediaQuery(
@@ -154,7 +154,7 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
                           }(),
                         ),
                       ),
-                    ).render(context: context)
+                    ).renderElement(context: context)
                   ],
                 ),
               ...scriptLinks,
@@ -164,7 +164,7 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
       );
 
   @override
-  HtmlElement render({
+  HtmlElement renderElement({
     required final BuildContext context,
   }) {
     final result = renderWidget(
@@ -260,6 +260,7 @@ mixin WidgetRouteMixin implements WidgetRoute {
       [
         TitleElementImpl(
           text: makeTitle(context),
+          childNodes: [],
         ),
       ];
 }
@@ -276,7 +277,7 @@ class UrlWidgetRoute with WidgetRouteMixin {
   });
 
   @override
-  Widget<Key?, HtmlElement, CssStyleDeclaration?, HtmlElement> build(
+  Widget build(
     final BuildContext context,
   ) =>
       builder(context);

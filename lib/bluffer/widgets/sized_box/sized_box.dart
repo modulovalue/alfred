@@ -49,16 +49,16 @@ class SizedBox implements Widget {
     required final BuildContext context,
   }) {
     if (child == null) {
-      return DivElementEmptyImpl();
+      return DivElementImpl(childNodes: []);
     } else {
-      return child!.render(
+      return child!.renderElement(
         context: context,
       );
     }
   }
 
   @override
-  HtmlElement render({
+  HtmlElement renderElement({
     required final BuildContext context,
   }) =>
       renderWidget(

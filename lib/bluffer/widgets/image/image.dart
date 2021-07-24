@@ -97,24 +97,24 @@ class Image implements Widget {
   @override
   HtmlElement renderHtml({
     required final BuildContext context,
-  }) {
-    return ImageElementImpl(
-      src: resolveUrl(
-        context: context,
-        url: image.url,
-      ),
-      alt: () {
-        if (semanticsLabel != null) {
-          return semanticsLabel;
-        } else {
-          return null;
-        }
-      }(),
-    );
-  }
+  }) =>
+      ImageElementImpl(
+        childNodes: [],
+        src: resolveUrl(
+          context: context,
+          url: image.url,
+        ),
+        alt: () {
+          if (semanticsLabel != null) {
+            return semanticsLabel;
+          } else {
+            return null;
+          }
+        }(),
+      );
 
   @override
-  HtmlElement render({
+  HtmlElement renderElement({
     required final BuildContext context,
   }) =>
       renderWidget(

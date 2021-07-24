@@ -1,75 +1,54 @@
 import '../css/css.dart';
 
+/// TODO thread SELF through all interfaces.
+
 abstract class HtmlEntity {
-  R acceptHtmlEntityOneArg<R, A>(
+  R acceptHtmlEntity<R, A>(
     final HtmlEntityVisitor<R, A> v,
     final A a,
   );
 }
 
 abstract class HtmlNode implements HtmlEntity {
-  R acceptHtmlNodeOneArg<R, A>(
+  R acceptHtmlNode<R, A>(
     final HtmlNodeVisitor<R, A> v,
     final A a,
   );
 }
 
-abstract class HtmlElement implements HtmlEntity {
-  /// TODO make this just a getter, needs redirecting nodes.
-  abstract String? className;
+abstract class HtmlElement<SELF extends HtmlElement<SELF>> implements HtmlEntity {
+  String? get className;
 
-  /// TODO make this just a getter, needs redirecting nodes.
-  abstract String? id;
+  String? get id;
 
   CssStyleDeclaration? get style;
 
+  // TODO it would be great if this wouldn't need to depend on List.
+  // TODO copy with childNodes.
   List<HtmlEntity> get childNodes;
 
-  R acceptHtmlElementOneArg<R, A>(
+  SELF copyWith({
+    final String? className,
+    final String? id,
+  });
+
+  R acceptHtmlElement<R, A>(
     final HtmlElementVisitor<R, A> v,
     final A a,
   );
 }
 
-abstract class DivElement implements HtmlElement {}
+abstract class DivElement<SELF extends DivElement<SELF>> implements HtmlElement<SELF> {}
 
-mixin DivElementMixin implements DivElement {
-  @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementDiv(this, a);
+abstract class HeadElement<SELF extends HeadElement<SELF>> implements HtmlElement<SELF> {}
 
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
-}
-
-abstract class HeadElement implements HtmlElement {}
-
-mixin HeadElementMixin implements HeadElement {
-  @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementHead(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
-}
-
-abstract class MetaElement implements HtmlElement {
+abstract class MetaElement<SELF extends MetaElement<SELF>> implements HtmlElement<SELF> {
   void forEachAttribute({
-    required final void Function(String key, String value) forEach,
+    required final void Function(
+      String key,
+      String value,
+    )
+        forEach,
   });
 
   void setAttribute({
@@ -78,59 +57,11 @@ abstract class MetaElement implements HtmlElement {
   });
 }
 
-mixin MetaElementMixin implements MetaElement {
-  @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementMeta(this, a);
+abstract class BodyElement<SELF extends BodyElement<SELF>> implements HtmlElement<SELF> {}
 
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
-}
+abstract class StyleElement<SELF extends StyleElement<SELF>> implements HtmlElement<SELF> {}
 
-abstract class BodyElement implements HtmlElement {}
-
-mixin BodyElementMixin implements BodyElement {
-  @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementBody(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
-}
-
-abstract class StyleElement implements HtmlElement {}
-
-mixin StyleElementMixin implements StyleElement {
-  @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementStyle(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
-}
-
-abstract class ScriptElement implements HtmlElement {
+abstract class ScriptElement<SELF extends ScriptElement<SELF>> implements HtmlElement<SELF> {
   String? get src;
 
   bool? get async;
@@ -140,202 +71,42 @@ abstract class ScriptElement implements HtmlElement {
   String? get content;
 }
 
-mixin ScriptElementMixin implements ScriptElement {
-  @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementScript(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
-}
-
-abstract class LinkElement implements HtmlElement {
+abstract class LinkElement<SELF extends LinkElement<SELF>> implements HtmlElement<SELF> {
   String? get href;
 
   String? get rel;
 }
 
-mixin LinkElementMixin implements LinkElement {
-  @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementLink(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
-}
-
-abstract class TitleElement implements HtmlElement {
+abstract class TitleElement<SELF extends TitleElement<SELF>> implements HtmlElement<SELF> {
   String? get text;
 }
 
-mixin TitleElementMixin implements TitleElement {
-  @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementTitle(this, a);
+abstract class HtmlHtmlElement<SELF extends HtmlHtmlElement<SELF>> implements HtmlElement<SELF> {}
 
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
+abstract class BRElement<SELF extends BRElement<SELF>> implements HtmlElement<SELF> {}
+
+abstract class ParagraphElement<SELF extends ParagraphElement<SELF>> implements HtmlElement<SELF> {}
+
+abstract class ImageElement<SELF extends ImageElement<SELF>> implements HtmlElement<SELF> {
+  String? get src;
+
+  String? get alt;
 }
 
-abstract class HtmlHtmlElement implements HtmlElement {}
+abstract class AnchorElement<SELF extends AnchorElement<SELF>> implements HtmlElement<SELF> {
+  String? get href;
 
-mixin HtmlHtmlElementMixin implements HtmlHtmlElement {
-  @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementHtmlHtml(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
+  String? get target;
 }
 
 abstract class RawTextElement implements HtmlNode {
   String get text;
 }
 
-mixin RawTextElementMixin implements RawTextElement {
-  @override
-  R acceptHtmlNodeOneArg<R, A>(
-    final HtmlNodeVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitNodeText(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityNode(this, a);
-}
-
 abstract class CssTextElement implements HtmlNode {
   String get key;
 
   CssStyleDeclaration get css;
-}
-
-mixin CssTextElementMixin implements CssTextElement {
-  @override
-  R acceptHtmlNodeOneArg<R, A>(
-    final HtmlNodeVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitNodeStyle(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityNode(this, a);
-}
-
-abstract class BRElement implements HtmlElement {}
-
-mixin BRElementMixin implements BRElement {
-  @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementBr(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
-}
-
-abstract class ParagraphElement implements HtmlElement {}
-
-mixin ParagraphElementMixin implements ParagraphElement {
-  @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementParagraph(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
-}
-
-abstract class ImageElement implements HtmlElement {
-  String? get src;
-
-  String? get alt;
-}
-
-mixin ImageElementMixin implements ImageElement {
-  @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementImage(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
-}
-
-abstract class AnchorElement implements HtmlElement {
-  String? get href;
-
-  String? get target;
-}
-
-mixin AnchorElementMixin implements AnchorElement {
-  @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementAnchor(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
 }
 
 abstract class HtmlElementVisitor<R, A> {

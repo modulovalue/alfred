@@ -62,7 +62,7 @@ class Flex implements Widget {
   });
 
   @override
-  HtmlElement render({
+  HtmlElement renderElement({
     required final BuildContext context,
   }) {
     final result = renderWidget(
@@ -71,7 +71,7 @@ class Flex implements Widget {
     );
     if (children != null) {
       for (final child in children!) {
-        final rendered = child.render(context: context);
+        final rendered = child.renderElement(context: context);
         result.childNodes.add(rendered);
       }
     }
@@ -82,7 +82,7 @@ class Flex implements Widget {
   HtmlElement renderHtml({
     required final BuildContext context,
   }) =>
-      DivElementEmptyImpl();
+      DivElementImpl(childNodes: []);
 
   @override
   CssStyleDeclaration renderCss({
@@ -168,7 +168,7 @@ class Flexible implements Widget {
   HtmlElement renderHtml({
     required final BuildContext context,
   }) =>
-      child.render(context: context);
+      child.renderElement(context: context);
 
   @override
   CssStyleDeclaration renderCss({
@@ -190,7 +190,7 @@ class Flexible implements Widget {
   }
 
   @override
-  HtmlElement render({
+  HtmlElement renderElement({
     required final BuildContext context,
   }) =>
       renderWidget(

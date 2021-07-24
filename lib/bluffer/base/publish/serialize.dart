@@ -6,7 +6,7 @@ import '../../html/html.dart';
 String serializeHtml({
   required final HtmlElement html,
 }) =>
-    html.acceptHtmlElementOneArg(HtmlElementSerializerVisitor, null);
+    html.acceptHtmlElement(HtmlElementSerializerVisitor, null);
 
 const _HtmlElementSerializerVisitorImpl HtmlElementSerializerVisitor = _HtmlElementSerializerVisitorImpl._();
 
@@ -259,7 +259,7 @@ String serializeHtmlNode({
   safeStringBufferWrite(buffer, () {
     final visitor = _CollectingHtmlEntityVisitor();
     for (final child in element.childNodes) {
-      child.acceptHtmlEntityOneArg(visitor, null);
+      child.acceptHtmlEntity(visitor, null);
     }
     if (altContent != null) {
       return altContent;
@@ -267,14 +267,14 @@ String serializeHtmlNode({
       return visitor. //
               attributes
               .map(
-                (final a) => a.acceptHtmlNodeOneArg(HtmlElementSerializerVisitor, null),
+                (final a) => a.acceptHtmlNode(HtmlElementSerializerVisitor, null),
               )
               .join(" ") +
           " " +
           visitor. //
               elements
               .map(
-                (final a) => a.acceptHtmlElementOneArg(HtmlElementSerializerVisitor, null),
+                (final a) => a.acceptHtmlElement(HtmlElementSerializerVisitor, null),
               )
               .join("\n");
     }

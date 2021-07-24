@@ -51,40 +51,37 @@ class Click implements Widget {
               context,
               ClickState.inactive,
             );
-            final inactive = builtInactive.render(
+            final inactive = builtInactive.renderElement(
               context: context,
             );
             // TODO need a redirecting node that can mutate the class name and redirect the rest.
-            inactive.className = inactive.className! + ' inactive';
-            return inactive;
+            return inactive.copyWith(className: inactive.className! + ' inactive');
           }(),
           () {
             final builtActive = builder(
               context,
               ClickState.active,
             );
-            final active = builtActive.render(
+            final active = builtActive.renderElement(
               context: context,
             );
-            active.className = active.className! + ' active';
-            return active;
+            return active.copyWith(className: active.className! + ' active');
           }(),
           () {
             final builtHover = builder(
               context,
               ClickState.hover,
             );
-            final hover = builtHover.render(
+            final hover = builtHover.renderElement(
               context: context,
             );
-            hover.className = hover.className! + ' hover';
-            return hover;
+            return hover.copyWith(className: hover.className! + ' hover');
           }(),
         ],
       );
 
   @override
-  HtmlElement render({
+  HtmlElement renderElement({
     required final BuildContext context,
   }) =>
       renderWidget(

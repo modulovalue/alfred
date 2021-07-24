@@ -228,7 +228,7 @@ void processRoutes({
       delegates: application.delegates,
       child: routedApp,
     );
-    final result = localizedApp.render(
+    final result = localizedApp.renderElement(
       context: context,
     );
     final absoluteLocalDirectory = localeDirectory.path;

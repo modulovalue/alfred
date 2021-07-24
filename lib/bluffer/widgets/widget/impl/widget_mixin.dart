@@ -10,35 +10,39 @@ HtmlElement renderWidget({
   required final Widget child,
   required final BuildContext context,
 }) {
-  final html = child.renderHtml(
+  final renderedChildHtml = child.renderHtml(
     context: context,
   );
-  final key = child.key;
-  if (key != null) {
-    final mediaQuerySize = MediaQuery.of(context)!.size;
-    final mediaQuerySizeIndex = mediaQuerySize.index.toString();
-    // TODO need a redirecting node that can mutate the id but redirect the rest.
-    html.id = key.className + '-' + mediaQuerySizeIndex;
-  }
-  final newClassKey = context.createDefaultKey();
-  final currentClasses = html.className;
-  // TODO need a redirecting node that can mutate the classname but redirect the rest.
-  html.className = [
-    if (currentClasses != null)
-      if (currentClasses != "") //
-        currentClasses,
-    newClassKey.className,
-  ].join(" ");
-  final css = child.renderCss(
-    context: context,
-  );
-  if (css != null) {
-    context.setStyle(
-      newClassKey.className,
-      css,
-    );
-  }
-  return html;
+  return renderedChildHtml.copyWith(
+    className: () {
+      final renderedChildCss = child.renderCss(context: context);
+      if (renderedChildCss != null) {
+        final newClass = context.createDefaultKey().className;
+        context.setStyle(
+          newClass,
+          renderedChildCss,
+        );
+        final currentClass = renderedChildHtml.className;
+        if (currentClass != null) {
+          return currentClass + " " + newClass;
+        } else {
+          return newClass;
+        }
+      } else {
+        return null;
+      }
+    }(),
+    id: () {
+      final key = child.key;
+      if (key != null) {
+        final mediaQuerySize = MediaQuery.of(context)!.size;
+        final mediaQuerySizeIndex = mediaQuerySize.index.toString();
+        return key.className + '-' + mediaQuerySizeIndex;
+      } else {
+        return null;
+      }
+    }(),
+  ) as HtmlElement /* TODO very bad, find a way to remove this cast. */;
 }
 
 mixin InheritedWidgetMixin implements InheritedWidget {
@@ -55,11 +59,11 @@ mixin InheritedWidgetMixin implements InheritedWidget {
   }
 
   @override
-  HtmlElement render({
+  HtmlElement renderElement({
     required final BuildContext context,
   }) {
     final newContext = context.withInherited(this);
-    return child.render(
+    return child.renderElement(
       context: newContext,
     );
   }
