@@ -1,7 +1,5 @@
 import '../../base/keys.dart';
-import '../../css/builder.dart';
 import '../../css/css.dart';
-import '../../css/empty.dart';
 import '../../html/html.dart';
 import '../../html/html_impl.dart';
 import '../widget/impl/widget_mixin.dart';
@@ -22,33 +20,39 @@ class ConstrainedBox implements Widget {
   });
 
   @override
-  CssStyleDeclaration renderCss(
-    final BuildContext context,
-  ) {
-    if (constraints != null) {
+  CssStyleDeclaration? renderCss({
+    required final BuildContext context,
+  }) {
+    final _constraints = constraints;
+    if (_constraints != null) {
       return CssStyleDeclaration2Impl(
         css_margin: 'auto',
-        css_maxHeight: '${constraints!.maxHeight}px',
-        css_maxWidth: '${constraints!.maxWidth}px',
-        css_minHeight: '${constraints!.minHeight}px',
-        css_minWidth: '${constraints!.minWidth}px',
+        css_maxHeight: _constraints.maxHeight.toString() + 'px',
+        css_maxWidth: _constraints.maxWidth.toString() + 'px',
+        css_minHeight: _constraints.minHeight.toString() + 'px',
+        css_minWidth: _constraints.minWidth.toString() + 'px',
       );
     } else {
-      return const CssStyleDeclaration2EmptyImpl();
+      return null;
     }
   }
 
   @override
-  HtmlElement renderHtml(
-    final BuildContext context,
-  ) => //
-      child?.render(context) ?? DivElementImpl.empty();
+  HtmlElement renderHtml({
+    required final BuildContext context,
+  }) {
+    final rendered = child?.render(context: context);
+    return rendered ?? DivElementEmptyImpl();
+  }
 
   @override
-  HtmlElement render(
-    final BuildContext context,
-  ) =>
-      renderWidget(this, context);
+  HtmlElement render({
+    required final BuildContext context,
+  }) =>
+      renderWidget(
+        child: this,
+        context: context,
+      );
 }
 
 class BoxConstraints {

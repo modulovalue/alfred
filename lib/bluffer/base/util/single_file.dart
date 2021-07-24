@@ -40,6 +40,10 @@ String constructSinglePage({
     assets: assets,
     styles: {},
   );
-  final element = child.render(buildContext);
-  return serializeHtml(html: element);
+  final element = child.render(
+    context: buildContext,
+  );
+  return serializeHtml(
+    html: element,
+  );
 }

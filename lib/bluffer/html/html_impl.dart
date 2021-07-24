@@ -1,8 +1,7 @@
 import '../css/css.dart';
-import '../css/empty.dart';
 import 'html.dart';
 
-mixin HtmlElementMixin implements HtmlElement {
+class BRElementImpl with BRElementMixin {
   @override
   String? className;
   @override
@@ -10,137 +9,82 @@ mixin HtmlElementMixin implements HtmlElement {
   @override
   final List<HtmlEntity> childNodes = [];
 
-  @override
-  CssStyleDeclaration2EmptyImpl get style => const CssStyleDeclaration2EmptyImpl();
-}
-
-class BRElementImpl with HtmlElementMixin implements BRElement {
   BRElementImpl();
 
   @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementBr(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
+  Null get style => null;
 }
 
-class HtmlHtmlElementImpl with HtmlElementMixin implements HtmlHtmlElement {
-  factory HtmlHtmlElementImpl.make(
-    final Iterable<HtmlEntity> nodes,
-  ) {
-    final node = HtmlHtmlElementImpl._();
-    node.childNodes.addAll(nodes);
-    return node;
-  }
+class HtmlHtmlElementImpl with HtmlHtmlElementMixin {
+  @override
+  String? className;
+  @override
+  String? id;
+  @override
+  final List<HtmlEntity> childNodes;
 
-  HtmlHtmlElementImpl._();
+  HtmlHtmlElementImpl(
+    final this.childNodes,
+  );
 
   @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementHtmlHtml(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
+  Null get style => null;
 }
 
-class MetaElementImpl with HtmlElementMixin implements MetaElement {
+class MetaElementImpl with MetaElementMixin {
+  @override
+  String? className;
+  @override
+  String? id;
+  @override
+  final List<HtmlEntity> childNodes = [];
   final Map<String, String> attributes = {};
 
   MetaElementImpl();
 
   @override
-  void setAttribute(
-    final String key,
-    final String value,
-  ) =>
+  Null get style => null;
+
+  @override
+  void setAttribute({
+    required final String key,
+    required final String value,
+  }) =>
       attributes[key] = value;
 
   @override
-  void forEachAttribute(
-    final void Function(String key, String value) fn,
-  ) =>
-      attributes.forEach(fn);
-
-  @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementMeta(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
+  void forEachAttribute({
+    required final void Function(String key, String value) forEach,
+  }) =>
+      attributes.forEach(forEach);
 }
 
-class BodyElementImpl with HtmlElementMixin implements BodyElement {
-  factory BodyElementImpl.make(
-    final Iterable<HtmlEntity> nodes,
-  ) {
-    final node = BodyElementImpl._();
-    node.childNodes.addAll(nodes);
-    return node;
-  }
+class BodyElementImpl with BodyElementMixin {
+  @override
+  String? className;
+  @override
+  String? id;
+  @override
+  final List<HtmlEntity> childNodes;
 
-  BodyElementImpl._();
+  BodyElementImpl(
+    final this.childNodes,
+  );
 
   @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementBody(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
+  Null get style => null;
 }
 
-class RawTextElementImpl implements RawTextElement {
+class RawTextElementImpl with RawTextElementMixin {
   @override
   final String text;
 
   const RawTextElementImpl(
     final this.text,
   );
-
-  @override
-  R acceptHtmlNodeOneArg<R, A>(
-    final HtmlNodeVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitNodeText(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityNode(this, a);
 }
 
-class CssTextElementImpl implements CssTextElement {
+class CssTextElementImpl with CssTextElementMixin {
   @override
   final String key;
   @override
@@ -150,23 +94,15 @@ class CssTextElementImpl implements CssTextElement {
     final this.key,
     final this.css,
   );
-
-  @override
-  R acceptHtmlNodeOneArg<R, A>(
-    final HtmlNodeVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitNodeStyle(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityNode(this, a);
 }
 
-class ScriptElementImpl with HtmlElementMixin implements ScriptElement {
+class ScriptElementImpl with ScriptElementMixin {
+  @override
+  String? className;
+  @override
+  String? id;
+  @override
+  final List<HtmlEntity> childNodes = [];
   @override
   final bool? async;
   @override
@@ -184,21 +120,16 @@ class ScriptElementImpl with HtmlElementMixin implements ScriptElement {
   });
 
   @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementScript(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
+  Null get style => null;
 }
 
-class LinkElementImpl with HtmlElementMixin implements LinkElement {
+class LinkElementImpl with LinkElementMixin {
+  @override
+  String? className;
+  @override
+  String? id;
+  @override
+  final List<HtmlEntity> childNodes = [];
   @override
   final String? href;
   @override
@@ -210,21 +141,16 @@ class LinkElementImpl with HtmlElementMixin implements LinkElement {
   });
 
   @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementLink(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
+  Null get style => null;
 }
 
-class TitleElementImpl with HtmlElementMixin implements TitleElement {
+class TitleElementImpl with TitleElementMixin {
+  @override
+  String? className;
+  @override
+  String? id;
+  @override
+  final List<HtmlEntity> childNodes = [];
   @override
   final String? text;
 
@@ -233,65 +159,48 @@ class TitleElementImpl with HtmlElementMixin implements TitleElement {
   });
 
   @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementTitle(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
+  Null get style => null;
 }
 
-class StyleElementImpl with HtmlElementMixin implements StyleElement {
-  factory StyleElementImpl.make(
-    final Iterable<HtmlEntity> nodes,
-  ) {
-    final node = StyleElementImpl._();
-    node.childNodes.addAll(nodes);
-    return node;
-  }
+class StyleElementImpl with StyleElementMixin {
+  @override
+  String? className;
+  @override
+  String? id;
+  @override
+  final List<HtmlEntity> childNodes;
 
-  StyleElementImpl._();
+  StyleElementImpl(
+    final this.childNodes,
+  );
 
   @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementStyle(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
+  Null get style => null;
 }
 
-class ParagraphElementImpl with HtmlElementMixin implements ParagraphElement {
-  ParagraphElementImpl();
+class ParagraphElementImpl with ParagraphElementMixin {
+  @override
+  String? className;
+  @override
+  String? id;
+  @override
+  final List<HtmlEntity> childNodes;
+
+  ParagraphElementImpl(
+    final this.childNodes,
+  );
 
   @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementParagraph(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
+  Null get style => null;
 }
 
-class ImageElementImpl with HtmlElementMixin implements ImageElement {
+class ImageElementImpl with ImageElementMixin {
+  @override
+  String? className;
+  @override
+  String? id;
+  @override
+  final List<HtmlEntity> childNodes = [];
   @override
   final String? alt;
   @override
@@ -303,64 +212,48 @@ class ImageElementImpl with HtmlElementMixin implements ImageElement {
   });
 
   @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementImage(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
+  Null get style => null;
 }
 
-class DivElementImpl implements DivElement {
+class DivElementImpl with DivElementMixin implements DivElement {
   @override
   String? className;
   @override
   String? id;
   @override
   final List<HtmlEntity> childNodes;
-  @override
-  final CssStyleDeclaration style;
-
-  DivElementImpl.empty()
-      : childNodes = [],
-        style = const CssStyleDeclaration2EmptyImpl(),
-        className = null,
-        id = null;
 
   DivElementImpl.make({
-    required final this.className,
-    required final this.id,
     required final this.childNodes,
-  }) : style = const CssStyleDeclaration2EmptyImpl();
-
-  DivElementImpl.custom(
-    final this.style,
-  )   : className = null,
-        id = null,
-        childNodes = [];
+    final this.className,
+    final this.id,
+  });
 
   @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementDiv(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
+  Null get style => null;
 }
 
-class AnchorElementImpl with HtmlElementMixin implements AnchorElement {
+class DivElementEmptyImpl with DivElementMixin implements DivElement {
+  @override
+  String? className;
+  @override
+  String? id;
+  @override
+  final List<HtmlEntity> childNodes = [];
+
+  DivElementEmptyImpl();
+
+  @override
+  Null get style => null;
+}
+
+class AnchorElementImpl with AnchorElementMixin {
+  @override
+  String? className;
+  @override
+  String? id;
+  @override
+  final List<HtmlEntity> childNodes;
   @override
   final String? href;
   @override
@@ -369,46 +262,26 @@ class AnchorElementImpl with HtmlElementMixin implements AnchorElement {
   AnchorElementImpl({
     required final this.href,
     required final this.target,
+    required final this.className,
+    required final this.childNodes,
   });
 
   @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementAnchor(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
+  Null get style => null;
 }
 
-class HeadElementImpl with HtmlElementMixin implements HeadElement {
-  factory HeadElementImpl.make(
-    final Iterable<HtmlEntity> children,
-  ) {
-    // TODO pass children directly to the element.
-    final node = HeadElementImpl._();
-    node.childNodes.addAll(children);
-    return node;
-  }
+class HeadElementImpl with HeadElementMixin {
+  @override
+  String? className;
+  @override
+  String? id;
+  @override
+  final List<HtmlEntity> childNodes;
 
-  HeadElementImpl._();
+  HeadElementImpl(
+    final this.childNodes,
+  );
 
   @override
-  R acceptHtmlElementOneArg<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementHead(this, a);
-
-  @override
-  R acceptHtmlEntityOneArg<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(this, a);
+  Null get style => null;
 }

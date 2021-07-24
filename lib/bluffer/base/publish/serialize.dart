@@ -141,7 +141,9 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
         additionalAttrib: () {
           final attributes = <String>[];
           node.forEachAttribute(
-            (final key, final value) => attributes.add(key + '="' + value + '"'),
+            forEach: (final key, final value) => attributes.add(
+              key + '="' + value + '"',
+            ),
           );
           return attributes;
         }(),
@@ -237,13 +239,13 @@ String serializeHtmlNode({
     final className = element.className;
     final id = element.id;
     final css = element.style;
-    final cssContent = serializeCss(css: css);
+    final cssContent = css != null ? serializeCss(css: css) : null;
     final attributes = [
       if (className != null) //
         'class="' + className + '"',
       if (id != null) //
         'id="' + id + '"',
-      if (cssContent.isNotEmpty) //
+      if (cssContent != null && cssContent.isNotEmpty) //
         'style="' + cssContent + '"',
       ...additionalAttrib,
     ].join(" ");

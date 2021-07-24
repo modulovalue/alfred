@@ -1,8 +1,9 @@
+import 'dart:convert';
+
 import '../../base/color.dart';
 import '../../base/keys.dart';
 import '../../base/locale.dart';
 import '../../base/text.dart';
-import '../../css/builder.dart';
 import '../../css/css.dart';
 import '../../html/html.dart';
 import '../../html/html_impl.dart';
@@ -109,26 +110,32 @@ class Text implements Widget {
   });
 
   @override
-  HtmlElement renderHtml(
-    final BuildContext context,
-  ) {
-    final lines = data.split('\n');
-    return ParagraphElementImpl()
-      ..childNodes.addAll(
-        [
-          RawTextElementImpl(lines.first),
-          // if (lines.length > 1) ...lines.skip(1).expand((x) => [BRElement2Impl(), TextElement2Impl(x)]),
-        ],
-      );
+  HtmlElement renderHtml({
+    required final BuildContext context,
+  }) {
+    final splitLineIterable = LineSplitter.split(data);
+    final lines = splitLineIterable.toList();
+    return ParagraphElementImpl(
+      [
+        RawTextElementImpl(lines.first),
+        if (lines.length > 1)
+          for (final line in lines.skip(1)) ...[
+            BRElementImpl(),
+            RawTextElementImpl(line),
+          ],
+      ],
+    );
   }
 
   @override
-  CssStyleDeclaration renderCss(
-    final BuildContext context,
-  ) {
+  CssStyleDeclaration renderCss({
+    required final BuildContext context,
+  }) {
     final textStyles = () {
       final _style = style;
-      final _themeStyle = Theme.of(context)!.text.paragraph;
+      final themeData = Theme.of(context);
+      final textTheme = themeData!.text;
+      final _themeStyle = textTheme.paragraph;
       if (_style == null) {
         return _themeStyle;
       } else {
@@ -161,7 +168,7 @@ class Text implements Widget {
       }(),
       css_lineHeight: () {
         if (textStyles.height != null) {
-          return '${textStyles.height}';
+          return textStyles.height.toString();
         } else {
           return null;
         }
@@ -181,15 +188,20 @@ class Text implements Widget {
         8: '900',
       }[textStyles.fontWeight?.index ?? FontWeight.w400.index],
       css_fontFamily: <String>[
-        if (textStyles.fontFamily != null) "'" + textStyles.fontFamily! + "'",
-        if (textStyles.fontFamilyFallback != null) ...textStyles.fontFamilyFallback!
+        if (textStyles.fontFamily != null) //
+          "'" + textStyles.fontFamily! + "'",
+        if (textStyles.fontFamilyFallback != null) //
+          ...textStyles.fontFamilyFallback!
       ].join(', '),
     );
   }
 
   @override
-  HtmlElement render(
-    final BuildContext context,
-  ) =>
-      renderWidget(this, context);
+  HtmlElement render({
+    required final BuildContext context,
+  }) =>
+      renderWidget(
+        child: this,
+        context: context,
+      );
 }

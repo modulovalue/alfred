@@ -1,5 +1,4 @@
 import '../../base/keys.dart';
-import '../../css/builder.dart';
 import '../../css/css.dart';
 import '../../html/html.dart';
 import '../../html/html_impl.dart';
@@ -22,21 +21,23 @@ class SizedBox implements Widget {
   });
 
   @override
-  CssStyleDeclaration renderCss(
-    final BuildContext context,
-  ) =>
+  CssStyleDeclaration renderCss({
+    required final BuildContext context,
+  }) =>
       CssStyleDeclaration2Impl(
         css_flexShrink: '0',
         css_width: () {
-          if (width != null) {
-            return '${width}px';
+          final _width = width;
+          if (_width != null) {
+            return _width.toString() + 'px';
           } else {
             return null;
           }
         }(),
         css_height: () {
-          if (height != null) {
-            return '${height}px';
+          final _height = height;
+          if (_height != null) {
+            return _height.toString() + 'px';
           } else {
             return null;
           }
@@ -44,19 +45,24 @@ class SizedBox implements Widget {
       );
 
   @override
-  HtmlElement renderHtml(
-    final BuildContext context,
-  ) {
+  HtmlElement renderHtml({
+    required final BuildContext context,
+  }) {
     if (child == null) {
-      return DivElementImpl.empty();
+      return DivElementEmptyImpl();
     } else {
-      return child!.render(context);
+      return child!.render(
+        context: context,
+      );
     }
   }
 
   @override
-  HtmlElement render(
-    final BuildContext context,
-  ) =>
-      renderWidget(this, context);
+  HtmlElement render({
+    required final BuildContext context,
+  }) =>
+      renderWidget(
+        child: this,
+        context: context,
+      );
 }

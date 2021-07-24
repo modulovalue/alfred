@@ -12,34 +12,34 @@ class PublishingLogPrintImpl implements PublishingLog, PublishingLocaleLog, Publ
   );
 
   @override
-  void processingLocale(
-    final Locale locale,
-  ) =>
+  void processingLocale({
+    required final Locale locale,
+  }) =>
       output('Processing ' + locale.localeDebugToString() + '...');
 
   @override
-  void processingAssets(
-    final Directory assets,
-  ) =>
+  void processingAssets({
+    required final Directory assets,
+  }) =>
       output('Processing Assets ' + assets.path + '...');
 
   @override
-  void processingAssetFile(
-    final File item,
-    final File destination,
-  ) =>
+  void processingAssetFile({
+    required final File item,
+    required final File destination,
+  }) =>
       output("  - '" + item.path + "' into > '" + destination.path + "'");
 
   @override
-  void processingRoute(
-    final UrlWidgetRoute route,
-  ) =>
+  void processingRoute({
+    required final UrlWidgetRoute route,
+  }) =>
       output('  [Route(' + route.relativeUrl + ")]");
 
   @override
-  void processingRouteFile(
-    final File file,
-  ) =>
+  void processingRouteFile({
+    required final File file,
+  }) =>
       output("   - '" + file.path + "'");
 
   @override

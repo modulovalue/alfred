@@ -1,6 +1,5 @@
 import '../../base/image.dart';
 import '../../base/keys.dart';
-import '../../css/builder.dart';
 import '../../css/css.dart';
 import '../../html/html.dart';
 import '../../html/html_impl.dart';
@@ -60,9 +59,9 @@ class Image implements Widget {
         );
 
   @override
-  CssStyleDeclaration renderCss(
-    final BuildContext context,
-  ) =>
+  CssStyleDeclaration renderCss({
+    required final BuildContext context,
+  }) =>
       CssStyleDeclaration2Impl(
         css_display: "flex",
         css_width: () {
@@ -96,23 +95,30 @@ class Image implements Widget {
       );
 
   @override
-  HtmlElement renderHtml(
-    final BuildContext context,
-  ) =>
-      ImageElementImpl(
-        src: resolveUrl(context, image.url),
-        alt: () {
-          if (semanticsLabel != null) {
-            return semanticsLabel;
-          } else {
-            return null;
-          }
-        }(),
-      );
+  HtmlElement renderHtml({
+    required final BuildContext context,
+  }) {
+    return ImageElementImpl(
+      src: resolveUrl(
+        context: context,
+        url: image.url,
+      ),
+      alt: () {
+        if (semanticsLabel != null) {
+          return semanticsLabel;
+        } else {
+          return null;
+        }
+      }(),
+    );
+  }
 
   @override
-  HtmlElement render(
-    final BuildContext context,
-  ) =>
-      renderWidget(this, context);
+  HtmlElement render({
+    required final BuildContext context,
+  }) =>
+      renderWidget(
+        child: this,
+        context: context,
+      );
 }

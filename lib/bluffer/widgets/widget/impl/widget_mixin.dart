@@ -6,11 +6,13 @@ import '../interface/build_context.dart';
 import '../interface/inherited_widget.dart';
 import '../interface/widget.dart';
 
-HtmlElement renderWidget(
-  final Widget child,
-  final BuildContext context,
-) {
-  final html = child.renderHtml(context);
+HtmlElement renderWidget({
+  required final Widget child,
+  required final BuildContext context,
+}) {
+  final html = child.renderHtml(
+    context: context,
+  );
   final key = child.key;
   if (key != null) {
     final mediaQuerySize = MediaQuery.of(context)!.size;
@@ -27,7 +29,9 @@ HtmlElement renderWidget(
         currentClasses,
     newClassKey.className,
   ].join(" ");
-  final css = child.renderCss(context);
+  final css = child.renderCss(
+    context: context,
+  );
   if (css != null) {
     context.setStyle(
       newClassKey.className,
@@ -41,22 +45,34 @@ mixin InheritedWidgetMixin implements InheritedWidget {
   Widget get child;
 
   @override
-  HtmlElement renderHtml(
-    final BuildContext context,
-  ) =>
-      child.renderHtml(context.withInherited(this));
+  HtmlElement renderHtml({
+    required final BuildContext context,
+  }) {
+    final newContext = context.withInherited(this);
+    return child.renderHtml(
+      context: newContext,
+    );
+  }
 
   @override
-  HtmlElement render(
-    final BuildContext context,
-  ) =>
-      child.render(context.withInherited(this));
+  HtmlElement render({
+    required final BuildContext context,
+  }) {
+    final newContext = context.withInherited(this);
+    return child.render(
+      context: newContext,
+    );
+  }
 
   @override
-  CssStyleDeclaration? renderCss(
-    final BuildContext context,
-  ) =>
-      child.renderCss(context.withInherited(this));
+  CssStyleDeclaration? renderCss({
+    required final BuildContext context,
+  }) {
+    final newContext = context.withInherited(this);
+    return child.renderCss(
+      context: newContext,
+    );
+  }
 }
 
 class MediaQuery with InheritedWidgetMixin {

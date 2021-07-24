@@ -2,7 +2,6 @@ import '../../base/border_radius.dart';
 import '../../base/decoration.dart';
 import '../../base/image.dart';
 import '../../base/keys.dart';
-import '../../css/builder.dart';
 import '../../css/css.dart';
 import '../../html/html.dart';
 import '../../html/html_impl.dart';
@@ -25,9 +24,9 @@ class DecoratedBox implements Widget {
   });
 
   @override
-  CssStyleDeclaration renderCss(
-    final BuildContext context,
-  ) =>
+  CssStyleDeclaration renderCss({
+    required final BuildContext context,
+  }) =>
       CssStyleDeclaration2Impl(
         css_display: "flex",
         css_backgroundColor: () {
@@ -35,7 +34,11 @@ class DecoratedBox implements Widget {
             final _color = decoration!.color!.toCss();
             return _color;
           } else if (decoration?.image != null) {
-            return 'url(' + resolveUrl(context, decoration!.image!.image.url) + ')';
+            final resolvedUrl = resolveUrl(
+              context: context,
+              url: decoration!.image!.image.url,
+            );
+            return 'url(' + resolvedUrl + ')';
           }
         }(),
         css_backgroundPosition: () {
@@ -50,19 +53,26 @@ class DecoratedBox implements Widget {
           }
         }(),
         css_backgroundSize: () {
-          if (decoration != null) {
-            if (decoration!.image?.fit != null) {
-              switch (decoration!.image!.fit!) {
-                case BoxFit.cover:
-                  return 'cover';
-                case BoxFit.fill:
-                  return 'fill';
-                case BoxFit.none:
-                  return 'none';
-                case BoxFit.scaleDown:
-                  return 'scale-down';
-                case BoxFit.contain:
-                  return 'contain';
+          final _decoration = decoration;
+          if (_decoration != null) {
+            final _image = _decoration.image;
+            if (_image != null) {
+              final _fit = _image.fit;
+              if (_fit != null) {
+                switch (_fit) {
+                  case BoxFit.cover:
+                    return 'cover';
+                  case BoxFit.fill:
+                    return 'fill';
+                  case BoxFit.none:
+                    return 'none';
+                  case BoxFit.scaleDown:
+                    return 'scale-down';
+                  case BoxFit.contain:
+                    return 'contain';
+                }
+              } else {
+                return null;
               }
             } else {
               return null;
@@ -72,9 +82,11 @@ class DecoratedBox implements Widget {
           }
         }(),
         css_boxShadow: () {
-          if (decoration != null) {
-            if (decoration!.boxShadow.isNotEmpty) {
-              final shadow = decoration!.boxShadow.first;
+          final _decoration = decoration;
+          if (_decoration != null) {
+            final _boxShadow = _decoration.boxShadow;
+            if (_boxShadow.isNotEmpty) {
+              final shadow = _boxShadow.first;
               final shadowColor = shadow.color.toCss();
               return '${shadow.offset.dx}px ${shadow.offset}px ${shadow.blurRadius}px ${shadow.spreadRadius}px ${shadowColor};';
             } else {
@@ -85,8 +97,9 @@ class DecoratedBox implements Widget {
           }
         }(),
         css_borderTopLeftRadius: () {
-          if (decoration != null) {
-            final borderRadius = decoration!.borderRadius;
+          final _decoration = decoration;
+          if (_decoration != null) {
+            final borderRadius = _decoration.borderRadius;
             if (borderRadius is BorderRadius) {
               return '${borderRadius.topLeft.x}px';
             } else {
@@ -97,8 +110,9 @@ class DecoratedBox implements Widget {
           }
         }(),
         css_borderBottomLeftRadius: () {
-          if (decoration != null) {
-            final borderRadius = decoration!.borderRadius;
+          final _decoration = decoration;
+          if (_decoration != null) {
+            final borderRadius = _decoration.borderRadius;
             if (borderRadius is BorderRadius) {
               return '${borderRadius.bottomLeft.x}px';
             } else {
@@ -109,8 +123,9 @@ class DecoratedBox implements Widget {
           }
         }(),
         css_borderBottomRightRadius: () {
-          if (decoration != null) {
-            final borderRadius = decoration!.borderRadius;
+          final _decoration = decoration;
+          if (_decoration != null) {
+            final borderRadius = _decoration.borderRadius;
             if (borderRadius is BorderRadius) {
               return '${borderRadius.bottomRight.x}px';
             } else {
@@ -121,8 +136,9 @@ class DecoratedBox implements Widget {
           }
         }(),
         css_borderTopRightRadius: () {
-          if (decoration != null) {
-            final borderRadius = decoration!.borderRadius;
+          final _decoration = decoration;
+          if (_decoration != null) {
+            final borderRadius = _decoration.borderRadius;
             if (borderRadius is BorderRadius) {
               return '${borderRadius.topRight.x}px';
             } else {
@@ -135,19 +151,28 @@ class DecoratedBox implements Widget {
       );
 
   @override
-  HtmlElement renderHtml(
-    final BuildContext context,
-  ) {
-    final result = DivElementImpl.empty();
+  HtmlElement renderHtml({
+    required final BuildContext context,
+  }) {
+    final result = DivElementEmptyImpl();
     if (child != null) {
-      result.childNodes.add(Expanded(child: child!).render(context));
+      final expandedChild = Expanded(
+        child: child!,
+      );
+      final rendered = expandedChild.render(
+        context: context,
+      );
+      result.childNodes.add(rendered);
     }
     return result;
   }
 
   @override
-  HtmlElement render(
-    final BuildContext context,
-  ) =>
-      renderWidget(this, context);
+  HtmlElement render({
+    required final BuildContext context,
+  }) =>
+      renderWidget(
+        child: this,
+        context: context,
+      );
 }

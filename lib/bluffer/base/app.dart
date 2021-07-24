@@ -42,25 +42,35 @@ class App implements Widget {
       );
 
   @override
-  HtmlElement renderHtml(
-    final BuildContext context,
-  ) {
-    final currentRoute = routes.firstWhere((final x) => x.relativeUrl == this.currentRoute);
-    return application(currentRoute).renderHtml(context);
+  HtmlElement renderHtml({
+    required final BuildContext context,
+  }) {
+    final currentRoute = routes.firstWhere(
+      (final x) => x.relativeUrl == this.currentRoute,
+    );
+    final appWidget = application(currentRoute);
+    return appWidget.renderHtml(
+      context: context,
+    );
   }
 
   @override
-  HtmlElement render(
-    final BuildContext context,
-  ) {
-    final currentRoute = routes.firstWhere((final x) => x.relativeUrl == this.currentRoute);
-    return application(currentRoute).render(context);
+  HtmlElement render({
+    required final BuildContext context,
+  }) {
+    final currentRoute = routes.firstWhere(
+      (final x) => x.relativeUrl == this.currentRoute,
+    );
+    final appWidget = application(currentRoute);
+    return appWidget.render(
+      context: context,
+    );
   }
 
   @override
-  Null renderCss(
-    final BuildContext context,
-  ) =>
+  Null renderCss({
+    required final BuildContext context,
+  }) =>
       null;
 }
 
@@ -84,24 +94,38 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
   });
 
   @override
-  HtmlElement renderHtml(
-    final BuildContext context,
-  ) =>
-      HtmlHtmlElementImpl.make(
+  HtmlElement renderHtml({
+    required final BuildContext context,
+  }) =>
+      HtmlHtmlElementImpl(
         [
-          HeadElementImpl.make(
+          HeadElementImpl(
             [
               // TODO have a meta subclass that already has those attributes.
+              // TODO look for and support more attributes
+              // TODO have an all-attribute-type-safe meta implementation.
               MetaElementImpl()
-                ..setAttribute('charset', 'UTF-8')
-                ..setAttribute('name', 'viewport')
-                ..setAttribute('content', 'width=device-width, initial-scale=1'),
+                ..setAttribute(
+                  key: 'charset',
+                  value: 'UTF-8',
+                )
+                ..setAttribute(
+                  key: 'name',
+                  value: 'viewport',
+                )
+                ..setAttribute(
+                  key: 'content',
+                  value: 'width=device-width, initial-scale=1',
+                ),
               for (final link in stylesheetLinks) //
-                LinkElementImpl(href: link, rel: 'stylesheet'),
+                LinkElementImpl(
+                  href: link,
+                  rel: 'stylesheet',
+                ),
               ...route.head(context),
             ],
           ),
-          StyleElementImpl.make(
+          StyleElementImpl(
             [
               const RawTextElementImpl(resetCss),
               const RawTextElementImpl(baseCss),
@@ -109,7 +133,7 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
                 RawTextElementImpl(mediaClassForMediaSize(availableSizes, size)),
             ],
           ),
-          BodyElementImpl.make(
+          BodyElementImpl(
             [
               for (final size in availableSizes)
                 DivElementImpl.make(
@@ -130,7 +154,7 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
                           }(),
                         ),
                       ),
-                    ).render(context)
+                    ).render(context: context)
                   ],
                 ),
               ...scriptLinks,
@@ -140,10 +164,13 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
       );
 
   @override
-  HtmlElement render(
-    final BuildContext context,
-  ) {
-    final result = renderWidget(this, context);
+  HtmlElement render({
+    required final BuildContext context,
+  }) {
+    final result = renderWidget(
+      context: context,
+      child: this,
+    );
     for (final child in result.childNodes) {
       if (child is StyleElement) {
         context.styles.entries.forEach(
@@ -161,9 +188,9 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
   }
 
   @override
-  Null renderCss(
-    final BuildContext context,
-  ) =>
+  Null renderCss({
+    required final BuildContext context,
+  }) =>
       null;
 }
 
@@ -266,7 +293,10 @@ String mediaClassForMediaSize(
   final MediaSize size,
 ) {
   final index = all.indexOf(size);
-  assert(index != -1, "The given size $size was not in $all");
+  assert(
+    index != -1,
+    "The given size " + size.toString() + " was not in " + all.toString(),
+  );
   return [
     '@media all and ${'(min-width: ${Breakpoint.defaultBreakpointSize(size)}px)'}${() {
       if (index + 1 >= all.length) {

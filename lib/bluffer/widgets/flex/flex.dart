@@ -1,6 +1,5 @@
 import '../../base/basic_types.dart';
 import '../../base/keys.dart';
-import '../../css/builder.dart';
 import '../../css/css.dart';
 import '../../html/html.dart';
 import '../../html/html_impl.dart';
@@ -63,28 +62,32 @@ class Flex implements Widget {
   });
 
   @override
-  HtmlElement render(
-    final BuildContext context,
-  ) {
-    final result = renderWidget(this, context);
+  HtmlElement render({
+    required final BuildContext context,
+  }) {
+    final result = renderWidget(
+      child: this,
+      context: context,
+    );
     if (children != null) {
       for (final child in children!) {
-        result.childNodes.add(child.render(context));
+        final rendered = child.render(context: context);
+        result.childNodes.add(rendered);
       }
     }
     return result;
   }
 
   @override
-  HtmlElement renderHtml(
-    final BuildContext context,
-  ) =>
-      DivElementImpl.empty();
+  HtmlElement renderHtml({
+    required final BuildContext context,
+  }) =>
+      DivElementEmptyImpl();
 
   @override
-  CssStyleDeclaration renderCss(
-    final BuildContext context,
-  ) =>
+  CssStyleDeclaration renderCss({
+    required final BuildContext context,
+  }) =>
       CssStyleDeclaration2Impl(
         css_display: 'flex',
         css_flexDirection: () {
@@ -162,15 +165,15 @@ class Flexible implements Widget {
   });
 
   @override
-  HtmlElement renderHtml(
-    final BuildContext context,
-  ) =>
-      child.render(context);
+  HtmlElement renderHtml({
+    required final BuildContext context,
+  }) =>
+      child.render(context: context);
 
   @override
-  CssStyleDeclaration renderCss(
-    final BuildContext context,
-  ) {
+  CssStyleDeclaration renderCss({
+    required final BuildContext context,
+  }) {
     switch (fit) {
       case FlexFit.tight:
         return CssStyleDeclaration2Impl(
@@ -187,10 +190,13 @@ class Flexible implements Widget {
   }
 
   @override
-  HtmlElement render(
-    final BuildContext context,
-  ) =>
-      renderWidget(this, context);
+  HtmlElement render({
+    required final BuildContext context,
+  }) =>
+      renderWidget(
+        child: this,
+        context: context,
+      );
 }
 
 class Expanded extends Flexible {
