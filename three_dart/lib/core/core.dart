@@ -1,0 +1,1226 @@
+import 'dart:async';
+import 'dart:html' as html;
+import 'dart:js' as js;
+import 'dart:web_gl' as webgl;
+
+import '../audio/audio.dart';
+import '../collections/collections.dart';
+import '../data/data.dart';
+import '../debug/debug.dart';
+import '../events/events.dart';
+import '../input/input.dart';
+import '../math/math.dart';
+import '../movers/movers.dart';
+import '../scenes/scenes.dart';
+import '../shaders/shaders.dart';
+import '../shapes/shapes.dart';
+import '../techniques/techniques.dart';
+import '../textures/textures.dart';
+
+/// The interface for a class which can bind and unbind state while rendering.
+///
+/// Classes which inherit [Bindable] can be bound to the [RenderState]
+/// during a portion of the render until unbind is called or another
+/// similar [Bindable] is bound to the [RenderState] overriding the first.
+abstract class Bindable {
+  /// Binds some data to the given [state].
+  void bind(
+    final RenderState state,
+  );
+
+  /// Unbinds the bound data from the given [state].
+  void unbind(
+    final RenderState state,
+  );
+}
+
+/// A renderable entity in a tree of entities for a scene.
+///
+/// An [Entity] is a [Shape], [Technique], and a [Mover]
+/// to create an output when rendered.
+class Entity implements Movable, Changeable {
+  /// The name for this entity.
+  String _name;
+
+  /// Indicates if this entity and its children
+  /// will be rendered or not.
+  bool _enabled;
+
+  /// The shape to render.
+  /// May be null to not render this Entity which is useful
+  /// when grouping other Entities.
+  Shape? _shape;
+
+  /// The shape builder used to build the rendering data.
+  /// When using a shape this will be a shape.
+  /// May be null to not when not rendering.
+  ShapeBuilder? _shapeBuilder;
+
+  /// The cache of the shape transformed into the buffers required
+  /// by the shader in the currently set technique.
+  /// TODO: Need to make the cache work for two techniques when there are parents.
+  TechniqueCache? _cache;
+
+  /// The technique to render with or null to inherit from it's parent.
+  Technique? _tech;
+
+  /// The mover to position, rotate, and scale this Entity and children.
+  /// May be null to not move the Entity.
+  Mover? _mover;
+
+  /// The location and rotation of this entity.
+  Matrix4? _matrix;
+
+  /// The list of children entities to this entity.
+  final Collection<Entity> _children;
+
+  /// The event emitted when any part of the entity is changed.
+  Event? _changed;
+
+  /// The event emitted when the shape has been changed.
+  Event? _shapeChanged;
+
+  /// The event emitted when the shape builder has been changed.
+  final Event? _shapeBuilderChanged;
+
+  /// The event emitted when the technique has been changed.
+  Event? _techChanged;
+
+  /// The event emitted when the mover has been changed.
+  Event? _moverChanged;
+
+  /// The event emitted when the matrix has been changed.
+  Event? _matrixChanged;
+
+  /// The event emitted when one or more children is added.
+  Event? _childrenAdded;
+
+  /// The event emitted when one or more children is removed.
+  Event? _childrenRemoved;
+
+  /// The event emitted when an extension is added.
+  Event? _extensionAdded;
+
+  /// The event emitted when an extension is removed.
+  Event? _extensionRemoved;
+
+  /// Creates a new Entity.
+  Entity({
+    final String name = '',
+    final bool enabled = true,
+    final Shape? shape,
+    final Technique? tech,
+    final Mover? mover,
+    final List<Entity>? children,
+  })  : this._name = name,
+        this._enabled = enabled,
+        this._shape = null,
+        this._shapeBuilder = null,
+        this._cache = null,
+        this._tech = null,
+        this._mover = null,
+        this._matrix = null,
+        this._children = Collection<Entity>(),
+        this._changed = null,
+        this._shapeChanged = null,
+        this._shapeBuilderChanged = null,
+        this._techChanged = null,
+        this._moverChanged = null,
+        this._matrixChanged = null,
+        this._childrenAdded = null,
+        this._childrenRemoved = null,
+        this._extensionAdded = null,
+        this._extensionRemoved = null {
+    this._children.setHandlers(onAddedHndl: this.onChildrenAdded, onRemovedHndl: this.onChildrenRemoved);
+    this.shape = shape;
+    this.technique = tech;
+    this.mover = mover;
+    if (children != null) this._children.addAll(children);
+  }
+
+  /// The name for this entity.
+  String get name => this._name;
+
+  set name(String name) {
+    this._name = name;
+  }
+
+  /// Indicates if this entity and its children
+  /// will be rendered or not.
+  bool get enabled => this._enabled;
+
+  set enabled(bool enabled) {
+    this._enabled = enabled;
+  }
+
+  /// Indicates if the shape cache needs to be updated.
+  bool get cacheNeedsUpdate => this._cache == null;
+
+  /// Requests that the shape cache is updated.
+  ///
+  /// If the shape is changed internally without being removed and reset or the requirements
+  /// of the technique has changed without being removed then calling this will update the cache.
+  /// Typically this should not have to be called.
+  void clearCache() => this._cache = null;
+
+  /// Requests that this and child shape caches are updated.
+  ///
+  /// This will clear the caches for updating when the technique changes.
+  /// Since techniques are shared to children which don't provide their
+  /// own technique this will clear all children and descendants which
+  /// currently use this technique.
+  void _cacheUpdateForTech() {
+    this.clearCache();
+    for (final Entity child in this._children) {
+      if (child._tech == null) {
+        child._cacheUpdateForTech();
+      }
+    }
+  }
+
+  /// The cache of the current shape in buffers for the current technique.
+  TechniqueCache? get cache => this._cache;
+
+  set cache(TechniqueCache? cache) => this._cache = cache;
+
+  /// The children Entities of this Entity.
+  Collection<Entity> get children => this._children;
+
+  /// The shape to draw at this Entity.
+  /// May be null to not draw anything, useful if this Entity
+  /// is just a container for child Entities.
+  Shape? get shape => this._shape;
+
+  set shape(Shape? shape) {
+    if (this._shape != shape) {
+      final Shape? oldShape = this._shape;
+      this._shape = shape;
+      this._shapeBuilder = shape;
+      this.clearCache();
+      oldShape?.changed.remove(this.onShapeModified);
+      shape?.changed.add(this.onShapeModified);
+      this.onShapeChanged(oldShape, shape);
+    }
+  }
+
+  /// The shape builder to draw at this Entity.
+  /// A shape builder is a predetermined shape drawing instructions.
+  /// Typically this is set through [shape] but is exposed so that
+  /// renders with higher requirements can precalculate shapes or provide
+  /// custom shapes to the entity.
+  ShapeBuilder? get shapeBuilder => this._shapeBuilder;
+
+  set shapeBuilder(ShapeBuilder? builder) {
+    if (this._shapeBuilder != builder) {
+      final ShapeBuilder? oldBuilder = this._shapeBuilder;
+      this._shape = null;
+      this._shapeBuilder = builder;
+      this.clearCache();
+      oldBuilder?.changed.remove(this.onShapeModified);
+      builder?.changed.add(this.onShapeModified);
+      this.onShapeBuilderChanged(oldBuilder, builder);
+    }
+  }
+
+  /// The technique to render this Entity and/or it's children with.
+  /// May be null to inherit the technique from this Entities parent.
+  Technique? get technique => this._tech;
+
+  set technique(Technique? technique) {
+    if (this._tech != technique) {
+      final Technique? oldTech = this._tech;
+      this._tech = technique;
+      oldTech?.changed.remove(this.onTechModified);
+      technique?.changed.add(this.onTechModified);
+      this._cacheUpdateForTech();
+      this.onTechChanged(oldTech, technique);
+    }
+  }
+
+  /// The mover which moves this Entity.
+  /// May be null to not move the Entity.
+  @override
+  Mover? get mover => this._mover;
+
+  @override
+  set mover(Mover? mover) {
+    if (this._mover != mover) {
+      final Mover? oldMover = this._mover;
+      this._mover = mover;
+      oldMover?.changed.remove(this.onMoverModified);
+      mover?.changed.add(this.onMoverModified);
+      this.onMoverChanged(oldMover, this._mover);
+    }
+  }
+
+  /// The matrix for the location and rotation of the entity.
+  Matrix4? get matrix => this._matrix;
+
+  /// Finds this or the first child entity with the given name.
+  /// Null is returned if none was found.
+  Entity? findFirstByName(String name) {
+    if (this.name == name) return this;
+    for (final Entity child in this._children) {
+      final Entity? result = child.findFirstByName(name);
+      if (result != null) return result;
+    }
+    return null;
+  }
+
+  /// Finds this and all a children entities with the given name.
+  /// If the optional given entity list is not null,
+  /// then the found entities are added to that list.
+  List<Entity> findAllByName(String name, [List<Entity>? entities]) {
+    entities ??= [];
+    if (this.name == name) entities.add(this);
+    for (final Entity child in this._children) {
+      child.findAllByName(name, entities);
+    }
+    return entities;
+  }
+
+  /// Calculates the axial aligned bounding box of this entity and its children.
+  Region3? calculateAABB() {
+    Region3? region;
+    if (this._shapeBuilder != null) region = Region3.union(region, this._shapeBuilder?.calculateAABB());
+    for (final Entity child in this._children) {
+      region = Region3.union(region, child.calculateAABB());
+    }
+    return region;
+  }
+
+  /// Scales the AABB so that the longest size the given [size],
+  /// and the shape is centered then offset by the given [offset].
+  void resizeCenter([double size = 2.0, Point3? offset]) {
+    final Region3? aabb = this.calculateAABB();
+    if (aabb == null) return;
+    offset ??= Point3.zero;
+    // ignore: parameter_assignments
+    offset -= aabb.center;
+    double maxSize = aabb.dx;
+    if (aabb.dy > maxSize) maxSize = aabb.dy;
+    if (aabb.dz > maxSize) maxSize = aabb.dz;
+    if (maxSize == 0.0) return;
+    final double invSize = size / maxSize;
+    this.applyPositionMatrix(
+        Matrix4.scale(invSize, invSize, invSize) * Matrix4.translate(offset.x, offset.y, offset.z));
+  }
+
+  /// Modifies the position, normal, and binormal
+  /// by translating it with the given [mat]
+  /// for this entity's shape and children shapes.
+  void applyPositionMatrix(Matrix4 mat) {
+    this.shape?.applyPositionMatrix(mat);
+    for (final Entity child in this._children) {
+      child.applyPositionMatrix(mat);
+    }
+  }
+
+  /// Modifies the color by translating it with the given [mat]
+  /// for this entity's shape and children shapes.
+  void applyColorMatrix(Matrix3 mat) {
+    this.shape?.applyColorMatrix(mat);
+    for (final Entity child in this._children) {
+      child.applyColorMatrix(mat);
+    }
+  }
+
+  /// Modifies the 2D texture by translating it with the given [mat]
+  /// for this entity's shape and children shapes.
+  void applyTexture2DMatrix(Matrix3 mat) {
+    this.shape?.applyTexture2DMatrix(mat);
+    for (final Entity child in this._children) {
+      child.applyTexture2DMatrix(mat);
+    }
+  }
+
+  /// Modifies the cube texture by translating it with the given [mat]
+  /// for this entity's shape and children shapes.
+  void applyTextureCubeMatrix(Matrix4 mat) {
+    this.shape?.applyTextureCubeMatrix(mat);
+    for (final Entity child in this._children) {
+      child.applyTextureCubeMatrix(mat);
+    }
+  }
+
+  /// Updates the Entity with the given [state].
+  void update(RenderState state) {
+    final Matrix4? mat = this._mover?.update(state, this);
+    if (mat != this._matrix) {
+      final Matrix4? oldMat = this._matrix;
+      this._matrix = mat;
+      this.onMatrixChanged(oldMat, this._matrix);
+    }
+
+    // Updated the technique.
+    this._tech?.update(state);
+
+    // Update all children.
+    for (final Entity child in this._children) {
+      child.update(state);
+    }
+  }
+
+  /// Renders the Entity with the given [RenderState].
+  void render(RenderState state) {
+    if (!this._enabled) return;
+
+    // Push state onto the render state.
+    state.object.pushMul(this._matrix);
+    state.pushTechnique(this._tech);
+
+    // Render this entity.
+    final Technique? tech = state.technique;
+    if (this._shapeBuilder != null) tech?.render(state, this);
+
+    // Render all children.
+    for (final Entity child in this._children) {
+      child.render(state);
+    }
+
+    // Pop state from update.
+    state.popTechnique();
+    state.object.pop();
+  }
+
+  /// The event emitted when any part of the entity is changed.
+  @override
+  Event get changed => this._changed ??= Event();
+
+  /// The event emitted when the shape has been changed.
+  Event get shapeChanged => this._shapeChanged ??= Event();
+
+  /// The event emitted when the technique has been changed.
+  Event get techChanged => this._techChanged ??= Event();
+
+  /// The event emitted when the mover has been changed.
+  Event get moverChanged => this._moverChanged ??= Event();
+
+  /// The event emitted when the matrix has been changed.
+  Event get matrixChanged => this._matrixChanged ??= Event();
+
+  /// The event emitted when one or more child is added.
+  Event get childrenAdded => this._childrenAdded ??= Event();
+
+  /// The event emitted when one or more child is removed.
+  Event get childrenRemoved => this._childrenRemoved ??= Event();
+
+  /// The event emitted when an extension is added.
+  Event get extensionAdded => this._extensionAdded ??= Event();
+
+  /// The event emitted when an extension is removed.
+  Event get extensionRemoved => this._extensionRemoved ??= Event();
+
+  /// Called when any change has occurred.
+  ///
+  /// This emits the [changed] event.
+  /// This isn't meant to be called from outside the entity, in other languages this would
+  /// be a protected method. This method is exposed to that the entity is extended and
+  /// these methods can be overwritten. If overwritten call this super method to still emit events.
+  void onChanged([EventArgs? args]) => this._changed?.emit(args);
+
+  /// Called when the shape or shape builder is modified.
+  ///
+  /// This will clear the shape cache.
+  /// The [args] are the arguments of the change.
+  /// This isn't meant to be called from outside the entity, in other languages this would
+  /// be a protected method. This method is exposed to that the entity is extended and
+  /// these methods can be overwritten. If overwritten call this super method to still emit events.
+  void onShapeModified([EventArgs? args]) {
+    this.clearCache();
+    this.onChanged(args);
+  }
+
+  /// Called when the shape is added or removed.
+  ///
+  /// This emits the [_shapeChanged] event, the [_shapeBuilderChanged] event, and calls [onChanged].
+  /// The [oldShape] that was removed (may be null), and the [newShape] that was added (may be null).
+  /// This isn't meant to be called from outside the entity, in other languages this would
+  /// be a protected method. This method is exposed to that the entity is extended and
+  /// these methods can be overwritten. If overwritten call this super method to still emit events.
+  void onShapeChanged(Shape? oldShape, Shape? newShape) {
+    final EventArgs args = ValueChangedEventArgs(this, 'shape', oldShape, newShape);
+    this._shapeChanged?.emit(args);
+    this._shapeBuilderChanged?.emit(args);
+    this.onChanged(args);
+  }
+
+  /// Called when the shape builder is added or removed.
+  ///
+  /// This emits the [_shapeBuilderChanged] event and calls [onChanged].
+  /// The [oldShape] that was removed (may be null), and the [newShape] that was added (may be null).
+  /// This isn't meant to be called from outside the entity, in other languages this would
+  /// be a protected method. This method is exposed to that the entity is extended and
+  /// these methods can be overwritten. If overwritten call this super method to still emit events.
+  void onShapeBuilderChanged(ShapeBuilder? oldShape, ShapeBuilder? newShape) {
+    final EventArgs args = ValueChangedEventArgs(this, 'shapeBuilder', oldShape, newShape);
+    this._shapeBuilderChanged?.emit(args);
+    this.onChanged(args);
+  }
+
+  /// Handles a change in the technique.
+  ///
+  /// This isn't meant to be called from outside the entity, in other languages this would
+  /// be a protected method. This method is exposed to that the entity is extended and
+  /// these methods can be overwritten. If overwritten call this super method to still emit events.
+  void onTechModified([EventArgs? args]) => this.onChanged(args);
+
+  /// Called when the technique is added or removed.
+  ///
+  /// This emits the [techChanged] event and calls [onChanged].
+  /// The [oldTech] that was removed (may be null), and the [newTech] that was added (may be null).
+  /// This isn't meant to be called from outside the entity, in other languages this would
+  /// be a protected method. This method is exposed to that the entity is extended and
+  /// these methods can be overwritten. If overwritten call this super method to still emit events.
+  void onTechChanged(Technique? oldTech, Technique? newTech) {
+    final EventArgs args = ValueChangedEventArgs(this, 'technique', oldTech, newTech);
+    this._techChanged?.emit(args);
+    this.onChanged(args);
+  }
+
+  /// Handles a change in the mover.
+  ///
+  /// This isn't meant to be called from outside the entity, in other languages this would
+  /// be a protected method. This method is exposed to that the entity is extended and
+  /// these methods can be overwritten. If overwritten call this super method to still emit events.
+  void onMoverModified([EventArgs? args]) => this.onChanged(args);
+
+  /// Called when the mover is added or removed is removed.
+  ///
+  /// This emits the [moverChanged] event and calls [onChanged].
+  /// The [oldMover] that was removed (may be null), and the [newMover] that was added (may be null).
+  /// This isn't meant to be called from outside the entity, in other languages this would
+  /// be a protected method. This method is exposed to that the entity is extended and
+  /// these methods can be overwritten. If overwritten call this super method to still emit events.
+  void onMoverChanged(Mover? oldMover, Mover? newMover) {
+    final EventArgs args = ValueChangedEventArgs(this, 'mover', oldMover, newMover);
+    this._moverChanged?.emit(args);
+    this.onChanged(args);
+  }
+
+  /// Called when the matrix is added or removed is removed.
+  ///
+  /// This emits the [matrixChanged] event and calls [onChanged].
+  /// The [oldMatrix] that was removed (may be null), and the [newMatrix] that was added (may be null).
+  /// This isn't meant to be called from outside the entity, in other languages this would
+  /// be a protected method. This method is exposed to that the entity is extended and
+  /// these methods can be overwritten. If overwritten call this super method to still emit events.
+  void onMatrixChanged(Matrix4? oldMatrix, Matrix4? newMatrix) {
+    final EventArgs args = ValueChangedEventArgs(this, 'matrix', oldMatrix, newMatrix);
+    this._matrixChanged?.emit(args);
+    this.onChanged(args);
+  }
+
+  /// Handles a change in the child.
+  ///
+  /// This isn't meant to be called from outside the entity, in other languages this would
+  /// be a protected method. This method is exposed to that the entity is extended and
+  /// these methods can be overwritten. If overwritten call this super method to still emit events.
+  void onChildrenModified([EventArgs? args]) => this.onChanged(args);
+
+  /// Called when one or more child is added.
+  ///
+  /// This emits the [onChildrenAdded] event and calls [onChanged].
+  /// The [entities] are the newly added children.
+  /// This isn't meant to be called from outside the entity, in other languages this would
+  /// be a protected method. This method is exposed to that the entity is extended and
+  /// these methods can be overwritten. If overwritten call this super method to still emit events.
+  void onChildrenAdded(int index, Iterable<Entity> entities) {
+    this._childrenAdded?.emit(EntityEventArgs(this, entities.toList()));
+    for (final Entity entity in entities) {
+      entity.changed.add(this.onChildrenModified);
+    }
+    this.onChanged();
+  }
+
+  /// Called when a child is removed.
+  ///
+  /// This emits the [onChildrenRemoved] event and calls [onChanged].
+  /// The [entities] are the children which were removed.
+  /// This isn't meant to be called from outside the entity, in other languages this would
+  /// be a protected method. This method is exposed to that the entity is extended and
+  /// these methods can be overwritten. If overwritten call this super method to still emit events.
+  void onChildrenRemoved(int index, Iterable<Entity> entities) {
+    this._childrenRemoved?.emit(EntityEventArgs(this, entities.toList()));
+    for (final Entity entity in entities) {
+      entity.changed.remove(this.onChildrenModified);
+    }
+    this.onChanged();
+  }
+
+  /// Gets a string for this entity, the name if it has one.
+  @override
+  String toString() {
+    if (_name.isEmpty) {
+      return 'Unnamed entity';
+    } else {
+      return _name;
+    }
+  }
+
+  /// Gets the string tree for these entity tree.
+  StringTree _stringTree() {
+    final StringTree tree = StringTree(this.toString());
+    for (final Entity child in this.children) {
+      tree.append(child._stringTree());
+    }
+    return tree;
+  }
+
+  /// Gets a string for the branch of entities from this entity.
+  String outlineString([String indent = '']) => this._stringTree().toString(indent);
+}
+
+/// The event argument for event's with information about entities changing.
+class EntityEventArgs extends EventArgs {
+  /// The list of entities which have been changed.
+  /// Typically this will be entities added or removed.
+  final List<Entity> entities;
+
+  /// Creates an entity event argument.
+  EntityEventArgs(Object sender, this.entities) : super(sender);
+}
+
+/// This is the type of the browser this code is running on.
+enum Browser {
+  /// This indicates the browser type is Google's Chrome.
+  chrome,
+
+  /// This indicates the browser is Mozilla's Firefox.
+  firefox,
+
+  /// This indicates the browser is Microsoft's Edge or IE.
+  edge,
+
+  /// This indicates the browser is some other browser.
+  other
+}
+
+/// This is the type of the operating system this code is running on.
+enum OperatingSystem {
+  /// This indicates the operating system is Windows.
+  windows,
+
+  /// This indicates the operating system is MacOS.
+  mac,
+
+  /// This indicates the operating system is Linux.
+  linux,
+
+  /// This indicates the operating system is some other OS.
+  other
+}
+
+/// A static class for getting information about the environment this code is running in.
+/// Try to limit usage of the Environment so that all features work the same in all
+/// scenarios. This is designed to be used to adjust for problems in the environment
+/// which makes the code function differently.
+class Environment {
+  static _EnvironmentData? _singleton;
+
+  Environment._();
+
+  /// Gets the lazy created singleton with the environment data.
+  static _EnvironmentData get _env => _singleton ??= _EnvironmentData();
+
+  /// Gets the browser that this code is running on.
+  static Browser get browser => _env.browser;
+
+  /// Gets the operating system that this code is running on.
+  static OperatingSystem get os => _env.os;
+
+  /// This will call the first method in the given method names which exists on the given object.
+  /// Returns true if the method was called, false if none of those methods were found.
+  static bool callMethod(Object browserObject, List<String> methods, [List<Object>? args]) {
+    final jsElem = js.JsObject.fromBrowserObject(browserObject);
+    for (final String methodName in methods) {
+      if (jsElem.hasProperty(methodName)) {
+        jsElem.callMethod(methodName, args);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// This will call the first property and return the value cast as given [T] type.
+  /// Returns null if methods were found.
+  static T? getProperty<T>(Object browserObject, List<String> properties) {
+    final jsElem = js.JsObject.fromBrowserObject(browserObject);
+    for (final String propertyName in properties) {
+      if (jsElem.hasProperty(propertyName)) return jsElem[propertyName] as T?;
+    }
+    return null;
+  }
+}
+
+/// This is storage for environment information.
+/// This is part of a singleton so it is only created once.
+class _EnvironmentData {
+  final Browser browser;
+  final OperatingSystem os;
+
+  /// Determines the environment which this code is running in.
+  factory _EnvironmentData() {
+    final Browser browser = _determineBrowser();
+    final OperatingSystem os = _determineOS();
+    return _EnvironmentData._(browser, os);
+  }
+
+  /// Creates a new environment with the given data.
+  _EnvironmentData._(this.browser, this.os);
+
+  /// Determines which kind of browser is being used.
+  static Browser _determineBrowser() {
+    final String vendor = html.window.navigator.vendor;
+    if (vendor.contains('Google')) return Browser.chrome;
+
+    final String userAgent = html.window.navigator.userAgent;
+    if (userAgent.contains('Firefox')) return Browser.firefox;
+
+    final String appVersion = html.window.navigator.appVersion;
+    if (appVersion.contains('Trident') || appVersion.contains('Edge')) return Browser.edge;
+
+    final String appName = html.window.navigator.appName;
+    if (appName.contains('Microsoft')) return Browser.edge;
+
+    return Browser.other;
+  }
+
+  /// Determines which kind of operating system is being used.
+  /// This doesn't use `dart:io` so it can run on a browser.
+  static OperatingSystem _determineOS() {
+    final String appVersion = html.window.navigator.appVersion;
+
+    if (appVersion.contains('Win')) return OperatingSystem.windows;
+
+    if (appVersion.contains('Mac')) return OperatingSystem.mac;
+
+    if (appVersion.contains('Linux')) return OperatingSystem.linux;
+
+    return OperatingSystem.other;
+  }
+}
+
+/// The state of a render in progress.
+class RenderState {
+  /// The rendering context for this render.
+  final webgl.RenderingContext2 _gl;
+
+  /// The canvas being rendered to.
+  final html.CanvasElement _canvas;
+
+  /// The width of the render viewport in pixels.
+  int _width;
+
+  /// The height of the render viewport in pixels.
+  int _height;
+
+  /// The number of this frame.
+  int _frameNum;
+
+  /// The time that the graphics were created.
+  final DateTime _startTime;
+
+  /// The time the last render was started at.
+  DateTime _lastTime;
+
+  /// The time the current render was started at.
+  DateTime _curTime;
+
+  /// The seconds which have passed since the previous render.
+  double _dt;
+
+  /// The projection matrix multiplied by the view matrix.
+  /// This is the cache, it is reset to null when either component is changed.
+  /// Null indicated the value must be recalculated.
+  Matrix4? _projViewMat;
+
+  /// The inverse of the view matrix.
+  /// This is the cache, it is reset to null when the view is changed.
+  /// Null indicated the value must be recalculated.
+  Matrix4? _invViewMat;
+
+  /// The product of the projection matrix, the view matrix, and the object matrix.
+  /// This is the cache, it is reset to null when either component is changed.
+  /// Null indicated the value must be recalculated.
+  Matrix4? _projViewObjMat;
+
+  /// The view matrix multiplied by the object matrix.
+  /// This is the cache, it is reset to null when either component is changed.
+  /// Null indicated the value must be recalculated.
+  Matrix4? _viewObjMat;
+
+  /// The stack of projection matrices.
+  final Matrix4Stack _projStack;
+
+  /// The stack of the view matrices.
+  final Matrix4Stack _viewStack;
+
+  /// The stack of Entity matrices.
+  final Matrix4Stack _objStack;
+
+  /// The stack of techniques.
+  final List<Technique?> _tech;
+
+  /// The cache of compiled shaders.
+  final Map<String, Shader> _shaderCache;
+
+  /// Constructs a new render state with the given context and canvas.
+  RenderState(this._gl, this._canvas)
+      : this._width = 512,
+        this._height = 512,
+        this._frameNum = 0,
+        this._startTime = DateTime.now(),
+        this._lastTime = DateTime.now(),
+        this._curTime = DateTime.now(),
+        this._dt = 0.0,
+        this._projViewMat = null,
+        this._invViewMat = null,
+        this._projViewObjMat = null,
+        this._viewObjMat = null,
+        this._projStack = Matrix4Stack(),
+        this._viewStack = Matrix4Stack(),
+        this._objStack = Matrix4Stack(),
+        this._tech = [null],
+        this._shaderCache = {} {
+    this._projStack.changed.add((EventArgs e) {
+      this._projViewMat = null;
+      this._projViewObjMat = null;
+    });
+    this._viewStack.changed.add((EventArgs e) {
+      this._projViewMat = null;
+      this._invViewMat = null;
+      this._projViewObjMat = null;
+      this._viewObjMat = null;
+    });
+    this._objStack.changed.add((EventArgs e) {
+      this._projViewObjMat = null;
+      this._viewObjMat = null;
+    });
+  }
+
+  /// Resets the state to start another render.
+  /// This should only be called by [ThreeDart] before starting a new render.
+  void reset() {
+    this._frameNum++;
+    this._lastTime = this._curTime;
+    this._curTime = DateTime.now();
+    this._dt = diffInSecs(this._lastTime, this._curTime);
+    this._projStack.clear();
+    this._viewStack.clear();
+    this._objStack.clear();
+    this._tech.clear();
+    this._tech.add(null);
+  }
+
+  /// The rendering context for the render.
+  webgl.RenderingContext2 get gl => this._gl;
+
+  /// The canvas being rendered onto.
+  html.CanvasElement get canvas => this._canvas;
+
+  /// The width of the viewport in pixels.
+  int get width => this._width;
+
+  set width(int width) => this._width = width;
+
+  /// The height of the viewport in pixels.
+  int get height => this._height;
+
+  set height(int height) => this._height = height;
+
+  /// The number of this frame.
+  int get frameNumber => this._frameNum;
+
+  /// The time that the graphics were created.
+  DateTime get startTime => this._startTime;
+
+  /// The time the last render was started at.
+  DateTime get lastTime => this._lastTime;
+
+  /// The time the current render was started at.
+  DateTime get currentTime => this._curTime;
+
+  /// The seconds which have passed since the previous render.
+  double get dt => this._dt;
+
+  /// The projection matrix multiplied by the view matrix.
+  Matrix4 get projectionViewMatrix => this._projViewMat ??= this.projection.matrix * this.view.matrix;
+
+  /// The inverse of the view matrix.
+  Matrix4 get inverseViewMatrix => this._invViewMat ??= this.view.matrix.inverse();
+
+  /// The product of the projection matrix, the view matrix, and the object matrix.
+  Matrix4 get projectionViewObjectMatrix => this._projViewObjMat ??= this.projectionViewMatrix * this.object.matrix;
+
+  /// The view matrix multiplied by the object matrix.
+  Matrix4 get viewObjectMatrix => this._viewObjMat ??= this.view.matrix * this.object.matrix;
+
+  /// The stack of projection matrices.
+  Matrix4Stack get projection => this._projStack;
+
+  /// The stack of the view matrices.
+  Matrix4Stack get view => this._viewStack;
+
+  /// The stack of object matrices.
+  Matrix4Stack get object => this._objStack;
+
+  /// The current technique to render with.
+  /// May return null if the technique stack is empty.
+  Technique? get technique => this._tech.last;
+
+  /// Pushes a new technique onto the stack of techniques.
+  /// Pushing null will put the current technique onto the top of the stack.
+  void pushTechnique(Technique? tech) => this._tech.add(tech ?? this.technique);
+
+  /// Pops the current technique off of the top of the stack.
+  /// This will not remove the last technique on the stack.
+  void popTechnique() {
+    if (this._tech.length > 1) this._tech.removeLast();
+  }
+
+  /// Gets the cached shader by the given [name].
+  Shader? shader(String name) => this._shaderCache[name];
+
+  /// Adds the given [shader] to the shader cache.
+  void addShader(Shader shader) {
+    final String name = shader.name;
+    if (name.isEmpty) throw Exception('May not cache a shader with no name.');
+    if (this._shaderCache.containsKey(name)) {
+      throw Exception('Shader cache already contains a shader by the name "$name".');
+    }
+    this._shaderCache[name] = shader;
+  }
+}
+
+/// The state event arguments for update and render events.
+class StateEventArgs extends EventArgs {
+  /// The render state for an update or render.
+  final RenderState state;
+
+  /// Creates a new state event argument.
+  StateEventArgs(Object sender, this.state) : super(sender);
+}
+
+/// [ThreeDart] (3Dart) is the a tool for rendering WebGL with Dart.
+class ThreeDart implements Changeable {
+  /// The element the canvas was added to or the canvas being drawn to.
+  html.Element _elem;
+
+  /// The given or added canvas being drawn to.
+  html.CanvasElement _canvas;
+
+  /// The rendering context to draw with.
+  webgl.RenderingContext2 _gl;
+
+  /// The current scene to draw.
+  Scene? _scene;
+
+  /// The rendering state.
+  RenderState _state;
+
+  /// The loader for creating textures.
+  TextureLoader _txtLoader;
+
+  /// The loader for creating audio.
+  AudioLoader _audioLoader;
+
+  /// The user input listener.
+  UserInput _input;
+
+  /// Event to indicate something attached to this instance has changed.
+  Event? _changed;
+
+  /// Event to indicate a render is about to occur.
+  Event? _prerender;
+
+  /// Event to indicate a render has just finished.
+  Event? _postrender;
+
+  /// Indicates the refresh should be automatically.
+  bool _autoRefresh;
+
+  /// Indicates that a refresh is pending.
+  bool _pendingRender;
+
+  /// The last time that a frames per second were updated.
+  DateTime _frameTime;
+
+  /// The number of times render has been called in the last sec or more.
+  int _frameCount;
+
+  /// Creates a new 3Dart rendering on an element with the given [elementId].
+  ///
+  /// [alpha] indicates if the back color target will have an alpha channel or not.
+  /// [depth] indicates if the target will have a back buffer or not.
+  /// [stencil] indicates if the target will have a stencil buffer or not.
+  /// [antialias] indicates if the target is antialiased or not.
+  factory ThreeDart.fromId(String elementId,
+      {bool alpha = true, bool depth = true, bool stencil = false, bool antialias = true}) {
+    final html.Element? elem = html.document.getElementById(elementId);
+    if (elem == null) {
+      throw Exception('Failed to find an element with the identifier, ${elementId}.');
+    }
+    return ThreeDart.fromElem(elem, alpha: alpha, depth: depth, stencil: stencil, antialias: antialias);
+  }
+
+  /// Creates a new 3Dart rendering on the given element.
+  ///
+  /// [alpha] indicates if the back color target will have an alpha channel or not.
+  /// [depth] indicates if the target will have a back buffer or not.
+  /// [stencil] indicates if the target will have a stencil buffer or not.
+  /// [antialias] indicates if the target is antialiased or not.
+  factory ThreeDart.fromElem(html.Element? elem,
+      {bool alpha = true, bool depth = true, bool stencil = false, bool antialias = true}) {
+    if (elem == null) {
+      throw Exception('May not create a manager from a null element.');
+    }
+    if (elem is html.CanvasElement) {
+      return ThreeDart.fromCanvas(elem, alpha: alpha, depth: depth, stencil: stencil, antialias: antialias);
+    }
+
+    final html.CanvasElement canvas = html.CanvasElement();
+    canvas.style
+      ..width = '100%'
+      ..height = '100%';
+    elem.children.add(canvas);
+    final ThreeDart td =
+        ThreeDart.fromCanvas(canvas, alpha: alpha, depth: depth, stencil: stencil, antialias: antialias);
+    td._elem = elem;
+    return td;
+  }
+
+  /// Creates a new 3Dart rendering on the given canvas.
+  ///
+  /// [alpha] indicates if the back color target will have an alpha channel or not.
+  /// [depth] indicates if the target will have a back buffer or not.
+  /// [stencil] indicates if the target will have a stencil buffer or not.
+  /// [antialias] indicates if the target is antialiased or not.
+  factory ThreeDart.fromCanvas(html.CanvasElement? canvas,
+      {bool alpha = true, bool depth = true, bool stencil = false, bool antialias = true}) {
+    if (canvas == null) {
+      throw Exception('May not create a manager from a null canvas.');
+    }
+
+    // Create a WebGL 2.0 render target
+    // https://www.khronos.org/registry/webgl/specs/latest/2.0/
+    final webgl.RenderingContext2? gl = canvas.getContext(
+            'webgl2', <String, dynamic>{'alpha': alpha, 'depth': depth, 'stencil': stencil, 'antialias': antialias})
+        as webgl.RenderingContext2?;
+    if (gl == null) {
+      throw Exception('Failed to get the rendering context for WebGL.');
+    }
+
+    final state = RenderState(gl, canvas);
+    final txtLoader = TextureLoader(gl);
+    final audioLoader = AudioLoader();
+    final input = UserInput(canvas);
+    return ThreeDart._(canvas, canvas, gl, state, txtLoader, audioLoader, input);
+  }
+
+  /// Creates a new 3Dart instance with the given values.
+  ThreeDart._(this._elem, this._canvas, this._gl, this._state, this._txtLoader, this._audioLoader, this._input)
+      : this._scene = null,
+        this._changed = null,
+        this._prerender = null,
+        this._postrender = null,
+        this._autoRefresh = true,
+        this._pendingRender = false,
+        this._frameTime = DateTime.now(),
+        this._frameCount = 0 {
+    this._resize();
+  }
+
+  /// The rendering context to draw with.
+  webgl.RenderingContext2 get glContext => this._gl;
+
+  /// The width of the canvas in pixels.
+  int get width => this._canvas.width ?? 100;
+
+  /// The height of the canvas in pixels.
+  int get height => this._canvas.height ?? 100;
+
+  /// The canvas being written to.
+  html.CanvasElement get canvas => this._canvas;
+
+  /// The user input listener.
+  UserInput get userInput => this._input;
+
+  /// The state used for rendering.
+  RenderState get state => this._state;
+
+  /// The loader to create textures with.
+  TextureLoader get textureLoader => this._txtLoader;
+
+  /// The loader to create audio players with.
+  AudioLoader get audioLoader => this._audioLoader;
+
+  /// Indicates if a refresh is automatically called
+  /// when something internally is changed.
+  bool get autoRefresh => this._autoRefresh;
+
+  set autoRefresh(bool autoRefresh) {
+    if (this._autoRefresh == autoRefresh) {
+      this._autoRefresh = autoRefresh;
+      this._onChanged();
+    }
+  }
+
+  /// Indicates a rendering will be started on the next render frame.
+  bool get pendingRender => this._pendingRender;
+
+  /// Indicates that this instance or something attached to is has changed.
+  @override
+  Event get changed => this._changed ??= Event();
+
+  /// Handles a change in this instance.
+  void _onChanged([EventArgs? args]) {
+    this._changed?.emit(args);
+    if (this._autoRefresh) this.requestRender();
+  }
+
+  /// Indicates that a render is about to occur.
+  Event get prerender => this._prerender ??= Event();
+
+  /// Handles an event to fire prior to rendering.
+  void _onPrerender([EventArgs? args]) => this._prerender?.emit(args);
+
+  /// Indicates that a render has just occurred.
+  Event get postrender => this._postrender ??= Event();
+
+  /// Handles an event to fire after a render.
+  void _onPostrender([EventArgs? args]) => this._postrender?.emit(args);
+
+  /// The scene to render to the canvas.
+  Scene? get scene => this._scene;
+
+  set scene(Scene? scene) {
+    if (this._scene != scene) {
+      this._scene?.changed.remove(this._onChanged);
+      this._scene = scene;
+      this._scene?.changed.add(this._onChanged);
+      this._onChanged();
+    }
+  }
+
+  /// The frames per second since the last time this getter is called.
+  double get fps {
+    final DateTime time = DateTime.now();
+    final double secs = time.difference(this._frameTime).inMilliseconds / 1000.0;
+    if (secs <= 0.0) return 0.0;
+    final double fps = this._frameCount / secs;
+    this._frameCount = 0;
+    this._frameTime = time;
+    return fps;
+  }
+
+  /// Makes sure the size of the canvas is correctly set.
+  void _resize() {
+    // Lookup the size the browser is displaying the canvas in CSS pixels and
+    // compute a size needed to make our drawing buffer match it in device pixels.
+    final num ratio = html.window.devicePixelRatio;
+    final int displayWidth = (this._canvas.clientWidth * ratio).floor();
+    final int displayHeight = (this._canvas.clientHeight * ratio).floor();
+    // Check if the canvas is not the same size.
+    if ((this._canvas.width != displayWidth) || (this._canvas.height != displayHeight)) {
+      // Make the canvas the same size
+      this._canvas.width = displayWidth;
+      this._canvas.height = displayHeight;
+      Timer.run(this.requestRender);
+    }
+  }
+
+  /// Determines if this page can be fullscreened or not.
+  bool get fullscreenAvailable {
+    //return html.document.fullscreenEnabled ?? false;
+    return Environment.getProperty<bool>(html.document, [
+          'webkitFullscreenEnabled',
+          'mozFullScreenEnabled',
+          'msFullscreenEnabled',
+          'oFullscreenEnabled',
+          'fullscreenEnabled'
+        ]) ??
+        false;
+  }
+
+  /// Gets or sets if the ThreeDart cancas is full screen or not.
+  /// Note: This should be called within a user interaction with the pages since
+  ///       some browsers will deny full screen any other time.
+  ///
+  /// TODO: There is a bug which causes the built-in methods to sometimes be undefined so use JS
+  ///       to find the correct method instead. Periodically check if this issue has been fixed.
+  /// Errors "Uncaught TypeError: this.webkitRequestFullscreen is undefined in dartx.requestFullscreen"
+  /// and "Uncaught TypeError: this.webkitExitFullscreen is undefined"
+  /// This fix si from https://stackoverflow.com/a/29751708
+  bool get fullscreen {
+    return Environment.getProperty<Object>(html.document, [
+          'webkitFullscreenElement',
+          'mozFullScreenElement',
+          'msFullscreenElement',
+          'oFullscreenElement',
+          'fullscreenElement'
+        ]) !=
+        null;
+  }
+
+  set fullscreen(bool enable) {
+    if (enable) {
+      //this._canvas.requestFullscreen();
+      Environment.callMethod(this._canvas, [
+        'webkitRequestFullscreen',
+        'mozRequestFullScreen',
+        'msRequestFullscreen',
+        'oRequestFullscreen',
+        'requestFullscreen'
+      ]);
+    } else {
+      // html.document.exitFullscreen();
+      Environment.callMethod(html.document,
+          ['webkitExitFullscreen', 'mozCancelFullScreen', 'msExitFullscreen', 'oExitFullscreen', 'exitFullscreen']);
+    }
+  }
+
+  /// Requests a render to start the next time the main message loop
+  /// is returned to. This is debounced so that it can be called many times
+  /// but will only be run once
+  void requestRender() {
+    if (!this._pendingRender) {
+      this._pendingRender = true;
+      html.window.requestAnimationFrame((num t) {
+        if (this._pendingRender) {
+          this._pendingRender = false;
+          this.render();
+        }
+      });
+    }
+  }
+
+  /// Renders the scene to the canvas.
+  /// An optional different scene can be provided but
+  /// typically the scene attached to this object should be used.
+  /// If the scene parameter isn't set, the attached scene is used.
+  void render([Scene? scene]) {
+    try {
+      this._frameCount++;
+      this._pendingRender = false;
+      this._resize();
+      this._onPrerender();
+      scene ??= this._scene;
+      if (scene != null) {
+        this._state.reset();
+        scene.render(this._state);
+      }
+      this._onPostrender();
+    } on Object catch (exception, stackTrace) {
+      print('Error: $exception');
+      print('Stack: $stackTrace');
+      rethrow;
+    }
+  }
+
+  /// Disposes this instance of 3Dart.
+  void dispose() {
+    if (this._elem != this._canvas) this._elem.children.remove(this._canvas);
+    this._scene = null;
+  }
+}
