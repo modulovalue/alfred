@@ -1,7 +1,26 @@
-import 'dart:math' as math;
+import 'dart:io';
+import 'dart:math';
 
-import 'parse_tree.dart' as _parsetree;
-import 'parser.dart' as __parser;
+import 'parse_tree.dart';
+import 'parser.dart';
+
+// Example calculator.
+void main() {
+  final calc = Calculator();
+  print('Enter in an equation and press enter to calculate the result.');
+  print('Type "exit" to exit. See documentation for more information.');
+  for (;;) {
+    stdout.write("> ");
+    final input = stdin.readLineSync() ?? '';
+    if (input.toLowerCase() == 'exit') {
+      break;
+    } else {
+      calc.clear();
+      calc.calculate(input);
+      print(calc.stackToString);
+    }
+  }
+}
 
 // # Petite Parser Calculator
 //
@@ -197,15 +216,15 @@ typedef CalcFunc = Object? Function(List<Object?> args);
 /// This is also an example of how to use petite parser to construct
 /// a simple interpreted language.
 class Calculator {
-  static __parser.Parser? _parser;
+  static Parser? _parser;
 
   /// Loads the parser used by the calculator.
   ///
   /// This is done in a static method since to load the language
   /// from a file it has to be done asynchronously.
-  static void loadParser() => _parser ??= __parser.Parser.fromDefinition(language);
+  static void loadParser() => _parser ??= Parser.fromDefinition(language);
 
-  final Map<String, _parsetree.TriggerHandle> _handles = {};
+  final Map<String, TriggerHandle> _handles = {};
   final List<Object?> _stack = [];
   final Map<String, Object?> _consts = {};
   final Map<String, Object?> _vars = {};
@@ -243,27 +262,29 @@ class Calculator {
       'Subtract': this._handleSubtract,
       'Xor': this._handleXor
     });
-    this._consts.addAll({"pi": math.pi, "e": math.e, "true": true, "false": false});
+    this._consts.addAll({"pi": pi, "e": e, "true": true, "false": false});
   }
 
   /// This parses the given calculation input and
   /// returns the results so that the input can be run multiple
   /// times without having to reparse the program.
-  __parser.Result? parse(String input) {
+  Result? parse(String input) {
     if (input.isEmpty) return null;
     loadParser();
 
     try {
       return _parser?.parse(input);
     } on Object catch (err) {
-      return __parser.Result(['Errors in calculator input:\n' + err.toString()], null);
+      return Result(['Errors in calculator input:\n' + err.toString()], null);
     }
   }
 
   /// This uses the pre-parsed input to calculate the result.
   /// This is useful when wanting to rerun the same code multiple
   /// times without having to reparse the program.
-  void calculateNode(_parsetree.TreeNode? tree) {
+  void calculateNode(
+    final TreeNode? tree,
+  ) {
     try {
       if (tree != null) tree.process(this._handles);
     } on Object catch (err) {
@@ -274,8 +295,10 @@ class Calculator {
 
   /// This parses the given calculation input and
   /// puts the result on the top of the stack.
-  void calculate(String input) {
-    final __parser.Result? result = this.parse(input);
+  void calculate(
+    final String input,
+  ) {
+    final result = this.parse(input);
     if (result != null) {
       if (result.errors.isNotEmpty) {
         this._stack.clear();
@@ -288,35 +311,48 @@ class Calculator {
 
   /// Get a string showing all the values in the stack.
   String get stackToString {
-    if (this._stack.isEmpty) return 'no result';
-    final List<String> parts = [];
-    for (final Object? val in this._stack) {
-      parts.add('${val}');
+    if (this._stack.isEmpty) {
+      return 'no result';
+    } else {
+      final parts = <String>[];
+      for (final val in this._stack) {
+        parts.add('${val}');
+      }
+      return parts.join(', ');
     }
-    return parts.join(', ');
   }
 
   /// Adds a new function that can be called by the language.
   /// Set to null to remove a function.
-  void addFunc(String name, CalcFunc hndl) => this._funcs.addFunc(name, hndl);
+  void addFunc(
+    final String name,
+    final CalcFunc hndl,
+  ) =>
+      this._funcs.addFunc(name, hndl);
 
   /// Adds a new constant value into the language.
   /// Set to null to remove the constant.
-  void addConstant(String name, Object? value) {
+  void addConstant(
+    final String name,
+    final Object? value,
+  ) {
     if (value == null) {
-      this._consts.remove(name);
+      _consts.remove(name);
     } else {
-      this._consts[name] = value;
+      _consts[name] = value;
     }
   }
 
   /// Sets the value of a variable.
   /// Set to null to remove the variable.
-  void setVar(String name, Object? value) {
+  void setVar(
+    final String name,
+    final Object? value,
+  ) {
     if (value == null) {
-      this._vars.remove(name);
+      _vars.remove(name);
     } else {
-      this._vars[name] = value;
+      _vars[name] = value;
     }
   }
 
@@ -330,12 +366,17 @@ class Calculator {
   Object? pop() => this._stack.removeLast();
 
   /// Pushes a value onto the stack.
-  void push(Object? value) => this._stack.add(value);
+  void push(
+    final Object? value,
+  ) =>
+      this._stack.add(value);
 
   /// Handles calculating the sum of the top two items off of the stack.
-  void _handleAdd(_parsetree.TriggerArgs args) {
-    final Variant right = Variant(this.pop());
-    final Variant left = Variant(this.pop());
+  void _handleAdd(
+    final TriggerArgs args,
+  ) {
+    final right = Variant(this.pop());
+    final left = Variant(this.pop());
     if (left.implicitInt && right.implicitInt) {
       this.push(left.asInt + right.asInt);
     } else if (left.implicitReal && right.implicitReal) {
@@ -348,9 +389,11 @@ class Calculator {
   }
 
   /// Handles ANDing the top two items off the stack.
-  void _handleAnd(_parsetree.TriggerArgs args) {
-    final Variant right = Variant(this.pop());
-    final Variant left = Variant(this.pop());
+  void _handleAnd(
+    final TriggerArgs args,
+  ) {
+    final right = Variant(this.pop());
+    final left = Variant(this.pop());
     if (left.implicitBool && right.implicitBool) {
       this.push(left.asBool && right.asBool);
     } else if (left.implicitInt && right.implicitInt) {
@@ -361,17 +404,26 @@ class Calculator {
   }
 
   /// Handles assigning an variable to the top value off of the stack.
-  void _handleAssign(_parsetree.TriggerArgs args) {
-    final Object? right = this.pop();
-    final Variant left = Variant(this.pop());
-    if (!left.isStr) throw Exception('Can not Assign $right to $left.');
-    final String text = left.asStr;
-    if (this._consts.containsKey(text)) throw Exception('Can not Assign $right to the constant $left.');
-    this._vars[text] = right;
+  void _handleAssign(
+    final TriggerArgs args,
+  ) {
+    final right = this.pop();
+    final left = Variant(this.pop());
+    if (left.value is! String) {
+      throw Exception('Can not Assign $right to $left.');
+    } else {
+      final text = left.asStr;
+      if (this._consts.containsKey(text)) {
+        throw Exception('Can not Assign $right to the constant $left.');
+      }
+      this._vars[text] = right;
+    }
   }
 
   /// Handles adding a binary integer value from the input tokens.
-  void _handleBinary(_parsetree.TriggerArgs args) {
+  void _handleBinary(
+    final TriggerArgs args,
+  ) {
     String text = args.recent(1)?.text ?? '';
     args.tokens.clear();
     text = text.substring(0, text.length - 1); // remove 'b'
@@ -379,8 +431,8 @@ class Calculator {
   }
 
   /// Handles calling a function, taking it's parameters off the stack.
-  void _handleCall(_parsetree.TriggerArgs args) {
-    final List<Object?> methodArgs = [];
+  void _handleCall(TriggerArgs args) {
+    final methodArgs = <Object?>[];
     Object? val = this.pop();
     while (val is! CalcFunc) {
       methodArgs.insert(0, val);
@@ -390,7 +442,9 @@ class Calculator {
   }
 
   /// Handles adding a decimal integer value from the input tokens.
-  void _handleDecimal(_parsetree.TriggerArgs args) {
+  void _handleDecimal(
+    final TriggerArgs args,
+  ) {
     String text = args.recent(1)?.text ?? '';
     args.tokens.clear();
     if (text.endsWith('d')) text = text.substring(0, text.length - 1);
@@ -398,9 +452,11 @@ class Calculator {
   }
 
   /// Handles dividing the top two items on the stack.
-  void _handleDivide(_parsetree.TriggerArgs args) {
-    final Variant right = Variant(this.pop());
-    final Variant left = Variant(this.pop());
+  void _handleDivide(
+    final TriggerArgs args,
+  ) {
+    final right = Variant(this.pop());
+    final left = Variant(this.pop());
     if (left.implicitInt && right.implicitInt) {
       this.push(left.asInt ~/ right.asInt);
     } else if (left.implicitReal && right.implicitReal) {
@@ -411,9 +467,11 @@ class Calculator {
   }
 
   /// Handles checking if the two top items on the stack are equal.
-  void _handleEqual(_parsetree.TriggerArgs args) {
-    final Variant right = Variant(this.pop());
-    final Variant left = Variant(this.pop());
+  void _handleEqual(
+    final TriggerArgs args,
+  ) {
+    final right = Variant(this.pop());
+    final left = Variant(this.pop());
     if (left.implicitBool && right.implicitBool) {
       this.push(left.asBool == right.asBool);
     } else if (left.implicitInt && right.implicitInt) {
@@ -428,9 +486,9 @@ class Calculator {
   }
 
   /// Handles checking if the two top items on the stack are greater than or equal.
-  void _handleGreaterEqual(_parsetree.TriggerArgs args) {
-    final Variant right = Variant(this.pop());
-    final Variant left = Variant(this.pop());
+  void _handleGreaterEqual(TriggerArgs args) {
+    final right = Variant(this.pop());
+    final left = Variant(this.pop());
     if (left.implicitInt && right.implicitInt) {
       this.push(left.asInt >= right.asInt);
     } else if (left.implicitReal && right.implicitReal) {
@@ -441,9 +499,9 @@ class Calculator {
   }
 
   /// Handles checking if the two top items on the stack are greater than.
-  void _handleGreaterThan(_parsetree.TriggerArgs args) {
-    final Variant right = Variant(this.pop());
-    final Variant left = Variant(this.pop());
+  void _handleGreaterThan(TriggerArgs args) {
+    final right = Variant(this.pop());
+    final left = Variant(this.pop());
     if (left.implicitInt && right.implicitInt) {
       this.push(left.asInt > right.asInt);
     } else if (left.implicitReal && right.implicitReal) {
@@ -454,8 +512,8 @@ class Calculator {
   }
 
   /// Handles looking up a constant or variable value.
-  void _handleId(_parsetree.TriggerArgs args) {
-    final String text = args.recent(1)?.text ?? '';
+  void _handleId(TriggerArgs args) {
+    final text = args.recent(1)?.text ?? '';
     args.tokens.clear();
     if (this._consts.containsKey(text)) {
       this._stack.add(this._consts[text]);
@@ -469,8 +527,8 @@ class Calculator {
   }
 
   /// Handles inverting the top value on the stack.
-  void _handleInvert(_parsetree.TriggerArgs args) {
-    final Variant top = Variant(this.pop());
+  void _handleInvert(TriggerArgs args) {
+    final top = Variant(this.pop());
     if (top.isInt) {
       this.push(~top.asInt);
     } else {
@@ -479,9 +537,9 @@ class Calculator {
   }
 
   /// Handles checking if the two top items on the stack are less than or equal.
-  void _handleLessEqual(_parsetree.TriggerArgs args) {
-    final Variant right = Variant(this.pop());
-    final Variant left = Variant(this.pop());
+  void _handleLessEqual(TriggerArgs args) {
+    final right = Variant(this.pop());
+    final left = Variant(this.pop());
     if (left.implicitInt && right.implicitInt) {
       this.push(left.asInt <= right.asInt);
     } else if (left.implicitReal && right.implicitReal) {
@@ -492,9 +550,9 @@ class Calculator {
   }
 
   /// Handles checking if the two top items on the stack are less than.
-  void _handleLessThan(_parsetree.TriggerArgs args) {
-    final Variant right = Variant(this.pop());
-    final Variant left = Variant(this.pop());
+  void _handleLessThan(TriggerArgs args) {
+    final right = Variant(this.pop());
+    final left = Variant(this.pop());
     if (left.implicitInt && right.implicitInt) {
       this.push(left.asInt < right.asInt);
     } else if (left.implicitReal && right.implicitReal) {
@@ -505,7 +563,7 @@ class Calculator {
   }
 
   /// Handles adding a hexadecimal integer value from the input tokens.
-  void _handleHexadecimal(_parsetree.TriggerArgs args) {
+  void _handleHexadecimal(TriggerArgs args) {
     String text = args.recent(1)?.text ?? '';
     args.tokens.clear();
     text = text.substring(2); // remove '0x'
@@ -513,9 +571,9 @@ class Calculator {
   }
 
   /// Handles calculating the multiplies of the top two items off of the stack.
-  void _handleMultiply(_parsetree.TriggerArgs args) {
-    final Variant right = Variant(this.pop());
-    final Variant left = Variant(this.pop());
+  void _handleMultiply(TriggerArgs args) {
+    final right = Variant(this.pop());
+    final left = Variant(this.pop());
     if (left.implicitInt && right.implicitInt) {
       this.push(left.asInt * right.asInt);
     } else if (left.implicitReal && right.implicitReal) {
@@ -526,8 +584,8 @@ class Calculator {
   }
 
   /// Handles negating the an integer or real value.
-  void _handleNegate(_parsetree.TriggerArgs args) {
-    final Variant top = Variant(this.pop());
+  void _handleNegate(TriggerArgs args) {
+    final top = Variant(this.pop());
     if (top.isInt) {
       this.push(-top.asInt);
     } else if (top.isReal) {
@@ -538,8 +596,8 @@ class Calculator {
   }
 
   /// Handles NOTing the Boolean values at the top of the the stack.
-  void _handleNot(_parsetree.TriggerArgs args) {
-    final Variant top = Variant(this.pop());
+  void _handleNot(TriggerArgs args) {
+    final top = Variant(this.pop());
     if (top.isBool) {
       this.push(!top.asBool);
     } else {
@@ -548,9 +606,9 @@ class Calculator {
   }
 
   /// Handles checking if the two top items on the stack are not equal.
-  void _handleNotEqual(_parsetree.TriggerArgs args) {
-    final Variant right = Variant(this.pop());
-    final Variant left = Variant(this.pop());
+  void _handleNotEqual(TriggerArgs args) {
+    final right = Variant(this.pop());
+    final left = Variant(this.pop());
     if (left.implicitBool && right.implicitBool) {
       this.push(left.asBool != right.asBool);
     } else if (left.implicitInt && right.implicitInt) {
@@ -565,7 +623,7 @@ class Calculator {
   }
 
   /// Handles adding a octal integer value from the input tokens.
-  void _handleOctal(_parsetree.TriggerArgs args) {
+  void _handleOctal(TriggerArgs args) {
     String text = args.recent(1)?.text ?? '';
     args.tokens.clear();
     text = text.substring(0, text.length - 1); // remove 'o'
@@ -573,9 +631,9 @@ class Calculator {
   }
 
   /// Handles ORing the Boolean values at the top of the the stack.
-  void _handleOr(_parsetree.TriggerArgs args) {
-    final Variant right = Variant(this.pop());
-    final Variant left = Variant(this.pop());
+  void _handleOr(TriggerArgs args) {
+    final right = Variant(this.pop());
+    final left = Variant(this.pop());
     if (left.implicitBool && right.implicitBool) {
       this.push(left.asBool || right.asBool);
     } else if (left.implicitInt && right.implicitInt) {
@@ -586,13 +644,13 @@ class Calculator {
   }
 
   /// Handles calculating the power of the top two values on the stack.
-  void _handlePower(_parsetree.TriggerArgs args) {
-    final Variant right = Variant(this.pop());
-    final Variant left = Variant(this.pop());
+  void _handlePower(TriggerArgs args) {
+    final right = Variant(this.pop());
+    final left = Variant(this.pop());
     if (left.implicitInt && right.implicitInt) {
-      this.push(math.pow(left.asInt, right.asInt).toInt());
+      this.push(pow(left.asInt, right.asInt).toInt());
     } else if (left.implicitReal && right.implicitReal) {
-      this.push(math.pow(left.asReal, right.asReal));
+      this.push(pow(left.asReal, right.asReal));
     } else {
       throw Exception('Can not Power $left and $right.');
     }
@@ -600,39 +658,39 @@ class Calculator {
 
   /// Handles push an ID value from the input tokens
   /// which will be used later as a variable name.
-  void _handlePushVar(_parsetree.TriggerArgs args) {
-    final String text = args.recent(1)?.text ?? '';
+  void _handlePushVar(TriggerArgs args) {
+    final text = args.recent(1)?.text ?? '';
     args.tokens.clear();
     this.push(text);
   }
 
   /// Handles adding a real value from the input tokens.
-  void _handleReal(_parsetree.TriggerArgs args) {
-    final String text = args.recent(1)?.text ?? '';
+  void _handleReal(TriggerArgs args) {
+    final text = args.recent(1)?.text ?? '';
     args.tokens.clear();
     this.push(double.parse(text));
   }
 
   /// Handles starting a function call.
-  void _handleStartCall(_parsetree.TriggerArgs args) {
-    final String text = args.recent(1)?.text.toLowerCase() ?? '';
+  void _handleStartCall(TriggerArgs args) {
+    final text = args.recent(1)?.text.toLowerCase() ?? '';
     args.tokens.clear();
-    final CalcFunc? func = this._funcs.findFunc(text);
+    final func = this._funcs.findFunc(text);
     if (func == null) throw Exception('No function called $text found.');
     this.push(func);
   }
 
   /// Handles adding a string value from the input tokens.
-  void _handleString(_parsetree.TriggerArgs args) {
-    final String text = args.recent(1)?.text ?? '';
+  void _handleString(TriggerArgs args) {
+    final text = args.recent(1)?.text ?? '';
     args.tokens.clear();
-    this.push(__parser.Loader.unescapeString(text));
+    this.push(Loader.unescapeString(text));
   }
 
   /// Handles calculating the difference of the top two items off of the stack.
-  void _handleSubtract(_parsetree.TriggerArgs args) {
-    final Variant right = Variant(this.pop());
-    final Variant left = Variant(this.pop());
+  void _handleSubtract(TriggerArgs args) {
+    final right = Variant(this.pop());
+    final left = Variant(this.pop());
     if (left.implicitInt && right.implicitInt) {
       this.push(left.asInt - right.asInt);
     } else if (left.implicitReal && right.implicitReal) {
@@ -643,9 +701,9 @@ class Calculator {
   }
 
   /// Handles XORing the Boolean values at the top of the the stack.
-  void _handleXor(_parsetree.TriggerArgs args) {
-    final Variant right = Variant(this.pop());
-    final Variant left = Variant(this.pop());
+  void _handleXor(TriggerArgs args) {
+    final right = Variant(this.pop());
+    final left = Variant(this.pop());
     if (left.implicitBool && right.implicitBool) {
       this.push(left.asBool ^ right.asBool);
     } else if (left.implicitInt && right.implicitInt) {
@@ -663,12 +721,15 @@ class Variant {
   final Object? value;
 
   /// Wraps the given value into a new Variant.
-  Variant(this.value);
+  Variant(
+    final this.value,
+  );
 
   /// Gets the string for this value.
   @override
-  String toString() => '${value.runtimeType}($value)';
+  String toString() => value.runtimeType.toString() + '(' + value.toString() + ')';
 
+  /// TODO inline all these is checks and check a local value to make type promotion work.
   /// Indicates if this value is a Boolean value.
   bool get isBool => value is bool;
 
@@ -677,9 +738,6 @@ class Variant {
 
   /// Indicates if this value is a real value.
   bool get isReal => value is double;
-
-  /// Indicates if this value is a string value.
-  bool get isStr => value is String;
 
   /// Indicates if the given value can be implicitly cast to a Boolean value.
   bool get implicitBool => isBool;
@@ -691,13 +749,13 @@ class Variant {
   bool get implicitReal => isBool || isInt || isReal;
 
   /// Indicates if the given value can be implicitly cast to a string value.
-  bool get implicitStr => isStr;
+  bool get implicitStr => value is String;
 
   /// Casts this value to a Boolean.
   bool get asBool {
-    if (isStr) {
-      // ignore: cast_nullable_to_non_nullable
-      final String val = (value as String).toLowerCase();
+    final _val = value;
+    if (_val is String) {
+      final val = _val.toLowerCase();
       return (val.isNotEmpty) && (val != '0') && (val != 'false');
     }
     // ignore: cast_nullable_to_non_nullable
@@ -712,7 +770,7 @@ class Variant {
   /// Casts this value to an integer.
   int get asInt {
     // ignore: cast_nullable_to_non_nullable
-    if (isStr) return int.parse(value as String);
+    if (value is String) return int.parse(value as String);
     // ignore: cast_nullable_to_non_nullable
     if (isInt) return value as int;
     // ignore: cast_nullable_to_non_nullable
@@ -725,7 +783,7 @@ class Variant {
   /// Casts this value to a real.
   double get asReal {
     // ignore: cast_nullable_to_non_nullable
-    if (isStr) return double.parse(value as String);
+    if (value is String) return double.parse(value as String);
     // ignore: cast_nullable_to_non_nullable
     if (isInt) return (value as int).toDouble();
     // ignore: cast_nullable_to_non_nullable
@@ -738,7 +796,7 @@ class Variant {
   /// Casts this value to a string.
   String get asStr {
     // ignore: cast_nullable_to_non_nullable
-    if (isStr) return value as String;
+    if (value is String) return value as String;
     // ignore: cast_nullable_to_non_nullable
     if (isInt) return (value as int).toString();
     // ignore: cast_nullable_to_non_nullable
@@ -905,7 +963,7 @@ const String language = '''
 /// This is a collection of functions for the calculator.
 class _CalcFuncs {
   final Map<String, CalcFunc> _funcs = {};
-  final math.Random _rand = math.Random(0);
+  final Random _rand = Random(0);
 
   /// Creates a new collection of calculator function.
   _CalcFuncs() {
@@ -973,7 +1031,7 @@ class _CalcFuncs {
   /// This function gets the absolute value of the given integer or real.
   Object _funcAbs(List<Object?> args) {
     this._argCount('abs', args, 1);
-    final Variant arg = Variant(args[0]);
+    final arg = Variant(args[0]);
     if (arg.implicitInt) return arg.asInt.abs();
     if (arg.implicitReal) return arg.asReal.abs();
     throw Exception('Can not use $arg in either abs(int) or abs(real).');
@@ -982,33 +1040,33 @@ class _CalcFuncs {
   /// This function gets the arccosine of the given real.
   Object _funcAcos(List<Object?> args) {
     this._argCount('acos', args, 1);
-    final Variant arg = Variant(args[0]);
-    if (arg.implicitReal) return math.acos(arg.asReal);
+    final arg = Variant(args[0]);
+    if (arg.implicitReal) return acos(arg.asReal);
     throw Exception('Can not use $arg in acos(real).');
   }
 
   /// This function gets the arcsine of the given real.
   Object _funcAsin(List<Object?> args) {
     this._argCount('asin', args, 1);
-    final Variant arg = Variant(args[0]);
-    if (arg.implicitReal) return math.asin(arg.asReal);
+    final arg = Variant(args[0]);
+    if (arg.implicitReal) return asin(arg.asReal);
     throw Exception('Can not use $arg in asin(real).');
   }
 
   /// This function gets the arctangent of the given real.
   Object _funcAtan(List<Object?> args) {
     this._argCount('atan', args, 1);
-    final Variant arg = Variant(args[0]);
-    if (arg.implicitReal) return math.atan(arg.asReal);
+    final arg = Variant(args[0]);
+    if (arg.implicitReal) return atan(arg.asReal);
     throw Exception('Can not use $arg in atan(real).');
   }
 
   /// This function gets the arctangent of the two given reals.
   Object _funcAtan2(List<Object?> args) {
     this._argCount('atan2', args, 2);
-    final Variant left = Variant(args[0]);
-    final Variant right = Variant(args[1]);
-    if (left.implicitReal && right.implicitReal) return math.atan2(left.asReal, right.asReal);
+    final left = Variant(args[0]);
+    final right = Variant(args[1]);
+    if (left.implicitReal && right.implicitReal) return atan2(left.asReal, right.asReal);
     throw Exception('Can not use $left and $right in atan2(real, real).');
   }
 
@@ -1016,8 +1074,8 @@ class _CalcFuncs {
   Object _funcAvg(List<Object?> args) {
     if (args.isEmpty) throw Exception('The function avg requires at least one argument.');
     double sum = 0.0;
-    for (final Object? arg in args) {
-      final Variant value = Variant(arg);
+    for (final arg in args) {
+      final value = Variant(arg);
       if (value.implicitReal) {
         sum += value.asReal;
       } else {
@@ -1030,7 +1088,7 @@ class _CalcFuncs {
   /// This function gets the binary formatted integer as a string.
   Object _funcBin(List<Object?> args) {
     this._argCount('bin', args, 1);
-    final Variant arg = Variant(args[0]);
+    final arg = Variant(args[0]);
     if (arg.implicitInt) return arg.asInt.toRadixString(2) + "b";
     throw Exception('Can not use $arg to bin(int).');
   }
@@ -1038,14 +1096,14 @@ class _CalcFuncs {
   /// This function casts the given value into a Boolean value.
   Object _funcBool(List<Object?> args) {
     this._argCount('bool', args, 1);
-    final Variant arg = Variant(args[0]);
+    final arg = Variant(args[0]);
     return arg.asBool;
   }
 
   /// This function gets the ceiling of the given real.
   Object _funcCeil(List<Object?> args) {
     this._argCount('ceil', args, 1);
-    final Variant arg = Variant(args[0]);
+    final arg = Variant(args[0]);
     if (arg.implicitReal) return arg.asReal.ceil();
     throw Exception('Can not use $arg to ceil(real) or already an int.');
   }
@@ -1053,15 +1111,15 @@ class _CalcFuncs {
   /// This function gets the cosine of the given real.
   Object _funcCos(List<Object?> args) {
     this._argCount('cos', args, 1);
-    final Variant arg = Variant(args[0]);
-    if (arg.implicitReal) return math.cos(arg.asReal);
+    final arg = Variant(args[0]);
+    if (arg.implicitReal) return cos(arg.asReal);
     throw Exception('Can not use $arg in cos(real).');
   }
 
   /// This function gets the floor of the given real.
   Object _funcFloor(List<Object?> args) {
     this._argCount('floor', args, 1);
-    final Variant arg = Variant(args[0]);
+    final arg = Variant(args[0]);
     if (arg.implicitReal) return arg.asReal.floor();
     throw Exception('Can not use $arg to floor(real) or already an int.');
   }
@@ -1069,7 +1127,7 @@ class _CalcFuncs {
   /// This function gets the hexadecimal formatted integer as a string.
   Object _funcHex(List<Object?> args) {
     this._argCount('hex', args, 1);
-    final Variant arg = Variant(args[0]);
+    final arg = Variant(args[0]);
     if (arg.implicitInt) return "0x" + arg.asInt.toRadixString(16).toUpperCase();
     throw Exception('Can not use $arg to hex(int).');
   }
@@ -1077,14 +1135,14 @@ class _CalcFuncs {
   /// This function casts the given value into an integer value.
   Object _funcInt(List<Object?> args) {
     this._argCount('int', args, 1);
-    final Variant arg = Variant(args[0]);
+    final arg = Variant(args[0]);
     return arg.asInt;
   }
 
   /// This function gets the length of a string.
   Object _funcLen(List<Object?> args) {
     this._argCount('len', args, 1);
-    final Variant arg = Variant(args[0]);
+    final arg = Variant(args[0]);
     if (arg.implicitStr) return arg.asStr.length;
     throw Exception('Can not use $arg to len(string).');
   }
@@ -1092,32 +1150,32 @@ class _CalcFuncs {
   /// This function gets the log of the given real with the base of another real.
   Object _funcLog(List<Object?> args) {
     this._argCount('log', args, 2);
-    final Variant left = Variant(args[0]);
-    final Variant right = Variant(args[1]);
-    if (left.implicitReal && right.implicitReal) return math.log(left.asReal) / math.log(right.asReal);
+    final left = Variant(args[0]);
+    final right = Variant(args[1]);
+    if (left.implicitReal && right.implicitReal) return log(left.asReal) / log(right.asReal);
     throw Exception('Can not use $left and $right in log(real, real).');
   }
 
   /// This function gets the log base 2 of the given real.
   Object _funcLog2(List<Object?> args) {
     this._argCount('log2', args, 1);
-    final Variant arg = Variant(args[0]);
-    if (arg.implicitReal) return math.log(arg.asReal) / math.ln2;
+    final arg = Variant(args[0]);
+    if (arg.implicitReal) return log(arg.asReal) / ln2;
     throw Exception('Can not use $arg in log2(real).');
   }
 
   /// This function gets the log base 10 of the given real.
   Object _funcLog10(List<Object?> args) {
     this._argCount('log10', args, 1);
-    final Variant arg = Variant(args[0]);
-    if (arg.implicitReal) return math.log(arg.asReal) / math.ln10;
+    final arg = Variant(args[0]);
+    if (arg.implicitReal) return log(arg.asReal) / ln10;
     throw Exception('Can not use $arg in log10(real).');
   }
 
   /// This function gets the lower case of the given string.
   Object _funcLower(List<Object?> args) {
     this._argCount('lower', args, 1);
-    final Variant arg = Variant(args[0]);
+    final arg = Variant(args[0]);
     if (arg.implicitStr) return arg.asStr.toLowerCase();
     throw Exception('Can not use $arg in lower(string).');
   }
@@ -1125,8 +1183,8 @@ class _CalcFuncs {
   /// This function gets the natural log of the given real.
   Object _funcLn(List<Object?> args) {
     this._argCount('ln', args, 1);
-    final Variant arg = Variant(args[0]);
-    if (arg.implicitReal) return math.log(arg.asReal);
+    final arg = Variant(args[0]);
+    if (arg.implicitReal) return log(arg.asReal);
     throw Exception('Can not use $arg in ln(real).');
   }
 
@@ -1134,8 +1192,8 @@ class _CalcFuncs {
   Object _funcMax(List<Object?> args) {
     if (args.isEmpty) throw Exception('The function max requires at least one argument.');
     bool allInt = true;
-    for (final Object? arg in args) {
-      final Variant value = Variant(arg);
+    for (final arg in args) {
+      final value = Variant(arg);
       if (value.implicitInt) continue;
       allInt = false;
       if (value.implicitReal) continue;
@@ -1144,14 +1202,14 @@ class _CalcFuncs {
 
     if (allInt) {
       int value = Variant(args[0]).asInt;
-      for (final Object? arg in args) {
-        value = math.max(value, Variant(arg).asInt);
+      for (final arg in args) {
+        value = max(value, Variant(arg).asInt);
       }
       return value;
     } else {
       double value = Variant(args[0]).asReal;
-      for (final Object? arg in args) {
-        value = math.max(value, Variant(arg).asReal);
+      for (final arg in args) {
+        value = max(value, Variant(arg).asReal);
       }
       return value;
     }
@@ -1161,8 +1219,8 @@ class _CalcFuncs {
   Object _funcMin(List<Object?> args) {
     if (args.isEmpty) throw Exception('The function min requires at least one argument.');
     bool allInt = true;
-    for (final Object? arg in args) {
-      final Variant value = Variant(arg);
+    for (final arg in args) {
+      final value = Variant(arg);
       if (value.implicitInt) continue;
       allInt = false;
       if (value.implicitReal) continue;
@@ -1171,14 +1229,14 @@ class _CalcFuncs {
 
     if (allInt) {
       int value = Variant(args[0]).asInt;
-      for (final Object? arg in args) {
-        value = math.min(value, Variant(arg).asInt);
+      for (final arg in args) {
+        value = min(value, Variant(arg).asInt);
       }
       return value;
     } else {
       double value = Variant(args[0]).asReal;
-      for (final Object? arg in args) {
-        value = math.min(value, Variant(arg).asReal);
+      for (final arg in args) {
+        value = min(value, Variant(arg).asReal);
       }
       return value;
     }
@@ -1187,7 +1245,7 @@ class _CalcFuncs {
   /// This function gets the octal formatted integer as a string.
   Object _funcOct(List<Object?> args) {
     this._argCount('oct', args, 1);
-    final Variant arg = Variant(args[0]);
+    final arg = Variant(args[0]);
     if (arg.implicitInt) return arg.asInt.toRadixString(8) + "o";
     throw Exception('Can not use $arg to oct(int).');
   }
@@ -1198,9 +1256,9 @@ class _CalcFuncs {
     if (args.length < 2 || args.length > 3) {
       throw Exception('The function padLeft requires 2 or 3 arguments but got ${args.length}.');
     }
-    final Variant arg0 = Variant(args[0]);
-    final Variant arg1 = Variant(args[1]);
-    final Variant arg2 = Variant((args.length == 3) ? args[2] : " ");
+    final arg0 = Variant(args[0]);
+    final arg1 = Variant(args[1]);
+    final arg2 = Variant((args.length == 3) ? args[2] : " ");
     if (arg0.implicitStr && arg1.implicitInt && arg2.implicitStr) return arg0.asStr.padLeft(arg1.asInt, arg2.asStr);
     throw Exception('Can not use $arg0, $arg1, and $arg2 in padLeft(string, int, [string]).');
   }
@@ -1211,9 +1269,9 @@ class _CalcFuncs {
     if (args.length < 2 || args.length > 3) {
       throw Exception('The function padRight requires 2 or 3 arguments but got ${args.length}.');
     }
-    final Variant arg0 = Variant(args[0]);
-    final Variant arg1 = Variant(args[1]);
-    final Variant arg2 = Variant((args.length == 3) ? args[2] : " ");
+    final arg0 = Variant(args[0]);
+    final arg1 = Variant(args[1]);
+    final arg2 = Variant((args.length == 3) ? args[2] : " ");
     if (arg0.implicitStr && arg1.implicitInt && arg2.implicitStr) return arg0.asStr.padRight(arg1.asInt, arg2.asStr);
     throw Exception('Can not use $arg0, $arg1, and $arg2 in padRight(string, int, [string]).');
   }
@@ -1227,14 +1285,14 @@ class _CalcFuncs {
   /// This function casts the given value into a real value.
   Object _funcReal(List<Object?> args) {
     this._argCount('real', args, 1);
-    final Variant arg = Variant(args[0]);
+    final arg = Variant(args[0]);
     return arg.asReal;
   }
 
   /// This function gets the round of the given real.
   Object _funcRound(List<Object?> args) {
     this._argCount('round', args, 1);
-    final Variant arg = Variant(args[0]);
+    final arg = Variant(args[0]);
     if (arg.implicitReal) return arg.asReal.round();
     throw Exception('Can not use $arg in round(real).');
   }
@@ -1242,32 +1300,32 @@ class _CalcFuncs {
   /// This function gets the sine of the given real.
   Object _funcSin(List<Object?> args) {
     this._argCount('sin', args, 1);
-    final Variant arg = Variant(args[0]);
-    if (arg.implicitReal) return math.sin(arg.asReal);
+    final arg = Variant(args[0]);
+    if (arg.implicitReal) return sin(arg.asReal);
     throw Exception('Can not use $arg in sin(real).');
   }
 
   /// This function gets the square root of the given real.
   Object _funcSqrt(List<Object?> args) {
     this._argCount('sqrt', args, 1);
-    final Variant arg = Variant(args[0]);
-    if (arg.implicitReal) return math.sqrt(arg.asReal);
+    final arg = Variant(args[0]);
+    if (arg.implicitReal) return sqrt(arg.asReal);
     throw Exception('Can not use $arg in sqrt(real).');
   }
 
   /// This function casts the given value into a string value.
   Object _funcString(List<Object?> args) {
     this._argCount('string', args, 1);
-    final Variant arg = Variant(args[0]);
+    final arg = Variant(args[0]);
     return arg.asStr;
   }
 
   /// This function gets a substring for a given string with a start and stop integer.
   Object _funcSub(List<Object?> args) {
     this._argCount('sub', args, 3);
-    final Variant arg0 = Variant(args[0]);
-    final Variant arg1 = Variant(args[1]);
-    final Variant arg2 = Variant(args[2]);
+    final arg0 = Variant(args[0]);
+    final arg1 = Variant(args[1]);
+    final arg2 = Variant(args[2]);
     if (arg0.implicitStr && arg1.implicitInt && arg2.implicitInt) return arg0.asStr.substring(arg1.asInt, arg2.asInt);
     throw Exception('Can not use $arg0, $arg1, and $arg2 in sub(string, int, int).');
   }
@@ -1275,23 +1333,22 @@ class _CalcFuncs {
   /// This function gets the sum of zero or more integers or reals.
   Object _funcSum(List<Object?> args) {
     bool allInt = true;
-    for (final Object? arg in args) {
-      final Variant value = Variant(arg);
+    for (final arg in args) {
+      final value = Variant(arg);
       if (value.implicitInt) continue;
       allInt = false;
       if (value.implicitReal) continue;
       throw Exception('Can not use $arg in sum(real, real, ...) or sum(int, int, ...).');
     }
-
     if (allInt) {
       int value = 0;
-      for (final Object? arg in args) {
+      for (final arg in args) {
         value += Variant(arg).asInt;
       }
       return value;
     } else {
       double value = 0.0;
-      for (final Object? arg in args) {
+      for (final arg in args) {
         value += Variant(arg).asReal;
       }
       return value;
@@ -1299,42 +1356,67 @@ class _CalcFuncs {
   }
 
   /// This function gets the tangent of the given real.
-  Object _funcTan(List<Object?> args) {
+  Object _funcTan(
+    final List<Object?> args,
+  ) {
     this._argCount('tan', args, 1);
-    final Variant arg = Variant(args[0]);
-    if (arg.implicitReal) return math.tan(arg.asReal);
-    throw Exception('Can not use $arg in tan(real).');
+    final arg = Variant(args[0]);
+    if (arg.implicitReal) {
+      return tan(arg.asReal);
+    } else {
+      throw Exception('Can not use $arg in tan(real).');
+    }
   }
 
   /// This function trims the left and right of a string.
-  Object _funcTrim(List<Object?> args) {
+  Object _funcTrim(
+    final List<Object?> args,
+  ) {
     this._argCount('trim', args, 1);
-    final Variant arg = Variant(args[0]);
-    if (arg.implicitStr) return arg.asStr.trim();
-    throw Exception('Can not use $arg in trim(string).');
+    final arg = Variant(args[0]);
+    if (arg.implicitStr) {
+      return arg.asStr.trim();
+    } else {
+      throw Exception('Can not use $arg in trim(string).');
+    }
   }
 
   /// This function trims the left of a string.
-  Object _funcTrimLeft(List<Object?> args) {
+  Object _funcTrimLeft(
+    final List<Object?> args,
+  ) {
     this._argCount('trimLeft', args, 1);
-    final Variant arg = Variant(args[0]);
-    if (arg.implicitStr) return arg.asStr.trimLeft();
-    throw Exception('Can not use $arg in trimLeft(string).');
+    final arg = Variant(args[0]);
+    if (arg.implicitStr) {
+      return arg.asStr.trimLeft();
+    } else {
+      throw Exception('Can not use $arg in trimLeft(string).');
+    }
   }
 
   /// This function trims the right of a string.
-  Object _funcTrimRight(List<Object?> args) {
+  Object _funcTrimRight(
+    final List<Object?> args,
+  ) {
     this._argCount('trimRight', args, 1);
-    final Variant arg = Variant(args[0]);
-    if (arg.implicitStr) return arg.asStr.trimRight();
-    throw Exception('Can not use $arg in trimRight(string).');
+    final arg = Variant(args[0]);
+    if (arg.implicitStr) {
+      return arg.asStr.trimRight();
+    } else {
+      throw Exception('Can not use $arg in trimRight(string).');
+    }
   }
 
   /// This function gets the upper case of the given string.
-  Object _funcUpper(List<Object?> args) {
+  Object _funcUpper(
+    final List<Object?> args,
+  ) {
     this._argCount('upper', args, 1);
-    final Variant arg = Variant(args[0]);
-    if (arg.implicitStr) return arg.asStr.toUpperCase();
-    throw Exception('Can not use $arg in upper(string).');
+    final arg = Variant(args[0]);
+    if (arg.implicitStr) {
+      return arg.asStr.toUpperCase();
+    } else {
+      throw Exception('Can not use $arg in upper(string).');
+    }
   }
 }

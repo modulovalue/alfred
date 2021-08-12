@@ -4,16 +4,16 @@ import '../events/events.dart';
 abstract class PlotterMouseHandle {
   /// handles mouse down.
   void mouseDown(
-    final MouseEvent e,
+    final PlotterMouseEvent e,
   );
 
   /// handles mouse moved.
   void mouseMove(
-    final MouseEvent e,
+    final PlotterMouseEvent e,
   );
 
   /// handles mouse up.
   void mouseUp(
-    final MouseEvent e,
+    final PlotterMouseEvent e,
   );
 }

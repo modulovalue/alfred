@@ -1,7 +1,5 @@
 import '../css/css.dart';
 
-/// TODO thread SELF through all interfaces.
-
 abstract class HtmlEntity {
   R acceptHtmlEntity<R, A>(
     final HtmlEntityVisitor<R, A> v,
@@ -24,7 +22,7 @@ abstract class HtmlElement<SELF extends HtmlElement<SELF>> implements HtmlEntity
   CssStyleDeclaration? get style;
 
   // TODO it would be great if this wouldn't need to depend on List.
-  // TODO copy with childNodes.
+  // TODO copy with childNodes?
   List<HtmlEntity> get childNodes;
 
   SELF copyWith({

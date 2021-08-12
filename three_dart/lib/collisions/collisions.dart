@@ -112,8 +112,8 @@ class SpherePlaneResult extends BaseResult {
 /// The given vector represent the constant amount of distance moved in a time span.
 /// The optional [backside] parameter indicates if the back of the plane should collide or not.
 SpherePlaneResult spherePlane(math.Sphere sphere, math.Plane plane, math.Vector3 vec, [bool backside = false]) {
-  final math.Vector3 n = plane.normal.normal();
-  final double div = vec.dot(n);
+  final n = plane.normal.normal();
+  final div = vec.dot(n);
   if (div == 0.0) {
     return SpherePlaneResult(Type.NoCollision, 0.0, sphere, plane, vec, backside);
   }
@@ -121,8 +121,8 @@ SpherePlaneResult spherePlane(math.Sphere sphere, math.Plane plane, math.Vector3
     return SpherePlaneResult(Type.NoCollision, 0.0, sphere, plane, vec, backside);
   }
 
-  final math.Vector3 c = math.Vector3(sphere.x, sphere.y, sphere.z);
-  final double t = (plane.offset - c.dot(n) + sphere.radius) / div;
+  final c = math.Vector3(sphere.x, sphere.y, sphere.z);
+  final t = (plane.offset - c.dot(n) + sphere.radius) / div;
   if (t < 0.0) {
     return SpherePlaneResult(Type.NoCollision, t, sphere, plane, vec, backside);
   }
@@ -130,8 +130,8 @@ SpherePlaneResult spherePlane(math.Sphere sphere, math.Plane plane, math.Vector3
     return SpherePlaneResult(Type.OutOfRange, t, sphere, plane, vec, backside);
   }
 
-  final math.Point3 c2 = math.Point3(sphere.x + vec.dx * t, sphere.y + vec.dy * t, sphere.z + vec.dz * t);
-  final math.Point3 hit = plane.nearestPoint(c2);
+  final c2 = math.Point3(sphere.x + vec.dx * t, sphere.y + vec.dy * t, sphere.z + vec.dz * t);
+  final hit = plane.nearestPoint(c2);
   Type type = Type.Collision;
   if (c2.distance(hit) < sphere.radius) type = Type.Intesected;
   return SpherePlaneResult(type, t, sphere, plane, vec, backside, c2, hit);
@@ -185,13 +185,11 @@ TwoAABB2Result twoAABB2(math.Region2 regionA, math.Region2 regionB, math.Vector2
     [math.HitRegion? sidesA, math.HitRegion? sidesB]) {
   sidesA ??= math.HitRegion.All;
   sidesB ??= math.HitRegion.All;
-  final math.HitRegion sides = sidesB & sidesA.inverse();
-  final math.Vector2 vector = vecA - vecB;
-
+  final sides = sidesB & sidesA.inverse();
+  final vector = vecA - vecB;
   double t = 100.0, d = 0.0;
   math.HitRegion region = math.HitRegion.None, edge = math.HitRegion.None;
   bool edgeTest;
-
   if (vector.dx != 0.0) {
     edgeTest = false;
     if (vector.dx > 0.0) {
@@ -217,7 +215,7 @@ TwoAABB2Result twoAABB2(math.Region2 regionA, math.Region2 regionB, math.Vector2
     }
 
     if (edgeTest && (d < t) && (d >= 0.0) && (d <= 1.0)) {
-      final double y = regionA.y + vector.dy * d;
+      final y = regionA.y + vector.dy * d;
       if (math.rangeOverlap(regionB.y, regionB.y + regionB.dy, y, y + regionA.dy)) {
         t = d;
         region = edge;
@@ -248,19 +246,17 @@ TwoAABB2Result twoAABB2(math.Region2 regionA, math.Region2 regionB, math.Vector2
         }
       }
     }
-
     if (edgeTest && (d < t) && (d >= 0.0) && (d <= 1.0)) {
-      final double x = regionA.x + vector.dx * d;
+      final x = regionA.x + vector.dx * d;
       if (math.rangeOverlap(regionB.x, regionB.x + regionB.dx, x, x + regionA.dx)) {
         t = d;
         region = edge;
       }
     }
   }
-
   if (region == math.HitRegion.None) {
-    final bool overlap = regionA.overlaps(regionB);
-    final Type type = () {
+    final overlap = regionA.overlaps(regionB);
+    final type = () {
       if (overlap) {
         return Type.Intesected;
       } else {
@@ -322,9 +318,8 @@ TwoAABB3Result twoAABB3(math.Region3 regionA, math.Region3 regionB, math.Vector3
   sidesA ??= math.HitRegion.All;
   // ignore: parameter_assignments
   sidesB ??= math.HitRegion.All;
-  final math.HitRegion sides = sidesB & sidesA.inverse();
-  final math.Vector3 vector = vecA - vecB;
-
+  final sides = sidesB & sidesA.inverse();
+  final vector = vecA - vecB;
   double t = 100.0, d = 0.0;
   math.HitRegion region = math.HitRegion.None, edge = math.HitRegion.None;
   bool edgeTest;
@@ -352,11 +347,10 @@ TwoAABB3Result twoAABB3(math.Region3 regionA, math.Region3 regionB, math.Vector3
         }
       }
     }
-
     if (edgeTest && (d < t) && (d >= 0.0) && (d <= 1.0)) {
-      final double y = regionA.y + vector.dy * d;
+      final y = regionA.y + vector.dy * d;
       if (math.rangeOverlap(regionB.y, regionB.y + regionB.dy, y, y + regionA.dy)) {
-        final double z = regionA.z + vector.dz * d;
+        final z = regionA.z + vector.dz * d;
         if (math.rangeOverlap(regionB.z, regionB.z + regionB.dz, z, z + regionA.dz)) {
           t = d;
           region = edge;
@@ -364,7 +358,6 @@ TwoAABB3Result twoAABB3(math.Region3 regionA, math.Region3 regionB, math.Vector3
       }
     }
   }
-
   if (vector.dy != 0.0) {
     edgeTest = false;
     if (vector.dy > 0.0) {
@@ -390,9 +383,9 @@ TwoAABB3Result twoAABB3(math.Region3 regionA, math.Region3 regionB, math.Vector3
     }
 
     if (edgeTest && (d < t) && (d >= 0.0) && (d <= 1.0)) {
-      final double x = regionA.x + vector.dx * d;
+      final x = regionA.x + vector.dx * d;
       if (math.rangeOverlap(regionB.x, regionB.x + regionB.dx, x, x + regionA.dx)) {
-        final double z = regionA.z + vector.dz * d;
+        final z = regionA.z + vector.dz * d;
         if (math.rangeOverlap(regionB.z, regionB.z + regionB.dz, z, z + regionA.dz)) {
           t = d;
           region = edge;
@@ -426,9 +419,9 @@ TwoAABB3Result twoAABB3(math.Region3 regionA, math.Region3 regionB, math.Vector3
     }
 
     if (edgeTest && (d < t) && (d >= 0.0) && (d <= 1.0)) {
-      final double x = regionA.x + vector.dx * d;
+      final x = regionA.x + vector.dx * d;
       if (math.rangeOverlap(regionB.x, regionB.x + regionB.dx, x, x + regionA.dx)) {
-        final double y = regionA.y + vector.dy * d;
+        final y = regionA.y + vector.dy * d;
         if (math.rangeOverlap(regionB.y, regionB.y + regionB.dy, y, y + regionA.dy)) {
           t = d;
           region = edge;
@@ -490,39 +483,37 @@ class TwoSphereResult extends BaseResult {
 /// Tests the collision between two moving spheres.
 /// The given vectors represent the constant amount of distance moved in a time span.
 TwoSphereResult twoSphere(math.Sphere sphereA, math.Sphere sphereB, math.Vector3 vecA, math.Vector3 vecB) {
-  final math.Point3 cA = sphereA.center;
-  final math.Point3 cB = sphereB.center;
-  final math.Vector3 e = cB.vectorTo(cA);
-  final double r = sphereA.radius + sphereB.radius;
-  final double r2 = r * r;
-  final double ee = e.dot(e);
+  final cA = sphereA.center;
+  final cB = sphereB.center;
+  final e = cB.vectorTo(cA);
+  final r = sphereA.radius + sphereB.radius;
+  final r2 = r * r;
+  final ee = e.dot(e);
   if (ee < r2) {
     return TwoSphereResult(Type.Intesected, 0.0, sphereA, sphereB, vecA, vecB, cA, cB);
   }
-  final math.Vector3 d = vecB - vecA;
-  final double len = d.length();
-  final math.Vector3 d2 = d.normal();
-  final double ed = e.dot(d2);
+  final d = vecB - vecA;
+  final len = d.length();
+  final d2 = d.normal();
+  final ed = e.dot(d2);
   if (math.Comparer.equals(ee, r2) && (ed < 0.0)) {
     return TwoSphereResult(Type.NoCollision, 0.0, sphereA, sphereB, vecA, vecB);
   }
-  final double f = ed * ed + r2 - ee;
+  final f = ed * ed + r2 - ee;
   if (f < 0.0) {
     return TwoSphereResult(Type.NoCollision, 0.0, sphereA, sphereB, vecA, vecB);
   }
-  final double t = ed - math.sqrt(f);
+  final t = ed - math.sqrt(f);
   if (t < 0.0) {
     return TwoSphereResult(Type.NoCollision, t, sphereA, sphereB, vecA, vecB);
   }
   if (t > len) {
     return TwoSphereResult(Type.OutOfRange, t, sphereA, sphereB, vecA, vecB);
   }
-
-  final double t2 = t / len;
-  final math.Point3 cA2 = math.Point3(sphereA.x + vecA.dx * t2, sphereA.y + vecA.dy * t2, sphereA.z + vecA.dz * t2);
-  final math.Point3 cB2 = math.Point3(sphereB.x + vecB.dx * t2, sphereB.y + vecB.dy * t2, sphereB.z + vecB.dz * t2);
-  final double scalar = sphereA.radius / math.sqrt(ee);
-  final math.Point3 hit =
-      math.Point3((cB2.x - cA2.x) * scalar + cA2.x, (cB2.y - cA2.y) * scalar + cA2.y, (cB2.z - cA2.z) * scalar + cA2.z);
+  final t2 = t / len;
+  final cA2 = math.Point3(sphereA.x + vecA.dx * t2, sphereA.y + vecA.dy * t2, sphereA.z + vecA.dz * t2);
+  final cB2 = math.Point3(sphereB.x + vecB.dx * t2, sphereB.y + vecB.dy * t2, sphereB.z + vecB.dz * t2);
+  final scalar = sphereA.radius / math.sqrt(ee);
+  final hit = math.Point3((cB2.x - cA2.x) * scalar + cA2.x, (cB2.y - cA2.y) * scalar + cA2.y, (cB2.z - cA2.z) * scalar + cA2.z);
   return TwoSphereResult(Type.Collision, t, sphereA, sphereB, vecA, vecB, cA2, cB2, hit);
 }

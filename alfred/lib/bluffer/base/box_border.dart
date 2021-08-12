@@ -244,7 +244,7 @@ class Border extends BoxBorder {
     double width = 1.0,
     BorderStyle style = BorderStyle.solid,
   }) {
-    final BorderSide side = BorderSide(color: color, width: width, style: style);
+    final side = BorderSide(color: color, width: width, style: style);
     return Border.fromBorderSide(side);
   }
 
@@ -294,15 +294,15 @@ class Border extends BoxBorder {
 
   @override
   bool get isUniform {
-    final Color topColor = top.color;
+    final topColor = top.color;
     if (right.color != topColor || bottom.color != topColor || left.color != topColor) {
       return false;
     }
-    final double topWidth = top.width;
+    final topWidth = top.width;
     if (right.width != topWidth || bottom.width != topWidth || left.width != topWidth) {
       return false;
     }
-    final BorderStyle topStyle = top.style;
+    final topStyle = top.style;
     if (right.style != topStyle || bottom.style != topStyle || left.style != topStyle) {
       return false;
     }
@@ -393,7 +393,7 @@ class Border extends BoxBorder {
     if (isUniform) {
       return '$runtimeType.all($top)';
     }
-    final List<String> arguments = <String>[
+    final arguments = <String>[
       if (top != BorderSide.none) 'top: $top',
       if (right != BorderSide.none) 'right: $right',
       if (bottom != BorderSide.none) 'bottom: $bottom',
@@ -496,15 +496,15 @@ class BorderDirectional extends BoxBorder {
 
   @override
   bool get isUniform {
-    final Color topColor = top.color;
+    final topColor = top.color;
     if (start.color != topColor || end.color != topColor || bottom.color != topColor) {
       return false;
     }
-    final double topWidth = top.width;
+    final topWidth = top.width;
     if (start.width != topWidth || end.width != topWidth || bottom.width != topWidth) {
       return false;
     }
-    final BorderStyle topStyle = top.style;
+    final topStyle = top.style;
     if (start.style != topStyle || end.style != topStyle || bottom.style != topStyle) {
       return false;
     }
@@ -524,7 +524,7 @@ class BorderDirectional extends BoxBorder {
       return null;
     }
     if (other is Border) {
-      final Border typedOther = other;
+      final typedOther = other;
       if (!BorderSide.canMerge(typedOther.top, top) || !BorderSide.canMerge(typedOther.bottom, bottom)) {
         return null;
       }
@@ -619,7 +619,7 @@ class BorderDirectional extends BoxBorder {
 
   @override
   String toString() {
-    final List<String> arguments = <String>[
+    final arguments = <String>[
       if (top != BorderSide.none) 'top: $top',
       if (start != BorderSide.none) 'start: $start',
       if (end != BorderSide.none) 'end: $end',

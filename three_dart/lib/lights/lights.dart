@@ -45,7 +45,7 @@ class LightCollection extends Collection<Light> {
 
   /// Checks if the light can be added to this set.
   bool _onPreaddLights(Iterable<Light> added) {
-    for (final Light light in added) {
+    for (final light in added) {
       if (this._contains(light)) return false;
     }
     return true;
@@ -53,7 +53,7 @@ class LightCollection extends Collection<Light> {
 
   /// Handles a light being added.
   void _onAddedLights(int index, Iterable<Light> added) {
-    for (final Light light in added) {
+    for (final light in added) {
       this._addOther(light);
       light.changed.add(this._onLightChanged);
     }
@@ -62,7 +62,7 @@ class LightCollection extends Collection<Light> {
 
   /// Handles a light being removed.
   void _onRemovedLights(int index, Iterable<Light> removed) {
-    for (final Light light in removed) {
+    for (final light in removed) {
       this._removeOther(light);
       light.changed.remove(this._onLightChanged);
     }
@@ -199,7 +199,7 @@ class Bar implements Light {
   set startMover(Mover? mover) {
     if (this._startMover != mover) {
       this._startMover?.changed.remove(this._onChanged);
-      final Mover? prev = this._startMover;
+      final prev = this._startMover;
       this._startMover = mover;
       this._startMover?.changed.add(this._onChanged);
       this._onChanged(ValueChangedEventArgs(this, 'startMover', prev, this._startMover));
@@ -212,7 +212,7 @@ class Bar implements Light {
   set endMover(Mover? mover) {
     if (this._endMover != mover) {
       this._endMover?.changed.remove(this._onChanged);
-      final Mover? prev = this._endMover;
+      final prev = this._endMover;
       this._endMover = mover;
       this._endMover?.changed.add(this._onChanged);
       this._onChanged(ValueChangedEventArgs(this, 'endMover', prev, this._endMover));
@@ -224,7 +224,7 @@ class Bar implements Light {
 
   set color(Color3? color) {
     if (this._color != color) {
-      final Color3? prev = this._color;
+      final prev = this._color;
       this._color = color;
       this._onChanged(ValueChangedEventArgs(this, 'color', prev, this._color));
     }
@@ -253,7 +253,7 @@ class Bar implements Light {
     // ignore: parameter_assignments
     vec ??= Vector4.shadowAdjust;
     if (this._shadowAdj != vec) {
-      final Vector4? prev = this._shadowAdj;
+      final prev = this._shadowAdj;
       this._shadowAdj = vec;
       this._onChanged(ValueChangedEventArgs(this, 'shadowAdjust', prev, this._shadowAdj));
     }
@@ -264,7 +264,7 @@ class Bar implements Light {
 
   set attenuation0(double attenuation0) {
     if (!Comparer.equals(this._attenuation0, attenuation0)) {
-      final double prev = this._attenuation0;
+      final prev = this._attenuation0;
       this._attenuation0 = attenuation0;
       this._onChanged(ValueChangedEventArgs(this, 'attenuation0', prev, this._attenuation0));
     }
@@ -275,7 +275,7 @@ class Bar implements Light {
 
   set attenuation1(double attenuation1) {
     if (!Comparer.equals(this._attenuation1, attenuation1)) {
-      final double prev = this._attenuation1;
+      final prev = this._attenuation1;
       this._attenuation1 = attenuation1;
       this._onChanged(ValueChangedEventArgs(this, 'attenuation1', prev, this._attenuation1));
     }
@@ -286,7 +286,7 @@ class Bar implements Light {
 
   set attenuation2(double attenuation2) {
     if (!Comparer.equals(this._attenuation2, attenuation2)) {
-      final double prev = this._attenuation2;
+      final prev = this._attenuation2;
       this._attenuation2 = attenuation2;
       this._onChanged(ValueChangedEventArgs(this, 'attenuation2', prev, this._attenuation2));
     }
@@ -297,7 +297,7 @@ class Bar implements Light {
 
   set enableAttenuation(bool enable) {
     if (this._enableAttn != enable) {
-      final bool prev = this._enableAttn;
+      final prev = this._enableAttn;
       this._enableAttn = enable;
       this._onChanged(ValueChangedEventArgs(this, 'enableAttenuation', prev, this._enableAttn));
     }
@@ -343,7 +343,7 @@ class Directional implements Light {
     this._right = Vector3.negX;
     final mover = this._mover;
     if (mover != null) {
-      final Matrix4 mat = mover.update(state, this);
+      final mat = mover.update(state, this);
       this._direction = mat.transVec3(this._direction).normal();
       this._up = mat.transVec3(this._up).normal();
       this._right = mat.transVec3(this._right).normal();
@@ -376,7 +376,7 @@ class Directional implements Light {
   set mover(Mover? mover) {
     if (this._mover != mover) {
       this._mover?.changed.remove(this._onChanged);
-      final Mover? prev = this._mover;
+      final prev = this._mover;
       this._mover = mover;
       this._mover?.changed.add(this._onChanged);
       this._onChanged(ValueChangedEventArgs(this, 'mover', prev, this._mover));
@@ -388,7 +388,7 @@ class Directional implements Light {
 
   set color(Color3? color) {
     if (this._color != color) {
-      final Color3? prev = this._color;
+      final prev = this._color;
       this._color = color;
       this._onChanged(ValueChangedEventArgs(this, 'color', prev, this._color));
     }
@@ -400,7 +400,7 @@ class Directional implements Light {
   set texture(Texture2D? texture) {
     if (this._texture != texture) {
       this._texture?.changed.remove(this._onChanged);
-      final Texture2D? prev = this._texture;
+      final prev = this._texture;
       this._texture = texture;
       this._texture?.changed.add(this._onChanged);
       this._onChanged(ValueChangedEventArgs(this, 'texture', prev, this._texture));
@@ -489,7 +489,7 @@ class Point implements Light {
   set mover(Mover? mover) {
     if (this._mover != mover) {
       this._mover?.changed.remove(this._onChanged);
-      final Mover? prev = this._mover;
+      final prev = this._mover;
       this._mover = mover;
       this._mover?.changed.add(this._onChanged);
       this._onChanged(ValueChangedEventArgs(this, 'mover', prev, this._mover));
@@ -503,7 +503,7 @@ class Point implements Light {
     // ignore: parameter_assignments
     color ??= Color3.white();
     if (this._color != color) {
-      final Color3? prev = this._color;
+      final prev = this._color;
       this._color = color;
       this._onChanged(ValueChangedEventArgs(this, 'color', prev, this._color));
     }
@@ -515,7 +515,7 @@ class Point implements Light {
   set texture(TextureCube? texture) {
     if (this._texture != texture) {
       this._texture?.changed.remove(this._onChanged);
-      final TextureCube? prev = this._texture;
+      final prev = this._texture;
       this._texture = texture;
       this._texture?.changed.add(this._onChanged);
       this._onChanged(ValueChangedEventArgs(this, 'texture', prev, this._texture));
@@ -528,7 +528,7 @@ class Point implements Light {
   set shadow(TextureCube? shadow) {
     if (this._shadow != shadow) {
       this._shadow?.changed.remove(this._onChanged);
-      final TextureCube? prev = this._shadow;
+      final prev = this._shadow;
       this._shadow = shadow;
       this._shadow?.changed.add(this._onChanged);
       this._onChanged(ValueChangedEventArgs(this, 'shadow', prev, this._shadow));
@@ -544,7 +544,7 @@ class Point implements Light {
     // ignore: parameter_assignments
     vec ??= Vector4.shadowAdjust;
     if (this._shadowAdj != vec) {
-      final Vector4? prev = this._shadowAdj;
+      final prev = this._shadowAdj;
       this._shadowAdj = vec;
       this._onChanged(ValueChangedEventArgs(this, 'shadowAdjust', prev, this._shadowAdj));
     }
@@ -555,7 +555,7 @@ class Point implements Light {
 
   set attenuation0(double attenuation0) {
     if (!Comparer.equals(this._attenuation0, attenuation0)) {
-      final double prev = this._attenuation0;
+      final prev = this._attenuation0;
       this._attenuation0 = attenuation0;
       this._onChanged(ValueChangedEventArgs(this, 'attenuation0', prev, this._attenuation0));
     }
@@ -566,7 +566,7 @@ class Point implements Light {
 
   set attenuation1(double attenuation1) {
     if (!Comparer.equals(this._attenuation1, attenuation1)) {
-      final double prev = this._attenuation1;
+      final prev = this._attenuation1;
       this._attenuation1 = attenuation1;
       this._onChanged(ValueChangedEventArgs(this, 'attenuation1', prev, this._attenuation1));
     }
@@ -577,7 +577,7 @@ class Point implements Light {
 
   set attenuation2(double attenuation2) {
     if (!Comparer.equals(this._attenuation2, attenuation2)) {
-      final double prev = this._attenuation2;
+      final prev = this._attenuation2;
       this._attenuation2 = attenuation2;
       this._onChanged(ValueChangedEventArgs(this, 'attenuation2', prev, this._attenuation2));
     }
@@ -588,7 +588,7 @@ class Point implements Light {
 
   set enableAttenuation(bool enable) {
     if (this._enableAttn != enable) {
-      final bool prev = this._enableAttn;
+      final prev = this._enableAttn;
       this._enableAttn = enable;
       this._onChanged(ValueChangedEventArgs(this, 'enableAttenuation', prev, this._enableAttn));
     }
@@ -688,7 +688,7 @@ class Spot implements Light {
     this._right = Vector3.negX;
     final mover = this._mover;
     if (mover != null) {
-      final Matrix4 mat = mover.update(state, this);
+      final mat = mover.update(state, this);
       this._position = mat.transPnt3(this._position);
       this._direction = mat.transVec3(this._direction).normal();
       this._up = mat.transVec3(this._up).normal();
@@ -724,7 +724,7 @@ class Spot implements Light {
   set mover(Mover? mover) {
     if (this._mover != mover) {
       this._mover?.changed.remove(this._onChanged);
-      final Mover? prev = this._mover;
+      final prev = this._mover;
       this._mover = mover;
       this._mover?.changed.add(this._onChanged);
       this._onChanged(ValueChangedEventArgs(this, 'mover', prev, this._mover));
@@ -738,7 +738,7 @@ class Spot implements Light {
     // ignore: parameter_assignments
     color ??= Color3.white();
     if (this._color != color) {
-      final Color3? prev = this._color;
+      final prev = this._color;
       this._color = color;
       this._onChanged(ValueChangedEventArgs(this, 'color', prev, this._color));
     }
@@ -750,7 +750,7 @@ class Spot implements Light {
   set texture(Texture2D? texture) {
     if (this._texture != texture) {
       this._texture?.changed.remove(this._onChanged);
-      final Texture2D? prev = this._texture;
+      final prev = this._texture;
       this._texture = texture;
       this._texture?.changed.add(this._onChanged);
       this._onChanged(ValueChangedEventArgs(this, 'texture', prev, this._texture));
@@ -763,7 +763,7 @@ class Spot implements Light {
   set shadow(Texture2D? shadow) {
     if (this._shadow != shadow) {
       this._shadow?.changed.remove(this._onChanged);
-      final Texture2D? prev = this._shadow;
+      final prev = this._shadow;
       this._shadow = shadow;
       this._shadow?.changed.add(this._onChanged);
       this._onChanged(ValueChangedEventArgs(this, 'shadow', prev, this._shadow));
@@ -779,7 +779,7 @@ class Spot implements Light {
     // ignore: parameter_assignments
     vec ??= Vector4.shadowAdjust;
     if (this._shadowAdj != vec) {
-      final Vector4? prev = this._shadowAdj;
+      final prev = this._shadowAdj;
       this._shadowAdj = vec;
       this._onChanged(ValueChangedEventArgs(this, 'shadowAdjust', prev, this._shadowAdj));
     }
@@ -798,7 +798,7 @@ class Spot implements Light {
     // ignore: parameter_assignments
     fov = clampVal(fov, 0.0, PI);
     if (!Comparer.equals(this._fov, fov)) {
-      final double prev = this._fov;
+      final prev = this._fov;
       this._fov = fov;
       this._tuScalar = 1.0 / (math.sqrt(2.0) * math.tan(this._fov));
       this._tvScalar = this._tuScalar * this._ratio;
@@ -811,7 +811,7 @@ class Spot implements Light {
 
   set ratio(double ratio) {
     if (!Comparer.equals(this._ratio, ratio)) {
-      final double prev = this._ratio;
+      final prev = this._ratio;
       this._ratio = ratio;
       this._tvScalar = this._tuScalar * this._ratio;
       this._onChanged(ValueChangedEventArgs(this, 'ratio', prev, this._ratio));
@@ -825,7 +825,7 @@ class Spot implements Light {
     // ignore: parameter_assignments
     cutoff = clampVal(cutoff, 0.0, PI);
     if (!Comparer.equals(this._cutoff, cutoff)) {
-      final double prev = this._cutoff;
+      final prev = this._cutoff;
       this._cutoff = cutoff;
       this._onChanged(ValueChangedEventArgs(this, 'cutoff', prev, this._cutoff));
     }
@@ -838,7 +838,7 @@ class Spot implements Light {
     // ignore: parameter_assignments
     coneAngle = clampVal(coneAngle, 0.0, PI);
     if (!Comparer.equals(this._coneAngle, coneAngle)) {
-      final double prev = this._coneAngle;
+      final prev = this._coneAngle;
       this._coneAngle = coneAngle;
       this._onChanged(ValueChangedEventArgs(this, 'coneAngle', prev, this._coneAngle));
     }
@@ -849,7 +849,7 @@ class Spot implements Light {
 
   set enableCutOff(bool enable) {
     if (this._enableCutOff != enable) {
-      final bool prev = this._enableCutOff;
+      final prev = this._enableCutOff;
       this._enableCutOff = enable;
       this._onChanged(ValueChangedEventArgs(this, 'enableCutOff', prev, this._enableCutOff));
     }
@@ -860,7 +860,7 @@ class Spot implements Light {
 
   set attenuation0(double attenuation0) {
     if (!Comparer.equals(this._attenuation0, attenuation0)) {
-      final double prev = this._attenuation0;
+      final prev = this._attenuation0;
       this._attenuation0 = attenuation0;
       this._onChanged(ValueChangedEventArgs(this, 'attenuation0', prev, this._attenuation0));
     }
@@ -871,7 +871,7 @@ class Spot implements Light {
 
   set attenuation1(double attenuation1) {
     if (!Comparer.equals(this._attenuation1, attenuation1)) {
-      final double prev = this._attenuation1;
+      final prev = this._attenuation1;
       this._attenuation1 = attenuation1;
       this._onChanged(ValueChangedEventArgs(this, 'attenuation1', prev, this._attenuation1));
     }
@@ -882,7 +882,7 @@ class Spot implements Light {
 
   set attenuation2(double attenuation2) {
     if (!Comparer.equals(this._attenuation2, attenuation2)) {
-      final double prev = this._attenuation2;
+      final prev = this._attenuation2;
       this._attenuation2 = attenuation2;
       this._onChanged(ValueChangedEventArgs(this, 'attenuation2', prev, this._attenuation2));
     }
@@ -893,7 +893,7 @@ class Spot implements Light {
 
   set enableAttenuation(bool enable) {
     if (this._enableAttn != enable) {
-      final bool prev = this._enableAttn;
+      final prev = this._enableAttn;
       this._enableAttn = enable;
       this._onChanged(ValueChangedEventArgs(this, 'enableAttenuation', prev, this._enableAttn));
     }

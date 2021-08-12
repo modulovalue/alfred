@@ -1,309 +1,313 @@
-import '../../edge/edge.dart';
-import '../../edge/edge_impl.dart';
-import '../point.dart';
-import '../point_impl.dart';
+import '../../edge/impl.dart';
+import '../../edge/interface.dart';
+import '../impl.dart';
+import '../interface.dart';
+import 'equals.dart';
 import 'point_on_edge.dart';
 
 /// Determines the way the two given edges intersect.
-IntersectionResult? intersect(QTEdge? edgeA, QTEdge? edgeB) {
-  if ((edgeA == null) || QTEdgeImpl.degenerate(edgeA)) {
+IntersectionResult? intersect(
+  final QTEdge? edgeA,
+  final QTEdge? edgeB,
+) {
+  if ((edgeA == null) || qtEdgeDegenerate(edgeA)) {
     return null;
-  }
-  if ((edgeB == null) || QTEdgeImpl.degenerate(edgeB)) {
+  } else if ((edgeB == null) || qtEdgeDegenerate(edgeB)) {
     return null;
-  }
-  final startBOnEdgeA = pointOnEdge(edgeA, edgeB.start);
-  final endBOnEdgeA = pointOnEdge(edgeA, edgeB.end);
-  final startAOnEdgeB = pointOnEdge(edgeB, edgeA.start);
-  final endAOnEdgeB = pointOnEdge(edgeB, edgeA.end);
-  bool intersects;
-  IntersectionType intType;
-  QTPoint? intPnt;
-  IntersectionLocation locA;
-  IntersectionLocation locB;
-  final dAx = edgeA.dx;
-  final dAy = edgeA.dy;
-  final dBx = edgeB.dx;
-  final dBy = edgeB.dy;
-  final denom = (dAx * dBy) - (dAy * dBx);
-  if (startBOnEdgeA.onEdge) {
-    if (endBOnEdgeA.onEdge) {
-      if (startAOnEdgeB.onEdge) {
-        if (endAOnEdgeB.onEdge) {
+  } else {
+    final startBOnEdgeA = pointOnEdge(edgeA, edgeB.start);
+    final endBOnEdgeA = pointOnEdge(edgeA, edgeB.end);
+    final startAOnEdgeB = pointOnEdge(edgeB, edgeA.start);
+    final endAOnEdgeB = pointOnEdge(edgeB, edgeA.end);
+    bool intersects;
+    IntersectionType intType;
+    QTPoint? intPnt;
+    IntersectionLocation locA;
+    IntersectionLocation locB;
+    final dAx = edgeA.dx;
+    final dAy = edgeA.dy;
+    final dBx = edgeB.dx;
+    final dBy = edgeB.dy;
+    final denom = (dAx * dBy) - (dAy * dBx);
+    if (startBOnEdgeA.onEdge) {
+      if (endBOnEdgeA.onEdge) {
+        if (startAOnEdgeB.onEdge) {
+          if (endAOnEdgeB.onEdge) {
 // OnEdge: startBOnEdgeA, endBOnEdgeA, startAOnEdgeB, and endAOnEdgeB
 // The only way that all four points could be on the edges
 // is if the edges are the same or opposite.
-          intersects = true;
-          locA = IntersectionLocation.None;
-          locB = IntersectionLocation.None;
-          intPnt = null;
-          if (startBOnEdgeA.location == IntersectionLocation.AtStart) {
-            intType = IntersectionType.Same;
+            intersects = true;
+            locA = IntersectionLocation.None;
+            locB = IntersectionLocation.None;
+            intPnt = null;
+            if (startBOnEdgeA.location == IntersectionLocation.AtStart) {
+              intType = IntersectionType.Same;
 // ignore: prefer_asserts_with_message
-            assert(QTPointImpl.equals(edgeA.start, edgeB.start));
+              assert(pointEquals(edgeA.start, edgeB.start));
 // ignore: prefer_asserts_with_message
-            assert(QTPointImpl.equals(edgeA.end, edgeB.end));
+              assert(pointEquals(edgeA.end, edgeB.end));
+            } else {
+              intType = IntersectionType.Opposite;
+// ignore: prefer_asserts_with_message
+              assert(pointEquals(edgeA.start, edgeB.end));
+// ignore: prefer_asserts_with_message
+              assert(pointEquals(edgeA.end, edgeB.start));
+            }
           } else {
-            intType = IntersectionType.Opposite;
-// ignore: prefer_asserts_with_message
-            assert(QTPointImpl.equals(edgeA.start, edgeB.end));
-// ignore: prefer_asserts_with_message
-            assert(QTPointImpl.equals(edgeA.end, edgeB.start));
-          }
-        } else {
 // OnEdge: startBOnEdgeA, endBOnEdgeA, and startAOnEdgeB
+// If there are three points on an edge, then the edges coincide.
+            intersects = true;
+            locA = IntersectionLocation.None;
+            locB = IntersectionLocation.None;
+            intPnt = null;
+            intType = IntersectionType.Coincide;
+          }
+        } else if (endAOnEdgeB.onEdge) {
+// OnEdge: startBOnEdgeA, endBOnEdgeA, and endAOnEdgeB
 // If there are three points on an edge, then the edges coincide.
           intersects = true;
           locA = IntersectionLocation.None;
           locB = IntersectionLocation.None;
           intPnt = null;
           intType = IntersectionType.Coincide;
-        }
-      } else if (endAOnEdgeB.onEdge) {
-// OnEdge: startBOnEdgeA, endBOnEdgeA, and endAOnEdgeB
-// If there are three points on an edge, then the edges coincide.
-        intersects = true;
-        locA = IntersectionLocation.None;
-        locB = IntersectionLocation.None;
-        intPnt = null;
-        intType = IntersectionType.Coincide;
-      } else {
+        } else {
 // OnEdge: startBOnEdgeA, and endBOnEdgeA
 // Since both points on the same edge are on the other one edge is contained by the other.
-        intersects = true;
-        locA = IntersectionLocation.None;
-        locB = IntersectionLocation.None;
-        intPnt = null;
-        intType = IntersectionType.Coincide;
-      }
-    } else if (startAOnEdgeB.onEdge) {
-      if (endAOnEdgeB.onEdge) {
+          intersects = true;
+          locA = IntersectionLocation.None;
+          locB = IntersectionLocation.None;
+          intPnt = null;
+          intType = IntersectionType.Coincide;
+        }
+      } else if (startAOnEdgeB.onEdge) {
+        if (endAOnEdgeB.onEdge) {
 // OnEdge: startBOnEdgeA, startAOnEdgeB, and endAOnEdgeB
 // If there are three points on an edge, then the edges coincide.
-        intersects = true;
-        locA = IntersectionLocation.None;
-        locB = IntersectionLocation.None;
-        intPnt = null;
-        intType = IntersectionType.Coincide;
-      } else {
+          intersects = true;
+          locA = IntersectionLocation.None;
+          locB = IntersectionLocation.None;
+          intPnt = null;
+          intType = IntersectionType.Coincide;
+        } else {
 // OnEdge: startBOnEdgeA, and startAOnEdgeB
+// Since only two points overlap the edges are either partially
+// coincident or they touch at the start point.
+          intersects = true;
+          if ((startBOnEdgeA.location == IntersectionLocation.InMiddle) ||
+              (startAOnEdgeB.location == IntersectionLocation.InMiddle)) {
+            locA = IntersectionLocation.None;
+            locB = IntersectionLocation.None;
+            intPnt = null;
+            intType = IntersectionType.Coincide;
+          } else {
+            locA = IntersectionLocation.AtStart;
+            locB = IntersectionLocation.AtStart;
+            intPnt = edgeA.start;
+            intType = (denom == 0) ? IntersectionType.Collinear : IntersectionType.Point;
+// ignore: prefer_asserts_with_message
+            assert(pointEquals(edgeA.start, edgeB.start));
+          }
+        }
+      } else if (endAOnEdgeB.onEdge) {
+// OnEdge: startBOnEdgeA, and endAOnEdgeB
 // Since only two points overlap the edges are either partially
 // coincident or they touch at the start point.
         intersects = true;
         if ((startBOnEdgeA.location == IntersectionLocation.InMiddle) ||
-            (startAOnEdgeB.location == IntersectionLocation.InMiddle)) {
+            (endAOnEdgeB.location == IntersectionLocation.InMiddle)) {
           locA = IntersectionLocation.None;
           locB = IntersectionLocation.None;
           intPnt = null;
           intType = IntersectionType.Coincide;
         } else {
-          locA = IntersectionLocation.AtStart;
+          locA = IntersectionLocation.AtEnd;
           locB = IntersectionLocation.AtStart;
-          intPnt = edgeA.start;
+          intPnt = edgeB.start;
           intType = (denom == 0) ? IntersectionType.Collinear : IntersectionType.Point;
 // ignore: prefer_asserts_with_message
-          assert(QTPointImpl.equals(edgeA.start, edgeB.start));
+          assert(pointEquals(edgeB.start, edgeA.end));
         }
-      }
-    } else if (endAOnEdgeB.onEdge) {
-// OnEdge: startBOnEdgeA, and endAOnEdgeB
-// Since only two points overlap the edges are either partially
-// coincident or they touch at the start point.
-      intersects = true;
-      if ((startBOnEdgeA.location == IntersectionLocation.InMiddle) ||
-          (endAOnEdgeB.location == IntersectionLocation.InMiddle)) {
-        locA = IntersectionLocation.None;
-        locB = IntersectionLocation.None;
-        intPnt = null;
-        intType = IntersectionType.Coincide;
       } else {
-        locA = IntersectionLocation.AtEnd;
-        locB = IntersectionLocation.AtStart;
-        intPnt = edgeB.start;
-        intType = (denom == 0) ? IntersectionType.Collinear : IntersectionType.Point;
-// ignore: prefer_asserts_with_message
-        assert(QTPointImpl.equals(edgeB.start, edgeA.end));
-      }
-    } else {
 // OnEdge: startBOnEdgeA
 // Since only one point is on an edge that point must be the
 // intersection in the middle of the edge.
-      intersects = true;
-      locA = IntersectionLocation.InMiddle;
-      locB = IntersectionLocation.AtStart;
-      intPnt = edgeB.start;
-      intType = IntersectionType.Point;
+        intersects = true;
+        locA = IntersectionLocation.InMiddle;
+        locB = IntersectionLocation.AtStart;
+        intPnt = edgeB.start;
+        intType = IntersectionType.Point;
 // ignore: prefer_asserts_with_message
-      assert(startBOnEdgeA.location == IntersectionLocation.InMiddle);
-    }
-  } else if (endBOnEdgeA.onEdge) {
-    if (startAOnEdgeB.onEdge) {
-      if (endAOnEdgeB.onEdge) {
+        assert(startBOnEdgeA.location == IntersectionLocation.InMiddle);
+      }
+    } else if (endBOnEdgeA.onEdge) {
+      if (startAOnEdgeB.onEdge) {
+        if (endAOnEdgeB.onEdge) {
 // OnEdge: endBOnEdgeA, startAOnEdgeB, and endAOnEdgeB
 // If there are three points on an edge, then the edges coincide.
-        intersects = true;
-        locA = IntersectionLocation.None;
-        locB = IntersectionLocation.None;
-        intPnt = null;
-        intType = IntersectionType.Coincide;
-      } else {
+          intersects = true;
+          locA = IntersectionLocation.None;
+          locB = IntersectionLocation.None;
+          intPnt = null;
+          intType = IntersectionType.Coincide;
+        } else {
 // OnEdge: endBOnEdgeA, and startAOnEdgeB
+// Since only two points overlap the edges are either partially
+// coincident or they touch at the start point.
+          intersects = true;
+          if ((endBOnEdgeA.location == IntersectionLocation.InMiddle) ||
+              (startAOnEdgeB.location == IntersectionLocation.InMiddle)) {
+            locA = IntersectionLocation.None;
+            locB = IntersectionLocation.None;
+            intPnt = null;
+            intType = IntersectionType.Coincide;
+          } else {
+            locA = IntersectionLocation.AtStart;
+            locB = IntersectionLocation.AtEnd;
+            intPnt = edgeA.start;
+            intType = (denom == 0) ? IntersectionType.Collinear : IntersectionType.Point;
+// ignore: prefer_asserts_with_message
+            assert(pointEquals(edgeA.start, edgeB.end));
+          }
+        }
+      } else if (endAOnEdgeB.onEdge) {
+// OnEdge: endBOnEdgeA, and endAOnEdgeB
 // Since only two points overlap the edges are either partially
 // coincident or they touch at the start point.
         intersects = true;
         if ((endBOnEdgeA.location == IntersectionLocation.InMiddle) ||
-            (startAOnEdgeB.location == IntersectionLocation.InMiddle)) {
+            (endAOnEdgeB.location == IntersectionLocation.InMiddle)) {
           locA = IntersectionLocation.None;
           locB = IntersectionLocation.None;
           intPnt = null;
           intType = IntersectionType.Coincide;
         } else {
-          locA = IntersectionLocation.AtStart;
+          locA = IntersectionLocation.AtEnd;
           locB = IntersectionLocation.AtEnd;
-          intPnt = edgeA.start;
+          intPnt = edgeA.end;
           intType = (denom == 0) ? IntersectionType.Collinear : IntersectionType.Point;
 // ignore: prefer_asserts_with_message
-          assert(QTPointImpl.equals(edgeA.start, edgeB.end));
+          assert(pointEquals(edgeA.end, edgeB.end));
         }
+      } else {
+// OnEdge: endBOnEdgeA
+// Since only one point is on an edge that point must be the
+// intersection in the middle of the edge.
+        intersects = true;
+        locA = IntersectionLocation.InMiddle;
+        locB = IntersectionLocation.AtEnd;
+        intPnt = edgeB.end;
+        intType = IntersectionType.Point;
+// ignore: prefer_asserts_with_message
+        assert(endBOnEdgeA.location == IntersectionLocation.InMiddle);
       }
-    } else if (endAOnEdgeB.onEdge) {
-// OnEdge: endBOnEdgeA, and endAOnEdgeB
-// Since only two points overlap the edges are either partially
-// coincident or they touch at the start point.
-      intersects = true;
-      if ((endBOnEdgeA.location == IntersectionLocation.InMiddle) ||
-          (endAOnEdgeB.location == IntersectionLocation.InMiddle)) {
+    } else if (startAOnEdgeB.onEdge) {
+      if (endAOnEdgeB.onEdge) {
+// OnEdge: startAOnEdgeB, and endAOnEdgeB
+// Since both points on the same edge are on the other one edge is contained by the other.
+        intersects = true;
         locA = IntersectionLocation.None;
         locB = IntersectionLocation.None;
         intPnt = null;
         intType = IntersectionType.Coincide;
       } else {
-        locA = IntersectionLocation.AtEnd;
-        locB = IntersectionLocation.AtEnd;
-        intPnt = edgeA.end;
-        intType = (denom == 0) ? IntersectionType.Collinear : IntersectionType.Point;
-// ignore: prefer_asserts_with_message
-        assert(QTPointImpl.equals(edgeA.end, edgeB.end));
-      }
-    } else {
-// OnEdge: endBOnEdgeA
-// Since only one point is on an edge that point must be the
-// intersection in the middle of the edge.
-      intersects = true;
-      locA = IntersectionLocation.InMiddle;
-      locB = IntersectionLocation.AtEnd;
-      intPnt = edgeB.end;
-      intType = IntersectionType.Point;
-// ignore: prefer_asserts_with_message
-      assert(endBOnEdgeA.location == IntersectionLocation.InMiddle);
-    }
-  } else if (startAOnEdgeB.onEdge) {
-    if (endAOnEdgeB.onEdge) {
-// OnEdge: startAOnEdgeB, and endAOnEdgeB
-// Since both points on the same edge are on the other one edge is contained by the other.
-      intersects = true;
-      locA = IntersectionLocation.None;
-      locB = IntersectionLocation.None;
-      intPnt = null;
-      intType = IntersectionType.Coincide;
-    } else {
 // OnEdge: startAOnEdgeB
 // Since only one point is on an edge that point must be the
 // intersection in the middle of the edge.
-      intersects = true;
-      locA = IntersectionLocation.AtStart;
-      locB = IntersectionLocation.InMiddle;
-      intPnt = edgeA.start;
-      intType = IntersectionType.Point;
+        intersects = true;
+        locA = IntersectionLocation.AtStart;
+        locB = IntersectionLocation.InMiddle;
+        intPnt = edgeA.start;
+        intType = IntersectionType.Point;
 // ignore: prefer_asserts_with_message
-      assert(startAOnEdgeB.location == IntersectionLocation.InMiddle);
-    }
-  } else if (endAOnEdgeB.onEdge) {
+        assert(startAOnEdgeB.location == IntersectionLocation.InMiddle);
+      }
+    } else if (endAOnEdgeB.onEdge) {
 // OnEdge: endAOnEdgeB
 // Since only one point is on an edge that point must be the
 // intersection in the middle of the edge.
-    intersects = true;
-    locA = IntersectionLocation.AtEnd;
-    locB = IntersectionLocation.InMiddle;
-    intPnt = edgeA.end;
-    intType = IntersectionType.Point;
-// ignore: prefer_asserts_with_message
-    assert(endAOnEdgeB.location == IntersectionLocation.InMiddle);
-  } else if (denom == 0) {
-// If there are no points on edge but the lines are parallel.
-    intersects = false;
-    locA = IntersectionLocation.None;
-    locB = IntersectionLocation.None;
-    intPnt = null;
-    if (startBOnEdgeA.onLine) {
-      intType = IntersectionType.Collinear;
-    } else {
-      intType = IntersectionType.Parallel;
-    }
-  } else {
-// Lines intersect at a point.
-    final int dABx = edgeA.x1 - edgeB.x1;
-    final int dABy = edgeA.y1 - edgeB.y1;
-    final int numA = (dABy * dBx) - (dABx * dBy);
-    final double rA = numA / denom;
-// Calculate the point of intersection.
-    intPnt = QTPointImpl((edgeA.x1 + rA * dAx).round(), (edgeA.y1 + rA * dAy).round());
-    final int numB = (dABy * dAx) - (dABx * dAy);
-    final double rB = numB / denom;
-// Find location of intersection location on edgeA.
-    if (QTPointImpl.equals(intPnt, edgeA.start)) {
-      locA = IntersectionLocation.AtStart;
       intersects = true;
-    } else if (QTPointImpl.equals(intPnt, edgeA.end)) {
       locA = IntersectionLocation.AtEnd;
-      intersects = true;
-    } else if (rA <= 0.0) {
-      locA = IntersectionLocation.BeforeStart;
-      intersects = false;
-    } else if (rA >= 1.0) {
-      locA = IntersectionLocation.PastEnd;
-      intersects = false;
-    } else {
-      locA = IntersectionLocation.InMiddle;
-      intersects = true;
-    }
-// Find location of intersection location on edgeB.
-    if (QTPointImpl.equals(intPnt, edgeB.start)) {
-      locB = IntersectionLocation.AtStart;
-    } else if (QTPointImpl.equals(intPnt, edgeB.end)) {
-      locB = IntersectionLocation.AtEnd;
-    } else if (rB <= 0.0) {
-      locB = IntersectionLocation.BeforeStart;
-      intersects = false;
-    } else if (rB >= 1.0) {
-      locB = IntersectionLocation.PastEnd;
-      intersects = false;
-    } else {
       locB = IntersectionLocation.InMiddle;
-    }
-    if (intersects) {
+      intPnt = edgeA.end;
       intType = IntersectionType.Point;
+// ignore: prefer_asserts_with_message
+      assert(endAOnEdgeB.location == IntersectionLocation.InMiddle);
+    } else if (denom == 0) {
+// If there are no points on edge but the lines are parallel.
+      intersects = false;
+      locA = IntersectionLocation.None;
+      locB = IntersectionLocation.None;
+      intPnt = null;
+      if (startBOnEdgeA.onLine) {
+        intType = IntersectionType.Collinear;
+      } else {
+        intType = IntersectionType.Parallel;
+      }
     } else {
-      intType = IntersectionType.None;
+// Lines intersect at a point.
+      final dABx = edgeA.x1 - edgeB.x1;
+      final dABy = edgeA.y1 - edgeB.y1;
+      final numA = (dABy * dBx) - (dABx * dBy);
+      final rA = numA / denom;
+// Calculate the point of intersection.
+      intPnt = QTPointImpl((edgeA.x1 + rA * dAx).round(), (edgeA.y1 + rA * dAy).round());
+      final numB = (dABy * dAx) - (dABx * dAy);
+      final rB = numB / denom;
+// Find location of intersection location on edgeA.
+      if (pointEquals(intPnt, edgeA.start)) {
+        locA = IntersectionLocation.AtStart;
+        intersects = true;
+      } else if (pointEquals(intPnt, edgeA.end)) {
+        locA = IntersectionLocation.AtEnd;
+        intersects = true;
+      } else if (rA <= 0.0) {
+        locA = IntersectionLocation.BeforeStart;
+        intersects = false;
+      } else if (rA >= 1.0) {
+        locA = IntersectionLocation.PastEnd;
+        intersects = false;
+      } else {
+        locA = IntersectionLocation.InMiddle;
+        intersects = true;
+      }
+      // Find location of intersection location on edgeB.
+      if (pointEquals(intPnt, edgeB.start)) {
+        locB = IntersectionLocation.AtStart;
+      } else if (pointEquals(intPnt, edgeB.end)) {
+        locB = IntersectionLocation.AtEnd;
+      } else if (rB <= 0.0) {
+        locB = IntersectionLocation.BeforeStart;
+        intersects = false;
+      } else if (rB >= 1.0) {
+        locB = IntersectionLocation.PastEnd;
+        intersects = false;
+      } else {
+        locB = IntersectionLocation.InMiddle;
+      }
+      if (intersects) {
+        intType = IntersectionType.Point;
+      } else {
+        intType = IntersectionType.None;
+      }
     }
+    return IntersectionResultImpl(
+      edgeA,
+      edgeB,
+      intersects,
+      intType,
+      intPnt,
+      locA,
+      locB,
+      startBOnEdgeA,
+      endBOnEdgeA,
+      startAOnEdgeB,
+      endAOnEdgeB,
+    );
   }
-  return IntersectionResultImpl(
-    edgeA,
-    edgeB,
-    intersects,
-    intType,
-    intPnt,
-    locA,
-    locB,
-    startBOnEdgeA,
-    endBOnEdgeA,
-    startAOnEdgeB,
-    endAOnEdgeB,
-  );
 }
 
 /// The result information for a two edge intersection.
-abstract class IntersectionResult implements Comparable<IntersectionResult> {
+abstract class IntersectionResult {
   /// The first edge in the intersection.
   QTEdge get edgeA;
 
@@ -342,16 +346,21 @@ abstract class IntersectionResult implements Comparable<IntersectionResult> {
   /// Returns 1 if this intersection's edges are larger,
   /// -1 if the other intersection is larger,
   /// 0 if they have the same edges.
-  @override
-  int compareTo(IntersectionResult o);
+  int compareTo(
+    final IntersectionResult o,
+  );
 
   /// Checks if this intersection is the same as the other intersection.
   /// Returns true if the two intersection results are the same, false otherwise.
-  bool equals(Object? o);
+  bool equals(
+    final Object? o,
+  );
 
   /// Gets the string of for this intersection result.
   @override
-  String toString([String separator = ", "]);
+  String toString([
+    final String separator = ", ",
+  ]);
 }
 
 /// The types of intersections between two lines.
@@ -378,11 +387,17 @@ enum IntersectionType {
   Point
 }
 
-class IntersectionResultImpl implements IntersectionResult, Comparable<IntersectionResult> {
+class IntersectionResultImpl implements IntersectionResult {
   /// Checks if the two results are the same.
-  static bool equalResults(IntersectionResult? a, IntersectionResult? b) {
-    if (a == null) return b == null;
-    return a.equals(b);
+  static bool equalResults(
+    final IntersectionResult? a,
+    final IntersectionResult? b,
+  ) {
+    if (a == null) {
+      return b == null;
+    } else {
+      return a.equals(b);
+    }
   }
 
   /// The first edge in the intersection.
@@ -431,34 +446,52 @@ class IntersectionResultImpl implements IntersectionResult, Comparable<Intersect
   final PointOnEdgeResult endAOnEdgeB;
 
   /// Creates a new intersection result.
-  IntersectionResultImpl(this.edgeA, this.edgeB, this.intersects, this.type, this.point, this.locA, this.locB,
-      this.startBOnEdgeA, this.endBOnEdgeA, this.startAOnEdgeB, this.endAOnEdgeB);
+  IntersectionResultImpl(
+    final this.edgeA,
+    final this.edgeB,
+    final this.intersects,
+    final this.type,
+    final this.point,
+    final this.locA,
+    final this.locB,
+    final this.startBOnEdgeA,
+    final this.endBOnEdgeA,
+    final this.startAOnEdgeB,
+    final this.endAOnEdgeB,
+  );
 
   /// Compares this intersection with the other intersection.
   /// Returns 1 if this intersection's edges are larger,
   /// -1 if the other intersection is larger,
   /// 0 if they have the same edges.
   @override
-  int compareTo(IntersectionResult o) {
-    final int cmp = QTEdgeImpl.compare(edgeA, o.edgeA);
-    if (cmp != 0) return cmp;
-    return QTEdgeImpl.compare(edgeB, o.edgeB);
+  int compareTo(
+    final IntersectionResult o,
+  ) {
+    final cmp = qtEdgeCompare(edgeA, o.edgeA);
+    if (cmp != 0) {
+      return cmp;
+    } else {
+      return qtEdgeCompare(edgeB, o.edgeB);
+    }
   }
 
   /// Checks if this intersection is the same as the other intersection.
   /// Returns true if the two intersection results are the same, false otherwise.
   @override
-  bool equals(Object? o) {
+  bool equals(
+    final Object? o,
+  ) {
     if (o == null) return false;
     if (o is IntersectionResult) return false;
-    final IntersectionResult other = o as IntersectionResult;
-    if (!QTEdgeImpl.equals(edgeA, other.edgeA, false)) return false;
-    if (!QTEdgeImpl.equals(edgeB, other.edgeB, false)) return false;
+    final other = o as IntersectionResult;
+    if (!qtEdgeEquals(edgeA, other.edgeA, false)) return false;
+    if (!qtEdgeEquals(edgeB, other.edgeB, false)) return false;
     if (intersects != other.intersects) return false;
     if (type != other.type) return false;
     if (locA != other.locA) return false;
     if (locB != other.locB) return false;
-    if (!QTPointImpl.equals(point, other.point)) return false;
+    if (!pointEquals(point, other.point)) return false;
     if (!PointOnEdgeResultImpl.equalResults(startBOnEdgeA, other.startBOnEdgeA)) return false;
     if (!PointOnEdgeResultImpl.equalResults(endBOnEdgeA, other.endBOnEdgeA)) return false;
     if (!PointOnEdgeResultImpl.equalResults(startAOnEdgeB, other.startAOnEdgeB)) return false;
@@ -468,7 +501,9 @@ class IntersectionResultImpl implements IntersectionResult, Comparable<Intersect
 
   /// Gets the string of for this intersection result.
   @override
-  String toString([String separator = ", "]) {
+  String toString([
+    final String separator = ", ",
+  ]) {
     return "(edgeA:$edgeA, edgeB$edgeB, " +
         (intersects ? "intersects" : "misses") +
         ", $type, point:$point, $locA, $locB" +
@@ -482,15 +517,24 @@ class IntersectionResultImpl implements IntersectionResult, Comparable<Intersect
 /// A set of edge nodes.
 abstract class IntersectionSet {
   /// Contains an edge in the first, "A", intersection edge.
-  bool constainsA(QTEdge edge);
+  bool constainsA(
+    final QTEdge edge,
+  );
 
   /// Contains an edge in the second, "B", intersection edge.
-  bool constainsB(QTEdge edge);
+  bool constainsB(
+    final QTEdge edge,
+  );
 
   /// Formats the intersections into a string.
-  void toBuffer(StringBuffer sout, String indent);
+  void toBuffer(
+    final StringBuffer sout,
+    final String indent,
+  );
 
-  void add(IntersectionResult result);
+  void add(
+    final IntersectionResult result,
+  );
 }
 
 class IntersectionSetImpl implements IntersectionSet {
@@ -505,9 +549,11 @@ class IntersectionSetImpl implements IntersectionSet {
 
   /// Contains an edge in the first, "A", intersection edge.
   @override
-  bool constainsA(QTEdge edge) {
-    for (final IntersectionResult inter in _set) {
-      if (QTEdgeImpl.equals(inter.edgeA, edge, false)) {
+  bool constainsA(
+    final QTEdge edge,
+  ) {
+    for (final inter in _set) {
+      if (qtEdgeEquals(inter.edgeA, edge, false)) {
         return true;
       }
     }
@@ -522,9 +568,11 @@ class IntersectionSetImpl implements IntersectionSet {
 
   /// Contains an edge in the second, "B", intersection edge.
   @override
-  bool constainsB(QTEdge edge) {
+  bool constainsB(
+    final QTEdge edge,
+  ) {
     for (final inter in _set) {
-      if (QTEdgeImpl.equals(inter.edgeB, edge, false)) {
+      if (qtEdgeEquals(inter.edgeB, edge, false)) {
         return true;
       }
     }
@@ -533,9 +581,12 @@ class IntersectionSetImpl implements IntersectionSet {
 
   /// Formats the intersections into a string.
   @override
-  void toBuffer(StringBuffer sout, String indent) {
+  void toBuffer(
+    final StringBuffer sout,
+    final String indent,
+  ) {
     bool first = true;
-    for (final IntersectionResult inter in _set) {
+    for (final inter in _set) {
       if (first) {
         first = false;
       } else {
@@ -548,7 +599,7 @@ class IntersectionSetImpl implements IntersectionSet {
   /// Formats the set into a string.
   @override
   String toString() {
-    final StringBuffer sout = StringBuffer();
+    final sout = StringBuffer();
     toBuffer(sout, "");
     return sout.toString();
   }

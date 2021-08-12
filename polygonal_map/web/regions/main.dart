@@ -1,44 +1,41 @@
-// @dart = 2.9
 import 'dart:html' as html;
 
 import 'package:plotter_dart/framework/events/events.dart';
 import 'package:plotter_dart/framework/events/events_impl.dart';
 import 'package:plotter_dart/framework/mouse/mouse_handle.dart';
 import 'package:plotter_dart/framework/mouse/mouse_handle_impl.dart';
+import 'package:plotter_dart/framework/plot/impl/html/svg.dart';
 import 'package:plotter_dart/framework/plotter/plotter_impl.dart';
 import 'package:plotter_dart/framework/plotter_item/plotter_item.dart';
 import 'package:plotter_dart/framework/plotter_item/plotter_item_impl.dart';
 import 'package:plotter_dart/framework/primitives/primitives.dart';
 import 'package:plotter_dart/framework/primitives/primitives_impl.dart';
-import 'package:plotter_dart/impl/html_svg.dart';
-import 'package:polyonal_map_dart/maps.dart' as maps;
+import 'package:polyonal_map_dart/maps/regions.dart';
 import 'package:polyonal_map_dart/plotter.dart' as qt_plot;
-import 'package:polyonal_map_dart/quadtree/boundary/boundary_impl.dart';
-import 'package:polyonal_map_dart/quadtree/point/point_impl.dart';
-import 'package:polyonal_map_dart/quadtree/quadtree_impl.dart';
+import 'package:polyonal_map_dart/quadtree/point/impl.dart';
 
 void main() {
   html.document.title = "Points & Lines";
-  final html.BodyElement body = html.document.body;
-  final html.DivElement menu = html.DivElement();
+  final body = html.document.body!;
+  final menu = html.DivElement();
   menu.className = "menu";
   body.append(menu);
-  final html.DivElement plotElem = html.DivElement();
+  final plotElem = html.DivElement();
   plotElem.className = "plot_target";
   body.append(plotElem);
-  final qt_plot.QuadTreePlotter plot = qt_plot.QuadTreePlotter();
-  final PlotSvg svgPlot = PlotSvg.fromElem(plotElem, plot.plotter);
-  final Driver dvr = Driver(svgPlot, plot);
+  final plot = qt_plot.QuadTreePlotter();
+  final svgPlot = PlotHtmlSvg(plotElem, plot.plotter);
+  final dvr = Driver(svgPlot, plot);
   addMenuView(menu, dvr);
   addMenuTools(menu, dvr);
 }
 
 void addMenuView(html.DivElement menu, Driver dvr) {
-  final html.DivElement dropDown = html.DivElement()..className = "dropdown";
+  final dropDown = html.DivElement()..className = "dropdown";
   menu.append(dropDown);
-  final html.DivElement text = html.DivElement()..text = "View";
+  final text = html.DivElement()..text = "View";
   dropDown.append(text);
-  final html.DivElement items = html.DivElement()..className = "dropdown-content";
+  final items = html.DivElement()..className = "dropdown-content";
   dropDown.append(items);
   addMenuItem(items, "Center View", dvr.centerView);
   addMenuItem(items, "Points", dvr.points);
@@ -52,11 +49,11 @@ void addMenuView(html.DivElement menu, Driver dvr) {
 }
 
 void addMenuTools(html.DivElement menu, Driver dvr) {
-  final html.DivElement dropDown = html.DivElement()..className = "dropdown";
+  final dropDown = html.DivElement()..className = "dropdown";
   menu.append(dropDown);
-  final html.DivElement text = html.DivElement()..text = "Tools";
+  final text = html.DivElement()..text = "Tools";
   dropDown.append(text);
-  final html.DivElement items = html.DivElement()..className = "dropdown-content";
+  final items = html.DivElement()..className = "dropdown-content";
   dropDown.append(items);
   addMenuItem(items, "Pan View", dvr.panView);
   addMenuItem(items, "Add Polygon 1", dvr.addPolygon1);
@@ -71,7 +68,7 @@ void addMenuTools(html.DivElement menu, Driver dvr) {
 }
 
 void addMenuItem(html.DivElement dropDownItems, String text, BoolValue value) {
-  final html.DivElement item = html.DivElement()
+  final item = html.DivElement()
     ..text = text
     ..className = (value.value ? "dropdown-item-active" : "dropdown-item-inactive")
     ..onClick.listen(
@@ -91,18 +88,17 @@ typedef OnBoolValueChange = void Function(bool newValue);
 /// Boolean value handler for keeping track of changes in the UI and driver.
 /// Kind of like a mini-store variable.
 class BoolValue {
-  bool _toggle;
+  final bool _toggle;
   bool _value;
-  List<OnBoolValueChange> _changed;
+  final List<OnBoolValueChange> _changed;
 
   /// Creates a new boolean value.
   /// [toggle] indicates if the value will changed to true when value is false
   /// and false when the value is true or if the value should only be set to true on click.
-  BoolValue(bool toggle, [bool value = false]) {
-    _toggle = toggle;
-    _value = value;
-    _changed = <OnBoolValueChange>[];
-  }
+  BoolValue(bool toggle, [bool value = false])
+      : _toggle = toggle,
+        _value = value,
+        _changed = <OnBoolValueChange>[];
 
   /// Handles the value being clicked on.
   void onClick() {
@@ -117,7 +113,7 @@ class BoolValue {
   set value(bool value) {
     if (_value != value) {
       _value = value;
-      for (final OnBoolValueChange hndl in _changed) {
+      for (final hndl in _changed) {
         hndl(_value);
       }
     }
@@ -133,40 +129,40 @@ class BoolValue {
 enum Tool { None, PanView, AddPolygon, CheckRegion }
 
 class Driver {
-  final PlotSvg _svgPlot;
+  final PlotHtmlSvg _svgPlot;
   final qt_plot.QuadTreePlotter _plot;
-  maps.Regions _regions;
-  qt_plot.QuadTree _plotItem;
+  late Regions _regions;
+  late qt_plot.QuadTreeGroup _plotItem;
 
-  BoolValue _centerView;
-  BoolValue _points;
-  BoolValue _lines;
-  BoolValue _emptyNodes;
-  BoolValue _branchNodes;
-  BoolValue _passNodes;
-  BoolValue _pointNodes;
-  BoolValue _boundary;
-  BoolValue _rootBoundary;
+  late BoolValue _centerView;
+  late BoolValue _points;
+  late BoolValue _lines;
+  late BoolValue _emptyNodes;
+  late BoolValue _branchNodes;
+  late BoolValue _passNodes;
+  late BoolValue _pointNodes;
+  late BoolValue _boundary;
+  late BoolValue _rootBoundary;
 
-  BoolValue _panView;
-  BoolValue _addPolygon1;
-  BoolValue _addPolygon2;
-  BoolValue _addPolygon3;
-  BoolValue _addPolygon4;
-  BoolValue _addPolygon5;
-  BoolValue _checkRegion;
-  BoolValue _validate;
-  BoolValue _printTree;
-  BoolValue _clearAll;
+  late BoolValue _panView;
+  late BoolValue _addPolygon1;
+  late BoolValue _addPolygon2;
+  late BoolValue _addPolygon3;
+  late BoolValue _addPolygon4;
+  late BoolValue _addPolygon5;
+  late BoolValue _checkRegion;
+  late BoolValue _validate;
+  late BoolValue _printTree;
+  late BoolValue _clearAll;
 
-  Tool _selectedTool;
-  MousePan _shiftPanViewTool;
-  MousePan _panViewTool;
-  PolygonAdder _polygonAdderTool;
-  RegionChecker _regionCheckTool;
+  late Tool _selectedTool;
+  late PlotterMousePan _shiftPanViewTool;
+  late PlotterMousePan _panViewTool;
+  late PolygonAdder _polygonAdderTool;
+  late RegionChecker _regionCheckTool;
 
   Driver(this._svgPlot, this._plot) {
-    _regions = maps.Regions();
+    _regions = Regions();
     _plotItem = _plot.addTree(_regions.tree);
     _selectedTool = Tool.None;
     _centerView = BoolValue(false)..onChange.add(_onCenterViewChange);
@@ -191,7 +187,7 @@ class Driver {
     _shiftPanViewTool = makeMousePan(
       _plot.plotter.view,
       _plot.plotter.setViewOffset,
-      const MouseButtonStateImpl(
+      const PlotterMouseButtonStateImpl(
         button: 0,
         shiftKey: true,
       ),
@@ -199,14 +195,14 @@ class Driver {
     _panViewTool = makeMousePan(
       _plot.plotter.view,
       _plot.plotter.setViewOffset,
-      const MouseButtonStateImpl(button: 0),
+      const PlotterMouseButtonStateImpl(button: 0),
     );
     _polygonAdderTool = PolygonAdder(
       _regions,
       _plot,
       _plotItem,
-      const MouseButtonStateImpl(button: 0),
-      const MouseButtonStateImpl(
+      const PlotterMouseButtonStateImpl(button: 0),
+      const PlotterMouseButtonStateImpl(
         button: 0,
         ctrlKey: true,
       ),
@@ -264,7 +260,7 @@ class Driver {
   void _onCenterViewChange(bool value) {
     if (value) {
       _centerView.value = false;
-      final QTBoundaryImpl bounds = _regions.tree.boundary;
+      final bounds = _regions.tree.boundary;
       if (bounds.empty) {
         _plot.plotter.focusOnBounds(BoundsImpl(-100.0, -100.0, 100.0, 100.0));
       } else {
@@ -397,28 +393,27 @@ class Driver {
 
 /// A mouse handler for adding lines.
 class PolygonAdder implements PlotterMouseHandle {
-  final MouseButtonState _addPointState;
-  final MouseButtonState _finishRegionState;
+  final PlotterMouseButtonState _addPointState;
+  final PlotterMouseButtonState _finishRegionState;
   final qt_plot.QuadTreePlotter _plot;
-  final qt_plot.QuadTree _plotItem;
-  final maps.Regions _regions;
+  final qt_plot.QuadTreeGroup _plotItem;
+  final Regions _regions;
   bool _enabled;
   int regionId;
   bool _mouseDown;
-  List<QTPointImpl> _points;
-  Lines _tempLines;
+  final List<QTPointImpl> _points;
+  final Lines _tempLines;
 
   /// Creates a new mouse handler for adding lines.
-  PolygonAdder(this._regions, this._plot, this._plotItem, this._addPointState, this._finishRegionState) {
-    _enabled = true;
-    regionId = 1;
-    _mouseDown = false;
-    _points = <QTPointImpl>[];
-    _tempLines = _plot.plotter.addLines([])
-      ..addPointSize(5.0)
-      ..addDirected(true)
-      ..addColor(1.0, 0.0, 0.0);
-  }
+  PolygonAdder(this._regions, this._plot, this._plotItem, this._addPointState, this._finishRegionState)
+      : _enabled = true,
+        regionId = 1,
+        _mouseDown = false,
+        _points = <QTPointImpl>[],
+        _tempLines = _plot.plotter.addLines([])
+          ..addPointSize(5.0)
+          ..addDirected(true)
+          ..addColor(1.0, 0.0, 0.0);
 
   /// Indicates of the point adder tool is enabled or not.
   bool get enabled => _enabled;
@@ -432,7 +427,7 @@ class PolygonAdder implements PlotterMouseHandle {
   void _printRegion() {
     String result = "";
     bool first = true;
-    for (final QTPointImpl pnt in _points) {
+    for (final pnt in _points) {
       if (first) {
         result += "{";
         first = false;
@@ -463,25 +458,25 @@ class PolygonAdder implements PlotterMouseHandle {
   }
 
   /// Translates the mouse location into the tree space based on the view.
-  List<double> _transMouse(MouseEvent e) {
-    final Transformer trans = e.projection.mul(_plot.plotter.view);
+  List<double> _transMouse(PlotterMouseEvent e) {
+    final trans = e.projection.mul(_plot.plotter.view);
     return [trans.untransformX(e.x), trans.untransformY(e.window.ymax - e.y)];
   }
 
   /// handles mouse down.
   @override
-  void mouseDown(MouseEvent e) {
+  void mouseDown(PlotterMouseEvent e) {
     if (_enabled) {
       if (e.state.equals(_finishRegionState)) {
         finishRegion();
         e.redraw = true;
       } else if (e.state.equals(_addPointState)) {
         _mouseDown = true;
-        final List<double> loc = _transMouse(e);
-        final double x = loc[0].roundToDouble();
-        final double y = loc[1].roundToDouble();
+        final loc = _transMouse(e);
+        final x = loc[0].roundToDouble();
+        final y = loc[1].roundToDouble();
         if (_tempLines.count > 0) {
-          final List<double> last = _tempLines.get(_tempLines.count - 1, 1);
+          final last = _tempLines.get(_tempLines.count - 1, 1);
           _tempLines.add([last[2], last[3], x, y]);
         } else {
           _tempLines.add([x, y, x, y]);
@@ -494,10 +489,10 @@ class PolygonAdder implements PlotterMouseHandle {
 
   /// handles mouse moved.
   @override
-  void mouseMove(MouseEvent e) {
+  void mouseMove(PlotterMouseEvent e) {
     if (_mouseDown) {
-      final List<double> loc = _transMouse(e);
-      final List<double> last = _tempLines.get(_tempLines.count - 1, 1);
+      final loc = _transMouse(e);
+      final last = _tempLines.get(_tempLines.count - 1, 1);
       _tempLines.set(_tempLines.count - 1, [last[0], last[1], loc[0].roundToDouble(), loc[1].roundToDouble()]);
       e.redraw = true;
     }
@@ -505,15 +500,15 @@ class PolygonAdder implements PlotterMouseHandle {
 
   /// handles mouse up.
   @override
-  void mouseUp(MouseEvent e) {
+  void mouseUp(PlotterMouseEvent e) {
     if (_mouseDown) {
-      final List<double> loc = _transMouse(e);
-      final List<double> last = _tempLines.get(_tempLines.count - 1, 1);
+      final loc = _transMouse(e);
+      final last = _tempLines.get(_tempLines.count - 1, 1);
       _tempLines.set(_tempLines.count - 1, [last[0], last[1], loc[0].roundToDouble(), loc[1].roundToDouble()]);
       if (_points.isNotEmpty) {
-        final QTPointImpl lastPnt = _points[_points.length - 1];
-        final int x = loc[0].round();
-        final int y = loc[1].round();
+        final lastPnt = _points[_points.length - 1];
+        final x = loc[0].round();
+        final y = loc[1].round();
         if ((lastPnt.x != x) || (lastPnt.y != y)) _points.add(QTPointImpl(x, y));
       } else {
         _points.add(QTPointImpl(loc[0].round(), loc[1].round()));
@@ -538,19 +533,23 @@ List<Color> regionColors = [
 /// A mouse handler for adding lines.
 class RegionChecker implements PlotterMouseHandle {
   final qt_plot.QuadTreePlotter _plot;
-  final qt_plot.QuadTree _plotItem; // ignore: unused_field
-  final maps.Regions _regions;
+  final qt_plot.QuadTreeGroup _plotItem; // ignore: unused_field
+  final Regions _regions;
   bool _enabled;
-  Lines _lines;
-  ColorAttr _pointColor;
-  Points _points;
+  final Lines _lines;
+  final ColorAttr _pointColor;
+  final Points _points;
 
   /// Creates a new mouse handler for adding lines.
-  RegionChecker(this._regions, this._plot, this._plotItem) {
-    _enabled = true;
-    _lines = _plot.plotter.addLines([])..addColor(1.0, 0.5, 0.5);
-    _pointColor = ColorAttrImpl.rgb(0.0, 0.0, 0.0);
-    _points = _plot.plotter.addPoints([])
+  RegionChecker(
+    final this._regions,
+    final this._plot,
+    final this._plotItem,
+  )   : _enabled = true,
+        _lines = _plot.plotter.addLines([])..addColor(1.0, 0.5, 0.5),
+        _pointColor = ColorAttrImpl.rgb(0.0, 0.0, 0.0),
+        _points = _plot.plotter.addPoints([]) {
+    _points
       ..addPointSize(5.0)
       ..addAttr(_pointColor);
   }
@@ -565,41 +564,41 @@ class RegionChecker implements PlotterMouseHandle {
   }
 
   /// Translates the mouse location into the tree space based on the view.
-  List<double> _transMouse(MouseEvent e) {
-    final Transformer trans = e.projection.mul(_plot.plotter.view);
+  List<double> _transMouse(PlotterMouseEvent e) {
+    final trans = e.projection.mul(_plot.plotter.view);
     return [trans.untransformX(e.x), trans.untransformY(e.window.ymax - e.y)];
   }
 
   /// handles mouse down.
   @override
-  void mouseDown(MouseEvent e) {
+  void mouseDown(PlotterMouseEvent e) {
     if (_enabled) {
-      final List<double> loc = _transMouse(e);
-      final int x = loc[0].round();
-      final int y = loc[1].round();
-      final QTPointImpl pnt = QTPointImpl(x, y);
-      final int region = _regions.getRegion(pnt);
+      final loc = _transMouse(e);
+      final x = loc[0].round();
+      final y = loc[1].round();
+      final pnt = QTPointImpl(x, y);
+      final region = _regions.getRegion(pnt);
       print("[$x, $y] -> $region");
     }
   }
 
   /// handles mouse moved.
   @override
-  void mouseMove(MouseEvent e) {
+  void mouseMove(PlotterMouseEvent e) {
     if (_enabled) {
-      final List<double> loc = _transMouse(e);
-      final int x = loc[0].round();
-      final int y = loc[1].round();
-      final QTPointImpl pnt = QTPointImpl(x, y);
+      final loc = _transMouse(e);
+      final x = loc[0].round();
+      final y = loc[1].round();
+      final pnt = QTPointImpl(x, y);
       _points.clear();
-      final int region = _regions.getRegion(pnt);
+      final region = _regions.getRegion(pnt);
       _pointColor.color = regionColors[region];
       _points.add([x.toDouble(), y.toDouble()]);
       _lines.clear();
-      final QTEdgeNodeImpl edge = _regions.tree.firstLeftEdge(pnt);
+      final edge = _regions.tree.firstLeftEdge(pnt);
       if (edge != null) {
         _lines.add([edge.start.x.toDouble(), edge.start.y.toDouble(), edge.end.x.toDouble(), edge.end.y.toDouble()]);
-        final double x = (pnt.y - edge.start.y) * edge.dx / edge.dy + edge.start.x;
+        final x = (pnt.y - edge.start.y) * edge.dx / edge.dy + edge.start.x;
         _lines.add([pnt.x.toDouble(), pnt.y.toDouble(), x, pnt.y.toDouble()]);
       }
       e.redraw = true;
@@ -608,5 +607,5 @@ class RegionChecker implements PlotterMouseHandle {
 
   /// handles mouse up.
   @override
-  void mouseUp(MouseEvent e) {}
+  void mouseUp(PlotterMouseEvent e) {}
 }

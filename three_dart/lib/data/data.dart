@@ -26,7 +26,7 @@ class WebGLBuffer implements Buffer {
   /// Creates a new WebGL buffer from a double list of data.
   /// Typically used for creating a vertex buffer, ARRAY_BUFFER.
   factory WebGLBuffer.fromDoubleList(web_gl.RenderingContext2 gl, int bufType, List<double> data) {
-    final web_gl.Buffer buffer = gl.createBuffer();
+    final buffer = gl.createBuffer();
     gl.bindBuffer(bufType, buffer);
     gl.bufferData(bufType, typed.Float32List.fromList(data), web_gl.WebGL.STATIC_DRAW);
     gl.bindBuffer(bufType, null);
@@ -36,7 +36,7 @@ class WebGLBuffer implements Buffer {
   /// Creates a new WebGL buffer from a integer list of data.
   /// Typically used for creating an index buffer, ELEMENT_ARRAY_BUFFER.
   factory WebGLBuffer.fromIntList(web_gl.RenderingContext2 gl, int bufType, List<int> data) {
-    final web_gl.Buffer buffer = gl.createBuffer();
+    final buffer = gl.createBuffer();
     gl.bindBuffer(bufType, buffer);
     gl.bufferData(bufType, typed.Int16List.fromList(data), web_gl.WebGL.STATIC_DRAW);
     gl.bindBuffer(bufType, null);
@@ -82,7 +82,7 @@ class TestDoubleBuffer implements Buffer {
   /// Gets the string for this buffer.
   @override
   String toString() {
-    final List<String> parts = [];
+    final parts = <String>[];
     for (int i = 0; i < this._buf.length; ++i) {
       parts.add(math.formatDouble(this._buf[i]));
     }
@@ -116,7 +116,7 @@ class TestIntBuffer implements Buffer {
   /// Gets the string for this buffer.
   @override
   String toString() {
-    final List<String> parts = [];
+    final parts = <String>[];
     for (int i = 0; i < this._buf.length; ++i) {
       parts.add("${this._buf[i]}");
     }
@@ -262,7 +262,7 @@ class BufferStore implements core.Bindable, TechniqueCache {
 
   /// Finds the attribute which has the given type.
   BufferAttr? findAttribute(VertexType type) {
-    for (final BufferAttr attr in this._attrs) {
+    for (final attr in this._attrs) {
       if (attr._type.has(type)) return attr;
     }
     return null;
@@ -290,9 +290,9 @@ class BufferStore implements core.Bindable, TechniqueCache {
   ///
   /// The buffer must be bound to the state first.
   void render(core.RenderState state) {
-    final int objCount = this._indexObjs.length;
+    final objCount = this._indexObjs.length;
     for (int i = 0; i < objCount; i++) {
-      final IndexObject indexObj = this._indexObjs[i];
+      final indexObj = this._indexObjs[i];
       indexObj.buffer.bind(state);
       state.gl.drawElements(indexObj.type, indexObj.count, web_gl.WebGL.UNSIGNED_SHORT, 0);
       indexObj.buffer.unbind(state);
@@ -309,12 +309,12 @@ class BufferStore implements core.Bindable, TechniqueCache {
   /// Gets the string for this buffer store.
   @override
   String toString() {
-    final List<String> indexStr = [];
-    for (final IndexObject obj in this._indexObjs) {
+    final indexStr = <String>[];
+    for (final obj in this._indexObjs) {
       indexStr.add(obj.toString());
     }
-    final List<String> attrStr = [];
-    for (final BufferAttr attr in this._attrs) {
+    final attrStr = <String>[];
+    for (final attr in this._attrs) {
       attrStr.add(attr.toString());
     }
     return "Buffer:  [${this._vertexBuf}]\nIndices: ${indexStr.join(", ")}\nAttrs:   ${attrStr.join(", ")}";
@@ -602,7 +602,7 @@ class VertexType {
   /// The string for this vertex type.
   @override
   String toString() {
-    final List<String> parts = [];
+    final parts = <String>[];
     if (this.has(Pos)) parts.add("Pos");
     if (this.has(Norm)) parts.add("Norm");
     if (this.has(Binm)) parts.add("Binm");

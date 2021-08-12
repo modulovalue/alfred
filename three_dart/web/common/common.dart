@@ -12,8 +12,10 @@ void showFPS(
     Timer.periodic(
       const Duration(milliseconds: 5000),
       (final time) {
-        final String fps = td.fps.toStringAsFixed(2);
-        if (fps != "0.00") print("$fps fps");
+        final fps = td.fps.toStringAsFixed(2);
+        if (fps != "0.00") {
+          print("$fps fps");
+        }
       },
     );
 
@@ -98,34 +100,43 @@ class ShellPage {
   DivElement _page;
   Tokenizer? _parTokenizer;
 
+  // TODO this should have a declarative api.
   /// Creates a new shell page with an optional [title].
-  factory ShellPage([String title = "", bool showTopTitle = true]) {
-    final BodyElement? body = document.body;
-    if (body == null) throw Exception('The html document body was null.');
-    final DivElement scrollTop = DivElement()..className = "scrollTop";
-    body.append(scrollTop);
-    final DivElement scrollPage = DivElement()..className = "scrollPage";
-    body.append(scrollPage);
-    final DivElement pageCenter = DivElement()..className = "pageCenter";
-    scrollPage.append(pageCenter);
-    if (title.isNotEmpty) {
-      document.title = title;
-      if (showTopTitle) {
-        final DivElement titleElem = DivElement()
-          ..className = "pageTitle"
-          ..text = title;
-        pageCenter.append(titleElem);
+  factory ShellPage([
+    final String title = "",
+    final bool showTopTitle = true,
+  ]) {
+    final body = document.body;
+    if (body == null) {
+      throw Exception('The html document body was null.');
+    } else {
+      final scrollTop = DivElement()..className = "scrollTop";
+      body.append(scrollTop);
+      final scrollPage = DivElement()..className = "scrollPage";
+      body.append(scrollPage);
+      final pageCenter = DivElement()..className = "pageCenter";
+      scrollPage.append(pageCenter);
+      if (title.isNotEmpty) {
+        document.title = title;
+        if (showTopTitle) {
+          final titleElem = DivElement()
+            ..className = "pageTitle"
+            ..text = title;
+          pageCenter.append(titleElem);
+        }
       }
+      final page = DivElement();
+      pageCenter.append(page);
+      document.onScroll.listen(
+        (final e) => Timer.run(
+          () {
+            final offset = document.documentElement?.scrollTop ?? 0;
+            scrollTop.style.top = "${-0.01 * offset}px";
+          },
+        ),
+      );
+      return ShellPage._(page);
     }
-    final page = DivElement();
-    pageCenter.append(page);
-    document.onScroll.listen((Event e) {
-      Timer.run(() {
-        final int offset = document.documentElement?.scrollTop ?? 0;
-        scrollTop.style.top = "${-0.01 * offset}px";
-      });
-    });
-    return ShellPage._(page);
   }
 
   /// Creates a new shell page.
@@ -226,11 +237,19 @@ class ShellPage {
   }
 
   /// Gets the code parser for the given [lang].
-  CodeParser getCodeParser(String lang) {
-    // Full list of parsers, add more as needed.
-    final List<CodeParser?> parsers = [DartParser(), GLSLParser(), HTMLParser()];
-    final CodeParser? parser = parsers.firstWhere((CodeParser? parser) => parser?.name == lang);
-    if (parser != null) return parser;
+  CodeParser getCodeParser(
+    final String lang,
+  ) {
+    final parsers = [
+      DartParser(),
+      GLSLParser(),
+      HTMLParser(),
+    ];
+    for (final parser in parsers) {
+      if (parser.name == lang) {
+        return parser;
+      }
+    }
     return PlainParser();
   }
 
@@ -241,10 +260,10 @@ class ShellPage {
   /// If any line starts with a + or - then a diff is shown.
   /// The [firstLineNo] is the offset for the first line number.
   void addCode(String title, String lang, int firstLineNo, List<String> lines) {
-    final List<int> diff = [];
+    final diff = <int>[];
     bool showDiff = false;
     for (int i = 0; i < lines.length; ++i) {
-      final String line = lines[i];
+      final line = lines[i];
       if (line.startsWith("+")) {
         lines[i] = line.substring(1);
         diff.add(1);
@@ -257,15 +276,15 @@ class ShellPage {
         diff.add(0);
       }
     }
-    final CodeParser colorCode = this.getCodeParser(lang);
+    final colorCode = this.getCodeParser(lang);
     colorCode.parse(lines);
-    final DivElement codeTableScroll = DivElement()..className = "codeTableScroll";
-    final TableElement codeTable = TableElement()..className = "codeTable";
+    final codeTableScroll = DivElement()..className = "codeTableScroll";
+    final codeTable = TableElement()..className = "codeTable";
     codeTableScroll.append(codeTable);
     this._page.append(codeTableScroll);
-    final String id = Uri.encodeFull(title);
-    final TableRowElement headerElem = TableRowElement()..className = "headerRow";
-    final TableCellElement headerCellElem = TableCellElement()
+    final id = Uri.encodeFull(title);
+    final headerElem = TableRowElement()..className = "headerRow";
+    final headerCellElem = TableCellElement()
       ..className = "headerCell"
       ..colSpan = () {
         if (showDiff) {
@@ -288,11 +307,11 @@ class ShellPage {
     if (showDiff) {
       int lineNoSub = firstLineNo, lineNoAdd = firstLineNo;
       for (int i = 0; i < colorCode.lineList.length; ++i) {
-        final List<DivElement> line = colorCode.lineList[i];
-        final TableRowElement rowElem = TableRowElement()..className = "codeTableRow";
-        final TableCellElement cell1Elem = TableCellElement()..className = "codeLineNums codeLineLight";
-        final TableCellElement cell2Elem = TableCellElement()..className = "codeLineNums";
-        final int value = diff[i];
+        final line = colorCode.lineList[i];
+        final rowElem = TableRowElement()..className = "codeTableRow";
+        final cell1Elem = TableCellElement()..className = "codeLineNums codeLineLight";
+        final cell2Elem = TableCellElement()..className = "codeLineNums";
+        final value = diff[i];
         if (value == 0) {
           lineNoSub++;
           lineNoAdd++;
@@ -313,7 +332,7 @@ class ShellPage {
           cell1Elem.text = "$lineNoSub";
           cell2Elem.text = "-";
         }
-        final TableCellElement cell3Elem = TableCellElement()..className = "codeLineText";
+        final cell3Elem = TableCellElement()..className = "codeLineText";
         // ignore: prefer_foreach
         for (final partElem in line) {
           cell3Elem.append(partElem);
@@ -325,14 +344,14 @@ class ShellPage {
       }
     } else {
       int lineNo = firstLineNo;
-      for (final List<DivElement> line in colorCode.lineList) {
-        final TableRowElement rowElem = TableRowElement()..className = "codeTableRow";
-        final TableCellElement cell1Elem = TableCellElement()
+      for (final line in colorCode.lineList) {
+        final rowElem = TableRowElement()..className = "codeTableRow";
+        final cell1Elem = TableCellElement()
           ..className = "codeLineNums"
           ..text = "${lineNo + 1}";
-        final TableCellElement cell2Elem = TableCellElement()..className = "codeLineText";
+        final cell2Elem = TableCellElement()..className = "codeLineText";
         // ignore: prefer_foreach
-        for (final DivElement partElem in line) {
+        for (final partElem in line) {
           cell2Elem.append(partElem);
         }
         rowElem.append(cell1Elem);
@@ -345,16 +364,16 @@ class ShellPage {
 
   /// Adds an image to the page with the given [id].
   void addImage(String id, String path, [String link = ""]) {
-    final DivElement pageImageElem = DivElement()
+    final pageImageElem = DivElement()
       ..className = "pageImage"
       ..id = id;
     // ignore: unsafe_html
-    final AnchorElement anchor = AnchorElement()..href = "#$id";
+    final anchor = AnchorElement()..href = "#$id";
     // ignore: unsafe_html
-    final ImageElement image = ImageElement()..src = path;
+    final image = ImageElement()..src = path;
     anchor.append(image);
     if (link.isNotEmpty) {
-      final AnchorElement hrefAnchor = AnchorElement()
+      final hrefAnchor = AnchorElement()
         ..className = "linkPar"
         // ignore: unsafe_html
         ..href = link;
@@ -369,7 +388,7 @@ class ShellPage {
   /// Adds a canvas to the page with the given [id]
   /// which can be used to host a three_dart
   void addCanvas(String id) {
-    final CanvasElement canvas = CanvasElement()
+    final canvas = CanvasElement()
       ..className = "pageCanvas"
       ..id = id;
     this._page.append(canvas);
@@ -390,10 +409,13 @@ class ShellPage {
       ..text = "0.00 fps"
       ..className = "fps";
     this._page.append(textElem);
-    Timer.periodic(const Duration(milliseconds: 5000), (final time) {
-      final fps = td.fps.toStringAsFixed(2);
-      textElem.text = "$fps fps";
-    });
+    Timer.periodic(
+      const Duration(milliseconds: 5000),
+      (final time) {
+        final fps = td.fps.toStringAsFixed(2);
+        textElem.text = "$fps fps";
+      },
+    );
   }
 
   /// Adds the given element into the page.
@@ -565,9 +587,9 @@ class RadioGroup {
       itemIsChecked = true;
       hndl();
     }
-    final LabelElement label = LabelElement()..style.whiteSpace = 'nowrap';
+    final label = LabelElement()..style.whiteSpace = 'nowrap';
     this._elem.children.add(label);
-    final RadioButtonInputElement checkBox = RadioButtonInputElement()
+    final checkBox = RadioButtonInputElement()
       ..checked = itemIsChecked
       ..name = this._elemId;
     checkBox.onChange.listen((_) {
@@ -577,7 +599,7 @@ class RadioGroup {
       }
     });
     label.children.add(checkBox);
-    final SpanElement span = SpanElement()..text = text;
+    final span = SpanElement()..text = text;
     label.children.add(span);
     this._elem.children.add(BRElement());
   }
@@ -585,10 +607,10 @@ class RadioGroup {
   /// Updates the URL for changes in the radio group.
   void _updateUrl(String text) {
     if (!this._keepInURL) return;
-    final Uri current = Uri.base;
-    final Map<String, String> parameters = Map<String, String>.from(current.queryParameters);
+    final current = Uri.base;
+    final parameters = Map<String, String>.from(current.queryParameters);
     parameters[this._elemId] = text;
-    final Uri newUrl = current.replace(queryParameters: parameters);
+    final newUrl = current.replace(queryParameters: parameters);
     window.history.replaceState('', '', newUrl.toString());
   }
 }
@@ -1181,7 +1203,7 @@ class CheckGroup {
     if (selectedItems.length < index) selectedItems = selectedItems.padRight(index - selectedItems.length + 1, '0');
     String result = '';
     if (index > 0) result += selectedItems.substring(0, index);
-    result += (){
+    result += () {
       if (checked) {
         return '1';
       } else {

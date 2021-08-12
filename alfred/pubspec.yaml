@@ -3,9 +3,10 @@ name: alfred
 publish_to: 'none'
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
+  html: ^0.15.0 # TODO remove this dependency
   mime: ^1.0.0 # TODO remove this dependency
   mime_type: ^1.0.0 # TODO remove this dependency
   queue: ^3.1.0 # TODO remove this dependency

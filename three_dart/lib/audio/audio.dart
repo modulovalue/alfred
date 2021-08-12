@@ -30,11 +30,11 @@ class AudioLoader {
 
   /// Handles loading a new audio player with the audio from the given file path.
   Player loadFromFile(String path) {
-    final html.AudioElement elem = html.AudioElement(path)
+    final elem = html.AudioElement(path)
       ..autoplay = false
       ..preload = "auto";
     this._incLoading();
-    final Player player = Player._(elem);
+    final player = Player._(elem);
     elem.onLoad.listen((_) {
       player._setLoaded();
       this._decLoading();
@@ -67,11 +67,11 @@ class MultiPlayer {
   /// Gets the next player which is currently not playing,
   /// or null if no more players are allowed.
   Player? _getNextPlayer() {
-    for (final Player player in this._players) {
+    for (final player in this._players) {
       if (!player.playing) return player;
     }
     if (this._players.length < this._limit) {
-      final Player player = this._original.copy();
+      final player = this._original.copy();
       this._players.add(player);
       return player;
     }
@@ -81,7 +81,7 @@ class MultiPlayer {
   /// Plays one of these audios. Returns true if played,
   /// false if all instances are already playing.
   bool play({double? volume, double? rate, bool? loop}) {
-    final Player? player = this._getNextPlayer();
+    final player = this._getNextPlayer();
     if (player != null && !player.playing) {
       player.play(volume: volume, rate: rate, loop: loop);
       return true;
@@ -91,7 +91,7 @@ class MultiPlayer {
 
   /// Pauses all the audio.
   void pauseAll() {
-    for (final Player player in this._players) {
+    for (final player in this._players) {
       if (player.playing) player.pause();
     }
   }

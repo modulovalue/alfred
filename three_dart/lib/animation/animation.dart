@@ -24,7 +24,7 @@ class Animation {
 
   /// Adds a shifter to this animation.
   Shifter add({int delay = 0, int duration = 1000, bool init = false, Smoother? easing}) {
-    final Shifter shifter = Shifter(delay: delay, duration: duration, init: init, easing: easing);
+    final shifter = Shifter(delay: delay, duration: duration, init: init, easing: easing);
     this._shifters.add(shifter);
     return shifter;
   }
@@ -35,7 +35,7 @@ class Animation {
   /// Resets the shifters and animation.
   void _reset() {
     this._start = this._now;
-    for (final Shifter shifter in this._shifters) {
+    for (final shifter in this._shifters) {
       shifter._reset();
     }
   }
@@ -67,7 +67,7 @@ class Animation {
   /// Performs an update of the animation.
   void _update(num num) {
     if (!this._running) return;
-    final int offset = this._now.difference(this._start).inMilliseconds;
+    final offset = this._now.difference(this._start).inMilliseconds;
     bool done = true;
     for (final shifter in this._shifters) {
       done = shifter._update(offset) && done;
@@ -88,10 +88,10 @@ class Animation {
 class CubicBezier extends Polynomial {
   /// The Cubic Bezier function from P0=0, P1, P2, and P3=1.
   static double _curve(double p1, double p2, double t) {
-    final double t2 = t * t;
-    final double t3 = t2 * t;
-    final double i = 1.0 - t;
-    final double i2 = i * i;
+    final t2 = t * t;
+    final t3 = t2 * t;
+    final i = 1.0 - t;
+    final i2 = i * i;
     return 3.0 * p1 * i2 * t + 3.0 * p2 * i * t2 + t3;
   }
 
@@ -159,7 +159,7 @@ class Polynomial extends Smoother {
   static double _find(PolynomialHandle xFunc, double x, double tmin, double tmax) {
     double t = x;
     while (tmin < tmax) {
-      final double xp = xFunc(t);
+      final xp = xFunc(t);
       if ((xp - x).abs() < 1.0e-9) return t;
       if (x > xp) {
         // ignore: parameter_assignments
@@ -178,10 +178,10 @@ class Polynomial extends Smoother {
   /// The more the samples, the slower the precalculations take and more memory used.
   /// The less samples, the rougher the polynomial result data is.
   Polynomial(PolynomialHandle xFunc, PolynomialHandle yFunc, [int samples = 20]) : super._() {
-    final List<double> yValues = List.filled(samples, 0.0);
+    final yValues = List<double>.filled(samples, 0.0);
     double t = 0.0;
     for (int i = 0; i < samples; i++) {
-      final double x = i / samples;
+      final x = i / samples;
       t = _find(xFunc, x, t, 1.0);
       yValues[i] = yFunc(t);
     }
@@ -191,14 +191,14 @@ class Polynomial extends Smoother {
   /// Linear interpolates between the precalculated polynomial data.
   @override
   double smooth(double x) {
-    final int len = this._data.length;
-    final double f = x * len;
-    final int i = f.floor();
+    final len = this._data.length;
+    final f = x * len;
+    final i = f.floor();
     if (i < 0) return 0.0;
     if (i >= len) return 1.0;
-    final double p0 = this._data[i];
-    final double p1 = (i == len - 1) ? 1.0 : this._data[i + 1];
-    final double r = f - i;
+    final p0 = this._data[i];
+    final p1 = (i == len - 1) ? 1.0 : this._data[i + 1];
+    final r = f - i;
     return p0 * (1.0 - r) + p1 * r;
   }
 }
@@ -245,10 +245,10 @@ class Shifter {
   /// Returns true if done, false to keep going.
   bool _update(int offset) {
     if (this._done) return true;
-    final double t = (offset - this._delay) / this._duration;
+    final t = (offset - this._delay) / this._duration;
     if ((!this._init || this._inited) && (t < 0.0)) return false;
-    final double y = Smoother.clamp(this._smoother.smooth(Smoother.clamp(t)));
-    for (final _modifier mod in this._mods) {
+    final y = Smoother.clamp(this._smoother.smooth(Smoother.clamp(t)));
+    for (final mod in this._mods) {
       mod._update(y);
     }
     this._done = t >= 1.0;

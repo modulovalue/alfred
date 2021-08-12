@@ -55,7 +55,7 @@ double clampVal(double v, [double min = 0.0, double max = 1.0]) {
 /// [v] will we wrapped until inside the range.
 double wrapVal(double v, [double min = 0.0, double max = 1.0]) {
   if (max <= min) return min;
-  final double w = max - min;
+  final w = max - min;
   // ignore: parameter_assignments
   v = (v - min) % w;
   // ignore: parameter_assignments
@@ -93,9 +93,9 @@ String formatDouble(double v, [int fraction = 3, int whole = 0]) {
 /// [whole] is the padding to put to the left of the number.
 List<String> formatColumn(List<double> vals, [int fraction = 3, int whole = 0]) {
   int maxWidth = 0;
-  final List<String> results = [];
-  for (final double v in vals) {
-    final String str = formatDouble(v, fraction, whole);
+  final results = <String>[];
+  for (final v in vals) {
+    final str = formatDouble(v, fraction, whole);
     maxWidth = math.max(maxWidth, str.length);
     results.add(str);
   }
@@ -179,11 +179,11 @@ class Color3 {
   /// [hue], [value], and [saturation] are from 0.0 to 1.0.
   factory Color3.fromHVS(double hue, double value, double saturation) {
     hue *= 6.0; // sector 0 to 5
-    final int index = hue.floor();
-    final double fract = hue - index; // factorial part of h
-    final double p = value * (1.0 - saturation);
-    final double q = value * (1.0 - saturation * fract);
-    final double t = value * (1.0 - saturation * (1.0 - fract));
+    final index = hue.floor();
+    final fract = hue - index; // factorial part of h
+    final p = value * (1.0 - saturation);
+    final q = value * (1.0 - saturation * fract);
+    final t = value * (1.0 - saturation * (1.0 - fract));
     switch (index) {
       case 0:
         return Color3(value, t, p);
@@ -567,7 +567,7 @@ class Cube {
 
   /// The center point of the region.
   Point3 get center {
-    final double half = this.size / 2.0;
+    final half = this.size / 2.0;
     return Point3(this.x + half, this.y + half, this.z + half);
   }
 
@@ -600,7 +600,6 @@ class Cube {
   /// Determines the location the given point is in relation to the region.
   HitRegion hit(Point3 a) {
     HitRegion region = HitRegion.None;
-
     if (a.x < this.x) {
       region |= HitRegion.XNeg;
     } else if (a.x >= this.x + this.size) {
@@ -608,7 +607,6 @@ class Cube {
     } else {
       region |= HitRegion.XCenter;
     }
-
     if (a.y < this.y) {
       region |= HitRegion.YNeg;
     } else if (a.y >= this.y + this.size) {
@@ -616,7 +614,6 @@ class Cube {
     } else {
       region |= HitRegion.YCenter;
     }
-
     if (a.z < this.z) {
       region |= HitRegion.ZNeg;
     } else if (a.z >= this.z + this.size) {
@@ -624,7 +621,6 @@ class Cube {
     } else {
       region |= HitRegion.ZCenter;
     }
-
     return region;
   }
 
@@ -650,7 +646,7 @@ class Cube {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! Cube) return false;
-    final Cube size = other;
+    final size = other;
     if (!Comparer.equals(size.x, this.x)) return false;
     if (!Comparer.equals(size.y, this.y)) return false;
     if (!Comparer.equals(size.z, this.z)) return false;
@@ -888,8 +884,8 @@ class Matrix2 {
   /// The given [angle] is in radians.
   /// This matrix rotates counter-clockwise around a virtual Z axis.
   factory Matrix2.rotate(double angle) {
-    final double c = math.cos(angle);
-    final double s = math.sin(angle);
+    final c = math.cos(angle);
+    final s = math.sin(angle);
     return Matrix2(c, -s, s, c);
   }
 
@@ -949,9 +945,9 @@ class Matrix2 {
 
   /// Gets the inverse of this matrix.
   Matrix2 inverse() {
-    final double det = this.det();
+    final det = this.det();
     if (Comparer.equals(det, 0.0)) return Matrix2.identity;
-    final double q = 1.0 / det;
+    final q = 1.0 / det;
     return Matrix2(this.m22 * q, -this.m21 * q, -this.m12 * q, this.m11 * q);
   }
 
@@ -992,8 +988,8 @@ class Matrix2 {
 
   /// Gets the formatted string for this matrix.
   String format([String indent = "", int fraction = 3, int whole = 0]) {
-    final List<String> col1 = formatColumn([this.m11, this.m12], fraction, whole);
-    final List<String> col2 = formatColumn([this.m21, this.m22], fraction, whole);
+    final col1 = formatColumn([this.m11, this.m12], fraction, whole);
+    final col2 = formatColumn([this.m21, this.m22], fraction, whole);
     return '[${col1[0]}, ${col2[0]},\n$indent ${col1[1]}, ${col2[1]}]';
   }
 }
@@ -1044,8 +1040,8 @@ class Matrix3 {
   ///
   /// The given [angle] is in radians.
   factory Matrix3.rotateX(double angle) {
-    final double c = math.cos(angle);
-    final double s = math.sin(angle);
+    final c = math.cos(angle);
+    final s = math.sin(angle);
     return Matrix3(1.0, 0.0, 0.0, 0.0, c, -s, 0.0, s, c);
   }
 
@@ -1053,8 +1049,8 @@ class Matrix3 {
   ///
   /// The given [angle] is in radians.
   factory Matrix3.rotateY(double angle) {
-    final double c = math.cos(angle);
-    final double s = math.sin(angle);
+    final c = math.cos(angle);
+    final s = math.sin(angle);
     return Matrix3(c, 0.0, -s, 0.0, 1.0, 0.0, s, 0.0, c);
   }
 
@@ -1062,8 +1058,8 @@ class Matrix3 {
   ///
   /// The given [angle] is in radians.
   factory Matrix3.rotateZ(double angle) {
-    final double c = math.cos(angle);
-    final double s = math.sin(angle);
+    final c = math.cos(angle);
+    final s = math.sin(angle);
     return Matrix3(c, -s, 0.0, s, c, 0.0, 0.0, 0.0, 1.0);
   }
 
@@ -1148,9 +1144,9 @@ class Matrix3 {
 
   /// Gets the inverse of this matrix.
   Matrix3 inverse() {
-    final double det = this.det();
+    final det = this.det();
     if (Comparer.equals(det, 0.0)) return Matrix3.identity;
-    final double q = 1.0 / det;
+    final q = 1.0 / det;
     return Matrix3(
         (this.m22 * this.m33 - this.m23 * this.m32) * q,
         (this.m23 * this.m31 - this.m21 * this.m33) * q,
@@ -1251,9 +1247,9 @@ class Matrix3 {
 
   /// Gets the formatted string for this matrix.
   String format([String indent = "", int fraction = 3, int whole = 0]) {
-    final List<String> col1 = formatColumn([this.m11, this.m12, this.m13], fraction, whole);
-    final List<String> col2 = formatColumn([this.m21, this.m22, this.m23], fraction, whole);
-    final List<String> col3 = formatColumn([this.m31, this.m32, this.m33], fraction, whole);
+    final col1 = formatColumn([this.m11, this.m12, this.m13], fraction, whole);
+    final col2 = formatColumn([this.m21, this.m22, this.m23], fraction, whole);
+    final col3 = formatColumn([this.m31, this.m32, this.m33], fraction, whole);
     return '[${col1[0]}, ${col2[0]}, ${col3[0]},\n' +
         '$indent ${col1[1]}, ${col2[1]}, ${col3[1]},\n' +
         '$indent ${col1[2]}, ${col2[2]}, ${col3[2]}]';
@@ -1332,9 +1328,9 @@ class Matrix4 {
   /// The given [angle] is in radians.
   /// The given [vec] is the vector to rotate around.
   factory Matrix4.rotate(double angle, Vector3 vec) {
-    final double c = math.cos(angle);
-    final double n = 1.0 - c;
-    final double s = math.sin(angle);
+    final c = math.cos(angle);
+    final n = 1.0 - c;
+    final s = math.sin(angle);
     final m11 = vec.dx * vec.dx * n + c,
         m21 = vec.dx * vec.dy * n - vec.dz * s,
         m31 = vec.dx * vec.dz * n + vec.dy * s,
@@ -1351,8 +1347,8 @@ class Matrix4 {
   ///
   /// The given [angle] is in radians.
   factory Matrix4.rotateX(double angle) {
-    final double c = math.cos(angle);
-    final double s = math.sin(angle);
+    final c = math.cos(angle);
+    final s = math.sin(angle);
     return Matrix4(1.0, 0.0, 0.0, 0.0, 0.0, c, -s, 0.0, 0.0, s, c, 0.0, 0.0, 0.0, 0.0, 1.0);
   }
 
@@ -1360,8 +1356,8 @@ class Matrix4 {
   ///
   /// The given [angle] is in radians.
   factory Matrix4.rotateY(double angle) {
-    final double c = math.cos(angle);
-    final double s = math.sin(angle);
+    final c = math.cos(angle);
+    final s = math.sin(angle);
     return Matrix4(c, 0.0, -s, 0.0, 0.0, 1.0, 0.0, 0.0, s, 0.0, c, 0.0, 0.0, 0.0, 0.0, 1.0);
   }
 
@@ -1369,8 +1365,8 @@ class Matrix4 {
   ///
   /// The given [angle] is in radians.
   factory Matrix4.rotateZ(double angle) {
-    final double c = math.cos(angle);
-    final double s = math.sin(angle);
+    final c = math.cos(angle);
+    final s = math.sin(angle);
     return Matrix4(c, -s, 0.0, 0.0, s, c, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
   }
 
@@ -1381,11 +1377,11 @@ class Matrix4 {
   /// The given [ratio] is the width over the height of the view.
   /// The [near] and [far] depth of the view.
   factory Matrix4.perspective(double angle, double ratio, double near, double far) {
-    final double depth = far - near;
-    final double yy = 1.0 / math.tan(angle * 0.5);
-    final double xx = -yy / ratio;
-    final double zz = far / depth;
-    final double zw = -far * near / depth;
+    final depth = far - near;
+    final yy = 1.0 / math.tan(angle * 0.5);
+    final xx = -yy / ratio;
+    final zz = far / depth;
+    final zw = -far * near / depth;
     return Matrix4(xx, 0.0, 0.0, 0.0, 0.0, yy, 0.0, 0.0, 0.0, 0.0, zz, zw, 0.0, 0.0, 1.0, 0.0);
   }
 
@@ -1395,12 +1391,12 @@ class Matrix4 {
   /// [top] and [bottom] are the vertical visible range.
   /// The [near] and [far] depth of the view.
   factory Matrix4.ortho(double left, double right, double top, double bottom, double near, double far) {
-    final double xx = 2.0 / (right - left);
-    final double yy = 2.0 / (top - bottom);
-    final double zz = 2.0 / (far - near);
-    final double wx = -(left + right) / (right - left);
-    final double wy = -(top + bottom) / (top - bottom);
-    final double wz = (far + near) / (far - near);
+    final xx = 2.0 / (right - left);
+    final yy = 2.0 / (top - bottom);
+    final zz = 2.0 / (far - near);
+    final wx = -(left + right) / (right - left);
+    final wy = -(top + bottom) / (top - bottom);
+    final wz = (far + near) / (far - near);
     return Matrix4(xx, 0.0, 0.0, wx, 0.0, yy, 0.0, wy, 0.0, 0.0, zz, wz, 0.0, 0.0, 0.0, 1.0);
   }
 
@@ -1410,7 +1406,7 @@ class Matrix4 {
   /// [upHint] is a hint to help correct the top direction of the rotation.
   factory Matrix4.vectorTowards(double x, double y, double z, {Vector3? upHint}) {
     upHint ??= Vector3.posY;
-    final Vector3 forward = Vector3(x, y, z);
+    final forward = Vector3(x, y, z);
     return Matrix4.lookTowards(Point3.zero, upHint, forward);
   }
 
@@ -1420,13 +1416,13 @@ class Matrix4 {
   /// [up] is the top direction of the camera,
   /// and [forward] is the direction the camera is looking towards.
   factory Matrix4.lookTowards(Point3 pos, Vector3 up, Vector3 forward) {
-    final Vector3 zaxis = forward.normal();
-    final Vector3 xaxis = up.cross(zaxis).normal();
-    final Vector3 yaxis = zaxis.cross(xaxis);
-    final Vector3 toPos = Vector3.fromPoint3(pos);
-    final double tx = (-xaxis).dot(toPos);
-    final double ty = (-yaxis).dot(toPos);
-    final double tz = (-zaxis).dot(toPos);
+    final zaxis = forward.normal();
+    final xaxis = up.cross(zaxis).normal();
+    final yaxis = zaxis.cross(xaxis);
+    final toPos = Vector3.fromPoint3(pos);
+    final tx = (-xaxis).dot(toPos);
+    final ty = (-yaxis).dot(toPos);
+    final tz = (-zaxis).dot(toPos);
     return Matrix4(xaxis.dx, yaxis.dx, zaxis.dx, tx, xaxis.dy, yaxis.dy, zaxis.dy, ty, xaxis.dz, yaxis.dz, zaxis.dz, tz,
         0.0, 0.0, 0.0, 1.0);
   }
@@ -1551,12 +1547,12 @@ class Matrix4 {
 
   /// Gets the determinant of this matrix.
   double det() {
-    final double a = this.m14 * this.m23 - this.m13 * this.m24;
-    final double b = this.m12 * this.m24 - this.m14 * this.m22;
-    final double c = this.m13 * this.m22 - this.m12 * this.m23;
-    final double d = this.m14 * this.m21 - this.m11 * this.m24;
-    final double e = this.m11 * this.m23 - this.m13 * this.m21;
-    final double f = this.m12 * this.m21 - this.m11 * this.m22;
+    final a = this.m14 * this.m23 - this.m13 * this.m24;
+    final b = this.m12 * this.m24 - this.m14 * this.m22;
+    final c = this.m13 * this.m22 - this.m12 * this.m23;
+    final d = this.m14 * this.m21 - this.m11 * this.m24;
+    final e = this.m11 * this.m23 - this.m13 * this.m21;
+    final f = this.m12 * this.m21 - this.m11 * this.m22;
     return (a * this.m32 + b * this.m33 + c * this.m34) * this.m41 -
         (a * this.m31 - d * this.m33 - e * this.m34) * this.m42 -
         (b * this.m31 + d * this.m32 - f * this.m34) * this.m43 -
@@ -1581,9 +1577,9 @@ class Matrix4 {
         m = this.m23 * this.m34 - this.m33 * this.m24,
         n = this.m23 * this.m44 - this.m43 * this.m24,
         o = this.m33 * this.m44 - this.m43 * this.m34;
-    final double det = a * o - b * n + c * m + e * l - g * j + h * i;
+    final det = a * o - b * n + c * m + e * l - g * j + h * i;
     if (Comparer.equals(det, 0.0)) return Matrix4.identity;
-    final double q = 1.0 / det;
+    final q = 1.0 / det;
     return Matrix4(
         (this.m22 * o - this.m32 * n + this.m42 * m) * q,
         (-this.m21 * o + this.m31 * n - this.m41 * m) * q,
@@ -1735,10 +1731,10 @@ class Matrix4 {
 
   /// Gets the formatted string for this matrix.
   String format([String indent = "", int fraction = 3, int whole = 0]) {
-    final List<String> col1 = formatColumn([this.m11, this.m12, this.m13, this.m14], fraction, whole);
-    final List<String> col2 = formatColumn([this.m21, this.m22, this.m23, this.m24], fraction, whole);
-    final List<String> col3 = formatColumn([this.m31, this.m32, this.m33, this.m34], fraction, whole);
-    final List<String> col4 = formatColumn([this.m41, this.m42, this.m43, this.m44], fraction, whole);
+    final col1 = formatColumn([this.m11, this.m12, this.m13, this.m14], fraction, whole);
+    final col2 = formatColumn([this.m21, this.m22, this.m23, this.m24], fraction, whole);
+    final col3 = formatColumn([this.m31, this.m32, this.m33, this.m34], fraction, whole);
+    final col4 = formatColumn([this.m41, this.m42, this.m43, this.m44], fraction, whole);
     return '[${col1[0]}, ${col2[0]}, ${col3[0]}, ${col4[0]},\n' +
         '$indent ${col1[1]}, ${col2[1]}, ${col3[1]}, ${col4[1]},\n' +
         '$indent ${col1[2]}, ${col2[2]}, ${col3[2]}, ${col4[2]},\n' +
@@ -1772,15 +1768,15 @@ class Plane {
   /// Constructs a new [Plane] with the given vector.
   /// The given vector and offset will be normalized.
   factory Plane.fromVector(Vector3 normal, [double offset = 0.0]) {
-    final double len = normal.length();
+    final len = normal.length();
     return Plane._(normal.dx / len, normal.dy / len, normal.dz / len, offset);
   }
 
   /// Constructs a new [Plane] with the given points on the surface of the plane.
   factory Plane.fromTriangle(Triangle3 tri) {
-    final Vector3 normal = tri.normal;
-    final Vector3 toA = Vector3.fromPoint3(tri.point1);
-    final double offset = normal.dot(toA);
+    final normal = tri.normal;
+    final toA = Vector3.fromPoint3(tri.point1);
+    final offset = normal.dot(toA);
     return Plane._(normal.dx, normal.dy, normal.dz, offset);
   }
 
@@ -1820,15 +1816,15 @@ class Plane {
 
   /// Gets the nearest point on the plain to the given point [pnt].
   Point3 nearestPoint(Point3 pnt) {
-    final Vector3 norm = this.normal;
-    final Vector3 origin = norm * this.offset;
+    final norm = this.normal;
+    final origin = norm * this.offset;
     return Point3.fromVector3(origin + norm * (this.offset - origin.dot(norm)));
   }
 
   /// Gets the side of the point on the plain were Right is on the positive normal size (above),
   /// Same is on the plane and Left is on the negative normal size (below).
   Side sideOfPointComponents(double x, double y, double z) {
-    final double value = this.dx * x + this.dy * y + this.dz * z;
+    final value = this.dx * x + this.dy * y + this.dz * z;
     if (Comparer.equals(value, 0.0)) return Side.Inside;
     if (value < 0.0) return Side.Right;
     return Side.Left;
@@ -1936,8 +1932,8 @@ class Point2 {
 
   /// The distance squared between this point and the [other] point.
   double distance2(Point2 other) {
-    final double dx = this.x - other.x;
-    final double dy = this.y - other.y;
+    final dx = this.x - other.x;
+    final dy = this.y - other.y;
     return (dx * dx) + (dy * dy);
   }
 
@@ -2068,9 +2064,9 @@ class Point3 {
 
   /// The distance squared between this point and the [other] point.
   double distance2(Point3 other) {
-    final double dx = this.x - other.x;
-    final double dy = this.y - other.y;
-    final double dz = this.z - other.z;
+    final dx = this.x - other.x;
+    final dy = this.y - other.y;
+    final dz = this.z - other.z;
     return (dx * dx) + (dy * dy) + (dz * dz);
   }
 
@@ -2217,10 +2213,10 @@ class Point4 {
 
   /// The distance squared between this point and the [other] point.
   double distance2(Point4 other) {
-    final double dx = this.x - other.x;
-    final double dy = this.y - other.y;
-    final double dz = this.z - other.z;
-    final double dw = this.w - other.w;
+    final dx = this.x - other.x;
+    final dy = this.y - other.y;
+    final dz = this.z - other.z;
+    final dw = this.w - other.w;
     return (dx * dx) + (dy * dy) + (dz * dz) + (dw * dw);
   }
 
@@ -2320,21 +2316,21 @@ class Quaternion {
 
   /// Constructs a quaternion from the given 3x3 matrix.
   factory Quaternion.fromMatrix3(Matrix3 mat) {
-    final double tr = mat.m11 + mat.m22 + mat.m33;
+    final tr = mat.m11 + mat.m22 + mat.m33;
     if (tr > 0) {
-      final double scalar = math.sqrt(tr + 1.0) * 2.0; // 4*q.t
+      final scalar = math.sqrt(tr + 1.0) * 2.0; // 4*q.t
       return Quaternion(
           (mat.m32 - mat.m23) / scalar, (mat.m13 - mat.m31) / scalar, (mat.m21 - mat.m12) / scalar, 0.25 * scalar);
     } else if ((mat.m11 > mat.m22) && (mat.m11 > mat.m33)) {
-      final double scalar = math.sqrt(1.0 + mat.m11 - mat.m22 - mat.m33) * 2.0; // 4*q.a
+      final scalar = math.sqrt(1.0 + mat.m11 - mat.m22 - mat.m33) * 2.0; // 4*q.a
       return Quaternion(
           0.25 * scalar, (mat.m12 + mat.m21) / scalar, (mat.m13 + mat.m31) / scalar, (mat.m32 - mat.m23) / scalar);
     } else if (mat.m22 > mat.m33) {
-      final double scalar = math.sqrt(1.0 + mat.m22 - mat.m11 - mat.m33) * 2.0; // 4*q.b
+      final scalar = math.sqrt(1.0 + mat.m22 - mat.m11 - mat.m33) * 2.0; // 4*q.b
       return Quaternion(
           (mat.m12 + mat.m21) / scalar, 0.25 * scalar, (mat.m23 + mat.m32) / scalar, (mat.m13 - mat.m31) / scalar);
     } else {
-      final double scalar = math.sqrt(1.0 + mat.m33 - mat.m11 - mat.m22) * 2.0; // 4*q.c
+      final scalar = math.sqrt(1.0 + mat.m33 - mat.m11 - mat.m22) * 2.0; // 4*q.c
       return Quaternion(
           (mat.m13 + mat.m31) / scalar, (mat.m23 + mat.m32) / scalar, 0.25 * scalar, (mat.m21 - mat.m12) / scalar);
     }
@@ -2381,7 +2377,7 @@ class Quaternion {
   Quaternion calculateW() {
     double t2 = 1.0 - this.a * this.a - this.b * this.b - this.c * this.c;
     if (t2 < 0.0) t2 = -t2;
-    final double t = -math.sqrt(t2);
+    final t = -math.sqrt(t2);
     return Quaternion(this.a, this.b, this.c, t);
   }
 
@@ -2390,7 +2386,7 @@ class Quaternion {
 
   /// Gets normalized quaternion of this quaternion.
   Quaternion normal() {
-    final double length = this.length();
+    final length = this.length();
     if (Comparer.equals(length, 0.0)) return Quaternion.zero;
     return Quaternion.scale(this, 1.0 / length);
   }
@@ -2402,7 +2398,7 @@ class Quaternion {
   /// a scaled mixture of the two quaternions.
   Quaternion slerp(Quaternion other, double i) {
     double d = i;
-    final double dot = this.a * other.a + this.b * other.b + this.c * other.c + this.t * other.t;
+    final dot = this.a * other.a + this.b * other.b + this.c * other.c + this.t * other.t;
     if (dot < 0.0) d = -1.0 * i;
     return Quaternion(1.0 - i * this.a + d * other.a, 1.0 - i * this.b + d * other.b, 1.0 - i * this.c + d * other.c,
         1.0 - i * this.t + d * other.t);
@@ -2697,10 +2693,10 @@ class Region2 {
   static Region2? union(Region2? a, Region2? b) {
     if (a == null) return b;
     if (b == null) return a;
-    final double x = math.min(a.x, b.x);
-    final double y = math.min(a.y, b.y);
-    final double x2 = math.max(a.x + a.dx, b.x + b.dx);
-    final double y2 = math.max(a.y + a.dy, b.y + b.dy);
+    final x = math.min(a.x, b.x);
+    final y = math.min(a.y, b.y);
+    final x2 = math.max(a.x + a.dx, b.x + b.dx);
+    final y2 = math.max(a.y + a.dy, b.y + b.dy);
     return Region2._(x, y, x2 - x, y2 - y);
   }
 
@@ -2784,10 +2780,10 @@ class Region2 {
 
   /// Expands the region to include the given region components.
   Region2 expandWithRegion(Region2 region) {
-    final double x1 = math.min(this.x, region.x);
-    final double x2 = math.max(this.x + this.dx, region.x + region.dx);
-    final double y1 = math.min(this.y, region.y);
-    final double y2 = math.max(this.y + this.dy, region.y + region.dy);
+    final x1 = math.min(this.x, region.x);
+    final x2 = math.max(this.x + this.dx, region.x + region.dx);
+    final y1 = math.min(this.y, region.y);
+    final y2 = math.max(this.y + this.dy, region.y + region.dy);
     return Region2._(x1, y1, x2 - x1, y2 - y1);
   }
 
@@ -2834,10 +2830,10 @@ class Region2 {
   /// Gets the adjusted point of the given [raw] point.
   /// This point is normalized into the region.
   Point2 adjustPoint(Point2 raw) {
-    final double width = this.dx * 0.5;
-    final double height = this.dy * 0.5;
-    final double x = raw.x - this.x - width;
-    final double y = raw.y - this.y - height;
+    final width = this.dx * 0.5;
+    final height = this.dy * 0.5;
+    final x = raw.x - this.x - width;
+    final y = raw.y - this.y - height;
     return Point2(x, y) * 2.0 / this.minSide;
   }
 
@@ -2848,7 +2844,6 @@ class Region2 {
   /// Determines the location the given point is in relation to the region.
   HitRegion hit(Point2 a) {
     HitRegion region = HitRegion.None;
-
     if (a.x < this.x) {
       region |= HitRegion.XNeg;
     } else if (a.x >= this.x + this.dx) {
@@ -2856,7 +2851,6 @@ class Region2 {
     } else {
       region |= HitRegion.XCenter;
     }
-
     if (a.y < this.y) {
       region |= HitRegion.YNeg;
     } else if (a.y >= this.y + this.dy) {
@@ -2870,7 +2864,7 @@ class Region2 {
 
   /// nearestPoint finds the closest point in or on the edge of this region to the given point.
   Point2 nearestPoint(Point2 a) {
-    final HitRegion reg = this.hit(a);
+    final reg = this.hit(a);
     final double x;
     if (reg.has(HitRegion.XNeg)) {
       x = this.x;
@@ -2957,12 +2951,12 @@ class Region3 {
   static Region3? union(Region3? a, Region3? b) {
     if (a == null) return b ?? zero;
     if (b == null) return a;
-    final double x = math.min(a.x, b.x);
-    final double y = math.min(a.y, b.y);
-    final double z = math.min(a.z, b.z);
-    final double x2 = math.max(a.x + a.dx, b.x + b.dx);
-    final double y2 = math.max(a.y + a.dy, b.y + b.dy);
-    final double z2 = math.max(a.z + a.dz, b.z + b.dz);
+    final x = math.min(a.x, b.x);
+    final y = math.min(a.y, b.y);
+    final z = math.min(a.z, b.z);
+    final x2 = math.max(a.x + a.dx, b.x + b.dx);
+    final y2 = math.max(a.y + a.dy, b.y + b.dy);
+    final z2 = math.max(a.z + a.dz, b.z + b.dz);
     return Region3._(x, y, z, x2 - x, y2 - y, z2 - z);
   }
 
@@ -3075,12 +3069,12 @@ class Region3 {
 
   /// Expands the region to include the given region components.
   Region3 expandWithRegion(Region3 region) {
-    final double x1 = math.min(this.x, region.x);
-    final double x2 = math.max(this.x + this.dx, region.x + region.dx);
-    final double y1 = math.min(this.y, region.y);
-    final double y2 = math.max(this.y + this.dy, region.y + region.dy);
-    final double z1 = math.min(this.z, region.z);
-    final double z2 = math.max(this.z + this.dz, region.z + region.dz);
+    final x1 = math.min(this.x, region.x);
+    final x2 = math.max(this.x + this.dx, region.x + region.dx);
+    final y1 = math.min(this.y, region.y);
+    final y2 = math.max(this.y + this.dy, region.y + region.dy);
+    final z1 = math.min(this.z, region.z);
+    final z2 = math.max(this.z + this.dz, region.z + region.dz);
     return Region3._(x1, y1, z1, x2 - x1, y2 - y1, z2 - z1);
   }
 
@@ -3129,12 +3123,12 @@ class Region3 {
   /// Gets the adjusted point of the given [raw] point.
   /// This point is normalized into the region.
   Point3 adjustPoint(Point3 raw) {
-    final double width = this.dx * 0.5;
-    final double height = this.dy * 0.5;
-    final double depth = this.dz * 0.5;
-    final double x = raw.x - this.x - width;
-    final double y = raw.y - this.y - height;
-    final double z = raw.z - this.z - depth;
+    final width = this.dx * 0.5;
+    final height = this.dy * 0.5;
+    final depth = this.dz * 0.5;
+    final x = raw.x - this.x - width;
+    final y = raw.y - this.y - height;
+    final z = raw.z - this.z - depth;
     return Point3(x, y, z) * 2.0 / this.minSide;
   }
 
@@ -3145,7 +3139,6 @@ class Region3 {
   /// Determines the location the given point is in relation to the region.
   HitRegion hit(Point3 a) {
     HitRegion region = HitRegion.None;
-
     if (a.x < this.x) {
       region |= HitRegion.XNeg;
     } else if (a.x >= this.x + this.dx) {
@@ -3153,7 +3146,6 @@ class Region3 {
     } else {
       region |= HitRegion.XCenter;
     }
-
     if (a.y < this.y) {
       region |= HitRegion.YNeg;
     } else if (a.y >= this.y + this.dy) {
@@ -3299,9 +3291,9 @@ class Sphere {
 
   /// Gets the closest point on the sphere's surface.
   Point3 closestPoint(Point3 pnt) {
-    final Point3 center = this.center;
-    final Vector3 toPnt = center.vectorTo(pnt);
-    final double dist = toPnt.length();
+    final center = this.center;
+    final toPnt = center.vectorTo(pnt);
+    final dist = toPnt.length();
     return center.offset(toPnt * (this.radius / dist));
   }
 
@@ -3412,8 +3404,8 @@ class Triangle2 {
 
   /// Get the area of the triangle.
   double get area {
-    final Vector2 d1 = Vector2(this.x2 - this.x1, this.y2 - this.y1);
-    final Vector2 d2 = Vector2(this.x3 - this.x2, this.y3 - this.y2);
+    final d1 = Vector2(this.x2 - this.x1, this.y2 - this.y1);
+    final d2 = Vector2(this.x3 - this.x2, this.y3 - this.y2);
     return d1.cross(d2) * 0.5;
   }
 
@@ -3430,18 +3422,17 @@ class Triangle2 {
   /// Convertex from the given cartesian coordinate point to the barycentric coorinates vector.
   /// If the triangle is degenerate (area is zero) then null will be returned.
   Vector3? toBarycentric(Point2 pnt) {
-    final double x23 = this.x2 - this.x3;
-    final double x31 = this.x3 - this.x1;
-    final double y23 = this.y2 - this.y3;
-    final double y31 = this.y3 - this.y1;
-    final double div = y23 * x31 - y31 * x23;
+    final x23 = this.x2 - this.x3;
+    final x31 = this.x3 - this.x1;
+    final y23 = this.y2 - this.y3;
+    final y31 = this.y3 - this.y1;
+    final div = y23 * x31 - y31 * x23;
     if (div == 0.0) {
       // Degenerate triangle
       return null;
     }
-
-    final double x12 = this.x1 - this.x2;
-    final double y12 = this.y1 - this.y2;
+    final x12 = this.x1 - this.x2;
+    final y12 = this.y1 - this.y2;
     return Vector3(
         ((pnt.y - this.y3) * x23 + y23 * (this.x3 - pnt.x)) / div,
         ((pnt.y - this.y1) * x31 + y31 * (this.x1 - pnt.x)) / div,
@@ -3452,18 +3443,18 @@ class Triangle2 {
   /// which touches each side only once. The circle is inscribed in the triangle.
   /// If the triangle is degenerate (area is zero) then null will be returned.
   Sphere? get incenter {
-    final Point2 v1 = this.point1;
-    final Point2 v2 = this.point2;
-    final Point2 v3 = this.point3;
-    final double len1 = v2.distance(v3);
-    final double len2 = v1.distance(v3);
-    final double len3 = v1.distance(v2);
-    final double p = len1 + len2 + len3;
+    final v1 = this.point1;
+    final v2 = this.point2;
+    final v3 = this.point3;
+    final len1 = v2.distance(v3);
+    final len2 = v1.distance(v3);
+    final len3 = v1.distance(v2);
+    final p = len1 + len2 + len3;
     if (p == 0.0) {
       // Degenerate triangle
       return null;
     }
-    final Point2 center = this.fromBarycentricCoordinates(len1 / p, len2 / p, len3 / p);
+    final center = this.fromBarycentricCoordinates(len1 / p, len2 / p, len3 / p);
     return Sphere.fromPoint(Point3.fromPoint2(center), this.area / p);
   }
 
@@ -3619,15 +3610,15 @@ class Triangle3 {
 
   /// Gets the normal of the triangle plane.
   Vector3 get normal {
-    final Vector3 d1 = Vector3(this.x2 - this.x1, this.y2 - this.y1, this.z2 - this.z1);
-    final Vector3 d2 = Vector3(this.x3 - this.x2, this.y3 - this.y2, this.z3 - this.z2);
+    final d1 = Vector3(this.x2 - this.x1, this.y2 - this.y1, this.z2 - this.z1);
+    final d2 = Vector3(this.x3 - this.x2, this.y3 - this.y2, this.z3 - this.z2);
     return d1.cross(d2).normal();
   }
 
   /// Get the area of the triangle.
   double get area {
-    final Vector3 d1 = Vector3(this.x2 - this.x1, this.y2 - this.y1, this.z2 - this.z1);
-    final Vector3 d2 = Vector3(this.x3 - this.x2, this.y3 - this.y2, this.z3 - this.z2);
+    final d1 = Vector3(this.x2 - this.x1, this.y2 - this.y1, this.z2 - this.z1);
+    final d2 = Vector3(this.x3 - this.x2, this.y3 - this.y2, this.z3 - this.z2);
     return d1.cross(d2).length() * 0.5;
   }
 
@@ -3645,10 +3636,10 @@ class Triangle3 {
   /// Convertex from the given cartesian coordinate point to the barycentric coorinates vector.
   /// If the triangle is degenerate (area is zero) then null will be returned.
   Vector3? toBarycentric(Point3 pnt) {
-    final Vector3 n = this.normal;
-    final double nxa = n.dx.abs();
-    final double nya = n.dy.abs();
-    final double nza = n.dz.abs();
+    final n = this.normal;
+    final nxa = n.dx.abs();
+    final nya = n.dy.abs();
+    final nza = n.dz.abs();
     double u1, u2, u3, u4;
     double v1, v2, v3, v4;
     if ((nxa >= nya) && (nxa >= nza)) {
@@ -3657,7 +3648,6 @@ class Triangle3 {
       u2 = this.y2 - this.y3;
       u3 = pnt.y - this.y1;
       u4 = pnt.y - this.y3;
-
       v1 = this.z1 - this.z3;
       v2 = this.z2 - this.z3;
       v3 = pnt.z - this.z1;
@@ -3668,7 +3658,6 @@ class Triangle3 {
       u2 = this.z2 - this.z3;
       u3 = pnt.z - this.z1;
       u4 = pnt.z - this.z3;
-
       v1 = this.x1 - this.x3;
       v2 = this.x2 - this.x3;
       v3 = pnt.x - this.x1;
@@ -3679,60 +3668,59 @@ class Triangle3 {
       u2 = this.x2 - this.x3;
       u3 = pnt.x - this.x1;
       u4 = pnt.x - this.x3;
-
       v1 = this.y1 - this.y3;
       v2 = this.y2 - this.y3;
       v3 = pnt.y - this.y1;
       v4 = pnt.y - this.y3;
     }
-
-    final double div = v1 * u3 - v2 * u1;
+    final div = v1 * u3 - v2 * u1;
     if (div == 0.0) {
       // Degenerate triangle
       return null;
+    } else {
+      final x = (v4 * u2 - v2 * u4) / div;
+      final y = (v1 * u3 - v3 * u1) / div;
+      return Vector3(x, y, 1.0 - x - y);
     }
-
-    final double x = (v4 * u2 - v2 * u4) / div;
-    final double y = (v1 * u3 - v3 * u1) / div;
-    return Vector3(x, y, 1.0 - x - y);
   }
 
   /// Gets the sphere where the intersection of the sphere and the plane for the triangle is a circle
   /// which touches each side only once. The circle is inscribed in the triangle.
   /// If the triangle is degenerate (area is zero) then null will be returned.
   Sphere? get incenter {
-    final Point3 v1 = this.point1;
-    final Point3 v2 = this.point2;
-    final Point3 v3 = this.point3;
-    final double len1 = v2.distance(v3);
-    final double len2 = v1.distance(v3);
-    final double len3 = v1.distance(v2);
-    final double p = len1 + len2 + len3;
+    final v1 = this.point1;
+    final v2 = this.point2;
+    final v3 = this.point3;
+    final len1 = v2.distance(v3);
+    final len2 = v1.distance(v3);
+    final len3 = v1.distance(v2);
+    final p = len1 + len2 + len3;
     if (p == 0.0) {
       // Degenerate triangle
       return null;
+    } else {
+      final center = this.fromBarycentricCoordinates(len1 / p, len2 / p, len3 / p);
+      return Sphere.fromPoint(center, this.area / p);
     }
-    final Point3 center = this.fromBarycentricCoordinates(len1 / p, len2 / p, len3 / p);
-    return Sphere.fromPoint(center, this.area / p);
   }
 
   /// Gets the sphere where the intersection of the sphere and the plane for the triangle is a circle
   /// which touches each point of the triangle. The circle is circumscribed around the triangle.
   Sphere? get circumcenter {
-    final Vector3 e1 = Vector3(this.x3 - this.x2, this.y3 - this.y2, this.z3 - this.z2);
-    final Vector3 e2 = Vector3(this.x1 - this.x3, this.y1 - this.y3, this.z1 - this.z3);
-    final Vector3 e3 = Vector3(this.x2 - this.x1, this.y2 - this.y1, this.z2 - this.z1);
-    final double d1 = -e2.dot(e3);
-    final double d2 = -e3.dot(e1);
-    final double d3 = -e1.dot(e2);
-    final double c1 = d2 * d3;
-    final double c2 = d3 * d1;
-    final double c3 = d1 * d2;
-    final double c = c1 + c2 + c3;
+    final e1 = Vector3(this.x3 - this.x2, this.y3 - this.y2, this.z3 - this.z2);
+    final e2 = Vector3(this.x1 - this.x3, this.y1 - this.y3, this.z1 - this.z3);
+    final e3 = Vector3(this.x2 - this.x1, this.y2 - this.y1, this.z2 - this.z1);
+    final d1 = -e2.dot(e3);
+    final d2 = -e3.dot(e1);
+    final d3 = -e1.dot(e2);
+    final c1 = d2 * d3;
+    final c2 = d3 * d1;
+    final c3 = d1 * d2;
+    final c = c1 + c2 + c3;
     if (c == 0) return null;
-    final double div = 2.0 * c;
-    final Point3 center = this.fromBarycentricCoordinates((c2 + c3) / div, (c2 + c3) / div, (c2 + c3) / div);
-    final double diam = math.sqrt((d1 + d2) * (d2 + d3) * (d3 + d1) / c);
+    final div = 2.0 * c;
+    final center = this.fromBarycentricCoordinates((c2 + c3) / div, (c2 + c3) / div, (c2 + c3) / div);
+    final diam = math.sqrt((d1 + d2) * (d2 + d3) * (d3 + d1) / c);
     return Sphere.fromPoint(center, diam / 2.0);
   }
 
@@ -3897,7 +3885,7 @@ class Vector2 {
 
   /// Gets the side of the edge the given point is on.
   Side side(Point2 point) {
-    final double value = this.dx * point.y - this.dy * point.x;
+    final value = this.dx * point.y - this.dy * point.x;
     if (Comparer.equals(value, 0.0)) return Side.Inside;
     if (value < 0.0) return Side.Right;
     return Side.Left;
@@ -4068,7 +4056,7 @@ class Vector3 {
 
   /// Gets normalized vector of this vector.
   Vector3 normal() {
-    final double len = this.length();
+    final len = this.length();
     if (len == 1.0) return this;
     return this / len;
   }

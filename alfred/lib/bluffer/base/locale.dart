@@ -268,7 +268,7 @@ class Locale {
   String toLanguageTag() => _rawToString('-');
 
   String _rawToString(String separator) {
-    final StringBuffer out = StringBuffer(languageCode);
+    final out = StringBuffer(languageCode);
     if (scriptCode != null) {
       out.write('$separator$scriptCode');
     }

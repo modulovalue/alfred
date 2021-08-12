@@ -367,7 +367,7 @@ class TextDecoration {
   /// Creates a decoration that paints the union of all the given decorations.
   factory TextDecoration.combine(List<TextDecoration> decorations) {
     int mask = 0;
-    for (final TextDecoration decoration in decorations) {
+    for (final decoration in decorations) {
       mask |= decoration._mask;
     }
     return TextDecoration._(mask);
@@ -403,7 +403,7 @@ class TextDecoration {
     if (_mask == 0) {
       return 'TextDecoration.none';
     }
-    final List<String> values = <String>[];
+    final values = <String>[];
     if (_mask & underline._mask != 0) {
       values.add('underline');
     }
@@ -671,7 +671,7 @@ Int32List _encodeParagraphStyle(
   String? ellipsis,
   Locale? locale,
 ) {
-  final Int32List result = Int32List(7); // also update paragraph_builder.cc
+  final result = Int32List(7); // also update paragraph_builder.cc
   if (textAlign != null) {
     result[0] |= 1 << 1;
     result[1] = textAlign.index;
@@ -942,7 +942,7 @@ ByteData _encodeStrut(String? fontFamily, List<String>? fontFamilyFallback, doub
       forceStrutHeight == null) {
     return ByteData(0);
   }
-  final ByteData data = ByteData(16); // Max size is 16 bytes
+  final data = ByteData(16); // Max size is 16 bytes
   int bitmask = 0; // 8 bit mask
   int byteCount = 1;
   if (fontWeight != null) {
@@ -1065,8 +1065,8 @@ class StrutStyle {
       if (_fontFamily != other._fontFamily) {
         return false;
       }
-      final Int8List encodedList = _encoded.buffer.asInt8List();
-      final Int8List otherEncodedList = other._encoded.buffer.asInt8List();
+      final encodedList = _encoded.buffer.asInt8List();
+      final otherEncodedList = other._encoded.buffer.asInt8List();
       for (int index = 0; index < _encoded.lengthInBytes; index += 1) {
         if (encodedList[index] != otherEncodedList[index]) {
           return false;

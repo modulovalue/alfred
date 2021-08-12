@@ -8,25 +8,13 @@ import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
 import '../logging/print.dart';
 
-abstract class ServeDirectory implements Middleware {
-  const factory ServeDirectory(
-    final Directory directory, [
-    final AlfredLoggingDelegate log,
-  ]) = _ServeDirectory_IoDirectory;
-
-  const factory ServeDirectory.at(
-    final String path, [
-    final AlfredLoggingDelegate log,
-  ]) = _ServeDirectory_StringPath;
-}
-
-class _ServeDirectory_IoDirectory implements ServeDirectory {
+class ServeDirectoryIoDirectoryImpl implements Middleware {
   final Directory directory;
 
   // TODO too capable
   final AlfredLoggingDelegate log;
 
-  const _ServeDirectory_IoDirectory(
+  const ServeDirectoryIoDirectoryImpl(
     final this.directory, [
     final this.log = const AlfredLoggingDelegatePrintImpl(),
   ]);
@@ -35,16 +23,20 @@ class _ServeDirectory_IoDirectory implements ServeDirectory {
   Future<void> process(
     final ServeContext c,
   ) async =>
-      _serveDirectory(directory, log, c);
+      _serveDirectory(
+        directory: directory,
+        log: log,
+        c: c,
+      );
 }
 
-class _ServeDirectory_StringPath implements ServeDirectory {
+class ServeDirectoryStringPathImpl implements Middleware {
   final String directoryPath;
 
   // TODO too capable
   final AlfredLoggingDelegate log;
 
-  const _ServeDirectory_StringPath(
+  const ServeDirectoryStringPathImpl(
     final this.directoryPath, [
     final this.log = const AlfredLoggingDelegatePrintImpl(),
   ]);
@@ -52,32 +44,43 @@ class _ServeDirectory_StringPath implements ServeDirectory {
   @override
   Future<void> process(
     final ServeContext c,
-  ) async =>
-      _serveDirectory(Directory(directoryPath), log, c);
+  ) =>
+      _serveDirectory(
+        directory: Directory(directoryPath),
+        log: log,
+        c: c,
+      );
 }
 
-Future<void> _serveDirectory(
-  final Directory directory,
-  final AlfredLoggingDelegate log,
-  final ServeContext c,
-) async {
+Future<void> _serveDirectory({
+  required final Directory directory,
+  required final AlfredLoggingDelegate log,
+  required final ServeContext c,
+}) async {
   final usedRoute = c.route.route;
   final wildcardIndex = usedRoute.indexOf('*');
   if (wildcardIndex < 0) {
-    throw Exception('TypeHandler of type Directory needs a route declaration that contains a wildcard (*). Found: ' + usedRoute);
+    // TODO is there a way to remove this?
+    throw Exception(
+      'TypeHandler of type Directory needs a route declaration that contains a wildcard (*). Found: ' + usedRoute,
+    );
   } else {
     final _path = c.req.uri.path;
     final offset = min(_path.length, wildcardIndex);
     final virtualPath = _path.substring(offset);
     final filePath = directory.path + '/' + virtualPath;
-    log.logTypeHandler(() => 'Resolve virtual path: ' + virtualPath);
+    log.logTypeHandler(
+      () => 'Resolve virtual path: ' + virtualPath,
+    );
     final fileCandidates = <File>[
       File(filePath),
       File(filePath + '/index.html'),
       File(filePath + '/index.htm'),
     ];
     try {
-      final match = fileCandidates.firstWhere((file) => file.existsSync());
+      final match = fileCandidates.firstWhere(
+        (final file) => file.existsSync(),
+      );
       log.logTypeHandler(() => 'Respond with file: ' + match.path);
       final c_ = c.res.headers.contentType;
       if (c_ == null || c_.mimeType == 'text/plain') {
@@ -87,7 +90,9 @@ Future<void> _serveDirectory(
       await c.res.close();
       // ignore: avoid_catching_errors
     } on StateError {
-      log.logTypeHandler(() => 'Could not match with any file. Expected file at: ' + filePath);
+      log.logTypeHandler(
+        () => 'Could not match with any file. Expected file at: ' + filePath,
+      );
     }
   }
 }

@@ -1,7 +1,6 @@
 import 'html.dart';
 
-// TODO thread SELF through all mixins.
-mixin DivElementMixin implements DivElement<DivElementMixin> {
+mixin DivElementMixin<SELF extends DivElementMixin<SELF>> implements DivElement<SELF> {
   @override
   R acceptHtmlElement<R, A>(
     final HtmlElementVisitor<R, A> v,
@@ -45,7 +44,7 @@ mixin HeadElementMixin<SELF extends HeadElement<SELF>> implements HeadElement<SE
       );
 }
 
-mixin MetaElementMixin implements MetaElement<MetaElementMixin> {
+mixin MetaElementMixin<SELF extends MetaElementMixin<SELF>> implements MetaElement<SELF> {
   @override
   R acceptHtmlElement<R, A>(
     final HtmlElementVisitor<R, A> v,
@@ -67,7 +66,7 @@ mixin MetaElementMixin implements MetaElement<MetaElementMixin> {
       );
 }
 
-mixin BodyElementMixin implements BodyElement<BodyElementMixin> {
+mixin BodyElementMixin<SELF extends BodyElementMixin<SELF>> implements BodyElement<SELF> {
   @override
   R acceptHtmlElement<R, A>(
     final HtmlElementVisitor<R, A> v,
@@ -89,7 +88,7 @@ mixin BodyElementMixin implements BodyElement<BodyElementMixin> {
       );
 }
 
-mixin StyleElementMixin implements StyleElement<StyleElementMixin> {
+mixin StyleElementMixin<SELF extends StyleElementMixin<SELF>> implements StyleElement<SELF> {
   @override
   R acceptHtmlElement<R, A>(
     final HtmlElementVisitor<R, A> v,
@@ -111,7 +110,7 @@ mixin StyleElementMixin implements StyleElement<StyleElementMixin> {
       );
 }
 
-mixin ScriptElementMixin implements ScriptElement<ScriptElementMixin> {
+mixin ScriptElementMixin<SELF extends ScriptElementMixin<SELF>> implements ScriptElement<SELF> {
   @override
   R acceptHtmlElement<R, A>(
     final HtmlElementVisitor<R, A> v,
@@ -133,7 +132,7 @@ mixin ScriptElementMixin implements ScriptElement<ScriptElementMixin> {
       );
 }
 
-mixin LinkElementMixin implements LinkElement<LinkElementMixin> {
+mixin LinkElementMixin<SELF extends LinkElementMixin<SELF>> implements LinkElement<SELF> {
   @override
   R acceptHtmlElement<R, A>(
     final HtmlElementVisitor<R, A> v,
@@ -155,7 +154,7 @@ mixin LinkElementMixin implements LinkElement<LinkElementMixin> {
       );
 }
 
-mixin TitleElementMixin implements TitleElement<TitleElementMixin> {
+mixin TitleElementMixin<SELF extends TitleElementMixin<SELF>> implements TitleElement<SELF> {
   @override
   R acceptHtmlElement<R, A>(
     final HtmlElementVisitor<R, A> v,
@@ -177,7 +176,7 @@ mixin TitleElementMixin implements TitleElement<TitleElementMixin> {
       );
 }
 
-mixin HtmlHtmlElementMixin implements HtmlHtmlElement<HtmlHtmlElementMixin> {
+mixin HtmlHtmlElementMixin<SELF extends HtmlHtmlElementMixin<SELF>> implements HtmlHtmlElement<SELF> {
   @override
   R acceptHtmlElement<R, A>(
     final HtmlElementVisitor<R, A> v,
@@ -199,7 +198,7 @@ mixin HtmlHtmlElementMixin implements HtmlHtmlElement<HtmlHtmlElementMixin> {
       );
 }
 
-mixin BRElementMixin implements BRElement<BRElementMixin> {
+mixin BRElementMixin<SELF extends BRElementMixin<SELF>> implements BRElement<SELF> {
   @override
   R acceptHtmlElement<R, A>(
     final HtmlElementVisitor<R, A> v,
@@ -221,7 +220,7 @@ mixin BRElementMixin implements BRElement<BRElementMixin> {
       );
 }
 
-mixin ParagraphElementMixin implements ParagraphElement<ParagraphElementMixin> {
+mixin ParagraphElementMixin<SELF extends ParagraphElementMixin<SELF>> implements ParagraphElement<SELF> {
   @override
   R acceptHtmlElement<R, A>(
     final HtmlElementVisitor<R, A> v,
@@ -243,7 +242,7 @@ mixin ParagraphElementMixin implements ParagraphElement<ParagraphElementMixin> {
       );
 }
 
-mixin ImageElementMixin implements ImageElement<ImageElementMixin> {
+mixin ImageElementMixin<SELF extends ImageElementMixin<SELF>> implements ImageElement<SELF> {
   @override
   R acceptHtmlElement<R, A>(
     final HtmlElementVisitor<R, A> v,
@@ -265,7 +264,7 @@ mixin ImageElementMixin implements ImageElement<ImageElementMixin> {
       );
 }
 
-mixin AnchorElementMixin implements AnchorElement<AnchorElementMixin> {
+mixin AnchorElementMixin<SELF extends AnchorElementMixin<SELF>> implements AnchorElement<SELF> {
   @override
   R acceptHtmlElement<R, A>(
     final HtmlElementVisitor<R, A> v,

@@ -1,12 +1,21 @@
-import '../../edge/edge.dart';
-import '../point.dart';
-import '../point_impl.dart';
+import '../../edge/interface.dart';
+import '../impl.dart';
+import '../interface.dart';
+import 'cross.dart';
 
 /// Gets the side of the edge the given point is on.
-Side side(QTEdge edge, QTPoint point) {
-  final double value =
-      QTPointImpl.cross(QTPointImpl(edge.dx, edge.dy), QTPointImpl(point.x - edge.x1, point.y - edge.y1));
-  const double epsilon = 1.0e-12;
+Side side(
+  final QTEdge edge,
+  final QTPoint point,
+) {
+  final value = pointCross(
+    QTPointImpl(edge.dx, edge.dy),
+    QTPointImpl(
+      point.x - edge.x1,
+      point.y - edge.y1,
+    ),
+  );
+  const epsilon = 1.0e-12;
   if (value.abs() <= epsilon) {
     return Side.Inside;
   } else if (value < 0.0) {

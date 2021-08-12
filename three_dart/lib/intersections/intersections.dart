@@ -20,13 +20,11 @@ BaseResult trianglePlane(
   final Triangle3 triangle,
   final Plane plane,
 ) {
-  final Side side = plane.sideOfPointComponents(triangle.x1, triangle.y1, triangle.z1);
+  final side = plane.sideOfPointComponents(triangle.x1, triangle.y1, triangle.z1);
   if (side == Side.Inside) return BaseResult(true);
-
   Side other = plane.sideOfPointComponents(triangle.x2, triangle.y2, triangle.z2);
   if (other == Side.Inside) return BaseResult(true);
   if (side != other) return BaseResult(true);
-
   other = plane.sideOfPointComponents(triangle.x3, triangle.y3, triangle.z3);
   if (other == Side.Inside) return BaseResult(true);
   return BaseResult(side != other);
@@ -36,18 +34,16 @@ BaseResult trianglePlane(
 // and determine if this axis is seperating or not.
 // Based on code from https://gdbooks.gitbooks.io/3dcollisions/content/Chapter4/aabb-triangle.html
 bool _isSeparatingAxis(Vector3 regionSize, Vector3 axis, Vector3 v1, Vector3 v2, Vector3 v3) {
-  final double p0 = v1.dot(axis);
-  final double p1 = v2.dot(axis);
-  final double p2 = v3.dot(axis);
-
+  final p0 = v1.dot(axis);
+  final p1 = v2.dot(axis);
+  final p2 = v3.dot(axis);
   // Project the AABB size onto the seperating axis, since the AABB will be centered on the origin.
-  final double r = regionSize.dx * Vector3.posX.dot(axis).abs() +
+  final r = regionSize.dx * Vector3.posX.dot(axis).abs() +
       regionSize.dy * Vector3.posY.dot(axis).abs() +
       regionSize.dz * Vector3.posZ.dot(axis).abs();
-
   // Check if the extreme points from the triangle intersect r.
-  final double max = math.max(math.max(p0, p1), p2);
-  final double min = math.min(math.min(p0, p1), p2);
+  final max = math.max(math.max(p0, p1), p2);
+  final min = math.min(math.min(p0, p1), p2);
   if (math.max(-max, min) <= r) {
     // This means the extreme points of the projected triangle is outside the
     // projected AABB size. Therefore the axis is seperating and we can exit.
@@ -60,34 +56,28 @@ bool _isSeparatingAxis(Vector3 regionSize, Vector3 axis, Vector3 v1, Vector3 v2,
 
 // Determine if there is a separating axis between the a triangle and an AABB.
 bool _hasSeparatingAxis(Point3 regionCenter, Vector3 regionSize, Triangle3 tri) {
-  final Vector3 v1 = regionCenter.vectorTo(tri.point1);
-  final Vector3 v2 = regionCenter.vectorTo(tri.point2);
-  final Vector3 v3 = regionCenter.vectorTo(tri.point3);
-
+  final v1 = regionCenter.vectorTo(tri.point1);
+  final v2 = regionCenter.vectorTo(tri.point2);
+  final v3 = regionCenter.vectorTo(tri.point3);
   // Check the 3 AABB face normals.
   if (_isSeparatingAxis(regionSize, Vector3.posX, v1, v2, v3)) return true;
   if (_isSeparatingAxis(regionSize, Vector3.posY, v1, v2, v3)) return true;
   if (_isSeparatingAxis(regionSize, Vector3.posZ, v1, v2, v3)) return true;
-
   // Check the 9 axis for the edge vectors of the triangle cross with face normals.
-  final Vector3 f1 = v2 - v1;
+  final f1 = v2 - v1;
   if (_isSeparatingAxis(regionSize, Vector3.posX.cross(f1), v1, v2, v3)) return true;
   if (_isSeparatingAxis(regionSize, Vector3.posY.cross(f1), v1, v2, v3)) return true;
   if (_isSeparatingAxis(regionSize, Vector3.posZ.cross(f1), v1, v2, v3)) return true;
-
-  final Vector3 f2 = v3 - v2;
+  final f2 = v3 - v2;
   if (_isSeparatingAxis(regionSize, Vector3.posX.cross(f2), v1, v2, v3)) return true;
   if (_isSeparatingAxis(regionSize, Vector3.posY.cross(f2), v1, v2, v3)) return true;
   if (_isSeparatingAxis(regionSize, Vector3.posZ.cross(f2), v1, v2, v3)) return true;
-
-  final Vector3 f3 = v1 - v3;
+  final f3 = v1 - v3;
   if (_isSeparatingAxis(regionSize, Vector3.posX.cross(f3), v1, v2, v3)) return true;
   if (_isSeparatingAxis(regionSize, Vector3.posY.cross(f3), v1, v2, v3)) return true;
   if (_isSeparatingAxis(regionSize, Vector3.posZ.cross(f3), v1, v2, v3)) return true;
-
   // Check the triangle normal.
   if (_isSeparatingAxis(regionSize, f1.cross(f2), v1, v2, v3)) return true;
-
   // Checked all 13 separating axii and found no separation.
   return false;
 }
@@ -113,7 +103,7 @@ BaseResult cubeTriangle(Cube cube, Triangle3 triangle) {
 BaseResult regionPlane(Region3 range, Plane plane) {
   final min = range.minCorner;
   final max = range.maxCorner;
-  final Side side = plane.sideOfPointComponents(min.x, min.y, min.z);
+  final side = plane.sideOfPointComponents(min.x, min.y, min.z);
   if (side == Side.Inside) return BaseResult(true);
   Side other = plane.sideOfPointComponents(min.x, min.y, max.z);
   if (other == Side.Inside) return BaseResult(true);
@@ -173,10 +163,9 @@ class RaySphereResult extends BaseResult {
 
 /// Determines the intersection between the given [ray] and [region].
 RayRegion3Result rayRegion3(Ray3 ray, Region3 region) {
-  final double maxx = region.x + region.dx;
-  final double maxy = region.y + region.dy;
-  final double maxz = region.z + region.dz;
-
+  final maxx = region.x + region.dx;
+  final maxy = region.y + region.dy;
+  final maxz = region.z + region.dz;
   // Check for point inside box, trivial reject, and determine
   // parametric distance to each front face
   bool inside = true;
@@ -201,7 +190,6 @@ RayRegion3Result rayRegion3(Ray3 ray, Region3 region) {
   } else {
     xt = -1.0;
   }
-
   double yt = 0.0, yn = 0.0, yp = 0.0;
   HitRegion yregion = HitRegion.None;
   if (ray.y < region.y) {
@@ -223,7 +211,6 @@ RayRegion3Result rayRegion3(Ray3 ray, Region3 region) {
   } else {
     yt = -1.0;
   }
-
   double zt = 0.0, zn = 0.0, zp = 0.0;
   HitRegion zregion = HitRegion.None;
   if (ray.z < region.z) {
@@ -249,7 +236,7 @@ RayRegion3Result rayRegion3(Ray3 ray, Region3 region) {
     return RayRegion3Result(ray.start, -ray.vector.normal(), 0.0, HitRegion.Inside);
   }
   // The farthest plane is the plane of intersection.
-  final int which = () {
+  final which = () {
     if (yt > xt) {
       if (zt > yt) {
         return 2;
@@ -266,21 +253,21 @@ RayRegion3Result rayRegion3(Ray3 ray, Region3 region) {
   }();
   switch (which) {
     case 0: // intersect with yz plane
-      final double y = ray.y + ray.dy * xt;
+      final y = ray.y + ray.dy * xt;
       if (!inRange(y, region.y, maxy)) return RayRegion3Result.none();
-      final double z = ray.z + ray.dz * xt;
+      final z = ray.z + ray.dz * xt;
       if (!inRange(z, region.z, maxz)) return RayRegion3Result.none();
       return RayRegion3Result(Point3(xp, y, z), Vector3(xn, 0.0, 0.0), xt, xregion);
     case 1: // intersect with xz plane
-      final double x = ray.x + ray.dx * yt;
+      final x = ray.x + ray.dx * yt;
       if (!inRange(x, region.x, maxx)) return RayRegion3Result.none();
-      final double z = ray.z + ray.dz * yt;
+      final z = ray.z + ray.dz * yt;
       if (!inRange(z, region.z, maxz)) return RayRegion3Result.none();
       return RayRegion3Result(Point3(x, yp, z), Vector3(0.0, yn, 0.0), yt, yregion);
     default: // 2, intersect with xy plane
-      final double x = ray.x + ray.dx * zt;
+      final x = ray.x + ray.dx * zt;
       if (!inRange(x, region.x, maxx)) return RayRegion3Result.none();
-      final double y = ray.y + ray.dy * zt;
+      final y = ray.y + ray.dy * zt;
       if (!inRange(y, region.y, maxy)) return RayRegion3Result.none();
       return RayRegion3Result(Point3(x, y, zp), Vector3(0.0, 0.0, zn), zt, zregion);
   }
@@ -317,9 +304,8 @@ class RayRegion3Result extends BaseResult {
 
 /// Determines the intersection between the given [ray] and this region.
 RayRegion2Result rayRegion2(Ray2 ray, Region2 region) {
-  final double maxx = region.x + region.dx;
-  final double maxy = region.y + region.dy;
-
+  final maxx = region.x + region.dx;
+  final maxy = region.y + region.dy;
   // Check for point inside box, trivial reject, and determine
   // parametric distance to each front face
   bool inside = true;
@@ -346,7 +332,6 @@ RayRegion2Result rayRegion2(Ray2 ray, Region2 region) {
       xt = -1.0;
     }
   }
-
   double yt = 0.0, yn = 0.0, yp = 0.0;
   HitRegion yregion = HitRegion.None;
   if (ray.y < region.y) {
@@ -376,13 +361,13 @@ RayRegion2Result rayRegion2(Ray2 ray, Region2 region) {
   // The farthest plane is the plane of intersection.
   if (yt > xt) {
     // intersect with xz plane
-    final double x = ray.x + ray.dx * yt;
+    final x = ray.x + ray.dx * yt;
     if (inRange(x, region.x, maxx)) {
       return RayRegion2Result(Point2(x, yp), Vector2(0.0, yn), yt, yregion);
     }
   } else {
     // intersect with yz plane
-    final double y = ray.y + ray.dy * xt;
+    final y = ray.y + ray.dy * xt;
     if (inRange(y, region.y, maxy)) {
       return RayRegion2Result(Point2(xp, y), Vector2(xn, 0.0), xt, xregion);
     }
@@ -422,15 +407,13 @@ class RayRegion2Result extends BaseResult {
 
 /// Determines the intersection between the given [ray] and [plane].
 RayPlaneResult rayPlane(Ray3 ray, Plane plane) {
-  final Vector3 norm = plane.normal;
-  final Vector3 p0 = Vector3(ray.x, ray.y, ray.z);
-  final Vector3 vec = ray.vector;
-  final double dem = vec.dot(norm);
+  final norm = plane.normal;
+  final p0 = Vector3(ray.x, ray.y, ray.z);
+  final vec = ray.vector;
+  final dem = vec.dot(norm);
   if (dem == 0.0) return RayPlaneResult.none();
-
-  final double t = (plane.offset - p0.dot(norm)) / dem;
+  final t = (plane.offset - p0.dot(norm)) / dem;
   if ((t < 0.0) || (t > 1.0)) return RayPlaneResult.none();
-
   return RayPlaneResult(Point3.fromVector3(p0 + norm * t), t);
 }
 
@@ -458,17 +441,15 @@ class RayPlaneResult extends BaseResult {
 
 /// Get the point intersection of three planes.
 PlanesResult planes(Plane plane1, Plane plane2, Plane plane3) {
-  final Vector3 normal1 = plane1.normal;
-  final Vector3 normal2 = plane2.normal;
-  final Vector3 normal3 = plane3.normal;
-
-  final Vector3 cross12 = normal1.cross(normal2);
-  final double div = cross12.dot(normal3);
+  final normal1 = plane1.normal;
+  final normal2 = plane2.normal;
+  final normal3 = plane3.normal;
+  final cross12 = normal1.cross(normal2);
+  final div = cross12.dot(normal3);
   if (Comparer.equals(div, 0.0)) return PlanesResult(false, null);
-
-  final Vector3 cross23 = normal2.cross(normal3);
-  final Vector3 cross31 = normal3.cross(normal1);
-  final Vector3 result = (cross23 * plane1.offset + cross31 * plane2.offset + cross12 * plane3.offset) / div;
+  final cross23 = normal2.cross(normal3);
+  final cross31 = normal3.cross(normal1);
+  final result = (cross23 * plane1.offset + cross31 * plane2.offset + cross12 * plane3.offset) / div;
   return PlanesResult(true, Point3.fromVector3(result));
 }
 

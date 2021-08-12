@@ -39,20 +39,20 @@ class Grammar {
 
   /// Deserializes the given serialized data into a grammar.
   factory Grammar.deserialize(simple.Deserializer data) {
-    final int version = data.readInt();
+    final version = data.readInt();
     if (version != 1) throw Exception('Unknown version, $version, for grammar serialization.');
-    final Grammar grammar = Grammar();
+    final grammar = Grammar();
     grammar.start(data.readStr());
-    final int termCount = data.readInt();
+    final termCount = data.readInt();
     for (int i = 0; i < termCount; i++) {
-      final Term term = grammar.term(data.readStr());
-      final int ruleCount = data.readInt();
+      final term = grammar.term(data.readStr());
+      final ruleCount = data.readInt();
       for (int j = 0; j < ruleCount; j++) {
-        final Rule rule = term.newRule();
-        final int itemCount = data.readInt();
+        final rule = term.newRule();
+        final itemCount = data.readInt();
         for (int k = 0; k < itemCount; k++) {
-          final int itemType = data.readInt();
-          final String itemName = data.readStr();
+          final itemType = data.readInt();
+          final itemName = data.readStr();
           switch (itemType) {
             case 1:
               rule.addTerm(itemName);
@@ -72,19 +72,17 @@ class Grammar {
 
   /// Creates a copy of this grammar.
   Grammar copy() {
-    final Grammar grammar = Grammar();
-    for (final Term term in this._terms) {
+    final grammar = Grammar();
+    for (final term in this._terms) {
       grammar._add(term.name);
     }
-
     if (this._start != null) grammar._start = grammar._findTerm(this._start?.name ?? '');
-
-    for (final Term term in this._terms) {
-      final Term? termCopy = grammar._findTerm(term.name);
+    for (final term in this._terms) {
+      final termCopy = grammar._findTerm(term.name);
       if (termCopy != null) {
-        for (final Rule rule in term.rules) {
-          final Rule ruleCopy = Rule._(grammar, termCopy);
-          for (final Item item in rule.items) {
+        for (final rule in term.rules) {
+          final ruleCopy = Rule._(grammar, termCopy);
+          for (final item in rule.items) {
             Item itemCopy;
             if (item is Term) {
               itemCopy = grammar.term(item.name);
@@ -106,17 +104,26 @@ class Grammar {
 
   /// Serializes the grammar.
   simple.Serializer serialize() {
-    final simple.Serializer data = simple.Serializer();
+    final data = simple.Serializer();
     data.writeInt(1); // Version 1
     data.writeStr(this._start?.name ?? '');
     data.writeInt(this._terms.length);
-    for (final Term term in this._terms) {
+    for (final term in this._terms) {
       data.writeStr(term.name);
       data.writeInt(term.rules.length);
-      for (final Rule rule in term.rules) {
+      for (final rule in term.rules) {
         data.writeInt(rule.items.length);
-        for (final Item item in rule.items) {
-          final int itemType = (item is Term) ? 1 : ((item is TokenItem) ? 2 : 3);
+        for (final item in rule.items) {
+          final int itemType;
+          if (item is Term) {
+            itemType = 1;
+          } else {
+            if (item is TokenItem) {
+              itemType = 2;
+            } else {
+              itemType = 3;
+            }
+          }
           data.writeInt(itemType);
           data.writeStr(item.name);
         }
@@ -152,7 +159,7 @@ class Grammar {
   /// Finds a term in this grammar by the given name.
   /// Returns null if no term by that name if found.
   Term? _findTerm(String termName) {
-    for (final Term term in this._terms) {
+    for (final term in this._terms) {
       if (term.name == termName) return term;
     }
     return null;
@@ -161,7 +168,7 @@ class Grammar {
   /// Adds a new term to this grammar.
   /// If the start term isn't set, it will be set to this term.
   Term _add(String termName) {
-    final Term nt = Term._(this, termName);
+    final nt = Term._(this, termName);
     this._terms.add(nt);
     this._start ??= nt;
     return nt;
@@ -173,10 +180,10 @@ class Grammar {
     // ignore: parameter_assignments
     tokenName = tokenName.trim();
     if (tokenName.isEmpty) throw Exception('May not have an all whitespace or empty token name.');
-    for (final TokenItem token in this._tokens) {
+    for (final token in this._tokens) {
       if (token.name == tokenName) return token;
     }
-    final TokenItem token = TokenItem(tokenName);
+    final token = TokenItem(tokenName);
     this._tokens.add(token);
     return token;
   }
@@ -187,10 +194,10 @@ class Grammar {
     // ignore: parameter_assignments
     triggerName = triggerName.trim();
     if (triggerName.isEmpty) throw Exception('May not have an all whitespace or empty trigger name.');
-    for (final Trigger trigger in this._triggers) {
+    for (final trigger in this._triggers) {
       if (trigger.name == triggerName) return trigger;
     }
-    final Trigger trigger = Trigger(triggerName);
+    final trigger = Trigger(triggerName);
     this._triggers.add(trigger);
     return trigger;
   }
@@ -212,11 +219,11 @@ class Grammar {
   /// Gets a string showing the whole language.
   @override
   String toString() {
-    final StringBuffer buf = StringBuffer();
+    final buf = StringBuffer();
     if (this._start != null) buf.writeln("> " + this._start.toString());
-    for (final Term term in this._terms) {
+    for (final term in this._terms) {
       // ignore: prefer_foreach
-      for (final Rule rule in term.rules) {
+      for (final rule in term.rules) {
         buf.writeln(rule);
       }
     }
@@ -227,17 +234,15 @@ class Grammar {
   /// on success (no errors) an empty string is returned,
   /// on failure a string containing each error line separated is returned.
   String validate() {
-    final StringBuffer buf = StringBuffer();
+    final buf = StringBuffer();
     if (this._terms.isEmpty) buf.writeln('No terms are defined.');
     if (this._tokens.isEmpty) buf.writeln('No tokens are defined.');
-
     if (this._start == null) {
       buf.writeln('The start term is not set.');
     } else if (!this._terms.contains(this._start)) {
       buf.writeln('The start term, ${this._start}, was not found in the set of terms.');
     }
-
-    final List<Term> termList = this._terms.toList();
+    final termList = this._terms.toList();
     for (int i = termList.length - 1; i >= 0; i--) {
       for (int j = i - 1; j >= 0; j--) {
         if (termList[i].name == termList[j].name) {
@@ -245,11 +250,9 @@ class Grammar {
         }
       }
     }
-
-    for (final Term term in this._terms) {
+    for (final term in this._terms) {
       if (term.name.trim().isEmpty) buf.writeln('There exists a term which is all whitespace or empty.');
       if (term._rules.isEmpty) buf.writeln('The term, $term, has no rules defined for it.');
-
       for (int i = term._rules.length - 1; i >= 0; i--) {
         for (int j = i - 1; j >= 0; j--) {
           if (term._rules[i].equals(term._rules[j])) {
@@ -257,15 +260,13 @@ class Grammar {
           }
         }
       }
-
-      for (final Rule rule in term._rules) {
+      for (final rule in term._rules) {
         if (rule.term == null) {
           buf.writeln('The rule for ${term.name} is rule.');
         } else if (rule.term != term) {
           buf.writeln('The rule for ${term.name} says it is for ${rule.term?.name ?? 'null'}.');
         }
-
-        for (final Item item in rule._items) {
+        for (final item in rule._items) {
           if (item.name.trim().isEmpty) {
             buf.writeln('There exists an item in rule for ${term.name} which is all whitespace or empty.');
           }
@@ -287,11 +288,9 @@ class Grammar {
         }
       }
     }
-
-    final _grammarUnreached unreached = _grammarUnreached(buf, termList, this._tokens, this._triggers);
+    final unreached = _grammarUnreached(buf, termList, this._tokens, this._triggers);
     unreached.touch(this._start);
     unreached.validate();
-
     return buf.toString();
   }
 }
@@ -317,9 +316,9 @@ class _grammarUnreached {
     if (item is Term) {
       if (this._terms.contains(item.name)) {
         this._terms.remove(item.name);
-        for (final Rule r in item._rules) {
+        for (final r in item._rules) {
           // ignore: prefer_foreach
-          for (final Item item in r._items) {
+          for (final item in r._items) {
             this.touch(item);
           }
         }
@@ -383,7 +382,7 @@ class Term extends Item {
 
   /// Adds a new rule to this term.
   Rule newRule() {
-    final Rule rule = Rule._(this._grammar, this);
+    final rule = Rule._(this._grammar, this);
     this._rules.add(rule);
     return rule;
   }
@@ -391,7 +390,7 @@ class Term extends Item {
   /// Determines the first tokens that can be reached from
   /// the rules of this term.
   List<TokenItem> determineFirsts() {
-    final Set<TokenItem> tokens = <TokenItem>{};
+    final tokens = <TokenItem>{};
     this._determineFirsts(tokens, <Term>{});
     return tokens.toList();
   }
@@ -399,7 +398,7 @@ class Term extends Item {
   /// Determines the follow tokens that can be reached from the reduction of all the rules,
   /// i.e. the tokens which follow after the term and any first term in all the rules.
   List<TokenItem> determineFollows() {
-    final Set<TokenItem> tokens = <TokenItem>{};
+    final tokens = <TokenItem>{};
     this._determineFollows(tokens, <Term>{});
     return tokens.toList();
   }
@@ -410,7 +409,7 @@ class Term extends Item {
     if (checked.contains(this)) return;
     checked.add(this);
     bool needFollows = false;
-    for (final Rule rule in this._rules) {
+    for (final rule in this._rules) {
       if (this._determineRuleFirsts(rule, tokens, checked)) needFollows = true;
     }
     if (needFollows) this._determineFollows(tokens, <Term>{});
@@ -420,7 +419,7 @@ class Term extends Item {
   /// If the rule has no tokens or terms this will return true
   /// indicating that the rule needs follows to be added.
   bool _determineRuleFirsts(Rule rule, Set<TokenItem> tokens, Set<Term> checked) {
-    for (final Item item in rule.items) {
+    for (final item in rule.items) {
       if (item is Term) {
         item._determineFirsts(tokens, checked);
         return false;
@@ -438,14 +437,13 @@ class Term extends Item {
   void _determineFollows(Set<TokenItem> tokens, Set<Term> checked) {
     if (checked.contains(this)) return;
     checked.add(this);
-    for (final Term term in this._grammar.terms) {
-      for (final Rule rule in term.rules) {
-        final List<Item> items = rule.basicItems;
-
-        final int count = items.length;
+    for (final term in this._grammar.terms) {
+      for (final rule in term.rules) {
+        final items = rule.basicItems;
+        final count = items.length;
         for (int i = 0; i < count - 1; i++) {
           if (items[i] == this) {
-            final Item item = items[i + 1];
+            final item = items[i + 1];
             if (item is Term) {
               item._determineFirsts(tokens, <Term>{});
             } else {
@@ -485,7 +483,7 @@ class Rule {
   /// Returns this rule so that rule creation can be chained.
   // ignore: avoid_returning_this
   Rule addTerm(String termName) {
-    final Term term = this._grammar.term(termName);
+    final term = this._grammar.term(termName);
     this._items.add(term);
     return this;
   }
@@ -494,7 +492,7 @@ class Rule {
   /// Returns this rule so that rule creation can be chained.
   // ignore: avoid_returning_this
   Rule addToken(String tokenName) {
-    final TokenItem token = this._grammar.token(tokenName);
+    final token = this._grammar.token(tokenName);
     this._items.add(token);
     return this;
   }
@@ -503,7 +501,7 @@ class Rule {
   /// Returns this rule so that rule creation can be chained.
   // ignore: avoid_returning_this
   Rule addTrigger(String triggerName) {
-    final Trigger trigger = this._grammar.trigger(triggerName);
+    final trigger = this._grammar.trigger(triggerName);
     this._items.add(trigger);
     return this;
   }
@@ -517,8 +515,8 @@ class Rule {
 
   /// Gets the set of terms and tokens without the triggers.
   List<Item> get basicItems {
-    final List<Item> items = [];
-    for (final Item item in this._items) {
+    final items = <Item>[];
+    for (final item in this._items) {
       if (item is! Trigger) items.add(item);
     }
     return items;
@@ -541,9 +539,9 @@ class Rule {
   /// states of the parser generator.
   @override
   String toString([int stepIndex = -1]) {
-    final List<String> parts = [];
+    final parts = <String>[];
     int index = 0;
-    for (final Item item in this._items) {
+    for (final item in this._items) {
       if (index == stepIndex) {
         parts.add('•');
         // ignore: parameter_assignments

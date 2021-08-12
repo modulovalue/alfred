@@ -3,7 +3,6 @@ import '../alfred/interface/alfred.dart';
 /// Print out the registered routes to the console.
 ///
 /// Helpful to see whats available.
-/// TODO consider giving Method a visitor instead of a matcher.
 void printRoutes(
   final Alfred alfred,
 ) {

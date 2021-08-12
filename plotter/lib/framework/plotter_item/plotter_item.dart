@@ -1,6 +1,7 @@
-import '../plotter/plotter.dart';
 import '../primitives/primitives.dart';
+import '../render/interface.dart';
 
+/// TODO these are not items, these are attributes.
 /// The interface for all attributes.
 abstract class PlotterAttribute {
   /// Pushes the attribute to the renderer.

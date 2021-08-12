@@ -3,25 +3,25 @@ import '../plotter/plotter_impl.dart';
 import '../primitives/primitives.dart';
 import 'mouse_handle.dart';
 
-MouseCoords makeMouseCoords(
+PlotterMouseCoords makeMouseCoords(
   final Plotter plotter,
 ) {
   final _text = plotter.addText(0.0, 0.0, 12.0, "");
-  return MouseCoords(
+  return PlotterMouseCoords(
     plotter,
     _text,
   );
 }
 
 /// A mouse handler for outputting coordinates of the mouse, typically to be displayed.
-class MouseCoords implements PlotterMouseHandle {
+class PlotterMouseCoords implements PlotterMouseHandle {
   /// The plotter this mouse handle is changing.
   final Plotter _plot;
 
   /// The lines for the crosshairs.
   final Text _text;
 
-  const MouseCoords(
+  const PlotterMouseCoords(
     final this._plot,
     final this._text,
   );
@@ -29,13 +29,13 @@ class MouseCoords implements PlotterMouseHandle {
   /// handles mouse down.
   @override
   void mouseDown(
-    final MouseEvent e,
+    final PlotterMouseEvent e,
   ) {}
 
   /// handles mouse moved.
   @override
   void mouseMove(
-    final MouseEvent e,
+    final PlotterMouseEvent e,
   ) {
     final x = _plot.view.untransformX(e.px).toStringAsPrecision(3);
     final y = _plot.view.untransformY(e.py).toStringAsPrecision(3);
@@ -49,22 +49,22 @@ class MouseCoords implements PlotterMouseHandle {
   /// handles mouse up.
   @override
   void mouseUp(
-    final MouseEvent e,
+    final PlotterMouseEvent e,
   ) {}
 }
 
-MouseCrosshairs makeMouseCrosshairs(
+PlotterMouseCrosshairs makeMouseCrosshairs(
   final Plotter plotter,
 ) {
   final _lines = plotter.addLines([])..addColor(1.0, 0.0, 0.0);
-  return MouseCrosshairs(
+  return PlotterMouseCrosshairs(
     plotter,
     _lines,
   );
 }
 
 /// Adds crosshairs at the mouse location.
-class MouseCrosshairs implements PlotterMouseHandle {
+class PlotterMouseCrosshairs implements PlotterMouseHandle {
   /// The plotter this mouse handle is changing.
   final Plotter _plot;
 
@@ -72,7 +72,7 @@ class MouseCrosshairs implements PlotterMouseHandle {
   final Lines _lines;
 
   /// Creates a new mouse crosshairs.
-  const MouseCrosshairs(
+  const PlotterMouseCrosshairs(
     final this._plot,
     final this._lines,
   );
@@ -80,13 +80,13 @@ class MouseCrosshairs implements PlotterMouseHandle {
   /// Implements interface but has no effect.
   @override
   void mouseDown(
-    final MouseEvent e,
+    final PlotterMouseEvent e,
   ) {}
 
   /// Handles mouse movement to update the crosshairs.
   @override
   void mouseMove(
-    final MouseEvent e,
+    final PlotterMouseEvent e,
   ) {
     final trans = e.projection.mul(_plot.view);
     final x = trans.untransformX(e.x);
@@ -100,16 +100,16 @@ class MouseCrosshairs implements PlotterMouseHandle {
   /// Implements interface but has no effect.
   @override
   void mouseUp(
-    final MouseEvent e,
+    final PlotterMouseEvent e,
   ) {}
 }
 
-MousePan makeMousePan(
+PlotterMousePan makeMousePan(
   final Transformer plotTransformerView,
   final void Function(double, double) setViewOffset,
-  final MouseButtonState _state,
+  final PlotterMouseButtonState _state,
 ) =>
-    MousePan(
+    PlotterMousePan(
       plotTransformerView,
       setViewOffset,
       true,
@@ -122,7 +122,7 @@ MousePan makeMousePan(
     );
 
 /// A mouse handler for translating the viewport.
-class MousePan implements PlotterMouseHandle {
+class PlotterMousePan implements PlotterMouseHandle {
   /// The plotter this mouse handle is changing.
   final Transformer _plotTransformerView;
   final void Function(double, double) setViewOffset;
@@ -131,7 +131,7 @@ class MousePan implements PlotterMouseHandle {
   bool enabled;
 
   /// The mouse button pressed.
-  final MouseButtonState _state;
+  final PlotterMouseButtonState _state;
 
   /// The initial mouse x location on a mouse pressed.
   double _msx;
@@ -148,7 +148,7 @@ class MousePan implements PlotterMouseHandle {
   /// True indicates a mouse move has been started.
   bool _moveStarted;
 
-  MousePan(
+  PlotterMousePan(
     this._plotTransformerView,
     this.setViewOffset,
     this.enabled,
@@ -163,7 +163,7 @@ class MousePan implements PlotterMouseHandle {
   /// handles mouse down.
   @override
   void mouseDown(
-    final MouseEvent e,
+    final PlotterMouseEvent e,
   ) {
     if (enabled && e.state.equals(_state)) {
       _viewx = _plotTransformerView.dx;
@@ -176,20 +176,20 @@ class MousePan implements PlotterMouseHandle {
 
   /// Gets the change in the view x location.
   double _viewDX(
-    final MouseEvent e,
+    final PlotterMouseEvent e,
   ) =>
       _viewx + (e.x - _msx) / e.projection.xScalar;
 
   /// Gets the change in the view y location.
   double _viewDY(
-    final MouseEvent e,
+    final PlotterMouseEvent e,
   ) =>
       _viewy - (e.y - _msy) / e.projection.yScalar;
 
   /// handles mouse moved.
   @override
   void mouseMove(
-    final MouseEvent e,
+    final PlotterMouseEvent e,
   ) {
     if (_moveStarted) {
       setViewOffset(_viewDX(e), _viewDY(e));
@@ -200,7 +200,7 @@ class MousePan implements PlotterMouseHandle {
   /// handles mouse up.
   @override
   void mouseUp(
-    final MouseEvent e,
+    final PlotterMouseEvent e,
   ) {
     if (_moveStarted) {
       setViewOffset(_viewDX(e), _viewDY(e));

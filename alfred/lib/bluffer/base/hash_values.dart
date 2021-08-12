@@ -118,7 +118,7 @@ int hashValues(
 /// given null as if given an empty list.
 int hashList(Iterable<Object> arguments) {
   int result = 0;
-  for (final Object argument in arguments) {
+  for (final argument in arguments) {
     result = _Jenkins.combine(result, argument);
   }
   return _Jenkins.finish(result);

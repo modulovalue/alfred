@@ -7,22 +7,19 @@ import 'package:alfred/bluffer/widgets/text/text.dart';
 import 'package:alfred/util/open.dart';
 
 Future<void> main() async {
-  final app = AlfredImpl();
-  app.addRoutes([
-    const RouteGet(
-      path: "/",
-      middleware: ServeWidget.app(
-        title: "My title!",
-        child: Padding(
-          padding: EdgeInsets.all(20.0),
-          child: Text("Hello"),
+  final built = await helloAlfred(
+    routes: [
+      const RouteGet(
+        path: "/",
+        middleware: ServeWidget.app(
+          title: "My title!",
+          child: Padding(
+            padding: EdgeInsets.all(20.0),
+            child: Text("Hello"),
+          ),
         ),
-      ),
-    )
-  ]);
-  final built = await buildAlfred(
-    alfred: app,
-    port: 6565,
+      )
+    ],
   );
   openLocalhost(built.args.port);
 }

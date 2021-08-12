@@ -2,7 +2,7 @@ import '../css/css.dart';
 import 'html.dart';
 import 'html_mixin.dart';
 
-class BRElementImpl with BRElementMixin {
+class BRElementImpl with BRElementMixin<BRElementImpl> {
   @override
   final String? className;
   @override
@@ -20,7 +20,7 @@ class BRElementImpl with BRElementMixin {
   Null get style => null;
 
   @override
-  BRElementMixin copyWith({
+  BRElementImpl copyWith({
     final String? className,
     final String? id,
   }) =>
@@ -31,7 +31,7 @@ class BRElementImpl with BRElementMixin {
       );
 }
 
-class HtmlHtmlElementImpl with HtmlHtmlElementMixin {
+class HtmlHtmlElementImpl with HtmlHtmlElementMixin<HtmlHtmlElementImpl> {
   @override
   final String? className;
   @override
@@ -60,7 +60,7 @@ class HtmlHtmlElementImpl with HtmlHtmlElementMixin {
       );
 }
 
-class MetaElementImpl with MetaElementMixin {
+class MetaElementImpl with MetaElementMixin<MetaElementImpl> {
   @override
   final String? className;
   @override
@@ -105,7 +105,7 @@ class MetaElementImpl with MetaElementMixin {
       attributes.forEach(forEach);
 }
 
-class BodyElementImpl with BodyElementMixin {
+class BodyElementImpl with BodyElementMixin<BodyElementImpl> {
   @override
   final String? className;
   @override
@@ -155,7 +155,7 @@ class CssTextElementImpl with CssTextElementMixin {
   );
 }
 
-class ScriptElementImpl with ScriptElementMixin {
+class ScriptElementImpl with ScriptElementMixin<ScriptElementImpl> {
   @override
   final String? className;
   @override
@@ -200,7 +200,7 @@ class ScriptElementImpl with ScriptElementMixin {
   Null get style => null;
 }
 
-class LinkElementImpl with LinkElementMixin {
+class LinkElementImpl with LinkElementMixin<LinkElementImpl> {
   @override
   final String? className;
   @override
@@ -237,7 +237,7 @@ class LinkElementImpl with LinkElementMixin {
   Null get style => null;
 }
 
-class TitleElementImpl with TitleElementMixin {
+class TitleElementImpl with TitleElementMixin<TitleElementImpl> {
   @override
   final String? className;
   @override
@@ -270,7 +270,7 @@ class TitleElementImpl with TitleElementMixin {
   Null get style => null;
 }
 
-class StyleElementImpl with StyleElementMixin {
+class StyleElementImpl with StyleElementMixin<StyleElementImpl> {
   @override
   final String? className;
   @override
@@ -299,7 +299,7 @@ class StyleElementImpl with StyleElementMixin {
   Null get style => null;
 }
 
-class ParagraphElementImpl with ParagraphElementMixin {
+class ParagraphElementImpl with ParagraphElementMixin<ParagraphElementImpl> {
   @override
   final String? className;
   @override
@@ -328,7 +328,7 @@ class ParagraphElementImpl with ParagraphElementMixin {
   Null get style => null;
 }
 
-class ImageElementImpl with ImageElementMixin {
+class ImageElementImpl with ImageElementMixin<ImageElementImpl> {
   @override
   final String? className;
   @override
@@ -365,7 +365,7 @@ class ImageElementImpl with ImageElementMixin {
   Null get style => null;
 }
 
-class DivElementImpl with DivElementMixin {
+class DivElementImpl with DivElementMixin<DivElementImpl> {
   @override
   final String? className;
   @override
@@ -380,7 +380,7 @@ class DivElementImpl with DivElementMixin {
   });
 
   @override
-  DivElementMixin copyWith({
+  DivElementImpl copyWith({
     final String? className,
     final String? id,
   }) =>
@@ -394,7 +394,7 @@ class DivElementImpl with DivElementMixin {
   Null get style => null;
 }
 
-class AnchorElementImpl with AnchorElementMixin {
+class AnchorElementImpl with AnchorElementMixin<AnchorElementImpl> {
   @override
   final String? className;
   @override

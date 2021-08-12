@@ -1,7 +1,7 @@
 import '../primitives/primitives.dart';
 import 'events.dart';
 
-class MouseButtonStateImpl implements MouseButtonState {
+class PlotterMouseButtonStateImpl implements PlotterMouseButtonState {
   @override
   final int button;
   @override
@@ -11,7 +11,7 @@ class MouseButtonStateImpl implements MouseButtonState {
   @override
   final bool altKey;
 
-  const MouseButtonStateImpl({
+  const PlotterMouseButtonStateImpl({
     required final this.button,
     final this.shiftKey = false,
     final this.ctrlKey = false,
@@ -20,7 +20,7 @@ class MouseButtonStateImpl implements MouseButtonState {
 
   @override
   bool equals(
-    final MouseButtonState other,
+    final PlotterMouseButtonState other,
   ) =>
       (button == other.button) &&
       (shiftKey == other.shiftKey) &&
@@ -28,7 +28,7 @@ class MouseButtonStateImpl implements MouseButtonState {
       (altKey == other.altKey);
 }
 
-class MouseEventImpl implements MouseEvent {
+class PlotterMouseEventImpl implements PlotterMouseEvent {
   @override
   final Bounds window;
   @override
@@ -40,11 +40,11 @@ class MouseEventImpl implements MouseEvent {
   @override
   final double y;
   @override
-  final MouseButtonState state;
+  final PlotterMouseButtonState state;
   @override
   bool redraw;
 
-  MouseEventImpl(
+  PlotterMouseEventImpl(
     final this.window,
     final this.projection,
     final this.viewProj,

@@ -312,7 +312,7 @@ class Collection<T> implements Iterable<T> {
     final int index,
     final T item,
   ) {
-    final T older = _list[index];
+    final older = _list[index];
     if ((older != item) && _onPreadd([item])) {
       _list[index] = item;
       _onRemoved(index, [older]);

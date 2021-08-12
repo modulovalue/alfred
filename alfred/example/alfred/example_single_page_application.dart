@@ -9,7 +9,7 @@ Future<void> main() async {
       // Provide any static assets
       const RouteGet(
         path: '/frontend/*',
-        middleware: ServeDirectory.at('test/files/spa'),
+        middleware: ServeDirectoryStringPathImpl('test/files/spa'),
       ),
       // Let any other routes handle by client SPA
       const RouteGet(

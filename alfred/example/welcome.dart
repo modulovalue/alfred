@@ -24,6 +24,7 @@ import 'package:alfred/bluffer/widgets/padding/padding.dart';
 import 'package:alfred/bluffer/widgets/sized_box/sized_box.dart';
 import 'package:alfred/bluffer/widgets/text/text.dart';
 
+// TODO move all examples into a new package.
 Future<void> main() async {
   final session = MyWebSocketSession();
   final app = AlfredImpl(
@@ -115,7 +116,7 @@ Future<void> main() async {
       // Directory
       const RouteGet(
         path: '/files/*',
-        middleware: ServeDirectory.at('test/files'),
+        middleware: ServeDirectoryStringPathImpl('test/files'),
       ),
       // Html.
       const RouteGet(

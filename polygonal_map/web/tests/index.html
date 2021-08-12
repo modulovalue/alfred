@@ -1,12 +1,155 @@
 <!DOCTYPE html>
 <html>
-  <head>
-  	<meta charset="utf-8">
-  	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
     <title>Loading Dart...</title>
-  </head>
-  <body>
-    <script defer src="tests.dart.js"></script>
-  </body>
+</head>
+<body>
+<script defer src="tests.dart.js"></script>
+</body>
+<style>
+    body {
+        background-color: #0a6464;
+        margin: 40px;
+        padding: 0;
+    }
+
+    .scroll_page {
+        position: relative;
+        text-align: center;
+    }
+
+    .page_center {
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 40px;
+        margin-bottom: 40px;
+        padding: 40px;
+        background-color: rgba(255, 255, 255, 0.8);
+        box-shadow: 3px 3px 4px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    .end_page {
+        display: block;
+        clear: both;
+    }
+
+    .queued {
+        color: #336799;
+        background-color: #C7DDF5;
+    }
+
+    .running {
+        color: #C7DDF5;
+        background-color: #336799;
+    }
+
+    .passed {
+        color: #FFFFFF;
+        background-color: #118855;
+    }
+
+    .failed {
+        color: #FFFFFF;
+        background-color: #AA3311;
+    }
+
+    .test_div {
+        float: left;
+        color: #000000;
+        padding: 0px;
+        margin: 0px;
+        width: 100%;
+        height: 600px;
+    }
+
+    .br_log {
+        clear: left;
+    }
+
+    .info_log {
+        float: left;
+        color: #000000;
+        padding: 0px;
+        margin: 0px;
+        white-space: pre;
+    }
+
+    .notice_log {
+        float: left;
+        color: #0000DD;
+        padding: 0px;
+        margin: 0px;
+        white-space: pre;
+    }
+
+    .warning_log {
+        float: left;
+        color: #DD8800;
+        padding: 0px;
+        margin: 0px;
+        white-space: pre;
+    }
+
+    .error_log {
+        float: left;
+        color: #FF0000;
+        padding: 0px;
+        margin: 0px;
+        white-space: pre;
+    }
+
+    .top_header {
+        margin: 0px;
+        font-size: 2em;
+        width: 100% -5px;
+        font-weight: bold;
+        padding: 5px;
+        border: 1px solid black;
+    }
+
+    .log_checkboxes {
+        padding: 5px;
+        width: 100% -5px;
+    }
+
+    .test_header {
+        margin: 5px 0px -2px 20px;
+        width: 100% -25px;
+        padding: 5px;
+        border: 1px solid black;
+    }
+
+    .test_body {
+        border: 1px solid black;
+        margin: 0px 0px 0px 20px;
+        width: 100% -25px;
+        text-align: left;
+        font-family: "Lucida Console";
+        font-size: .75em;
+        white-space: nowrap;
+        background-color: #DDDDDD;
+        -webkit-transition: all 0.5s ease-in-out;
+        -moz-transition: all 0.5s ease-in-out;
+        transition: all 0.5s ease-in-out;
+    }
+
+    .body_shown {
+        min-height: 150px;
+        max-height: 800px;
+        overflow: scroll;
+        padding: 10px;
+    }
+
+    .body_hidden {
+        min-height: 0px;
+        max-height: 0px;
+        overflow: hidden;
+        padding: 0px 10px 0px 10px;
+    }
+
+</style>
 </html>

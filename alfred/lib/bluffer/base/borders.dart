@@ -79,8 +79,8 @@ class BorderSide {
   /// The arguments must not be null.
   static BorderSide merge(BorderSide a, BorderSide b) {
     assert(canMerge(a, b), "The given BorderSides must be mergeable.");
-    final bool aIsNone = a.style == BorderStyle.none && a.width == 0.0;
-    final bool bIsNone = b.style == BorderStyle.none && b.width == 0.0;
+    final aIsNone = a.style == BorderStyle.none && a.width == 0.0;
+    final bIsNone = b.style == BorderStyle.none && b.width == 0.0;
     if (aIsNone && bIsNone) {
       return BorderSide.none;
     }
@@ -452,16 +452,16 @@ class _CompoundBorder extends ShapeBorder {
       // Here, "ours" is the border at the side where we're adding the new
       // border, and "merged" is the result of attempting to merge it with the
       // new border. If it's null, it couldn't be merged.
-      final ShapeBorder ours = () {
+      final ours = () {
         if (reversed) {
           return borders.last;
         } else {
           return borders.first;
         }
       }();
-      final ShapeBorder? merged = ours.add(other, reversed: reversed) ?? other.add(ours, reversed: !reversed);
+      final merged = ours.add(other, reversed: reversed) ?? other.add(ours, reversed: !reversed);
       if (merged != null) {
-        final List<ShapeBorder> result = <ShapeBorder>[...borders];
+        final result = <ShapeBorder>[...borders];
         result[() {
           if (reversed) {
             return result.length - 1;
@@ -473,7 +473,7 @@ class _CompoundBorder extends ShapeBorder {
       }
     }
     // We can't, so fall back to just adding the new border to the list.
-    final List<ShapeBorder> mergedBorders = <ShapeBorder>[
+    final mergedBorders = <ShapeBorder>[
       if (reversed) ...borders,
       if (other is _CompoundBorder) ...other.borders else other,
       if (!reversed) ...borders,
@@ -499,22 +499,22 @@ class _CompoundBorder extends ShapeBorder {
   static _CompoundBorder lerp(ShapeBorder? a, ShapeBorder? b, double t) {
     assert(a is _CompoundBorder || b is _CompoundBorder,
         "Either a or b must be a compound border."); // Not really necessary, but all call sites currently intend this.
-    final List<ShapeBorder> aList = () {
+    final aList = () {
       if (a is _CompoundBorder) {
         return a.borders;
       } else {
         return <ShapeBorder>[a!];
       }
     }();
-    final List<ShapeBorder> bList = () {
+    final bList = () {
       if (b is _CompoundBorder) {
         return b.borders;
       } else {
         return <ShapeBorder>[b!];
       }
     }();
-    final List<ShapeBorder> results = <ShapeBorder>[];
-    final int length = math.max(aList.length, bList.length);
+    final results = <ShapeBorder>[];
+    final length = math.max(aList.length, bList.length);
     for (int index = 0; index < length; index += 1) {
       final localA = () {
         if (index < aList.length) {

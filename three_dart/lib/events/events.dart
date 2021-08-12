@@ -55,7 +55,7 @@ class Event {
   /// Returns true if any handler could be emitted even if suspended, false if empty.
   bool emit([EventArgs? args]) {
     if (this.isEmpty) return false;
-    final EventArgs args2 = args ?? EventArgs(null);
+    final args2 = args ?? EventArgs(null);
     if (this.suspended) {
       if (!this.pending) this._pendingArgs = args2;
       return true;
@@ -64,14 +64,14 @@ class Event {
     if (hndls != null) {
       // Create a copy so that if this event is modified
       // inside of it's handler it doesn't cause a problem.
-      final List<EventHandler> copy = List<EventHandler>.from(hndls);
+      final copy = List<EventHandler>.from(hndls);
       copy.forEach((EventHandler hndl) {
         if (args2.propagate) hndl(args2);
       });
     }
     final onceHndls = this._onceHndls;
     if (onceHndls != null) {
-      final List<EventHandler> lastOnce = onceHndls;
+      final lastOnce = onceHndls;
       this._onceHndls = [];
       lastOnce.forEach((EventHandler hndl) {
         if (args2.propagate) hndl(args2);
@@ -122,7 +122,7 @@ class Event {
         this._suspended--;
       }
       if ((!this.suspended) && emitPending && pending) {
-        final EventArgs? args = this._pendingArgs;
+        final args = this._pendingArgs;
         this._pendingArgs = null;
         this.emit(args);
       }

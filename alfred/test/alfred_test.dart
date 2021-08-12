@@ -209,7 +209,7 @@ void main() {
         [
           const RouteGet(
             path: '/files/*',
-            middleware: ServeDirectory.at(
+            middleware: ServeDirectoryStringPathImpl(
               'test/files',
               AlfredLoggingDelegatePrintImpl(),
             ),
@@ -488,7 +488,10 @@ void main() {
         [
           const RouteGet(
             path: '/files/*',
-            middleware: ServeDirectory.at('test/files', log),
+            middleware: ServeDirectoryStringPathImpl(
+              'test/files',
+              log,
+            ),
           ),
         ],
       );
@@ -504,7 +507,10 @@ void main() {
         [
           const RouteGet(
             path: '/my/directory/*',
-            middleware: ServeDirectory.at('test/files', log),
+            middleware: ServeDirectoryStringPathImpl(
+              'test/files',
+              log,
+            ),
           ),
         ],
       );
@@ -520,7 +526,10 @@ void main() {
         [
           const RouteGet(
             path: '/my/directory/*.pdf',
-            middleware: ServeDirectory.at('test/files', log),
+            middleware: ServeDirectoryStringPathImpl(
+              'test/files',
+              log,
+            ),
           ),
         ],
       );
@@ -538,7 +547,10 @@ void main() {
         [
           const RouteGet(
             path: '/spa/*',
-            middleware: ServeDirectory.at('test/files/spa', log),
+            middleware: ServeDirectoryStringPathImpl(
+              'test/files/spa',
+              log,
+            ),
           ),
           const RouteGet(
             path: '/spa/*',

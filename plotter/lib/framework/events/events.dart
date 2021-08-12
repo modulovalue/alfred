@@ -1,7 +1,7 @@
 import '../primitives/primitives.dart';
 
 /// Mouse event arguments
-abstract class MouseEvent {
+abstract class PlotterMouseEvent {
   /// The bounds for the client viewport.
   Bounds get window;
 
@@ -18,7 +18,7 @@ abstract class MouseEvent {
   double get y;
 
   /// The state of the mouse button.
-  MouseButtonState get state;
+  PlotterMouseButtonState get state;
 
   // TODO it would be great if this could be immutable or at least taken out of this and wrapped in a redraw mouse event.
   /// Indicates the plotter needs to be redrawn.
@@ -38,7 +38,7 @@ abstract class MouseEvent {
 }
 
 /// Mouse button state.
-abstract class MouseButtonState {
+abstract class PlotterMouseButtonState {
   /// The mouse button pressed.
   int get button;
 
@@ -53,6 +53,6 @@ abstract class MouseButtonState {
 
   /// Determines if the given state is the same as this state.
   bool equals(
-    final MouseButtonState other,
+    final PlotterMouseButtonState other,
   );
 }

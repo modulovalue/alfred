@@ -12,11 +12,11 @@ class Set implements Matcher {
   /// The set must contain at least one character.
   Set.fromCodeUnits(Iterable<int> charSet) {
     if (charSet.isEmpty) throw Exception('May not create a Set with zero characters.');
-    final Map<int, bool> map = <int, bool>{};
-    for (final int char in charSet) {
+    final map = <int, bool>{};
+    for (final char in charSet) {
       map[char] = true;
     }
-    final List<int> reducedSet = List<int>.from(map.keys);
+    final reducedSet = List<int>.from(map.keys);
     reducedSet.sort();
     this._set = reducedSet;
   }
@@ -46,8 +46,8 @@ class Range implements Matcher {
       throw Exception(
           "The given low and high character strings for a Range must have one and only one characters.");
     }
-    final int low = lowChar.codeUnitAt(0);
-    final int high = highChar.codeUnitAt(0);
+    final low = lowChar.codeUnitAt(0);
+    final high = highChar.codeUnitAt(0);
     return Range.fromCodeUnits(low, high);
   }
 
@@ -58,7 +58,7 @@ class Range implements Matcher {
   /// The given values are the code units for the characters.
   factory Range.fromCodeUnits(int low, int high) {
     if (low > high) {
-      final int temp = low;
+      final temp = low;
       low = high;
       high = temp;
     }
@@ -73,8 +73,8 @@ class Range implements Matcher {
   /// Returns the string for this matcher.
   @override
   String toString() {
-    final String low = String.fromCharCode(this.low);
-    final String high = String.fromCharCode(this.high);
+    final low = String.fromCharCode(this.low);
+    final high = String.fromCharCode(this.high);
     return "$low..$high";
   }
 }
@@ -116,7 +116,7 @@ class Group implements Matcher {
   /// If any matcher matches the given character true is returned.
   @override
   bool match(int c) {
-    for (final Matcher matcher in this._matchers) {
+    for (final matcher in this._matchers) {
       if (matcher.match(c)) return true;
     }
     return false;
@@ -144,7 +144,7 @@ class Group implements Matcher {
   @override
   String toString() {
     String str = "";
-    for (final Matcher matcher in this._matchers) {
+    for (final matcher in this._matchers) {
       if (str.isNotEmpty) str += ", ";
       // ignore: use_string_buffers
       str += matcher.toString();

@@ -48,9 +48,10 @@ String plusMinusLines(String aSource, String bSource) =>
 /// It formats the results by prepending a "+" to new lines in `bSource`,
 /// a "-" for any to removed strings from `aSource`, and space if the strings are the same.
 List<String> plusMinusParts(List<String> aSource, List<String> bSource) {
-  final List<String> result = [];
-  int aIndex = 0, bIndex = 0;
-  for (final Step step in stringListPath(aSource, bSource)) {
+  final result = <String>[];
+  int aIndex = 0;
+  int bIndex = 0;
+  for (final step in stringListPath(aSource, bSource)) {
     switch (step.type) {
       case StepType.Equal:
         for (int i = step.count - 1; i >= 0; i--) {
@@ -94,7 +95,7 @@ class _Path {
 
   /// Creates a new path builder.
   _Path(this._baseComp) {
-    final int len = this._baseComp.bLength + 1;
+    final len = this._baseComp.bLength + 1;
     this._scoreFront = List<int>.filled(len, 0, growable: false);
     this._scoreBack = List<int>.filled(len, 0, growable: false);
     this._scoreOther = List<int>.filled(len, 0, growable: false);
@@ -102,14 +103,14 @@ class _Path {
 
   /// Swaps the front and back score vectors.
   void _swapScores() {
-    final List<int> temp = this._scoreFront;
+    final temp = this._scoreFront;
     this._scoreFront = this._scoreBack;
     this._scoreBack = temp;
   }
 
   /// Swaps the back and other score vectors.
   void _storeScore() {
-    final List<int> temp = this._scoreBack;
+    final temp = this._scoreBack;
     this._scoreBack = this._scoreOther;
     this._scoreOther = temp;
   }
@@ -120,14 +121,12 @@ class _Path {
   /// Calculate the Needleman-Wunsch score.
   /// At the end of this calculation the score is in the back vector.
   void _calculateScore(_Container comp) {
-    final int aLen = comp.aLength;
-    final int bLen = comp.bLength;
-
+    final aLen = comp.aLength;
+    final bLen = comp.bLength;
     this._scoreBack[0] = 0;
     for (int j = 1; j <= bLen; ++j) {
       this._scoreBack[j] = this._scoreBack[j - 1] + comp.addCost(j - 1);
     }
-
     for (int i = 1; i <= aLen; ++i) {
       this._scoreFront[0] = this._scoreBack[0] + comp.removeCost(i - 1);
       for (int j = 1; j <= bLen; ++j) {
@@ -156,14 +155,12 @@ class _Path {
 
   /// Handles when at the edge of the A source subset in the given container.
   Iterable<Step> _aEdge(_Container comp) sync* {
-    final int aLen = comp.aLength;
-    final int bLen = comp.bLength;
-
+    final aLen = comp.aLength;
+    final bLen = comp.bLength;
     if (aLen <= 0) {
       if (bLen > 0) yield Step(StepType.Added, bLen);
       return;
     }
-
     int split = -1;
     for (int j = 0; j < bLen; j++) {
       if (comp.equals(0, j)) {
@@ -171,7 +168,6 @@ class _Path {
         break;
       }
     }
-
     if (split < 0) {
       yield Step(StepType.Removed, 1);
       yield Step(StepType.Added, bLen);
@@ -184,14 +180,12 @@ class _Path {
 
   /// Handles when at the edge of the B source subset in the given container.
   Iterable<Step> _bEdge(_Container comp) sync* {
-    final int aLen = comp.aLength;
-    final int bLen = comp.bLength;
-
+    final aLen = comp.aLength;
+    final bLen = comp.bLength;
     if (bLen <= 0) {
       if (aLen > 0) yield Step(StepType.Removed, aLen);
       return;
     }
-
     int split = -1;
     for (int i = 0; i < aLen; i++) {
       if (comp.equals(i, 0)) {
@@ -199,7 +193,6 @@ class _Path {
         break;
       }
     }
-
     if (split < 0) {
       yield Step(StepType.Removed, aLen);
       yield Step(StepType.Added, 1);
@@ -212,25 +205,21 @@ class _Path {
 
   /// This performs the Hirschberg divide and conquer and returns the path.
   Iterable<Step> _breakupPath(_Container comp) sync* {
-    final int aLen = comp.aLength;
-    final int bLen = comp.bLength;
-
+    final aLen = comp.aLength;
+    final bLen = comp.bLength;
     if (aLen <= 1) {
       yield* this._aEdge(comp);
       return;
     }
-
     if (bLen <= 1) {
       yield* this._bEdge(comp);
       return;
     }
-
-    final int aMid = aLen ~/ 2;
+    final aMid = aLen ~/ 2;
     this._calculateScore(comp.sub(0, aMid, 0, bLen));
     this._storeScore();
     this._calculateScore(comp.sub(aMid, aLen, 0, bLen, reverse: true));
-    final int bMid = this._findPivot(bLen);
-
+    final bMid = this._findPivot(bLen);
     yield* this._breakupPath(comp.sub(0, aMid, 0, bMid));
     yield* this._breakupPath(comp.sub(aMid, aLen, bMid, bLen));
   }
@@ -241,9 +230,8 @@ class _Path {
     int removedCount = 0;
     int addedCount = 0;
     int equalCount = 0;
-
-    final _Container cont = _Container.Full(this._baseComp);
-    for (final Step step in this._breakupPath(cont)) {
+    final cont = _Container.Full(this._baseComp);
+    for (final step in this._breakupPath(cont)) {
       switch (step.type) {
         case StepType.Added:
           if (equalCount > 0) {
@@ -299,8 +287,8 @@ class _Container {
 
   /// Creates a new comparable container for a subset and reverse relative to this container's settings.
   _Container sub(int aLow, int aHigh, int bLow, int bHigh, {bool reverse = false}) {
-    final int aOffset = this._aAdjust(this._reverse ? aHigh : aLow);
-    final int bOffset = this._bAdjust(this._reverse ? bHigh : bLow);
+    final aOffset = this._aAdjust(this._reverse ? aHigh : aLow);
+    final bOffset = this._bAdjust(this._reverse ? bHigh : bLow);
     return _Container(this._comp, aOffset, aHigh - aLow, bOffset, bHigh - bLow, this._reverse != reverse);
   }
 
@@ -333,15 +321,13 @@ class _Container {
   String toString() {
     String aValues = '', bValues = '';
     if (this._comp is _StringsComparable) {
-      final _StringsComparable cmp = this._comp as _StringsComparable;
-
-      final List<String> aParts = [];
+      final cmp = this._comp as _StringsComparable;
+      final aParts = <String>[];
       for (int i = 0; i < this._aLength; ++i) {
         aParts.add(cmp._aSource[this._aAdjust(i)]);
       }
       aValues = ' [${aParts.join("|")}]';
-
-      final List<String> bParts = [];
+      final bParts = <String>[];
       for (int j = 0; j < this._bLength; ++j) {
         bParts.add(cmp._bSource[this._bAdjust(j)]);
       }

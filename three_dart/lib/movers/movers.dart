@@ -51,7 +51,7 @@ class Invert implements Mover {
 
   set mover(Mover? mover) {
     if (this._mover != mover) {
-      final Mover? prev = this._mover;
+      final prev = this._mover;
       this._mover = mover;
       if (mover != null) mover.changed.add(this._onChanged);
       if (prev != null) prev.changed.remove(this._onChanged);
@@ -73,7 +73,7 @@ class Invert implements Mover {
     if (this._frameNum < state.frameNumber) {
       this._frameNum = state.frameNumber;
       this._changed?.suspend();
-      final math2.Matrix4? mat = this._mover?.update(state, obj).inverse();
+      final mat = this._mover?.update(state, obj).inverse();
       this._mat = mat ?? math2.Matrix4.identity;
       this._changed?.resume();
     }
@@ -127,7 +127,7 @@ class Group extends Collection<Mover?> implements Mover {
   /// be a protected method. This method is exposed to that the entity is extended and
   /// these methods can be overwritten. If overwritten call this super method to still emit events.
   void _onAdded(int index, Iterable<Mover?> added) {
-    for (final Mover? mover in added) {
+    for (final mover in added) {
       if (mover != null) mover.changed.add(this._onChanged);
     }
     this._onChanged(ItemsAddedEventArgs(this, index, added));
@@ -139,7 +139,7 @@ class Group extends Collection<Mover?> implements Mover {
   /// be a protected method. This method is exposed to that the entity is extended and
   /// these methods can be overwritten. If overwritten call this super method to still emit events.
   void _onRemoved(int index, Iterable<Mover?> removed) {
-    for (final Mover? mover in removed) {
+    for (final mover in removed) {
       if (mover != null) mover.changed.remove(this._onChanged);
     }
     this._onChanged(ItemsRemovedEventArgs(this, index, removed));
@@ -154,9 +154,9 @@ class Group extends Collection<Mover?> implements Mover {
       this._frameNum = state.frameNumber;
       this._changed?.suspend();
       math2.Matrix4? mat;
-      for (final Mover? mover in this) {
+      for (final mover in this) {
         if (mover != null) {
-          final math2.Matrix4 next = mover.update(state, obj);
+          final next = mover.update(state, obj);
           if (mat == null) {
             mat = next;
           } else {
@@ -177,7 +177,7 @@ class Group extends Collection<Mover?> implements Mover {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! Group) return false;
-    final int length = this.length;
+    final length = this.length;
     for (int i = 0; i < length; ++i) {
       if (this[i] != other[i]) return false;
     }
@@ -361,7 +361,7 @@ class ComponentShift extends Changeable {
 
   set wrap(bool wrap) {
     if (this._wrap != wrap) {
-      final bool prev = this._wrap;
+      final prev = this._wrap;
       this._wrap = wrap;
       this._onChanged(ValueChangedEventArgs(this, "wrap", prev, this._wrap));
     }
@@ -372,7 +372,7 @@ class ComponentShift extends Changeable {
 
   set maximumLocation(double max) {
     if (!math2.Comparer.equals(this._maxLoc, max)) {
-      final double prev = this._maxLoc;
+      final prev = this._maxLoc;
       this._maxLoc = max;
       if (this._maxLoc < this._minLoc) {
         this._minLoc = this._maxLoc;
@@ -387,7 +387,7 @@ class ComponentShift extends Changeable {
 
   set minimumLocation(double min) {
     if (!math2.Comparer.equals(this._minLoc, min)) {
-      final double prev = this._minLoc;
+      final prev = this._minLoc;
       this._minLoc = min;
       if (this._maxLoc < this._minLoc) {
         this._maxLoc = this._minLoc;
@@ -404,7 +404,7 @@ class ComponentShift extends Changeable {
     // ignore: parameter_assignments
     loc = this._clapWrap(loc);
     if (!math2.Comparer.equals(this._loc, loc)) {
-      final double prev = this._loc;
+      final prev = this._loc;
       this._loc = loc;
       this._onChanged(ValueChangedEventArgs(this, "location", prev, this._loc));
     }
@@ -416,7 +416,7 @@ class ComponentShift extends Changeable {
 
   set maximumVelocity(double max) {
     if (!math2.Comparer.equals(this._maxVel, max)) {
-      final double prev = this._maxVel;
+      final prev = this._maxVel;
       this._maxVel = max;
       if (this._maxVel < 0.0) {
         this._maxVel = 0.0;
@@ -435,7 +435,7 @@ class ComponentShift extends Changeable {
     // ignore: parameter_assignments
     vel = math2.clampVal(vel, -this._maxVel, this._maxVel);
     if (!math2.Comparer.equals(this._vel, vel)) {
-      final double prev = this._vel;
+      final prev = this._vel;
       this._vel = vel;
       this._onChanged(ValueChangedEventArgs(this, "velocity", prev, this._vel));
     }
@@ -446,7 +446,7 @@ class ComponentShift extends Changeable {
 
   set acceleration(double acc) {
     if (!math2.Comparer.equals(this._acc, acc)) {
-      final double prev = this._acc;
+      final prev = this._acc;
       this._acc = acc;
       this._onChanged(ValueChangedEventArgs(this, "acceleration", prev, this._acc));
     }
@@ -462,7 +462,7 @@ class ComponentShift extends Changeable {
     // ignore: parameter_assignments
     dampening = math2.clampVal(dampening);
     if (!math2.Comparer.equals(this._velDamp, dampening)) {
-      final double prev = this._velDamp;
+      final prev = this._velDamp;
       this._velDamp = dampening;
       this._onChanged(ValueChangedEventArgs(this, "dampening", prev, this._velDamp));
     }
@@ -551,7 +551,7 @@ class UserZoom implements Mover, Interactable {
   /// Detaches this mover from the user input.
   @override
   void detach() {
-    final UserInput? input = this._input;
+    final input = this._input;
     if (input != null) {
       input.mouse.wheel.remove(this._mouseWheelHandle);
       input.locked.wheel.remove(this._mouseWheelHandle);
@@ -562,7 +562,7 @@ class UserZoom implements Mover, Interactable {
   /// Handles the mouse wheel changing.
   void _mouseWheelHandle(EventArgs args) {
     if (this._modPressed != this._input?.key.modifiers) return;
-    final MouseWheelEventArgs margs = args as MouseWheelEventArgs;
+    final margs = args as MouseWheelEventArgs;
     this.zoom += margs.wheel.dy * this._zoomScalar;
   }
 
@@ -571,7 +571,7 @@ class UserZoom implements Mover, Interactable {
 
   set modifiers(Modifiers mods) {
     if (this._modPressed != mods) {
-      final Modifiers prev = this._modPressed;
+      final prev = this._modPressed;
       this._modPressed = mods;
       this._onChanged(ValueChangedEventArgs(this, 'modifiers', prev, mods));
     }
@@ -582,7 +582,7 @@ class UserZoom implements Mover, Interactable {
 
   set zoomScalar(double value) {
     if (!math2.Comparer.equals(this._zoomScalar, value)) {
-      final double prev = this._zoomScalar;
+      final prev = this._zoomScalar;
       this._zoomScalar = value;
       this._onChanged(ValueChangedEventArgs(this, 'zoomScalar', prev, this._zoomScalar));
     }
@@ -593,7 +593,7 @@ class UserZoom implements Mover, Interactable {
 
   set zoom(double value) {
     if (this._zoom != value) {
-      final double prev = this._zoom;
+      final prev = this._zoom;
       this._zoom = value;
       this._onChanged(ValueChangedEventArgs(this, 'zoom', prev, this._zoom));
     }
@@ -604,7 +604,7 @@ class UserZoom implements Mover, Interactable {
   math2.Matrix4 update(RenderState state, Movable? obj) {
     if (this._frameNum < state.frameNumber) {
       this._frameNum = state.frameNumber;
-      final double pow = math.pow(10.0, this._zoom).toDouble();
+      final pow = math.pow(10.0, this._zoom).toDouble();
       this._mat = math2.Matrix4.scale(pow, pow, pow);
     }
     return this._mat;
@@ -740,7 +740,7 @@ class UserTranslator implements Mover, Interactable {
 
   set deceleration(double deccel) {
     if (this._deccel != deccel) {
-      final double prev = this._deccel;
+      final prev = this._deccel;
       this._deccel = deccel;
       this._onChanged(ValueChangedEventArgs(this, 'deceleration', prev, this._deccel));
     }
@@ -751,7 +751,7 @@ class UserTranslator implements Mover, Interactable {
 
   set acceleration(double accel) {
     if (this._accel != accel) {
-      final double prev = this._accel;
+      final prev = this._accel;
       this._accel = accel;
       this._onChanged(ValueChangedEventArgs(this, 'acceleration', prev, this._accel));
     }
@@ -763,7 +763,7 @@ class UserTranslator implements Mover, Interactable {
 
   set velocityRotation(math2.Matrix3 velRot) {
     if (this._velRot != velRot) {
-      final math2.Matrix3 prev = this._velRot;
+      final prev = this._velRot;
       this._velRot = velRot;
       this._velRotInv = this._velRot.inverse();
       this._onChanged(ValueChangedEventArgs(this, 'velocityRotation', prev, this._velRot));
@@ -824,12 +824,12 @@ class UserTranslator implements Mover, Interactable {
     // Limits initial speed caused by a large dt from lower than 0.1 second updates.
     // ignore: parameter_assignments
     if (dt > 0.1) dt = 0.1;
-    final double deccel = this._deccel * dt;
-    final double accel = this._accel * dt;
-    final math2.Vector3 dir = this.direction;
-    final double x = this._updateComponent(this._xNegKey, this._xPosKey, deccel, accel, dir.dx);
-    final double y = this._updateComponent(this._yNegKey, this._yPosKey, deccel, accel, dir.dy);
-    final double z = this._updateComponent(this._zNegKey, this._zPosKey, deccel, accel, dir.dz);
+    final deccel = this._deccel * dt;
+    final accel = this._accel * dt;
+    final dir = this.direction;
+    final x = this._updateComponent(this._xNegKey, this._xPosKey, deccel, accel, dir.dx);
+    final y = this._updateComponent(this._yNegKey, this._yPosKey, deccel, accel, dir.dy);
+    final z = this._updateComponent(this._zNegKey, this._zPosKey, deccel, accel, dir.dz);
     this.direction = math2.Vector3(x, y, z);
     this._offsetX.update(dt);
     this._offsetY.update(dt);
@@ -865,13 +865,10 @@ class UserTranslator implements Mover, Interactable {
   math2.Matrix4 update(RenderState state, Movable? obj) {
     if (this._frameNum < state.frameNumber) {
       this._frameNum = state.frameNumber;
-
-      final math2.Point3 prev = this.location;
+      final prev = this.location;
       this._updateMovement(state.dt);
-
-      final CollisionHandle? collision = this._collision;
+      final collision = this._collision;
       if (collision != null) this.location = collision(prev, this.location);
-
       this._mat = math2.Matrix4.translate(this._offsetX.location, -this._offsetY.location, this._offsetZ.location);
     }
     return this._mat;
@@ -1057,7 +1054,7 @@ class UserRotator implements Mover, Interactable {
 
   /// Handles the mouse down event.
   void _mouseDownHandle(EventArgs args) {
-    final MouseEventArgs margs = args as MouseEventArgs;
+    final margs = args as MouseEventArgs;
     if (this._modPressed != margs.button.modifiers) return;
     this._pressed = true;
     this._inDeadBand = true;
@@ -1067,19 +1064,18 @@ class UserRotator implements Mover, Interactable {
 
   /// Handles the mouse move event.
   void _mouseMoveHandle(EventArgs args) {
-    final MouseEventArgs margs = args as MouseEventArgs;
+    final margs = args as MouseEventArgs;
     if (!this._pressed) return;
     if (this._inDeadBand) {
       if (margs.rawOffset.length2() < this._deadBand2) return;
       this._inDeadBand = false;
     }
-
     if (this._cumulative) {
       this._prevVal = this._getInverses(margs.adjustedOffset);
       this._yaw.velocity = -this._prevVal.dx * 10.0 * this._yawScalar;
       this._pitch.velocity = -this._prevVal.dy * 10.0 * this._pitchScalar;
     } else {
-      final math2.Vector2 off = this._getInverses(margs.adjustedOffset);
+      final off = this._getInverses(margs.adjustedOffset);
       this._yaw.location = -off.dx * this._yawScalar + this._lastYaw;
       this._pitch.location = -off.dy * this._pitchScalar + this._lastPitch;
       this._pitch.velocity = 0.0;
@@ -1104,7 +1100,7 @@ class UserRotator implements Mover, Interactable {
 
   /// Handle the change in the mouse pointer lock.
   void _lockChangedHandle(EventArgs args) {
-    final LockedEventArgs margs = args as LockedEventArgs;
+    final margs = args as LockedEventArgs;
     if (margs.locked) {
       this._inDeadBand = true;
       this._lastYaw = this._yaw.location;
@@ -1114,10 +1110,9 @@ class UserRotator implements Mover, Interactable {
 
   /// Handle the locked mouse movement.
   void _lockedMoveHandle(EventArgs args) {
-    final MouseEventArgs margs = args as MouseEventArgs;
+    final margs = args as MouseEventArgs;
     if (this._modPressed != margs.button.modifiers) return;
-
-    final math2.Vector2 off = this._getInverses(margs.adjustedOffset);
+    final off = this._getInverses(margs.adjustedOffset);
     this._yaw.location = -off.dx * this._yawScalar + this._lastYaw;
     this._pitch.location = -off.dy * this._pitchScalar + this._lastPitch;
     this._pitch.velocity = 0.0;
@@ -1137,20 +1132,18 @@ class UserRotator implements Mover, Interactable {
 
   /// Handle the touch screen move.
   void _touchMoveHandle(EventArgs args) {
-    final TouchEventArgs targs = args as TouchEventArgs;
-
+    final targs = args as TouchEventArgs;
     if (!this._pressed) return;
     if (this._inDeadBand) {
       if (targs.rawOffset.length2() < this._deadBand2) return;
       this._inDeadBand = false;
     }
-
     if (this._cumulative) {
       this._prevVal = this._getInverses(targs.adjustedOffset);
       this._yaw.velocity = -this._prevVal.dx * 10.0 * this._yawScalar;
       this._pitch.velocity = -this._prevVal.dy * 10.0 * this._pitchScalar;
     } else {
-      final math2.Vector2 off = this._getInverses(targs.adjustedOffset);
+      final off = this._getInverses(targs.adjustedOffset);
       this._yaw.location = -off.dx * this._yawScalar + this._lastYaw;
       this._pitch.location = -off.dy * this._pitchScalar + this._lastPitch;
       this._pitch.velocity = 0.0;
@@ -1188,7 +1181,7 @@ class UserRotator implements Mover, Interactable {
 
   set modifiers(Modifiers mods) {
     if (this._modPressed != mods) {
-      final Modifiers prev = this._modPressed;
+      final prev = this._modPressed;
       this._modPressed = mods;
       this._onChanged(ValueChangedEventArgs(this, 'modifiers', prev, mods));
     }
@@ -1200,7 +1193,7 @@ class UserRotator implements Mover, Interactable {
 
   set cumulative(bool enable) {
     if (this._cumulative != enable) {
-      final bool prev = this._cumulative;
+      final prev = this._cumulative;
       this._cumulative = enable;
       this._onChanged(ValueChangedEventArgs(this, 'cumulative', prev, this._cumulative));
     }
@@ -1211,7 +1204,7 @@ class UserRotator implements Mover, Interactable {
 
   set invertX(bool invert) {
     if (this._invertX != invert) {
-      final bool prev = this._invertX;
+      final prev = this._invertX;
       this._invertX = invert;
       this._onChanged(ValueChangedEventArgs(this, 'invertX', prev, this._invertX));
     }
@@ -1222,7 +1215,7 @@ class UserRotator implements Mover, Interactable {
 
   set invertY(bool invert) {
     if (this._invertY != invert) {
-      final bool prev = this._invertY;
+      final prev = this._invertY;
       this._invertY = invert;
       this._onChanged(ValueChangedEventArgs(this, 'invertY', prev, this._invertY));
     }
@@ -1233,7 +1226,7 @@ class UserRotator implements Mover, Interactable {
 
   set pitchScalar(double value) {
     if (!math2.Comparer.equals(this._pitchScalar, value)) {
-      final double prev = this._pitchScalar;
+      final prev = this._pitchScalar;
       this._pitchScalar = value;
       this._onChanged(ValueChangedEventArgs(this, 'pitchScalar', prev, this._pitchScalar));
     }
@@ -1244,7 +1237,7 @@ class UserRotator implements Mover, Interactable {
 
   set yawScalar(double value) {
     if (!math2.Comparer.equals(this._yawScalar, value)) {
-      final double prev = this._yawScalar;
+      final prev = this._yawScalar;
       this._yawScalar = value;
       this._onChanged(ValueChangedEventArgs(this, 'yawScalar', prev, this._yawScalar));
     }
@@ -1256,7 +1249,7 @@ class UserRotator implements Mover, Interactable {
 
   set deadBand(double value) {
     if (!math2.Comparer.equals(this._deadBand, value)) {
-      final double prev = this._deadBand;
+      final prev = this._deadBand;
       this._deadBand = value;
       this._deadBand2 = this._deadBand * this._deadBand;
       this._onChanged(ValueChangedEventArgs(this, 'deadBand', prev, this._deadBand));
@@ -1268,7 +1261,7 @@ class UserRotator implements Mover, Interactable {
   math2.Matrix4 update(RenderState state, Movable? obj) {
     if (this._frameNum < state.frameNumber) {
       this._frameNum = state.frameNumber;
-      final double dt = state.dt;
+      final dt = state.dt;
       this._yaw.update(dt);
       this._pitch.update(dt);
       this._mat = math2.Matrix4.rotateX(this._pitch.location) * math2.Matrix4.rotateY(this._yaw.location);
@@ -1409,7 +1402,7 @@ class UserRoller implements Mover, Interactable {
       this._prevVal = margs.adjustedOffset;
       this._roll.velocity = this._prevVal.dx * 10.0 * this._rollScalar;
     } else {
-      final math2.Vector2 off = margs.adjustedOffset;
+      final off = margs.adjustedOffset;
       this._roll.location = -off.dx * this._rollScalar + this._lastRoll;
       this._roll.velocity = 0.0;
       this._prevVal = margs.adjustedDelta;
@@ -1447,7 +1440,7 @@ class UserRoller implements Mover, Interactable {
 
   set cumulative(bool enable) {
     if (this._cumulative != enable) {
-      final bool prev = this._cumulative;
+      final prev = this._cumulative;
       this._cumulative = enable;
       this._onChanged(ValueChangedEventArgs(this, 'cumulative', prev, this._cumulative));
     }
@@ -1458,7 +1451,7 @@ class UserRoller implements Mover, Interactable {
 
   set rollScalar(double value) {
     if (!math2.Comparer.equals(this._rollScalar, value)) {
-      final double prev = this._rollScalar;
+      final prev = this._rollScalar;
       this._rollScalar = value;
       this._onChanged(ValueChangedEventArgs(this, 'rollScalar', prev, this._rollScalar));
     }
@@ -1469,7 +1462,7 @@ class UserRoller implements Mover, Interactable {
 
   set deadBand(double value) {
     if (!math2.Comparer.equals(this._deadBand, value)) {
-      final double prev = this._deadBand;
+      final prev = this._deadBand;
       this._deadBand = value;
       this._deadBand2 = this._deadBand * this._deadBand;
       this._onChanged(ValueChangedEventArgs(this, 'deadBand', prev, this._deadBand));
@@ -1481,7 +1474,7 @@ class UserRoller implements Mover, Interactable {
   math2.Matrix4 update(RenderState state, Movable? obj) {
     if (this._frameNum < state.frameNumber) {
       this._frameNum = state.frameNumber;
-      final double dt = state.dt;
+      final dt = state.dt;
       this._roll.update(dt);
       this._mat = math2.Matrix4.rotateZ(this._roll.location);
     }
@@ -1540,7 +1533,7 @@ class Rotator extends Mover {
     // ignore: parameter_assignments
     value = math2.wrapVal(value, 0.0, math2.TAU);
     if (!math2.Comparer.equals(this._yaw, value)) {
-      final double prev = this._yaw;
+      final prev = this._yaw;
       this._yaw = value;
       this._onChanged(ValueChangedEventArgs(this, 'yaw', prev, this._yaw));
     }
@@ -1553,7 +1546,7 @@ class Rotator extends Mover {
     // ignore: parameter_assignments
     value = math2.wrapVal(value, 0.0, math2.TAU);
     if (!math2.Comparer.equals(this._pitch, value)) {
-      final double prev = this._pitch;
+      final prev = this._pitch;
       this._pitch = value;
       this._onChanged(ValueChangedEventArgs(this, 'pitch', prev, this._pitch));
     }
@@ -1566,7 +1559,7 @@ class Rotator extends Mover {
     // ignore: parameter_assignments
     value = math2.wrapVal(value, 0.0, math2.TAU);
     if (!math2.Comparer.equals(this._roll, value)) {
-      final double prev = this._roll;
+      final prev = this._roll;
       this._roll = value;
       this._onChanged(ValueChangedEventArgs(this, 'roll', prev, this._roll));
     }
@@ -1577,7 +1570,7 @@ class Rotator extends Mover {
 
   set deltaYaw(double value) {
     if (!math2.Comparer.equals(this._deltaYaw, value)) {
-      final double prev = this._deltaYaw;
+      final prev = this._deltaYaw;
       this._deltaYaw = value;
       this._onChanged(ValueChangedEventArgs(this, 'deltaYaw', prev, this._deltaYaw));
     }
@@ -1588,7 +1581,7 @@ class Rotator extends Mover {
 
   set deltaPitch(double value) {
     if (!math2.Comparer.equals(this._deltaPitch, value)) {
-      final double prev = this._deltaPitch;
+      final prev = this._deltaPitch;
       this._deltaPitch = value;
       this._onChanged(ValueChangedEventArgs(this, 'deltaPitch', prev, this._deltaPitch));
     }
@@ -1599,7 +1592,7 @@ class Rotator extends Mover {
 
   set deltaRoll(double value) {
     if (!math2.Comparer.equals(this._deltaRoll, value)) {
-      final double prev = this._deltaRoll;
+      final prev = this._deltaRoll;
       this._deltaRoll = value;
       this._onChanged(ValueChangedEventArgs(this, 'deltaRoll', prev, this._deltaRoll));
     }

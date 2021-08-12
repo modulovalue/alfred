@@ -1,4 +1,4 @@
-import 'dart:math' as math;
+import 'dart:math';
 
 import '../events/events.dart';
 import '../events/events_impl.dart';
@@ -8,8 +8,9 @@ import '../plotter_item/plotter_item.dart';
 import '../plotter_item/plotter_item_impl.dart';
 import '../primitives/primitives.dart';
 import '../primitives/primitives_impl.dart';
-import 'plotter.dart';
+import '../render/interface.dart';
 
+/// TODO move all below into plotter_item and split them apart.
 Plotter makePlotter([
   final String label = "",
 ]) {
@@ -21,7 +22,7 @@ Plotter makePlotter([
   final mousePan = makeMousePan(
     view,
     plotter.setViewOffset,
-    const MouseButtonStateImpl(button: 0),
+    const PlotterMouseButtonStateImpl(button: 0),
   );
   mouseHandles.add(mousePan);
   final grid = Grid();
@@ -81,7 +82,7 @@ class Plotter extends Group {
   ]) {
     view.reset();
     if (!bounds.isEmpty) {
-      final scale = scalar / math.max(bounds.width, bounds.height);
+      final scale = scalar / max(bounds.width, bounds.height);
       view.setScale(scale, scale);
       view.setOffset(-0.5 * (bounds.xmin + bounds.xmax) * scale, -0.5 * (bounds.ymin + bounds.ymax) * scale);
     }
@@ -95,7 +96,7 @@ class Plotter extends Group {
   void render(
     final PlotterRenderer r,
   ) {
-    r.dataBounds = _bounds;
+    r.dataSetBounds = _bounds;
     final trans = r.transform!.mul(view);
     r.transform = trans;
     draw(r);
@@ -114,15 +115,15 @@ class Plotter extends Group {
   /// Sets the view transformation zoom.
   /// Note: This is 10 to the power of the given value, such that 0 is x1.0 zoom.
   void setViewZoom(
-    final double pow,
+    final double pow_,
   ) {
-    final scale = math.pow(10.0, pow) as double;
+    final scale = pow(10.0, pow_).toDouble();
     view.setScale(scale, scale);
   }
 
   /// Handles mouse down events.
   void onMouseDown(
-    final MouseEvent e,
+    final PlotterMouseEvent e,
   ) {
     for (final hndl in _mouseHandles) {
       hndl.mouseDown(e);
@@ -131,7 +132,7 @@ class Plotter extends Group {
 
   /// Handles mouse move events.
   void onMouseMove(
-    final MouseEvent e,
+    final PlotterMouseEvent e,
   ) {
     for (final hndl in _mouseHandles) {
       hndl.mouseMove(e);
@@ -140,7 +141,7 @@ class Plotter extends Group {
 
   /// Handles mouse up events.
   void onMouseUp(
-    final MouseEvent e,
+    final PlotterMouseEvent e,
   ) {
     for (final hndl in _mouseHandles) {
       hndl.mouseUp(e);
@@ -149,11 +150,11 @@ class Plotter extends Group {
 
   /// Handles mouse wheel move events.
   void onMouseWheel(
-    final MouseEvent e,
+    final PlotterMouseEvent e,
     final double dw,
   ) {
-    final prev = math.max(view.xScalar, view.yScalar);
-    double scale = math.pow(10.0, math.log(prev) / math.ln10 - dw) as double;
+    final prev = max(view.xScalar, view.yScalar);
+    double scale = pow(10.0, log(prev) / ln10 - dw) as double;
     if (scale < _minZoom) {
       scale = _minZoom;
     } else if (scale > _maxZoom) scale = _maxZoom;
@@ -572,7 +573,7 @@ class DataBounds with PlotterItemMixin {
   void onDraw(
     final PlotterRenderer r,
   ) {
-    final bound = r.dataBounds;
+    final bound = r.dataSetBounds;
     r.drawRect(bound.xmin, bound.ymin, bound.xmax, bound.ymax);
   }
 
@@ -607,7 +608,7 @@ class Grid with PlotterItemMixin {
   int _getMaxPow(
     final double value,
   ) =>
-      (math.log(value) / math.ln10).ceil();
+      (log(value) / ln10).ceil();
 
   /// Gets the number above the given value in multiples of the given power value.
   double _getUpper(
@@ -724,28 +725,35 @@ class Grid with PlotterItemMixin {
     final Bounds view,
   ) {
     const minSpacing = 5.0;
-    int maxPow = math.max(_getMaxPow(view.width), _getMaxPow(view.height));
-    int minPow = math.min(
-        _getMaxPow(view.width * minSpacing / window.width), _getMaxPow(view.height * minSpacing / window.height));
+    int maxPow = max(
+      _getMaxPow(view.width),
+      _getMaxPow(view.height),
+    );
+    int minPow = min(
+      _getMaxPow(view.width * minSpacing / window.width),
+      _getMaxPow(
+        view.height * minSpacing / window.height,
+      ),
+    );
     int diff = maxPow - minPow;
     if (diff <= 0) {
       diff = 1;
       maxPow = 1;
       minPow = 0;
     }
-    final pow = math.pow(10, maxPow - 1) as double;
-    final maxXOffset = _getUpper(view.xmax, pow);
-    final minXOffset = _getLower(view.xmin, pow);
-    final maxYOffset = _getUpper(view.ymax, pow);
-    final minYOffset = _getLower(view.ymin, pow);
+    final _pow = pow(10, maxPow - 1).toDouble();
+    final maxXOffset = _getUpper(view.xmax, _pow);
+    final minXOffset = _getLower(view.xmin, _pow);
+    final maxYOffset = _getUpper(view.ymax, _pow);
+    final minYOffset = _getLower(view.ymin, _pow);
     final horzs = <List<double>>[];
     final verts = <List<double>>[];
     for (int i = 0; i < diff; ++i) {
       horzs.add(<double>[]);
       verts.add(<double>[]);
     }
-    _getHorzs(horzs, window, view, pow, minYOffset, maxYOffset, diff);
-    _getVerts(verts, window, view, pow, minXOffset, maxXOffset, diff);
+    _getHorzs(horzs, window, view, _pow, minYOffset, maxYOffset, diff);
+    _getVerts(verts, window, view, _pow, minXOffset, maxXOffset, diff);
     for (int i = 0; i < diff; ++i) {
       _setColor(r, i, diff);
       for (final y in horzs[i]) {
@@ -788,15 +796,17 @@ class Grid with PlotterItemMixin {
   void onDraw(
     final PlotterRenderer r,
   ) {
-    final window = r.window;
-    final view = r.viewport;
-    if (view.width <= 0.0) return;
-    if (view.height <= 0.0) return;
-    final last = r.transform;
-    r.transform = TransformerImpl.identity();
-    _drawGrid(r, window!, view);
-    _drawAxis(r, window, view);
-    r.transform = last;
+    final window = r.drawPanelBounds;
+    final view = r.viewportIntoWindow;
+    if (view.width > 0.0) {
+      if (view.height > 0.0) {
+        final last = r.transform;
+        r.transform = TransformerImpl.identity();
+        _drawGrid(r, window!, view);
+        _drawAxis(r, window, view);
+        r.transform = last;
+      }
+    }
   }
 
   /// Get the bounds for the grid.
@@ -983,7 +993,7 @@ class Group with PlotterItemMixin {
 
   /// Adds a circle group plotter item with the given data.
   CircleGroup addCircleGroup(double radius, List<double> items) {
-    final CircleGroup item = CircleGroup(radius)..add(items);
+    final item = CircleGroup(radius)..add(items);
     addItems([item]);
     return item;
   }

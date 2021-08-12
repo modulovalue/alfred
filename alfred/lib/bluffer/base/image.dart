@@ -72,7 +72,7 @@ class DecorationImage {
 
   @override
   String toString() {
-    final List<String> properties = <String>[
+    final properties = <String>[
       '$image',
       if (fit != null && !(fit == BoxFit.fill) && !(fit == BoxFit.scaleDown)) '$fit',
       if (repeat != ImageRepeat.noRepeat) '$repeat',

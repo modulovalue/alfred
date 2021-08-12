@@ -171,7 +171,7 @@ class Entity implements Movable, Changeable {
   /// currently use this technique.
   void _cacheUpdateForTech() {
     this.clearCache();
-    for (final Entity child in this._children) {
+    for (final child in this._children) {
       if (child._tech == null) {
         child._cacheUpdateForTech();
       }
@@ -193,7 +193,7 @@ class Entity implements Movable, Changeable {
 
   set shape(Shape? shape) {
     if (this._shape != shape) {
-      final Shape? oldShape = this._shape;
+      final oldShape = this._shape;
       this._shape = shape;
       this._shapeBuilder = shape;
       this.clearCache();
@@ -212,7 +212,7 @@ class Entity implements Movable, Changeable {
 
   set shapeBuilder(ShapeBuilder? builder) {
     if (this._shapeBuilder != builder) {
-      final ShapeBuilder? oldBuilder = this._shapeBuilder;
+      final oldBuilder = this._shapeBuilder;
       this._shape = null;
       this._shapeBuilder = builder;
       this.clearCache();
@@ -228,7 +228,7 @@ class Entity implements Movable, Changeable {
 
   set technique(Technique? technique) {
     if (this._tech != technique) {
-      final Technique? oldTech = this._tech;
+      final oldTech = this._tech;
       this._tech = technique;
       oldTech?.changed.remove(this.onTechModified);
       technique?.changed.add(this.onTechModified);
@@ -245,7 +245,7 @@ class Entity implements Movable, Changeable {
   @override
   set mover(Mover? mover) {
     if (this._mover != mover) {
-      final Mover? oldMover = this._mover;
+      final oldMover = this._mover;
       this._mover = mover;
       oldMover?.changed.remove(this.onMoverModified);
       mover?.changed.add(this.onMoverModified);
@@ -260,8 +260,8 @@ class Entity implements Movable, Changeable {
   /// Null is returned if none was found.
   Entity? findFirstByName(String name) {
     if (this.name == name) return this;
-    for (final Entity child in this._children) {
-      final Entity? result = child.findFirstByName(name);
+    for (final child in this._children) {
+      final result = child.findFirstByName(name);
       if (result != null) return result;
     }
     return null;
@@ -273,7 +273,7 @@ class Entity implements Movable, Changeable {
   List<Entity> findAllByName(String name, [List<Entity>? entities]) {
     entities ??= [];
     if (this.name == name) entities.add(this);
-    for (final Entity child in this._children) {
+    for (final child in this._children) {
       child.findAllByName(name, entities);
     }
     return entities;
@@ -283,7 +283,7 @@ class Entity implements Movable, Changeable {
   Region3? calculateAABB() {
     Region3? region;
     if (this._shapeBuilder != null) region = Region3.union(region, this._shapeBuilder?.calculateAABB());
-    for (final Entity child in this._children) {
+    for (final child in this._children) {
       region = Region3.union(region, child.calculateAABB());
     }
     return region;
@@ -292,7 +292,7 @@ class Entity implements Movable, Changeable {
   /// Scales the AABB so that the longest size the given [size],
   /// and the shape is centered then offset by the given [offset].
   void resizeCenter([double size = 2.0, Point3? offset]) {
-    final Region3? aabb = this.calculateAABB();
+    final aabb = this.calculateAABB();
     if (aabb == null) return;
     offset ??= Point3.zero;
     // ignore: parameter_assignments
@@ -301,7 +301,7 @@ class Entity implements Movable, Changeable {
     if (aabb.dy > maxSize) maxSize = aabb.dy;
     if (aabb.dz > maxSize) maxSize = aabb.dz;
     if (maxSize == 0.0) return;
-    final double invSize = size / maxSize;
+    final invSize = size / maxSize;
     this.applyPositionMatrix(
         Matrix4.scale(invSize, invSize, invSize) * Matrix4.translate(offset.x, offset.y, offset.z));
   }
@@ -311,7 +311,7 @@ class Entity implements Movable, Changeable {
   /// for this entity's shape and children shapes.
   void applyPositionMatrix(Matrix4 mat) {
     this.shape?.applyPositionMatrix(mat);
-    for (final Entity child in this._children) {
+    for (final child in this._children) {
       child.applyPositionMatrix(mat);
     }
   }
@@ -320,7 +320,7 @@ class Entity implements Movable, Changeable {
   /// for this entity's shape and children shapes.
   void applyColorMatrix(Matrix3 mat) {
     this.shape?.applyColorMatrix(mat);
-    for (final Entity child in this._children) {
+    for (final child in this._children) {
       child.applyColorMatrix(mat);
     }
   }
@@ -329,7 +329,7 @@ class Entity implements Movable, Changeable {
   /// for this entity's shape and children shapes.
   void applyTexture2DMatrix(Matrix3 mat) {
     this.shape?.applyTexture2DMatrix(mat);
-    for (final Entity child in this._children) {
+    for (final child in this._children) {
       child.applyTexture2DMatrix(mat);
     }
   }
@@ -338,16 +338,16 @@ class Entity implements Movable, Changeable {
   /// for this entity's shape and children shapes.
   void applyTextureCubeMatrix(Matrix4 mat) {
     this.shape?.applyTextureCubeMatrix(mat);
-    for (final Entity child in this._children) {
+    for (final child in this._children) {
       child.applyTextureCubeMatrix(mat);
     }
   }
 
   /// Updates the Entity with the given [state].
   void update(RenderState state) {
-    final Matrix4? mat = this._mover?.update(state, this);
+    final mat = this._mover?.update(state, this);
     if (mat != this._matrix) {
-      final Matrix4? oldMat = this._matrix;
+      final oldMat = this._matrix;
       this._matrix = mat;
       this.onMatrixChanged(oldMat, this._matrix);
     }
@@ -356,7 +356,7 @@ class Entity implements Movable, Changeable {
     this._tech?.update(state);
 
     // Update all children.
-    for (final Entity child in this._children) {
+    for (final child in this._children) {
       child.update(state);
     }
   }
@@ -364,20 +364,16 @@ class Entity implements Movable, Changeable {
   /// Renders the Entity with the given [RenderState].
   void render(RenderState state) {
     if (!this._enabled) return;
-
     // Push state onto the render state.
     state.object.pushMul(this._matrix);
     state.pushTechnique(this._tech);
-
     // Render this entity.
-    final Technique? tech = state.technique;
+    final tech = state.technique;
     if (this._shapeBuilder != null) tech?.render(state, this);
-
     // Render all children.
-    for (final Entity child in this._children) {
+    for (final child in this._children) {
       child.render(state);
     }
-
     // Pop state from update.
     state.popTechnique();
     state.object.pop();
@@ -527,7 +523,7 @@ class Entity implements Movable, Changeable {
   /// these methods can be overwritten. If overwritten call this super method to still emit events.
   void onChildrenAdded(int index, Iterable<Entity> entities) {
     this._childrenAdded?.emit(EntityEventArgs(this, entities.toList()));
-    for (final Entity entity in entities) {
+    for (final entity in entities) {
       entity.changed.add(this.onChildrenModified);
     }
     this.onChanged();
@@ -542,7 +538,7 @@ class Entity implements Movable, Changeable {
   /// these methods can be overwritten. If overwritten call this super method to still emit events.
   void onChildrenRemoved(int index, Iterable<Entity> entities) {
     this._childrenRemoved?.emit(EntityEventArgs(this, entities.toList()));
-    for (final Entity entity in entities) {
+    for (final entity in entities) {
       entity.changed.remove(this.onChildrenModified);
     }
     this.onChanged();
@@ -560,8 +556,8 @@ class Entity implements Movable, Changeable {
 
   /// Gets the string tree for these entity tree.
   StringTree _stringTree() {
-    final StringTree tree = StringTree(this.toString());
-    for (final Entity child in this.children) {
+    final tree = StringTree(this.toString());
+    for (final child in this.children) {
       tree.append(child._stringTree());
     }
     return tree;
@@ -633,7 +629,7 @@ class Environment {
   /// Returns true if the method was called, false if none of those methods were found.
   static bool callMethod(Object browserObject, List<String> methods, [List<Object>? args]) {
     final jsElem = js.JsObject.fromBrowserObject(browserObject);
-    for (final String methodName in methods) {
+    for (final methodName in methods) {
       if (jsElem.hasProperty(methodName)) {
         jsElem.callMethod(methodName, args);
         return true;
@@ -646,7 +642,7 @@ class Environment {
   /// Returns null if methods were found.
   static T? getProperty<T>(Object browserObject, List<String> properties) {
     final jsElem = js.JsObject.fromBrowserObject(browserObject);
-    for (final String propertyName in properties) {
+    for (final propertyName in properties) {
       if (jsElem.hasProperty(propertyName)) return jsElem[propertyName] as T?;
     }
     return null;
@@ -661,8 +657,8 @@ class _EnvironmentData {
 
   /// Determines the environment which this code is running in.
   factory _EnvironmentData() {
-    final Browser browser = _determineBrowser();
-    final OperatingSystem os = _determineOS();
+    final browser = _determineBrowser();
+    final os = _determineOS();
     return _EnvironmentData._(browser, os);
   }
 
@@ -671,16 +667,13 @@ class _EnvironmentData {
 
   /// Determines which kind of browser is being used.
   static Browser _determineBrowser() {
-    final String vendor = html.window.navigator.vendor;
+    final vendor = html.window.navigator.vendor;
     if (vendor.contains('Google')) return Browser.chrome;
-
-    final String userAgent = html.window.navigator.userAgent;
+    final userAgent = html.window.navigator.userAgent;
     if (userAgent.contains('Firefox')) return Browser.firefox;
-
-    final String appVersion = html.window.navigator.appVersion;
+    final appVersion = html.window.navigator.appVersion;
     if (appVersion.contains('Trident') || appVersion.contains('Edge')) return Browser.edge;
-
-    final String appName = html.window.navigator.appName;
+    final appName = html.window.navigator.appName;
     if (appName.contains('Microsoft')) return Browser.edge;
 
     return Browser.other;
@@ -689,14 +682,10 @@ class _EnvironmentData {
   /// Determines which kind of operating system is being used.
   /// This doesn't use `dart:io` so it can run on a browser.
   static OperatingSystem _determineOS() {
-    final String appVersion = html.window.navigator.appVersion;
-
+    final appVersion = html.window.navigator.appVersion;
     if (appVersion.contains('Win')) return OperatingSystem.windows;
-
     if (appVersion.contains('Mac')) return OperatingSystem.mac;
-
     if (appVersion.contains('Linux')) return OperatingSystem.linux;
-
     return OperatingSystem.other;
   }
 }
@@ -884,7 +873,7 @@ class RenderState {
 
   /// Adds the given [shader] to the shader cache.
   void addShader(Shader shader) {
-    final String name = shader.name;
+    final name = shader.name;
     if (name.isEmpty) throw Exception('May not cache a shader with no name.');
     if (this._shaderCache.containsKey(name)) {
       throw Exception('Shader cache already contains a shader by the name "$name".');
@@ -957,7 +946,7 @@ class ThreeDart implements Changeable {
   /// [antialias] indicates if the target is antialiased or not.
   factory ThreeDart.fromId(String elementId,
       {bool alpha = true, bool depth = true, bool stencil = false, bool antialias = true}) {
-    final html.Element? elem = html.document.getElementById(elementId);
+    final elem = html.document.getElementById(elementId);
     if (elem == null) {
       throw Exception('Failed to find an element with the identifier, ${elementId}.');
     }
@@ -978,13 +967,12 @@ class ThreeDart implements Changeable {
     if (elem is html.CanvasElement) {
       return ThreeDart.fromCanvas(elem, alpha: alpha, depth: depth, stencil: stencil, antialias: antialias);
     }
-
-    final html.CanvasElement canvas = html.CanvasElement();
+    final canvas = html.CanvasElement();
     canvas.style
       ..width = '100%'
       ..height = '100%';
     elem.children.add(canvas);
-    final ThreeDart td =
+    final td =
         ThreeDart.fromCanvas(canvas, alpha: alpha, depth: depth, stencil: stencil, antialias: antialias);
     td._elem = elem;
     return td;
@@ -1001,16 +989,14 @@ class ThreeDart implements Changeable {
     if (canvas == null) {
       throw Exception('May not create a manager from a null canvas.');
     }
-
     // Create a WebGL 2.0 render target
     // https://www.khronos.org/registry/webgl/specs/latest/2.0/
-    final webgl.RenderingContext2? gl = canvas.getContext(
+    final gl = canvas.getContext(
             'webgl2', <String, dynamic>{'alpha': alpha, 'depth': depth, 'stencil': stencil, 'antialias': antialias})
         as webgl.RenderingContext2?;
     if (gl == null) {
       throw Exception('Failed to get the rendering context for WebGL.');
     }
-
     final state = RenderState(gl, canvas);
     final txtLoader = TextureLoader(gl);
     final audioLoader = AudioLoader();
@@ -1105,10 +1091,10 @@ class ThreeDart implements Changeable {
 
   /// The frames per second since the last time this getter is called.
   double get fps {
-    final DateTime time = DateTime.now();
-    final double secs = time.difference(this._frameTime).inMilliseconds / 1000.0;
+    final time = DateTime.now();
+    final secs = time.difference(this._frameTime).inMilliseconds / 1000.0;
     if (secs <= 0.0) return 0.0;
-    final double fps = this._frameCount / secs;
+    final fps = this._frameCount / secs;
     this._frameCount = 0;
     this._frameTime = time;
     return fps;
@@ -1118,9 +1104,9 @@ class ThreeDart implements Changeable {
   void _resize() {
     // Lookup the size the browser is displaying the canvas in CSS pixels and
     // compute a size needed to make our drawing buffer match it in device pixels.
-    final num ratio = html.window.devicePixelRatio;
-    final int displayWidth = (this._canvas.clientWidth * ratio).floor();
-    final int displayHeight = (this._canvas.clientHeight * ratio).floor();
+    final ratio = html.window.devicePixelRatio;
+    final displayWidth = (this._canvas.clientWidth * ratio).floor();
+    final displayHeight = (this._canvas.clientHeight * ratio).floor();
     // Check if the canvas is not the same size.
     if ((this._canvas.width != displayWidth) || (this._canvas.height != displayHeight)) {
       // Make the canvas the same size

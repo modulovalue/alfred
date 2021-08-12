@@ -12,7 +12,7 @@ import '../textures/textures.dart';
 
 /// Gets the path without the file name from the given path with a file name.
 String getPathTo(String file) {
-  final int index = file.lastIndexOf('/');
+  final index = file.lastIndexOf('/');
   if (index <= 0) return file;
   return file.substring(0, index);
 }
@@ -28,19 +28,19 @@ RegExp get _slicerRegex => _slicerRegexSingleton ??= RegExp(r'([^\s]+)');
 
 /// Splits the given [line] into the first word and the rest of the line.
 List<String> _stripFront(String line) {
-  final RegExpMatch? match = _slicerRegex.firstMatch(line);
+  final match = _slicerRegex.firstMatch(line);
   if (match == null) return [];
-  final String? front = match.group(1);
+  final front = match.group(1);
   if (front == null) return [];
-  final String rest = line.substring(front.length).trim();
+  final rest = line.substring(front.length).trim();
   return [front, rest];
 }
 
 /// Splits the given [line] into words.
 List<String> _sliceLine(String line) {
-  final List<String> list = [];
-  for (final Match match in _slicerRegex.allMatches(line)) {
-    final String? group = match.group(1);
+  final list = <String>[];
+  for (final match in _slicerRegex.allMatches(line)) {
+    final group = match.group(1);
     if (group != null) list.add(group);
   }
   return list;
@@ -48,9 +48,9 @@ List<String> _sliceLine(String line) {
 
 /// Splits the given [line] into parsed numbers.
 List<double> _getNumbers(String line) {
-  final List<String> parts = _sliceLine(line);
-  final List<double> values = [];
-  final int count = parts.length;
+  final parts = _sliceLine(line);
+  final values = <double>[];
+  final count = parts.length;
   for (int i = 0; i < count; ++i) {
     values.add(double.parse(parts[i]));
   }
@@ -89,10 +89,9 @@ class _objWriter {
   /// Adds an entity to the object file.
   void addEntity(Entity entity) {
     // ignore: prefer_foreach
-    for (final Entity child in entity.children) {
+    for (final child in entity.children) {
       this.addEntity(child);
     }
-
     final shape = entity.shape;
     if (shape != null) {
       this._lines.add('o ${entity.name}');
@@ -108,18 +107,15 @@ class _objWriter {
 
   /// Adds a shape to the object file.
   void addShape(Shape shape) {
-    final int offset = this._totalVertices;
-
-    final int vertexCount = shape.vertices.length;
+    final offset = this._totalVertices;
+    final vertexCount = shape.vertices.length;
     if (this._normals) shape.calculateNormals();
     if (this._texture && this._txtCube) shape.calculateCubeTextures();
     for (int i = 0; i < vertexCount; i++) {
-      final Vertex vertex = shape.vertices[i];
-
+      final vertex = shape.vertices[i];
       final loc = vertex.location;
       if (loc == null) throw Exception('May not write vertex $i because it has a null location.');
       this._lines.add('v ' + this._toStr(loc.x) + ' ' + this._toStr(loc.y) + ' ' + this._toStr(loc.z));
-
       if (this._texture) {
         if (this._txtCube) {
           final txt = vertex.textureCube;
@@ -140,13 +136,12 @@ class _objWriter {
       }
     }
     this._totalVertices += vertexCount;
-
-    final int faceCount = shape.faces.length;
+    final faceCount = shape.faces.length;
     for (int i = 0; i < faceCount; i++) {
-      final Face face = shape.faces[i];
-      final int v1 = (face.vertex1?.index ?? 0) + offset;
-      final int v2 = (face.vertex2?.index ?? 0) + offset;
-      final int v3 = (face.vertex3?.index ?? 0) + offset;
+      final face = shape.faces[i];
+      final v1 = (face.vertex1?.index ?? 0) + offset;
+      final v2 = (face.vertex2?.index ?? 0) + offset;
+      final v3 = (face.vertex3?.index ?? 0) + offset;
       if (this._texture) {
         if (this._normals) {
           this._lines.add('f ${v1}/${v1}/${v1} ${v2}/${v2}/${v2} ${v3}/${v3}/${v3}');
@@ -175,9 +170,9 @@ class ObjType {
   static Future<Entity> fromFile(String fileName, TextureLoader txtLoader,
       {bool strict = false, Map<String, MaterialLight>? mtls, Event? progress}) async {
     try {
-      final String dir = getPathTo(fileName);
-      final _objReader reader = _objReader(txtLoader, mtls: mtls, progress: progress);
-      final String data = await HttpRequest.getString(fileName);
+      final dir = getPathTo(fileName);
+      final reader = _objReader(txtLoader, mtls: mtls, progress: progress);
+      final data = await HttpRequest.getString(fileName);
       await reader.processMultiline(data, strict: strict, dir: dir);
       progress?.emit(ProgressEventArgs(reader, 100.0, true));
       return reader.entity;
@@ -193,7 +188,7 @@ class ObjType {
   /// should be written instead of texture 2D coordinates.
   static List<String> toLines(Entity entity,
       {bool normal = true, bool texture = true, bool txtCube = false, int decimals = 16}) {
-    final _objWriter writer = _objWriter(normal, texture, txtCube, decimals);
+    final writer = _objWriter(normal, texture, txtCube, decimals);
     writer.addEntity(entity);
     return writer.lines;
   }
@@ -285,7 +280,6 @@ class _objReader {
       if ((progress != null) && ((i % 1000) == 0)) {
         progress.emit(ProgressEventArgs(this, i * 100.0 / lines.length, false));
       }
-
       try {
         await this.processLine(lines[i], strict: strict, dir: dir);
       } on Object catch (e) {
@@ -298,15 +292,14 @@ class _objReader {
   Future<void> processLine(String line, {bool strict = false, String dir = ''}) async {
     try {
       // Trim off comments and whitespace.
-      final int index = line.indexOf('#');
+      final index = line.indexOf('#');
       // ignore: parameter_assignments
       if (index >= 0) line = line.substring(0, index);
       // ignore: parameter_assignments
       line = line.trim();
       if (line.isEmpty) return;
-
       // Strip off first part of line.
-      final List<String> parts = _stripFront(line);
+      final parts = _stripFront(line);
       if (parts.isEmpty) return;
 
       // Determine line type.
@@ -358,7 +351,7 @@ class _objReader {
       this._shape = shape = Shape();
       this._entity = entity = Entity(shape: shape);
       this._rootEntity.children.add(entity);
-      for (final _objVertex vec in this._posList) {
+      for (final vec in this._posList) {
         vec.verts.clear();
       }
     }
@@ -368,7 +361,7 @@ class _objReader {
 
   /// Process a new vertex position (v) line.
   void _processPos(String data) {
-    final List<double> list = _getNumbers(data);
+    final list = _getNumbers(data);
     if (list.length < 3) throw Exception('Positions must have at least 3 numbers.');
     if (list.length > 4) throw Exception('Positions must have at most than 4 numbers.');
     if (list.length == 4) {
@@ -381,7 +374,7 @@ class _objReader {
 
   /// Process a new vertex texture (vt) line.
   void _processTxt(String data) {
-    final List<double> list = _getNumbers(data);
+    final list = _getNumbers(data);
     if (list.length < 2) throw Exception('Textures must have at least 2 numbers.');
     if (list.length > 3) throw Exception('Textures must have at most than 3 numbers.');
     if (list.length == 3) {
@@ -402,21 +395,20 @@ class _objReader {
   /// Adds a new vertex to the current shape.
   /// The [vertexStr] is in the vertex index/texture index/normal index form.
   Vertex _addVertex(String vertexStr) {
-    final List<String> vertexParts = vertexStr.split('/');
+    final vertexParts = vertexStr.split('/');
     int posIndex = int.parse(vertexParts[0]);
-    final int count = this._posList.length;
+    final count = this._posList.length;
     if ((posIndex < -count) || (posIndex > count) || (posIndex == 0)) {
       throw Exception('The position index, $posIndex, was out of range [-$count..$count] or 0.');
     }
     if (posIndex < 0) posIndex = count + posIndex + 1;
     posIndex--;
-
     Point2 txt2D = Point2.zero;
     if (vertexParts.length > 1) {
-      final String value = vertexParts[1];
+      final value = vertexParts[1];
       if (value.isNotEmpty) {
         int txtIndex = int.parse(value);
-        final int count = this._texList.length;
+        final count = this._texList.length;
         if ((txtIndex < -count) || (txtIndex > count) || (txtIndex == 0)) {
           throw Exception('The texture index, $txtIndex, was out of range [-$count..$count] or 0.');
         }
@@ -424,13 +416,12 @@ class _objReader {
         txt2D = this._texList[txtIndex - 1];
       }
     }
-
     Vector3 norm = Vector3.zero;
     if (vertexParts.length > 2) {
-      final String value = vertexParts[2];
+      final value = vertexParts[2];
       if (value.isNotEmpty) {
         int normIndex = int.parse(value);
-        final int count = this._normList.length;
+        final count = this._normList.length;
         if ((normIndex < -count) || (normIndex > count) || (normIndex == 0)) {
           throw Exception('The normal index, $normIndex, was out of range [-$count..$count] or 0.');
         }
@@ -438,17 +429,15 @@ class _objReader {
         norm = this._normList[normIndex - 1];
       }
     }
-
     // TODO: Update once the Oct-tree is implements. Until the Oct-tree is implemented
     //       lookup vertex group by index in the list. This may cause repeat vertices.
-    final _objVertex vertGroup = this._posList[posIndex];
+    final vertGroup = this._posList[posIndex];
     for (final vertex in vertGroup.verts) {
       if ((vertex.texture2D == txt2D) && (vertex.normal == norm)) {
         return vertex;
       }
     }
-
-    final Vertex vertex = Vertex();
+    final vertex = Vertex();
     vertex.location = vertGroup.pos;
     vertex.texture2D = txt2D;
     vertex.normal = norm;
@@ -459,9 +448,9 @@ class _objReader {
 
   /// Process a new point list (p) line.
   void _processPoint(String data) {
-    final List<String> parts = _sliceLine(data);
-    final List<Vertex> vertices = [];
-    final int count = parts.length;
+    final parts = _sliceLine(data);
+    final vertices = <Vertex>[];
+    final count = parts.length;
     for (int i = 0; i < count; ++i) {
       vertices.add(this._addVertex(parts[i]));
     }
@@ -470,9 +459,9 @@ class _objReader {
 
   /// Process a new line list (l) line.
   void _processLine(String data) {
-    final List<String> parts = _sliceLine(data);
-    final List<Vertex> vertices = [];
-    final int count = parts.length;
+    final parts = _sliceLine(data);
+    final vertices = <Vertex>[];
+    final count = parts.length;
     for (int i = 0; i < count; ++i) {
       vertices.add(this._addVertex(parts[i]));
     }
@@ -481,9 +470,9 @@ class _objReader {
 
   /// Process a new face list (f) line.
   void _processFace(String data) {
-    final List<String> parts = _sliceLine(data);
-    final List<Vertex> vertices = [];
-    final int count = parts.length;
+    final parts = _sliceLine(data);
+    final vertices = <Vertex>[];
+    final count = parts.length;
     for (int i = 0; i < count; ++i) {
       vertices.add(this._addVertex(parts[i]));
     }
@@ -492,8 +481,8 @@ class _objReader {
 
   /// Process a new material loading (mtllib) line.
   Future<void> _processLoadMtrl(String data, String dir, bool strict) async {
-    final String file = joinPath(dir, data);
-    final Map<String, MaterialLight> mtls = await MtlType.fromFile(file, this._txtLoader, strict: strict);
+    final file = joinPath(dir, data);
+    final mtls = await MtlType.fromFile(file, this._txtLoader, strict: strict);
     this._mtls.addAll(mtls);
   }
 
@@ -527,9 +516,9 @@ class MtlType {
   static Future<Map<String, MaterialLight>> fromFile(String fileName, TextureLoader txtLoader,
       {bool strict = false}) async {
     try {
-      final String dir = getPathTo(fileName);
-      final _mtlReader loader = _mtlReader(txtLoader);
-      final String data = await HttpRequest.getString(fileName);
+      final dir = getPathTo(fileName);
+      final loader = _mtlReader(txtLoader);
+      final data = await HttpRequest.getString(fileName);
       await loader.processMultiline(data, strict: strict, dir: dir);
       return loader.materials;
     } on Object catch (e) {
@@ -579,14 +568,14 @@ class _mtlReader {
   Future<void> processLine(String line, {bool strict = false, String dir = ''}) async {
     try {
       // Trim off comments and whitespace.
-      final int index = line.indexOf('#');
+      final index = line.indexOf('#');
       // ignore: parameter_assignments
       if (index >= 0) line = line.substring(0, index);
       // ignore: parameter_assignments
       line = line.trim();
       if (line.isEmpty) return;
       // Strip off first part of line.
-      final List<String> parts = _stripFront(line);
+      final parts = _stripFront(line);
       if (parts.isEmpty) return;
       // Determine line type.
       switch (parts[0]) {
@@ -645,7 +634,7 @@ class _mtlReader {
   void _processAmbient(String data) {
     final cur = this._cur;
     if (cur == null) return;
-    final List<double> vals = _getNumbers(data);
+    final vals = _getNumbers(data);
     cur.ambient.color = Color3.fromList(vals);
   }
 
@@ -653,7 +642,7 @@ class _mtlReader {
   void _processDiffuse(String data) {
     final cur = this._cur;
     if (cur == null) return;
-    final List<double> vals = _getNumbers(data);
+    final vals = _getNumbers(data);
     cur.diffuse.color = Color3.fromList(vals);
   }
 
@@ -661,7 +650,7 @@ class _mtlReader {
   void _processSpecular(String data) {
     final cur = this._cur;
     if (cur == null) return;
-    final List<double> vals = _getNumbers(data);
+    final vals = _getNumbers(data);
     cur.specular.color = Color3.fromList(vals);
   }
 
@@ -669,7 +658,7 @@ class _mtlReader {
   void _processShininess(String data) {
     final cur = this._cur;
     if (cur == null) return;
-    final List<double> vals = _getNumbers(data);
+    final vals = _getNumbers(data);
     if (vals.length != 1) throw Exception('Shininess may only have 1 number.');
     cur.specular.shininess = vals[0];
   }
@@ -678,7 +667,7 @@ class _mtlReader {
   void _processAlpha(String data) {
     final cur = this._cur;
     if (cur == null) return;
-    final List<double> vals = _getNumbers(data);
+    final vals = _getNumbers(data);
     if (vals.length != 1) throw Exception('Alpha may only have 1 number.');
     cur.alpha.value = vals[0];
   }
@@ -687,7 +676,7 @@ class _mtlReader {
   void _processTransparency(String data) {
     final cur = this._cur;
     if (cur == null) return;
-    final List<double> vals = _getNumbers(data);
+    final vals = _getNumbers(data);
     if (vals.length != 1) throw Exception('Alpha may only have 1 number.');
     cur.alpha.value = 1.0 - vals[0];
   }
@@ -697,7 +686,7 @@ class _mtlReader {
     final cur = this._cur;
     final txtLoader = this._txtLoader;
     if (cur == null || txtLoader == null) return;
-    final String file = joinPath(dir, data);
+    final file = joinPath(dir, data);
     cur.ambient.texture2D = txtLoader.load2DFromFile(file);
   }
 
@@ -706,7 +695,7 @@ class _mtlReader {
     final cur = this._cur;
     final txtLoader = this._txtLoader;
     if (cur == null || txtLoader == null) return;
-    final String file = joinPath(dir, data);
+    final file = joinPath(dir, data);
     this._cur?.diffuse.texture2D = txtLoader.load2DFromFile(file);
   }
 
@@ -715,7 +704,7 @@ class _mtlReader {
     final cur = this._cur;
     final txtLoader = this._txtLoader;
     if (cur == null || txtLoader == null) return;
-    final String file = joinPath(dir, data);
+    final file = joinPath(dir, data);
     this._cur?.specular.texture2D = txtLoader.load2DFromFile(file);
   }
 
@@ -724,7 +713,7 @@ class _mtlReader {
     final cur = this._cur;
     final txtLoader = this._txtLoader;
     if (cur == null || txtLoader == null) return;
-    final String file = joinPath(dir, data);
+    final file = joinPath(dir, data);
     this._cur?.alpha.texture2D = txtLoader.load2DFromFile(file);
   }
 
@@ -733,7 +722,7 @@ class _mtlReader {
     final cur = this._cur;
     final txtLoader = this._txtLoader;
     if (cur == null || txtLoader == null) return;
-    final String file = joinPath(dir, data);
+    final file = joinPath(dir, data);
     this._cur?.bump.texture2D = txtLoader.load2DFromFile(file);
   }
 }

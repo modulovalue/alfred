@@ -1,8 +1,9 @@
-import '../plotter/plotter.dart';
 import '../primitives/primitives.dart';
 import '../primitives/primitives_impl.dart';
+import '../render/interface.dart';
 import 'plotter_item.dart';
 
+/// TODO these are not items, these are attributes.
 /// An attribute for setting if the line is directed or not.
 class DirectedLineAttrImpl implements DirectedLineAttr {
   /// Gets the directed line flag to apply for this attribute.
@@ -414,7 +415,7 @@ mixin PlotterItemMixin implements PlotterItem {
     final PlotterRenderer r,
   ) {
     if (enabled) {
-      final int count = attributes.length;
+      final count = attributes.length;
       for (int i = 0; i < count; i++) {
         attributes[i].pushAttr(r);
       }

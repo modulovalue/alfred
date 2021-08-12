@@ -74,7 +74,7 @@ class StringTree {
 
   /// Creates a new child to this string tree and returns it.
   StringTree add(String text) {
-    final StringTree child = StringTree(text);
+    final child = StringTree(text);
     this.children.add(child);
     return child;
   }
@@ -82,7 +82,7 @@ class StringTree {
   /// Outputs the string tree.
   @override
   String toString([String indent = '']) {
-    final StringBuffer buf = StringBuffer();
+    final buf = StringBuffer();
     this._subString(buf, indent, true, true);
     return buf.toString();
   }
@@ -95,9 +95,9 @@ class StringTree {
     } else {
       buf.write(last ? _endStr : _branchStr);
     }
-    final String follow = indent + (last ? _spaceStr : _pipeStr);
+    final follow = indent + (last ? _spaceStr : _pipeStr);
     buf.write(this.text.replaceAll(_breakStr, _breakStr + follow));
-    final int count = this.children.length;
+    final count = this.children.length;
     for (int i = 0; i < count; ++i) {
       buf.write(_breakStr);
       this.children[i]._subString(buf, follow, false, i == count - 1);

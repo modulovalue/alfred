@@ -856,7 +856,7 @@ class Rect {
       return Rect.fromLTRB(b!.left * t, b.top * t, b.right * t, b.bottom * t);
     }
     if (b == null) {
-      final double k = 1.0 - t;
+      final k = 1.0 - t;
       return Rect.fromLTRB(a.left * k, a.top * k, a.right * k, a.bottom * k);
     }
     return Rect.fromLTRB(
@@ -977,7 +977,7 @@ class Radius {
       return Radius.elliptical(b!.x * t, b.y * t);
     }
     if (b == null) {
-      final double k = 1.0 - t;
+      final k = 1.0 - t;
       return Radius.elliptical(a.x * k, a.y * k);
     }
     return Radius.elliptical(
@@ -1267,11 +1267,11 @@ class RRect {
   /// corners. The middle of a corner is the intersection of the curve with its
   /// respective quadrant bisector.
   Rect get safeInnerRect {
-    const double kInsetFactor = 0.29289321881; // 1-cos(pi/4)
-    final double leftRadius = math.max(blRadiusX, tlRadiusX);
-    final double topRadius = math.max(tlRadiusY, trRadiusY);
-    final double rightRadius = math.max(trRadiusX, brRadiusX);
-    final double bottomRadius = math.max(brRadiusY, blRadiusY);
+    const kInsetFactor = 0.29289321881; // 1-cos(pi/4)
+    final leftRadius = math.max(blRadiusX, tlRadiusX);
+    final topRadius = math.max(tlRadiusY, trRadiusY);
+    final rightRadius = math.max(trRadiusX, brRadiusX);
+    final bottomRadius = math.max(brRadiusY, blRadiusY);
     return Rect.fromLTRB(left + leftRadius * kInsetFactor, top + topRadius * kInsetFactor, right - rightRadius * kInsetFactor,
         bottom - bottomRadius * kInsetFactor);
   }
@@ -1283,10 +1283,10 @@ class RRect {
   /// the intersections are void, the resulting [Rect] will have negative width
   /// or height.
   Rect get middleRect {
-    final double leftRadius = math.max(blRadiusX, tlRadiusX);
-    final double topRadius = math.max(tlRadiusY, trRadiusY);
-    final double rightRadius = math.max(trRadiusX, brRadiusX);
-    final double bottomRadius = math.max(brRadiusY, blRadiusY);
+    final leftRadius = math.max(blRadiusX, tlRadiusX);
+    final topRadius = math.max(tlRadiusY, trRadiusY);
+    final rightRadius = math.max(trRadiusX, brRadiusX);
+    final bottomRadius = math.max(brRadiusY, blRadiusY);
     return Rect.fromLTRB(left + leftRadius, top + topRadius, right - rightRadius, bottom - bottomRadius);
   }
 
@@ -1295,8 +1295,8 @@ class RRect {
   /// not have an axis-aligned intersection of its left and right side, the
   /// resulting [Rect] will have negative width or height.
   Rect get wideMiddleRect {
-    final double topRadius = math.max(tlRadiusY, trRadiusY);
-    final double bottomRadius = math.max(brRadiusY, blRadiusY);
+    final topRadius = math.max(tlRadiusY, trRadiusY);
+    final bottomRadius = math.max(brRadiusY, blRadiusY);
     return Rect.fromLTRB(left, top + topRadius, right, bottom - bottomRadius);
   }
 
@@ -1305,8 +1305,8 @@ class RRect {
   /// does not have an axis-aligned intersection of its top and bottom side, the
   /// resulting [Rect] will have negative width or height.
   Rect get tallMiddleRect {
-    final double leftRadius = math.max(blRadiusX, tlRadiusX);
-    final double rightRadius = math.max(trRadiusX, brRadiusX);
+    final leftRadius = math.max(blRadiusX, tlRadiusX);
+    final rightRadius = math.max(trRadiusX, brRadiusX);
     return Rect.fromLTRB(left + leftRadius, top, right - rightRadius, bottom);
   }
 
@@ -1369,7 +1369,7 @@ class RRect {
   // Returns the minimum between min and scale to which radius1 and radius2
   // should be scaled with in order not to exceed the limit.
   double _getMin(double min, double radius1, double radius2, double limit) {
-    final double sum = radius1 + radius2;
+    final sum = radius1 + radius2;
     if (sum > limit && sum != 0.0) {
       return math.min(min, limit / sum);
     }
@@ -1435,7 +1435,7 @@ class RRect {
       // outside bounding box
       return false;
     } else {
-      final RRect scaled = scaleRadii();
+      final scaled = scaleRadii();
       double x;
       double y;
       double radiusX;
@@ -1511,7 +1511,7 @@ class RRect {
       );
     }
     if (b == null) {
-      final double k = 1.0 - t;
+      final k = 1.0 - t;
       return RRect._raw(
         left: a.left * k,
         top: a.top * k,
@@ -1569,7 +1569,7 @@ class RRect {
 
   @override
   String toString() {
-    final String rect = '${left.toStringAsFixed(1)}, '
+    final rect = '${left.toStringAsFixed(1)}, '
         '${top.toStringAsFixed(1)}, '
         '${right.toStringAsFixed(1)}, '
         '${bottom.toStringAsFixed(1)}';
@@ -1654,10 +1654,10 @@ class RSTransform {
     required double translateX,
     required double translateY,
   }) {
-    final double scos = math.cos(rotation) * scale;
-    final double ssin = math.sin(rotation) * scale;
-    final double tx = translateX + -scos * anchorX + ssin * anchorY;
-    final double ty = translateY + -ssin * anchorX - scos * anchorY;
+    final scos = math.cos(rotation) * scale;
+    final ssin = math.sin(rotation) * scale;
+    final tx = translateX + -scos * anchorX + ssin * anchorY;
+    final ty = translateY + -ssin * anchorX - scos * anchorY;
     return RSTransform(scos, ssin, tx, ty);
   }
 

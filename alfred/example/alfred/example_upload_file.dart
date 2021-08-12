@@ -13,7 +13,7 @@ Future<void> main() async {
     routes: [
       RouteGet(
         path: '/files/*',
-        middleware: ServeDirectory(_uploadDirectory),
+        middleware: ServeDirectoryIoDirectoryImpl(_uploadDirectory),
       ),
       RoutePost(
         path: '/upload',

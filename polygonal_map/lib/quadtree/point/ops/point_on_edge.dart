@@ -1,40 +1,41 @@
-import '../../edge/edge.dart';
-import '../../edge/edge_impl.dart';
-import '../point.dart';
-import '../point_impl.dart';
+import '../../edge/impl.dart';
+import '../../edge/interface.dart';
+import '../impl.dart';
+import '../interface.dart';
+import 'equals.dart';
 
 /// Gets the intersection location of the given point on the edge.
 PointOnEdgeResult pointOnEdge(QTEdge edge, QTPoint point) {
-  if (QTEdgeImpl.degenerate(edge)) {
+  if (qtEdgeDegenerate(edge)) {
     // TODO don't throw.
     return throw Exception("degenerate edge");
-  } else if (QTPointImpl.equals(point, edge.start)) {
+  } else if (pointEquals(point, edge.start)) {
     return PointOnEdgeResultImpl(edge, point, IntersectionLocation.AtStart, point, true, point, true);
-  } else if (QTPointImpl.equals(point, edge.end)) {
+  } else if (pointEquals(point, edge.end)) {
     return PointOnEdgeResultImpl(edge, point, IntersectionLocation.AtEnd, point, true, point, true);
   } else {
-// Calculate closest point on the edge's line.
-// The denominator can't be zero because the edge isn't degenerate.
-    final double dx = edge.dx.toDouble();
-    final double dy = edge.dy.toDouble();
-    final double numer = (point.x - edge.x1) * dx + (point.y - edge.y1) * dy;
-    final double denom = dx * dx + dy * dy;
-    final double t = numer / denom;
-    final int x = (edge.x1 + t * dx).round();
-    final int y = (edge.y1 + t * dy).round();
+    // Calculate closest point on the edge's line.
+    // The denominator can't be zero because the edge isn't degenerate.
+    final dx = edge.dx.toDouble();
+    final dy = edge.dy.toDouble();
+    final numer = (point.x - edge.x1) * dx + (point.y - edge.y1) * dy;
+    final denom = dx * dx + dy * dy;
+    final t = numer / denom;
+    final x = (edge.x1 + t * dx).round();
+    final y = (edge.y1 + t * dy).round();
     QTPoint closestOnLine = QTPointImpl(x, y);
     bool onLine = false;
-    if (QTPointImpl.equals(closestOnLine, point)) {
+    if (pointEquals(closestOnLine, point)) {
       closestOnLine = point;
       onLine = true;
     }
-    final QTPoint closestOnEdge = closestOnLine;
+    final closestOnEdge = closestOnLine;
     bool onEdge = onLine;
 
     IntersectionLocation location;
-    if (QTPointImpl.equals(closestOnLine, edge.start)) {
+    if (pointEquals(closestOnLine, edge.start)) {
       location = IntersectionLocation.AtStart;
-    } else if (QTPointImpl.equals(closestOnLine, edge.end)) {
+    } else if (pointEquals(closestOnLine, edge.end)) {
       location = IntersectionLocation.AtEnd;
     } else if (t <= 0.0) {
       location = IntersectionLocation.BeforeStart;
@@ -129,13 +130,13 @@ class PointOnEdgeResultImpl implements PointOnEdgeResult {
   bool equals(Object? o) {
     if (o == null) return false;
     if (o is PointOnEdgeResult) return false;
-    final PointOnEdgeResult other = o as PointOnEdgeResult;
-    if (!QTEdgeImpl.equals(edge, other.edge, false)) return false;
-    if (!QTPointImpl.equals(point, other.point)) return false;
+    final other = o as PointOnEdgeResult;
+    if (!qtEdgeEquals(edge, other.edge, false)) return false;
+    if (!pointEquals(point, other.point)) return false;
     if (location != other.location) return false;
-    if (!QTPointImpl.equals(closestOnEdge, other.closestOnEdge)) return false;
+    if (!pointEquals(closestOnEdge, other.closestOnEdge)) return false;
     if (onEdge != other.onEdge) return false;
-    if (!QTPointImpl.equals(closestOnLine, other.closestOnLine)) return false;
+    if (!pointEquals(closestOnLine, other.closestOnLine)) return false;
     if (onLine != other.onLine) return false;
     return true;
   }

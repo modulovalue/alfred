@@ -58,7 +58,7 @@ class UserInput {
 
   /// Disposes the user input.
   void dispose() {
-    for (final async.StreamSubscription<Object> stream in this._eventStreams) {
+    for (final stream in this._eventStreams) {
       stream.cancel();
     }
     this._eventStreams.clear();
@@ -110,7 +110,7 @@ class UserInput {
     if (tEvent == null) {
       this.key._mods = Modifiers.none();
     } else {
-      final bool ctrl = (tEvent.ctrlKey ?? false) || (tEvent.metaKey ?? false);
+      final ctrl = (tEvent.ctrlKey ?? false) || (tEvent.metaKey ?? false);
       this.key._mods = Modifiers(ctrl, tEvent.altKey ?? false, tEvent.shiftKey ?? false);
     }
   }
@@ -118,7 +118,7 @@ class UserInput {
   /// Gets the raw mouse point relative to the client rectangle in pixels.
   Point2 _rawPoint(html.MouseEvent? msEvent) {
     if (msEvent == null) return Point2.zero;
-    final html.Rectangle rect = this._elem.getBoundingClientRect();
+    final rect = this._elem.getBoundingClientRect();
     return Point2((msEvent.page.x - rect.left).toDouble(), (msEvent.page.y - rect.top).toDouble());
   }
 
@@ -131,9 +131,9 @@ class UserInput {
   /// Gets the raw touch points relative to the client rectangle in pixels.
   List<Point2> _rawTouchPoints(html.TouchEvent? tEvent) {
     if (tEvent == null) return [];
-    final html.Rectangle rect = this._elem.getBoundingClientRect();
-    final List<Point2> pnts = [];
-    for (final html.Touch touch in tEvent.touches ?? []) {
+    final rect = this._elem.getBoundingClientRect();
+    final pnts = <Point2>[];
+    for (final touch in tEvent.touches ?? <html.Touch>[]) {
       pnts.add(Point2((touch.page.x - rect.left).toDouble(), (touch.page.y - rect.top).toDouble()));
     }
     return pnts;
@@ -148,10 +148,10 @@ class UserInput {
 
   /// Determines if the given mouse location is contained in the canvas.
   bool _mouseContained(html.MouseEvent msEvent) {
-    final html.Rectangle rect = this._elem.getBoundingClientRect();
-    final num x = msEvent.page.x - rect.left;
+    final rect = this._elem.getBoundingClientRect();
+    final x = msEvent.page.x - rect.left;
     if (x < 0) return false;
-    final num y = msEvent.page.y - rect.top;
+    final y = msEvent.page.y - rect.top;
     if (y < 0) return false;
     return (x < rect.width) && (y < rect.height);
   }
@@ -170,14 +170,14 @@ class UserInput {
   /// Handles a keyboard key being released.
   void _onKeyUp(html.KeyboardEvent kEvent) {
     if (!this.hasFocus) return;
-    final Key key = this._convertKey(kEvent);
+    final key = this._convertKey(kEvent);
     if (this.key.performUp(key)) kEvent.preventDefault();
   }
 
   /// Handles a keyboard key being pressed.
   void _onKeyDown(html.KeyboardEvent kEvent) {
     if (!this.hasFocus) return;
-    final Key key = this._convertKey(kEvent);
+    final key = this._convertKey(kEvent);
     if (this.key.performDown(key)) kEvent.preventDefault();
   }
 
@@ -187,8 +187,8 @@ class UserInput {
     this._focused = true; // This is here because focus/blur doesn't work right now.
     this._setMouseModifiers(msEvent);
     if (this._pointerLocked) {
-      final Button button = this._convertButton(msEvent);
-      final Vector2 vec = this._rawMove(msEvent);
+      final button = this._convertButton(msEvent);
+      final vec = this._rawMove(msEvent);
       if (this.locked.performDown(button, vec)) msEvent.preventDefault();
       return;
     }
@@ -197,22 +197,22 @@ class UserInput {
       this._elem.requestPointerLock();
       return;
     }
-    final Button button = this._convertButton(msEvent);
-    final Point2 pnt = this._rawPoint(msEvent);
+    final button = this._convertButton(msEvent);
+    final pnt = this._rawPoint(msEvent);
     if (this.mouse.performDown(button, pnt)) msEvent.preventDefault();
   }
 
   /// Handles the mouse up in canvas event.
   void _onMouseUp(html.MouseEvent msEvent) {
     this._setMouseModifiers(msEvent);
-    final Button button = this._convertButton(msEvent);
+    final button = this._convertButton(msEvent);
     if (this._pointerLocked) {
-      final Vector2 vec = this._rawMove(msEvent);
+      final vec = this._rawMove(msEvent);
       if (this.locked.performUp(button, vec)) msEvent.preventDefault();
       return;
     }
     if (this._lockOnClick) return;
-    final Point2 pnt = this._rawPoint(msEvent);
+    final pnt = this._rawPoint(msEvent);
     if (this.mouse.performUp(button, pnt)) msEvent.preventDefault();
   }
 
@@ -221,14 +221,14 @@ class UserInput {
   void _onDocMouseUp(html.MouseEvent msEvent) {
     if (!this._mouseContained(msEvent)) {
       this._setMouseModifiers(msEvent);
-      final Button button = this._convertButton(msEvent);
+      final button = this._convertButton(msEvent);
       if (this._pointerLocked) {
-        final Vector2 vec = this._rawMove(msEvent);
+        final vec = this._rawMove(msEvent);
         if (this.locked.performUp(button, vec)) msEvent.preventDefault();
         return;
       }
       if (this._lockOnClick) return;
-      final Point2 pnt = this._rawPoint(msEvent);
+      final pnt = this._rawPoint(msEvent);
       if (this.mouse.performUp(button, pnt)) msEvent.preventDefault();
     }
   }
@@ -236,14 +236,14 @@ class UserInput {
   /// Handles the mouse move on the canvas event.
   void _onMouseMove(html.MouseEvent msEvent) {
     this._setMouseModifiers(msEvent);
-    final Button button = this._convertButton(msEvent);
+    final button = this._convertButton(msEvent);
     if (this._pointerLocked) {
-      final Vector2 vec = this._rawMove(msEvent);
+      final vec = this._rawMove(msEvent);
       if (this.locked.performMove(button, vec)) msEvent.preventDefault();
       return;
     }
     if (this._lockOnClick) return;
-    final Point2 pnt = this._rawPoint(msEvent);
+    final pnt = this._rawPoint(msEvent);
     if (this.mouse.performMove(button, pnt)) msEvent.preventDefault();
   }
 
@@ -252,14 +252,14 @@ class UserInput {
   void _onDocMouseMove(html.MouseEvent msEvent) {
     if (!this._mouseContained(msEvent)) {
       this._setMouseModifiers(msEvent);
-      final Button button = this._convertButton(msEvent);
+      final button = this._convertButton(msEvent);
       if (this._pointerLocked) {
-        final Vector2 vec = this._rawMove(msEvent);
+        final vec = this._rawMove(msEvent);
         if (this.locked.performMove(button, vec)) msEvent.preventDefault();
         return;
       }
       if (this._lockOnClick) return;
-      final Point2 pnt = this._rawPoint(msEvent);
+      final pnt = this._rawPoint(msEvent);
       if (this.mouse.performMove(button, pnt)) msEvent.preventDefault();
     }
   }
@@ -267,23 +267,23 @@ class UserInput {
   /// Handles the mouse wheel being moved over the canvas.
   void _onMouseWheel(html.WheelEvent msEvent) {
     this._setMouseModifiers(msEvent);
-    final Vector2 wheel = Vector2(msEvent.deltaX.toDouble(), msEvent.deltaY.toDouble()) * this._wheelScalar;
+    final wheel = Vector2(msEvent.deltaX.toDouble(), msEvent.deltaY.toDouble()) * this._wheelScalar;
     if (this._pointerLocked) {
       if (this.locked.performWheel(wheel)) msEvent.preventDefault();
       return;
     }
     if (this._lockOnClick) return;
-    final Point2 pnt = this._rawPoint(msEvent);
+    final pnt = this._rawPoint(msEvent);
     if (this.mouse.performWheel(wheel, pnt)) msEvent.preventDefault();
   }
 
   /// Handles the mouse lock and unlock on the canvas.
   void _onPointerLockChanged(html.Event _) {
-    final bool locked = html.document.pointerLockElement == this._elem;
+    final locked = html.document.pointerLockElement == this._elem;
     if (locked != this._pointerLocked) {
       this._pointerLocked = locked;
-      final Button button = this._convertButton(this._msEventOnLock);
-      final Point2 pnt = this._rawPoint(this._msEventOnLock);
+      final button = this._convertButton(this._msEventOnLock);
+      final pnt = this._rawPoint(this._msEventOnLock);
       this.locked._onLockChanged(button, pnt, locked);
     }
   }
@@ -293,21 +293,21 @@ class UserInput {
     this._elem.focus();
     this._focused = true; // TODO: Fix focus. This is here because focus/blur doesn't work right now.
     this._setTouchModifiers(tEvent);
-    final List<Point2> pnts = this._rawTouchPoints(tEvent);
+    final pnts = this._rawTouchPoints(tEvent);
     if (this.touch.performStart(pnts)) tEvent.preventDefault();
   }
 
   // Handles touch screen point presses ending.
   void _onTouchEnd(html.TouchEvent tEvent) {
     this._setTouchModifiers(tEvent);
-    final List<Point2> pnts = this._rawTouchPoints(tEvent);
+    final pnts = this._rawTouchPoints(tEvent);
     if (this.touch.performEnd(pnts)) tEvent.preventDefault();
   }
 
   // Handles touch screen points moving.
   void _onTouchMove(html.TouchEvent tEvent) {
     this._setTouchModifiers(tEvent);
-    final List<Point2> pnts = this._rawTouchPoints(tEvent);
+    final pnts = this._rawTouchPoints(tEvent);
     if (this.touch.performMove(pnts)) tEvent.preventDefault();
   }
 }
@@ -352,14 +352,14 @@ class TouchInput {
   /// Gets the locked mouse arguments.
   /// If [setStart] is true then the start point and time are set.
   TouchEventArgs _getMouseArgs(List<Point2> pnts, bool setStart) {
-    final DateTime curTime = DateTime.now();
+    final curTime = DateTime.now();
     final Point2 pnt;
     if (pnts.isNotEmpty) {
       pnt = pnts[0];
     } else {
       pnt = Point2.zero;
     }
-    final TouchEventArgs args = TouchEventArgs(this, pnts, this._input.clientRect, this._startPnt, this._prevPnt, pnt,
+    final args = TouchEventArgs(this, pnts, this._input.clientRect, this._startPnt, this._prevPnt, pnt,
         this._startTime, this._prevTime, curTime);
     if (setStart) {
       this._startTime = curTime;
@@ -536,8 +536,8 @@ class MouseInput {
   /// Gets the mouse arguments.
   /// If [setStart] is true then the start point and time are set.
   MouseEventArgs _getMouseArgs(Button button, Point2 pnt, bool setStart) {
-    final DateTime curTime = DateTime.now();
-    final MouseEventArgs args = MouseEventArgs(this, button, this._input.clientRect, this._startPnt, this._prevPnt, pnt,
+    final curTime = DateTime.now();
+    final args = MouseEventArgs(this, button, this._input.clientRect, this._startPnt, this._prevPnt, pnt,
         this._startTime, this._prevTime, curTime);
     if (setStart) {
       this._startTime = curTime;
@@ -779,9 +779,9 @@ class LockedMouseInput {
 
   /// Gets the locked mouse arguments.
   MouseEventArgs _getMouseArgs(Button button, Vector2 vec) {
-    final DateTime curTime = DateTime.now();
-    final Point2 pnt = this._prevPnt + Point2(vec.dx * this._hSensitivity, vec.dy * this._vSensitivity);
-    final MouseEventArgs args = MouseEventArgs(this, button, this._input.clientRect, Point2.zero, this._prevPnt, pnt,
+    final curTime = DateTime.now();
+    final pnt = this._prevPnt + Point2(vec.dx * this._hSensitivity, vec.dy * this._vSensitivity);
+    final args = MouseEventArgs(this, button, this._input.clientRect, Point2.zero, this._prevPnt, pnt,
         this._startTime, this._prevTime, curTime);
     this._prevTime = curTime;
     this._prevPnt = pnt;
@@ -828,7 +828,7 @@ class LockedMouseInput {
   /// Handles the mouse lock and unlock on the canvas.
   void _onLockChanged(Button button, Point2 pnt, bool locked) {
     if (this._lockChanged == null) return;
-    final DateTime curTime = DateTime.now();
+    final curTime = DateTime.now();
     this._lockChanged?.emit(LockedEventArgs(this, locked, button, this._input.clientRect, pnt, curTime));
     this._startTime = curTime;
     this._prevPnt = Point2.zero;
@@ -990,7 +990,7 @@ class KeyGroup extends Collection<Key> implements Interactable, Changeable {
 
   /// Handles a key being added to make sure there are no repeats.
   bool _onPreadd(Iterable<Key> keys) {
-    for (final Key key in keys) {
+    for (final key in keys) {
       if (this.contains(key)) return false;
     }
     return true;
@@ -1217,7 +1217,7 @@ class Button {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! Button) return false;
-    final Button key = other;
+    final key = other;
     if (this.code != key.code) return false;
     if (this.modifiers != key.modifiers) return false;
     return true;
