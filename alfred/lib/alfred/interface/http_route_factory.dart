@@ -6,7 +6,6 @@ abstract class Route {
 
   BuiltinMethod get method;
 
-  // TODO find a better name for middleware
   Middleware get middleware;
 }
 

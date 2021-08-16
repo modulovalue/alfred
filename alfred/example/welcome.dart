@@ -27,21 +27,21 @@ import 'package:alfred/bluffer/widgets/text/text.dart';
 // TODO move all examples into a new package.
 Future<void> main() async {
   final session = MyWebSocketSession();
-  final app = AlfredImpl(
+  final app = makeSimpleAlfred(
     onInternalError: (final e) => MiddlewareBuilder(
       (final c) {
         c.res.statusCode = 500;
         return const ServeJson.map(
-          {
-            'message': 'error not handled',
-          },
+          {'message': 'error not handled'},
         ).process(c);
       },
     ),
     onNotFound: MiddlewareBuilder(
       (final c) {
         c.res.statusCode = 404;
-        return const ServeJson.map({'message': 'not found'}).process(c);
+        return const ServeJson.map(
+          {'message': 'not found'},
+        ).process(c);
       },
     ),
   );
@@ -50,7 +50,7 @@ Future<void> main() async {
       // Bluffer.
       RouteGet(
         path: "/",
-        middleware: ServeWidget.app(
+        middleware: ServeWidgetAppImpl(
           title: "Title",
           child: Padding(
             padding: const EdgeInsets.all(15.0),
@@ -111,7 +111,7 @@ Future<void> main() async {
       // File.
       const RouteGet(
         path: '/file',
-        middleware: ServeFile.at('test/files/image.jpg'),
+        middleware: ServeFileStringPathImpl('test/files/image.jpg'),
       ),
       // Directory
       const RouteGet(
@@ -128,7 +128,7 @@ Future<void> main() async {
         path: '/image/download',
         middleware: ServeDownload(
           filename: 'image.jpg',
-          child: ServeFile.at('test/files/image.jpg'),
+          child: ServeFileStringPathImpl('test/files/image.jpg'),
         ),
       ),
       // Arguments.
@@ -251,6 +251,7 @@ RouteGet webSocketServerRoute({
       middleware: WebSocketValueMiddleware(session),
     );
 
+/// TODO it would be great if the javascript portion could come from a dart file that was dart2js'ed.
 RouteGet webSocketClientRoute({
   required final String path,
 }) =>
@@ -314,7 +315,7 @@ class MyWebSocketSession with WebSocketSessionStartMixin {
   @override
   void onClose(WebSocket ws) {
     users.remove(ws);
-    users.forEach((user) => user.add('A user has left.'));
+    users.forEach((final user) => user.add('A user has left.'));
   }
 
   @override

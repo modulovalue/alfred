@@ -9,7 +9,7 @@ import 'package:three_dart/techniques/techniques.dart';
 import '../../common/common.dart' as common;
 
 void main() {
-  final common.ShellPage page = common.ShellPage("Test 001")
+  final page = common.ShellPage("Test 001")
     ..addLargeCanvas("testCanvas")
     ..addPar([
       "Test of the Depth shader with a single auto-rotating shape. ",
@@ -20,28 +20,23 @@ void main() {
     ])
     ..addControlBoxes(["controls"])
     ..addPar(["«[Back to Tests|../]"]);
-
-  final three_dart.Entity obj = three_dart.Entity()
+  final obj = three_dart.Entity()
     ..shape = toroid()
     ..mover = Rotator();
-
-  final Depth tech = Depth(start: 2.0, stop: 8.0);
-  final EntityPass pass = EntityPass()
+  final tech = Depth(start: 2.0, stop: 8.0);
+  final pass = EntityPass()
     ..children.add(obj)
     ..technique = tech
     ..camera?.mover = Constant.translate(0.0, 0.0, 5.0);
-
-  final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas")..scene = pass;
-
+  final td = three_dart.ThreeDart.fromId("testCanvas")..scene = pass;
   common.CheckGroup("controls")
-    ..add("grey", (bool enable) {
+    ..add("grey", (final bool enable) {
       tech.grey = enable;
     }, true)
-    ..add("invert", (bool enable) {
+    ..add("invert", (final bool enable) {
       tech.invert = enable;
     });
-
-  td.postrender.once((_) {
+  td.postrender.once((final _) {
     page
       ..addCode("Vertex Shader", "glsl", 0, tech.vertexSourceCode.split("\n"))
       ..addCode("Fragment Shader", "glsl", 0, tech.fragmentSourceCode.split("\n"));

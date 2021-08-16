@@ -1,18 +1,26 @@
-import 'dart:math' as math;
+import 'dart:math';
 
 import '../math/math.dart';
 
 /// The common shared result of a intersection test between shapes.
 class BaseResult {
   /// Indicates if a intersection occurred.
-  final bool intesects;
+  final bool intersects;
 
   /// Creates a new intersection result for intersection between shapes.
-  BaseResult(this.intesects);
+  BaseResult(
+    final this.intersects,
+  );
 
   /// Gets the string for this intersection.
   @override
-  String toString() => intesects ? "intesection" : "noIntesection";
+  String toString() {
+    if (intersects) {
+      return "intersection";
+    } else {
+      return "noIntersection";
+    }
+  }
 }
 
 /// Determines there is an intersection between the given [triangle] and [plane].
@@ -33,7 +41,13 @@ BaseResult trianglePlane(
 // Project the triangle's vertices onto the potential seperating axis
 // and determine if this axis is seperating or not.
 // Based on code from https://gdbooks.gitbooks.io/3dcollisions/content/Chapter4/aabb-triangle.html
-bool _isSeparatingAxis(Vector3 regionSize, Vector3 axis, Vector3 v1, Vector3 v2, Vector3 v3) {
+bool _isSeparatingAxis(
+  final Vector3 regionSize,
+  final Vector3 axis,
+  final Vector3 v1,
+  final Vector3 v2,
+  final Vector3 v3,
+) {
   final p0 = v1.dot(axis);
   final p1 = v2.dot(axis);
   final p2 = v3.dot(axis);
@@ -42,9 +56,9 @@ bool _isSeparatingAxis(Vector3 regionSize, Vector3 axis, Vector3 v1, Vector3 v2,
       regionSize.dy * Vector3.posY.dot(axis).abs() +
       regionSize.dz * Vector3.posZ.dot(axis).abs();
   // Check if the extreme points from the triangle intersect r.
-  final max = math.max(math.max(p0, p1), p2);
-  final min = math.min(math.min(p0, p1), p2);
-  if (math.max(-max, min) <= r) {
+  final _max = max(max(p0, p1), p2);
+  final _min = min(min(p0, p1), p2);
+  if (max(-_max, _min) <= r) {
     // This means the extreme points of the projected triangle is outside the
     // projected AABB size. Therefore the axis is seperating and we can exit.
     return true;
@@ -55,7 +69,11 @@ bool _isSeparatingAxis(Vector3 regionSize, Vector3 axis, Vector3 v1, Vector3 v2,
 }
 
 // Determine if there is a separating axis between the a triangle and an AABB.
-bool _hasSeparatingAxis(Point3 regionCenter, Vector3 regionSize, Triangle3 tri) {
+bool _hasSeparatingAxis(
+  final Point3 regionCenter,
+  final Vector3 regionSize,
+  final Triangle3 tri,
+) {
   final v1 = regionCenter.vectorTo(tri.point1);
   final v2 = regionCenter.vectorTo(tri.point2);
   final v3 = regionCenter.vectorTo(tri.point3);
@@ -83,7 +101,10 @@ bool _hasSeparatingAxis(Point3 regionCenter, Vector3 regionSize, Triangle3 tri) 
 }
 
 /// Determines if the [region] intersects or contains given [triangle].
-BaseResult regionTriangle(Region3 region, Triangle3 triangle) {
+BaseResult regionTriangle(
+  final Region3 region,
+  final Triangle3 triangle,
+) {
   final center = region.center;
   final size = center.vectorTo(region.maxCorner);
   final hasSep = _hasSeparatingAxis(center, size, triangle);
@@ -91,7 +112,10 @@ BaseResult regionTriangle(Region3 region, Triangle3 triangle) {
 }
 
 /// Determines if the [cube] intersects or contains given [triangle].
-BaseResult cubeTriangle(Cube cube, Triangle3 triangle) {
+BaseResult cubeTriangle(
+  final Cube cube,
+  final Triangle3 triangle,
+) {
   final center = cube.center;
   final halfSize = cube.size * 0.5;
   final size = Vector3(halfSize, halfSize, halfSize);
@@ -100,7 +124,10 @@ BaseResult cubeTriangle(Cube cube, Triangle3 triangle) {
 }
 
 /// Determines there is an intersection between the given [range] and [plane].
-BaseResult regionPlane(Region3 range, Plane plane) {
+BaseResult regionPlane(
+  final Region3 range,
+  final Plane plane,
+) {
   final min = range.minCorner;
   final max = range.maxCorner;
   final side = plane.sideOfPointComponents(min.x, min.y, min.z);
@@ -139,7 +166,7 @@ RaySphereResult raySphere(
   final r2 = sphere.radius * sphere.radius;
   if (e2 <= r2) return RaySphereResult(true, start, 0.0);
   final a = e.dot(ray.vector);
-  final t = a - math.sqrt(r2 - e2 + a * a);
+  final t = a - sqrt(r2 - e2 + a * a);
   if ((t < 0.0) || (t > 1.0)) return RaySphereResult(false, null, 0.0);
   final pnt = Point3(ray.x + ray.dx * t, ray.y + ray.dy * t, ray.z + ray.dz * t);
   return RaySphereResult(true, pnt, t);
@@ -154,7 +181,11 @@ class RaySphereResult extends BaseResult {
   final double parametric;
 
   /// Creates a new intersection result.
-  RaySphereResult(bool intersects, this.point, this.parametric) : super(intersects);
+  RaySphereResult(
+    final bool intersects,
+    final this.point,
+    final this.parametric,
+  ) : super(intersects);
 
   /// Gets the string for this intersection.
   @override
@@ -162,7 +193,10 @@ class RaySphereResult extends BaseResult {
 }
 
 /// Determines the intersection between the given [ray] and [region].
-RayRegion3Result rayRegion3(Ray3 ray, Region3 region) {
+RayRegion3Result rayRegion3(
+  final Ray3 ray,
+  final Region3 region,
+) {
   final maxx = region.x + region.dx;
   final maxy = region.y + region.dy;
   final maxz = region.z + region.dz;
@@ -173,7 +207,9 @@ RayRegion3Result rayRegion3(Ray3 ray, Region3 region) {
   HitRegion xregion = HitRegion.None;
   if (ray.x < region.x) {
     xt = region.x - ray.x;
-    if (xt > ray.dx) return RayRegion3Result.none();
+    if (xt > ray.dx) {
+      return RayRegion3Result.none();
+    }
     xt /= ray.dx;
     inside = false;
     xn = -1.0;
@@ -181,7 +217,9 @@ RayRegion3Result rayRegion3(Ray3 ray, Region3 region) {
     xregion = HitRegion.XNeg;
   } else if (ray.x > maxx) {
     xt = maxx - ray.x;
-    if (xt < ray.dx) return RayRegion3Result.none();
+    if (xt < ray.dx) {
+      return RayRegion3Result.none();
+    }
     xt /= ray.dx;
     inside = false;
     xn = 1.0;
@@ -194,7 +232,9 @@ RayRegion3Result rayRegion3(Ray3 ray, Region3 region) {
   HitRegion yregion = HitRegion.None;
   if (ray.y < region.y) {
     yt = region.y - ray.y;
-    if (yt > ray.dy) return RayRegion3Result.none();
+    if (yt > ray.dy) {
+      return RayRegion3Result.none();
+    }
     yt /= ray.dy;
     inside = false;
     yn = -1.0;
@@ -202,7 +242,9 @@ RayRegion3Result rayRegion3(Ray3 ray, Region3 region) {
     yregion = HitRegion.YNeg;
   } else if (ray.y > maxy) {
     yt = maxy - ray.y;
-    if (yt < ray.dy) return RayRegion3Result.none();
+    if (yt < ray.dy) {
+      return RayRegion3Result.none();
+    }
     yt /= ray.dy;
     inside = false;
     yn = 1.0;
@@ -215,7 +257,9 @@ RayRegion3Result rayRegion3(Ray3 ray, Region3 region) {
   HitRegion zregion = HitRegion.None;
   if (ray.z < region.z) {
     zt = region.z - ray.z;
-    if (zt > ray.dz) return RayRegion3Result.none();
+    if (zt > ray.dz) {
+      return RayRegion3Result.none();
+    }
     zt /= ray.dz;
     inside = false;
     zn = -1.0;
@@ -223,7 +267,9 @@ RayRegion3Result rayRegion3(Ray3 ray, Region3 region) {
     zregion = HitRegion.ZNeg;
   } else if (ray.z > maxz) {
     zt = maxz - ray.z;
-    if (zt < ray.dz) return RayRegion3Result.none();
+    if (zt < ray.dz) {
+      return RayRegion3Result.none();
+    }
     zt /= ray.dz;
     inside = false;
     zn = 1.0;
@@ -234,42 +280,43 @@ RayRegion3Result rayRegion3(Ray3 ray, Region3 region) {
   }
   if (inside) {
     return RayRegion3Result(ray.start, -ray.vector.normal(), 0.0, HitRegion.Inside);
-  }
-  // The farthest plane is the plane of intersection.
-  final which = () {
-    if (yt > xt) {
-      if (zt > yt) {
-        return 2;
+  } else {
+    // The farthest plane is the plane of intersection.
+    final which = () {
+      if (yt > xt) {
+        if (zt > yt) {
+          return 2;
+        } else {
+          return 1;
+        }
       } else {
-        return 1;
+        if (zt > xt) {
+          return 2;
+        } else {
+          return 0;
+        }
       }
-    } else {
-      if (zt > xt) {
-        return 2;
-      } else {
-        return 0;
-      }
+    }();
+    switch (which) {
+      case 0: // intersect with yz plane
+        final y = ray.y + ray.dy * xt;
+        if (!inRange(y, region.y, maxy)) return RayRegion3Result.none();
+        final z = ray.z + ray.dz * xt;
+        if (!inRange(z, region.z, maxz)) return RayRegion3Result.none();
+        return RayRegion3Result(Point3(xp, y, z), Vector3(xn, 0.0, 0.0), xt, xregion);
+      case 1: // intersect with xz plane
+        final x = ray.x + ray.dx * yt;
+        if (!inRange(x, region.x, maxx)) return RayRegion3Result.none();
+        final z = ray.z + ray.dz * yt;
+        if (!inRange(z, region.z, maxz)) return RayRegion3Result.none();
+        return RayRegion3Result(Point3(x, yp, z), Vector3(0.0, yn, 0.0), yt, yregion);
+      default: // 2, intersect with xy plane
+        final x = ray.x + ray.dx * zt;
+        if (!inRange(x, region.x, maxx)) return RayRegion3Result.none();
+        final y = ray.y + ray.dy * zt;
+        if (!inRange(y, region.y, maxy)) return RayRegion3Result.none();
+        return RayRegion3Result(Point3(x, y, zp), Vector3(0.0, 0.0, zn), zt, zregion);
     }
-  }();
-  switch (which) {
-    case 0: // intersect with yz plane
-      final y = ray.y + ray.dy * xt;
-      if (!inRange(y, region.y, maxy)) return RayRegion3Result.none();
-      final z = ray.z + ray.dz * xt;
-      if (!inRange(z, region.z, maxz)) return RayRegion3Result.none();
-      return RayRegion3Result(Point3(xp, y, z), Vector3(xn, 0.0, 0.0), xt, xregion);
-    case 1: // intersect with xz plane
-      final x = ray.x + ray.dx * yt;
-      if (!inRange(x, region.x, maxx)) return RayRegion3Result.none();
-      final z = ray.z + ray.dz * yt;
-      if (!inRange(z, region.z, maxz)) return RayRegion3Result.none();
-      return RayRegion3Result(Point3(x, yp, z), Vector3(0.0, yn, 0.0), yt, yregion);
-    default: // 2, intersect with xy plane
-      final x = ray.x + ray.dx * zt;
-      if (!inRange(x, region.x, maxx)) return RayRegion3Result.none();
-      final y = ray.y + ray.dy * zt;
-      if (!inRange(y, region.y, maxy)) return RayRegion3Result.none();
-      return RayRegion3Result(Point3(x, y, zp), Vector3(0.0, 0.0, zn), zt, zregion);
   }
 }
 
@@ -288,14 +335,37 @@ class RayRegion3Result extends BaseResult {
   final HitRegion region;
 
   /// Creates a new intersection result for an intersection.
-  factory RayRegion3Result(Point3 point, Vector3 normal, double parametric, HitRegion region) =>
-      RayRegion3Result._(true, point, normal, parametric, region);
+  factory RayRegion3Result(
+    final Point3 point,
+    final Vector3 normal,
+    final double parametric,
+    final HitRegion region,
+  ) =>
+      RayRegion3Result._(
+        true,
+        point,
+        normal,
+        parametric,
+        region,
+      );
 
   /// Creates a new intersection result.
-  RayRegion3Result._(bool intesects, this.point, this.normal, this.parametric, this.region) : super(intesects);
+  RayRegion3Result._(
+    final bool intersects,
+    final this.point,
+    final this.normal,
+    final this.parametric,
+    final this.region,
+  ) : super(intersects);
 
   /// Creates a new intersection result for no intersection.
-  factory RayRegion3Result.none() => RayRegion3Result._(false, null, null, 0.0, HitRegion.None);
+  factory RayRegion3Result.none() => RayRegion3Result._(
+        false,
+        null,
+        null,
+        0.0,
+        HitRegion.None,
+      );
 
   /// Gets the string for this intersection.
   @override
@@ -303,7 +373,10 @@ class RayRegion3Result extends BaseResult {
 }
 
 /// Determines the intersection between the given [ray] and this region.
-RayRegion2Result rayRegion2(Ray2 ray, Region2 region) {
+RayRegion2Result rayRegion2(
+  final Ray2 ray,
+  final Region2 region,
+) {
   final maxx = region.x + region.dx;
   final maxy = region.y + region.dy;
   // Check for point inside box, trivial reject, and determine
@@ -313,7 +386,9 @@ RayRegion2Result rayRegion2(Ray2 ray, Region2 region) {
   HitRegion xregion = HitRegion.None;
   if (ray.x < region.x) {
     xt = region.x - ray.x;
-    if (xt > ray.dx) return RayRegion2Result.none();
+    if (xt > ray.dx) {
+      return RayRegion2Result.none();
+    }
     xt /= ray.dx;
     inside = false;
     xn = -1.0;
@@ -322,7 +397,9 @@ RayRegion2Result rayRegion2(Ray2 ray, Region2 region) {
   } else {
     if (ray.x > maxx) {
       xt = maxx - ray.x;
-      if (xt < ray.dx) return RayRegion2Result.none();
+      if (xt < ray.dx) {
+        return RayRegion2Result.none();
+      }
       xt /= ray.dx;
       inside = false;
       xn = 1.0;
@@ -336,7 +413,9 @@ RayRegion2Result rayRegion2(Ray2 ray, Region2 region) {
   HitRegion yregion = HitRegion.None;
   if (ray.y < region.y) {
     yt = region.y - ray.y;
-    if (yt > ray.dy) return RayRegion2Result.none();
+    if (yt > ray.dy) {
+      return RayRegion2Result.none();
+    }
     yt /= ray.dy;
     inside = false;
     yn = -1.0;
@@ -345,7 +424,9 @@ RayRegion2Result rayRegion2(Ray2 ray, Region2 region) {
   } else {
     if (ray.y > maxy) {
       yt = maxy - ray.y;
-      if (yt < ray.dy) return RayRegion2Result.none();
+      if (yt < ray.dy) {
+        return RayRegion2Result.none();
+      }
       yt /= ray.dy;
       inside = false;
       yn = 1.0;
@@ -355,25 +436,25 @@ RayRegion2Result rayRegion2(Ray2 ray, Region2 region) {
       yt = -1.0;
     }
   }
-
-  if (inside) return RayRegion2Result(ray.start, -ray.vector.normal(), 0.0, HitRegion.Inside);
-
-  // The farthest plane is the plane of intersection.
-  if (yt > xt) {
-    // intersect with xz plane
-    final x = ray.x + ray.dx * yt;
-    if (inRange(x, region.x, maxx)) {
-      return RayRegion2Result(Point2(x, yp), Vector2(0.0, yn), yt, yregion);
-    }
+  if (inside) {
+    return RayRegion2Result(ray.start, -ray.vector.normal(), 0.0, HitRegion.Inside);
   } else {
-    // intersect with yz plane
-    final y = ray.y + ray.dy * xt;
-    if (inRange(y, region.y, maxy)) {
-      return RayRegion2Result(Point2(xp, y), Vector2(xn, 0.0), xt, xregion);
+    // The farthest plane is the plane of intersection.
+    if (yt > xt) {
+      // intersect with xz plane
+      final x = ray.x + ray.dx * yt;
+      if (inRange(x, region.x, maxx)) {
+        return RayRegion2Result(Point2(x, yp), Vector2(0.0, yn), yt, yregion);
+      }
+    } else {
+      // intersect with yz plane
+      final y = ray.y + ray.dy * xt;
+      if (inRange(y, region.y, maxy)) {
+        return RayRegion2Result(Point2(xp, y), Vector2(xn, 0.0), xt, xregion);
+      }
     }
+    return RayRegion2Result.none();
   }
-
-  return RayRegion2Result.none();
 }
 
 /// Results from an intersection between a 2D ray and region.
@@ -391,14 +472,37 @@ class RayRegion2Result extends BaseResult {
   final HitRegion region;
 
   /// Creates a new intersection result for an intersection.
-  factory RayRegion2Result(Point2 point, Vector2 normal, double parametric, HitRegion region) =>
-      RayRegion2Result._(true, point, normal, parametric, region);
+  factory RayRegion2Result(
+    final Point2 point,
+    final Vector2 normal,
+    final double parametric,
+    final HitRegion region,
+  ) =>
+      RayRegion2Result._(
+        true,
+        point,
+        normal,
+        parametric,
+        region,
+      );
 
   /// Creates a new intersection result.
-  RayRegion2Result._(bool intersets, this.point, this.normal, this.parametric, this.region) : super(intersets);
+  RayRegion2Result._(
+    final bool intersets,
+    final this.point,
+    final this.normal,
+    final this.parametric,
+    final this.region,
+  ) : super(intersets);
 
   /// Creates a new intersection result for no intersection.
-  factory RayRegion2Result.none() => RayRegion2Result._(false, null, null, 0.0, HitRegion.None);
+  factory RayRegion2Result.none() => RayRegion2Result._(
+        false,
+        null,
+        null,
+        0.0,
+        HitRegion.None,
+      );
 
   /// Gets the string for this intersection.
   @override
@@ -406,15 +510,24 @@ class RayRegion2Result extends BaseResult {
 }
 
 /// Determines the intersection between the given [ray] and [plane].
-RayPlaneResult rayPlane(Ray3 ray, Plane plane) {
+RayPlaneResult rayPlane(
+  final Ray3 ray,
+  final Plane plane,
+) {
   final norm = plane.normal;
   final p0 = Vector3(ray.x, ray.y, ray.z);
   final vec = ray.vector;
   final dem = vec.dot(norm);
-  if (dem == 0.0) return RayPlaneResult.none();
-  final t = (plane.offset - p0.dot(norm)) / dem;
-  if ((t < 0.0) || (t > 1.0)) return RayPlaneResult.none();
-  return RayPlaneResult(Point3.fromVector3(p0 + norm * t), t);
+  if (dem == 0.0) {
+    return RayPlaneResult.none();
+  } else {
+    final t = (plane.offset - p0.dot(norm)) / dem;
+    if ((t < 0.0) || (t > 1.0)) {
+      return RayPlaneResult.none();
+    } else {
+      return RayPlaneResult(Point3.fromVector3(p0 + norm * t), t);
+    }
+  }
 }
 
 /// Results from an intersection between a 3D ray and plane.
@@ -426,10 +539,18 @@ class RayPlaneResult extends BaseResult {
   final double parametric;
 
   /// Creates a new intersection result.
-  factory RayPlaneResult(Point3 point, double parametric) => RayPlaneResult._(true, point, parametric);
+  factory RayPlaneResult(
+    final Point3 point,
+    final double parametric,
+  ) =>
+      RayPlaneResult._(true, point, parametric);
 
   /// Creates a new intersection result.
-  RayPlaneResult._(bool intesects, this.point, this.parametric) : super(intesects);
+  RayPlaneResult._(
+    final bool intesects,
+    final this.point,
+    final this.parametric,
+  ) : super(intesects);
 
   /// Creates a new intersection result.
   factory RayPlaneResult.none() => RayPlaneResult._(false, null, 0.0);
@@ -440,17 +561,24 @@ class RayPlaneResult extends BaseResult {
 }
 
 /// Get the point intersection of three planes.
-PlanesResult planes(Plane plane1, Plane plane2, Plane plane3) {
+PlanesResult planes(
+  final Plane plane1,
+  final Plane plane2,
+  final Plane plane3,
+) {
   final normal1 = plane1.normal;
   final normal2 = plane2.normal;
   final normal3 = plane3.normal;
   final cross12 = normal1.cross(normal2);
   final div = cross12.dot(normal3);
-  if (Comparer.equals(div, 0.0)) return PlanesResult(false, null);
-  final cross23 = normal2.cross(normal3);
-  final cross31 = normal3.cross(normal1);
-  final result = (cross23 * plane1.offset + cross31 * plane2.offset + cross12 * plane3.offset) / div;
-  return PlanesResult(true, Point3.fromVector3(result));
+  if (Comparer.equals(div, 0.0)) {
+    return PlanesResult(false, null);
+  } else {
+    final cross23 = normal2.cross(normal3);
+    final cross31 = normal3.cross(normal1);
+    final result = (cross23 * plane1.offset + cross31 * plane2.offset + cross12 * plane3.offset) / div;
+    return PlanesResult(true, Point3.fromVector3(result));
+  }
 }
 
 /// Results from an intersection between 3 planes.
@@ -459,7 +587,10 @@ class PlanesResult extends BaseResult {
   final Point3? point;
 
   /// Creates a new intersection result.
-  PlanesResult(bool intesects, this.point) : super(intesects);
+  PlanesResult(
+    final bool intersects,
+    final this.point,
+  ) : super(intersects);
 
   /// Gets the string for this intersection.
   @override

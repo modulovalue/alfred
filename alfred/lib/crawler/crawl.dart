@@ -396,8 +396,10 @@ final RegExp irrelevantTagsRegex = RegExp(
 
 /// Validation Class containing all functions related to URL validation.
 class Validation {
-  static final _ipv6 = RegExp(r'^::|^::1|^([a-fA-F0-9]{1,4}::?){1,7}([a-fA-F0-9]{1,4})$');
-  static final _ipv4Maybe = RegExp(r'^(\d?\d?\d)\.(\d?\d?\d)\.(\d?\d?\d)\.(\d?\d?\d)$');
+  static final RegExp _ipv6 = RegExp(r'^::|^::1|^([a-fA-F0-9]{1,4}::?){1,7}([a-fA-F0-9]{1,4})$');
+  static final RegExp _ipv4Maybe = RegExp(r'^(\d?\d?\d)\.(\d?\d?\d)\.(\d?\d?\d)\.(\d?\d?\d)$');
+
+  Validation();
 
   /// The isBaseURL function checks the base URLs like https://pub.dev.
   ValidationReturn isBaseURL(
@@ -559,7 +561,6 @@ class WebScraper {
     if (baseUrl != null && baseUrl != '') {
       final stopwatch = Stopwatch()..start();
       final client = Client();
-
       try {
         final _response = await client.get(Uri.parse(baseUrl! + route));
         // Calculating Time Elapsed using timer from dart:core.

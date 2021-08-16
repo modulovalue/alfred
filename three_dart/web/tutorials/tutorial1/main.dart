@@ -1,13 +1,13 @@
-import 'package:three_dart/core/core.dart' as three_dart;
+import 'package:three_dart/core/core.dart';
 import 'package:three_dart/movers/movers.dart';
 import 'package:three_dart/scenes/scenes.dart';
 import 'package:three_dart/shapes/shapes.dart';
 import 'package:three_dart/techniques/techniques.dart';
 
-import '../../common/common.dart' as common;
+import '../../common/common.dart';
 
 void main() {
-  common.ShellPage("Tutorial 1")
+  ShellPage("Tutorial 1")
     ..addPar([
       "This tutorial will walk you through creating the \"Hello World\" ",
       "of 3D graphics, a rotating cube. After this tutorial you should know how ",
@@ -124,15 +124,12 @@ void main() {
       "In the next tutorial we will setup a material light technique ",
       "and dive into creating more interesting scenes."
     ]);
-
-  final three_dart.Entity obj = three_dart.Entity()
+  final Entity obj = Entity()
     ..shape = cube()
     ..mover = Rotator()
     ..technique = Depth(start: 3.0, stop: 6.0, grey: true);
-
   final EntityPass pass = EntityPass()
     ..children.add(obj)
     ..camera?.mover = Constant.translate(0.0, 0.0, 5.0);
-
-  three_dart.ThreeDart.fromId("tutorial1").scene = pass;
+  ThreeDart.fromId("tutorial1").scene = pass;
 }

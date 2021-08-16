@@ -239,7 +239,7 @@ class Border extends BoxBorder {
   /// A uniform border with all sides the same color and width.
   ///
   /// The sides default to black solid borders, one logical pixel wide.
-  factory Border.all({
+  static Border all({
     Color color = const Color(0xFF000000),
     double width = 1.0,
     BorderStyle style = BorderStyle.solid,

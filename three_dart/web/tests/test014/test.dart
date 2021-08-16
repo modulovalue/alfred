@@ -2,7 +2,7 @@ library three_dart.test.test014;
 
 import 'dart:math';
 
-import 'package:three_dart/core/core.dart' as three_dart;
+import 'package:three_dart/core/core.dart';
 import 'package:three_dart/lights/lights.dart';
 import 'package:three_dart/math/math.dart';
 import 'package:three_dart/movers/movers.dart';
@@ -12,10 +12,12 @@ import 'package:three_dart/techniques/techniques.dart';
 import 'package:three_dart/textures/textures.dart';
 import 'package:three_dart/views/views.dart';
 
-import '../../common/common.dart' as common;
+import '../../common/common.dart';
 
 void main() {
-  final common.ShellPage page = common.ShellPage("Test 014")
+  final page = ShellPage(
+    "Test 014",
+  )
     ..addLargeCanvas("testCanvas")
     ..addPar([
       "Test of Material Lighting shader with different reflections and refractions. " +
@@ -23,9 +25,9 @@ void main() {
     ])
     ..addControlBoxes(["controls", "shapes"])
     ..addPar(["«[Back to Tests|../]"]);
-  final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
+  final ThreeDart td = ThreeDart.fromId("testCanvas");
   final FrontTarget target = FrontTarget()..clearColor = false;
-  final three_dart.Entity obj = three_dart.Entity()..shape = toroid();
+  final Entity obj = Entity()..shape = toroid();
   final TextureCube environment = td.textureLoader.loadCubeFromPath("../resources/maskonaive", ext: ".jpg");
   final MaterialLight tech = MaterialLight()
     ..lights.add(Directional(mover: Constant.vectorTowards(-1.0, -1.0, -1.0), color: Color3.white()))
@@ -53,7 +55,7 @@ void main() {
     ..children.add(obj);
   (pass.target as FrontTarget?)!.clearColor = false;
   td.scene = Compound(passes: [skybox, pass]);
-  common.RadioGroup("controls")
+  RadioGroup("controls")
     ..add("Silver", () {
       tech
         ..ambient.color = Color3(0.1, 0.1, 0.1)
@@ -132,7 +134,7 @@ void main() {
         ..refraction.color = Color3.black()
         ..reflection.color = Color3(0.3, 0.3, 0.3);
     });
-  common.RadioGroup("shapes")
+  RadioGroup("shapes")
     ..add("Cube", () {
       obj.shape = cube();
     })
@@ -157,8 +159,7 @@ void main() {
       obj.shape = cylindrical(
           sides: 50,
           div: 25,
-          radiusHndl: (double u, double v) =>
-              cos(v * 4.0 * PI + PI) * 0.2 + cos(u * 6.0 * PI) * 0.3 + 0.8);
+          radiusHndl: (double u, double v) => cos(v * 4.0 * PI + PI) * 0.2 + cos(u * 6.0 * PI) * 0.3 + 0.8);
     })
     ..add("Sphere", () {
       obj.shape = sphere(widthDiv: 6, heightDiv: 6);
@@ -180,5 +181,5 @@ void main() {
       ..addCode("Vertex Shader", "glsl", 0, tech.vertexSourceCode.split("\n"))
       ..addCode("Fragment Shader", "glsl", 0, tech.fragmentSourceCode.split("\n"));
   });
-  common.showFPS(td);
+  showFPS(td);
 }

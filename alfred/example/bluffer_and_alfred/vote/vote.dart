@@ -16,15 +16,12 @@ import 'package:alfred/bluffer/widgets/text/text.dart';
 import 'package:alfred/bluffer/widgets/theme/theme.dart';
 import 'package:alfred/bluffer/widgets/widget/interface/widget.dart';
 
-int yes = 0;
-int no = 0;
-
 Future<void> main() async {
   final app = alfredWithRoutes(
     routes: [
       RouteGet(
         path: "/yes",
-        middleware: ServeWidget.app(
+        middleware: ServeWidgetAppImpl(
           title: "Yes",
           onProcess: () => yes++,
           child: thankYouWidget(),
@@ -32,7 +29,7 @@ Future<void> main() async {
       ),
       RouteGet(
         path: "/no",
-        middleware: ServeWidget.app(
+        middleware: ServeWidgetAppImpl(
           title: "No",
           onProcess: () => no++,
           child: thankYouWidget(),
@@ -40,7 +37,7 @@ Future<void> main() async {
       ),
       RouteGet(
         path: "/",
-        middleware: ServeWidget.app(
+        middleware: ServeWidgetAppImpl(
           title: "Vote",
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -61,6 +58,9 @@ Future<void> main() async {
   );
   await app.build();
 }
+
+int yes = 0;
+int no = 0;
 
 Widget voteNoWidget(
   final int no,

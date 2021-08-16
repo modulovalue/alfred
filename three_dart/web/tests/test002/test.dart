@@ -9,10 +9,10 @@ import 'package:three_dart/scenes/scenes.dart';
 import 'package:three_dart/shapes/shapes.dart';
 import 'package:three_dart/techniques/techniques.dart';
 
-import '../../common/common.dart' as common;
+import '../../common/common.dart';
 
 void main() {
-  common.ShellPage("Test 002")
+  ShellPage("Test 002")
     ..addLargeCanvas("testCanvas")
     ..addPar([
       "The inspection test is used to check that shapes are built correctly ",
@@ -22,81 +22,95 @@ void main() {
     ])
     ..addControlBoxes(["controls", "shapes", "scalars"])
     ..addPar(["«[Back to Tests|../]"]);
-
-  final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
-
-  final three_dart.Entity obj = three_dart.Entity()
+  final td = three_dart.ThreeDart.fromId("testCanvas");
+  final obj = three_dart.Entity()
     ..mover = (Group()
       ..add(UserRotator(input: td.userInput, invertY: true))
       ..add(UserRoller(input: td.userInput, ctrl: true))
       ..add(UserZoom(input: td.userInput)));
-
-  final Inspection tech = Inspection()..vectorScale = 0.4;
-
+  final tech = Inspection()..vectorScale = 0.4;
   td.scene = EntityPass()
     ..technique = tech
     ..children.add(obj)
     ..camera?.mover = Constant.translate(0.0, 0.0, 5.0);
-
-  common.CheckGroup("controls")
-    ..add("Filled", (bool show) {
-      tech.showFilled = show;
-    }, true)
-    ..add("Wire Frame", (bool show) {
-      tech.showWireFrame = show;
-    }, true)
-    ..add("Vertices", (bool show) {
-      tech.showVertices = show;
-    })
-    ..add("Normals", (bool show) {
-      tech.showNormals = show;
-    })
-    ..add("Binormals", (bool show) {
-      tech.showBinormals = show;
-    })
-    ..add("Tangentals", (bool show) {
-      tech.showTangentals = show;
-    })
-    ..add("Face Centers", (bool show) {
-      tech.showFaceCenters = show;
-    })
-    ..add("Face Normals", (bool show) {
-      tech.showFaceNormals = show;
-    })
-    ..add("Face Binormals", (bool show) {
-      tech.showFaceBinormals = show;
-    })
-    ..add("Face Tangentals", (bool show) {
-      tech.showFaceTangentals = show;
-    })
-    ..add("Colors", (bool show) {
-      tech.showColorFill = show;
-    })
-    ..add("Textures2D", (bool show) {
-      tech.showTxt2DColor = show;
-    })
-    ..add("TexturesCube", (bool show) {
-      tech.showTxtCube = show;
-    })
-    ..add("Weight", (bool show) {
-      tech.showWeight = show;
-    })
-    ..add("Bend", (bool show) {
-      tech.showBend = show;
-    })
-    ..add("Axis", (bool show) {
-      tech.showAxis = show;
-    }, true)
-    ..add("AABB", (bool show) {
-      tech.showAABB = show;
-    });
-
+  CheckGroup("controls")
+    ..add(
+      "Filled",
+      (bool show) => tech.showFilled = show,
+      true,
+    )
+    ..add(
+      "Wire Frame",
+      (bool show) => tech.showWireFrame = show,
+      true,
+    )
+    ..add(
+      "Vertices",
+      (bool show) => tech.showVertices = show,
+    )
+    ..add(
+      "Normals",
+      (bool show) => tech.showNormals = show,
+    )
+    ..add(
+      "Binormals",
+      (bool show) => tech.showBinormals = show,
+    )
+    ..add(
+      "Tangentals",
+      (bool show) => tech.showTangentals = show,
+    )
+    ..add(
+      "Face Centers",
+      (bool show) => tech.showFaceCenters = show,
+    )
+    ..add(
+      "Face Normals",
+      (bool show) => tech.showFaceNormals = show,
+    )
+    ..add(
+      "Face Binormals",
+      (bool show) => tech.showFaceBinormals = show,
+    )
+    ..add(
+      "Face Tangentals",
+      (bool show) => tech.showFaceTangentals = show,
+    )
+    ..add(
+      "Colors",
+      (bool show) => tech.showColorFill = show,
+    )
+    ..add(
+      "Textures2D",
+      (bool show) => tech.showTxt2DColor = show,
+    )
+    ..add(
+      "TexturesCube",
+      (bool show) => tech.showTxtCube = show,
+    )
+    ..add(
+      "Weight",
+      (bool show) => tech.showWeight = show,
+    )
+    ..add(
+      "Bend",
+      (bool show) => tech.showBend = show,
+    )
+    ..add(
+      "Axis",
+      (bool show) => tech.showAxis = show,
+      true,
+    )
+    ..add(
+      "AABB",
+      (bool show) => tech.showAABB = show,
+    );
   void setShape(Shape shape) {
     shape.calculateWeights();
     obj.shape = shape;
   }
 
-  common.RadioGroup("shapes")
+  RadioGroup("shapes")
     ..add("Square", () {
       setShape(square());
     }, true)
@@ -136,8 +150,7 @@ void main() {
       setShape(cylindrical(
           sides: 50,
           div: 25,
-          radiusHndl: (double u, double v) =>
-              cos(v * 4.0 * PI + PI) * 0.2 + cos(u * 6.0 * PI) * 0.3 + 0.8));
+          radiusHndl: (double u, double v) => cos(v * 4.0 * PI + PI) * 0.2 + cos(u * 6.0 * PI) * 0.3 + 0.8));
     })
     ..add("LatLonSphere", () {
       setShape(latLonSphere(10, 20));
@@ -161,8 +174,7 @@ void main() {
       setShape(sphere(
           widthDiv: 10,
           heightDiv: 10,
-          heightHndl: (double u, double v) =>
-              cos(sqrt((u - 0.5) * (u - 0.5) + (v - 0.5) * (v - 0.5)) * PI) * 0.3));
+          heightHndl: (double u, double v) => cos(sqrt((u - 0.5) * (u - 0.5) + (v - 0.5) * (v - 0.5)) * PI) * 0.3));
     })
     ..add("Toroid", () {
       setShape(toroid());
@@ -174,11 +186,10 @@ void main() {
       setShape(grid());
     })
     ..add("Grid+", () {
-      setShape(grid(
-          widthDiv: 16, heightDiv: 16, heightHndl: (double u, double v) => sin(u * 8.0) * cos(v * 8.0) * 0.3));
+      setShape(
+          grid(widthDiv: 16, heightDiv: 16, heightHndl: (double u, double v) => sin(u * 8.0) * cos(v * 8.0) * 0.3));
     });
-
-  common.RadioGroup("scalars")
+  RadioGroup("scalars")
     ..add("0.01", () {
       tech.vectorScale = 0.01;
     })
@@ -212,6 +223,5 @@ void main() {
     ..add("1.0", () {
       tech.vectorScale = 1.0;
     });
-
-  common.showFPS(td);
+  showFPS(td);
 }

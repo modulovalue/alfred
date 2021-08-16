@@ -2695,7 +2695,7 @@ class World {
     if (info == null) return null;
     final Region3 region = info.blockRegion;
     final RayRegion3Result inter = rayRegion3(back, region);
-    if (!inter.intesects) {
+    if (!inter.intersects) {
       return null;
     } else {
       // ignore: parameter_assignments

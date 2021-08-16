@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:html' as html;
-import 'dart:js' as js;
-import 'dart:web_gl' as webgl;
+import 'dart:html';
+import 'dart:js';
+import 'dart:web_gl';
 
 import '../audio/audio.dart';
 import '../collections/collections.dart';
@@ -40,11 +40,11 @@ abstract class Bindable {
 /// to create an output when rendered.
 class Entity implements Movable, Changeable {
   /// The name for this entity.
-  String _name;
+  String name;
 
   /// Indicates if this entity and its children
   /// will be rendered or not.
-  bool _enabled;
+  bool enabled;
 
   /// The shape to render.
   /// May be null to not render this Entity which is useful
@@ -106,15 +106,13 @@ class Entity implements Movable, Changeable {
 
   /// Creates a new Entity.
   Entity({
-    final String name = '',
-    final bool enabled = true,
+    final this.name = '',
+    final this.enabled = true,
     final Shape? shape,
     final Technique? tech,
     final Mover? mover,
     final List<Entity>? children,
-  })  : this._name = name,
-        this._enabled = enabled,
-        this._shape = null,
+  })  : this._shape = null,
         this._shapeBuilder = null,
         this._cache = null,
         this._tech = null,
@@ -131,26 +129,14 @@ class Entity implements Movable, Changeable {
         this._childrenRemoved = null,
         this._extensionAdded = null,
         this._extensionRemoved = null {
-    this._children.setHandlers(onAddedHndl: this.onChildrenAdded, onRemovedHndl: this.onChildrenRemoved);
+    this._children.setHandlers(
+          onAddedHndl: this.onChildrenAdded,
+          onRemovedHndl: this.onChildrenRemoved,
+        );
     this.shape = shape;
     this.technique = tech;
     this.mover = mover;
     if (children != null) this._children.addAll(children);
-  }
-
-  /// The name for this entity.
-  String get name => this._name;
-
-  set name(String name) {
-    this._name = name;
-  }
-
-  /// Indicates if this entity and its children
-  /// will be rendered or not.
-  bool get enabled => this._enabled;
-
-  set enabled(bool enabled) {
-    this._enabled = enabled;
   }
 
   /// Indicates if the shape cache needs to be updated.
@@ -181,7 +167,10 @@ class Entity implements Movable, Changeable {
   /// The cache of the current shape in buffers for the current technique.
   TechniqueCache? get cache => this._cache;
 
-  set cache(TechniqueCache? cache) => this._cache = cache;
+  set cache(
+    final TechniqueCache? cache,
+  ) =>
+      this._cache = cache;
 
   /// The children Entities of this Entity.
   Collection<Entity> get children => this._children;
@@ -191,7 +180,9 @@ class Entity implements Movable, Changeable {
   /// is just a container for child Entities.
   Shape? get shape => this._shape;
 
-  set shape(Shape? shape) {
+  set shape(
+    final Shape? shape,
+  ) {
     if (this._shape != shape) {
       final oldShape = this._shape;
       this._shape = shape;
@@ -210,7 +201,9 @@ class Entity implements Movable, Changeable {
   /// custom shapes to the entity.
   ShapeBuilder? get shapeBuilder => this._shapeBuilder;
 
-  set shapeBuilder(ShapeBuilder? builder) {
+  set shapeBuilder(
+    final ShapeBuilder? builder,
+  ) {
     if (this._shapeBuilder != builder) {
       final oldBuilder = this._shapeBuilder;
       this._shape = null;
@@ -226,7 +219,9 @@ class Entity implements Movable, Changeable {
   /// May be null to inherit the technique from this Entities parent.
   Technique? get technique => this._tech;
 
-  set technique(Technique? technique) {
+  set technique(
+    final Technique? technique,
+  ) {
     if (this._tech != technique) {
       final oldTech = this._tech;
       this._tech = technique;
@@ -243,7 +238,9 @@ class Entity implements Movable, Changeable {
   Mover? get mover => this._mover;
 
   @override
-  set mover(Mover? mover) {
+  set mover(
+    final Mover? mover,
+  ) {
     if (this._mover != mover) {
       final oldMover = this._mover;
       this._mover = mover;
@@ -258,8 +255,12 @@ class Entity implements Movable, Changeable {
 
   /// Finds this or the first child entity with the given name.
   /// Null is returned if none was found.
-  Entity? findFirstByName(String name) {
-    if (this.name == name) return this;
+  Entity? findFirstByName(
+    final String name,
+  ) {
+    if (this.name == name) {
+      return this;
+    }
     for (final child in this._children) {
       final result = child.findFirstByName(name);
       if (result != null) return result;
@@ -270,9 +271,14 @@ class Entity implements Movable, Changeable {
   /// Finds this and all a children entities with the given name.
   /// If the optional given entity list is not null,
   /// then the found entities are added to that list.
-  List<Entity> findAllByName(String name, [List<Entity>? entities]) {
+  List<Entity> findAllByName(
+    final String name, [
+    List<Entity>? entities,
+  ]) {
     entities ??= [];
-    if (this.name == name) entities.add(this);
+    if (this.name == name) {
+      entities.add(this);
+    }
     for (final child in this._children) {
       child.findAllByName(name, entities);
     }
@@ -282,7 +288,9 @@ class Entity implements Movable, Changeable {
   /// Calculates the axial aligned bounding box of this entity and its children.
   Region3? calculateAABB() {
     Region3? region;
-    if (this._shapeBuilder != null) region = Region3.union(region, this._shapeBuilder?.calculateAABB());
+    if (this._shapeBuilder != null) {
+      region = Region3.union(region, this._shapeBuilder?.calculateAABB());
+    }
     for (final child in this._children) {
       region = Region3.union(region, child.calculateAABB());
     }
@@ -291,7 +299,10 @@ class Entity implements Movable, Changeable {
 
   /// Scales the AABB so that the longest size the given [size],
   /// and the shape is centered then offset by the given [offset].
-  void resizeCenter([double size = 2.0, Point3? offset]) {
+  void resizeCenter([
+    final double size = 2.0,
+    Point3? offset,
+  ]) {
     final aabb = this.calculateAABB();
     if (aabb == null) return;
     offset ??= Point3.zero;
@@ -309,7 +320,9 @@ class Entity implements Movable, Changeable {
   /// Modifies the position, normal, and binormal
   /// by translating it with the given [mat]
   /// for this entity's shape and children shapes.
-  void applyPositionMatrix(Matrix4 mat) {
+  void applyPositionMatrix(
+    final Matrix4 mat,
+  ) {
     this.shape?.applyPositionMatrix(mat);
     for (final child in this._children) {
       child.applyPositionMatrix(mat);
@@ -318,7 +331,9 @@ class Entity implements Movable, Changeable {
 
   /// Modifies the color by translating it with the given [mat]
   /// for this entity's shape and children shapes.
-  void applyColorMatrix(Matrix3 mat) {
+  void applyColorMatrix(
+    final Matrix3 mat,
+  ) {
     this.shape?.applyColorMatrix(mat);
     for (final child in this._children) {
       child.applyColorMatrix(mat);
@@ -327,7 +342,9 @@ class Entity implements Movable, Changeable {
 
   /// Modifies the 2D texture by translating it with the given [mat]
   /// for this entity's shape and children shapes.
-  void applyTexture2DMatrix(Matrix3 mat) {
+  void applyTexture2DMatrix(
+    final Matrix3 mat,
+  ) {
     this.shape?.applyTexture2DMatrix(mat);
     for (final child in this._children) {
       child.applyTexture2DMatrix(mat);
@@ -336,7 +353,9 @@ class Entity implements Movable, Changeable {
 
   /// Modifies the cube texture by translating it with the given [mat]
   /// for this entity's shape and children shapes.
-  void applyTextureCubeMatrix(Matrix4 mat) {
+  void applyTextureCubeMatrix(
+    final Matrix4 mat,
+  ) {
     this.shape?.applyTextureCubeMatrix(mat);
     for (final child in this._children) {
       child.applyTextureCubeMatrix(mat);
@@ -344,7 +363,9 @@ class Entity implements Movable, Changeable {
   }
 
   /// Updates the Entity with the given [state].
-  void update(RenderState state) {
+  void update(
+    final RenderState state,
+  ) {
     final mat = this._mover?.update(state, this);
     if (mat != this._matrix) {
       final oldMat = this._matrix;
@@ -362,14 +383,18 @@ class Entity implements Movable, Changeable {
   }
 
   /// Renders the Entity with the given [RenderState].
-  void render(RenderState state) {
-    if (!this._enabled) return;
+  void render(
+    final RenderState state,
+  ) {
+    if (!this.enabled) return;
     // Push state onto the render state.
     state.object.pushMul(this._matrix);
     state.pushTechnique(this._tech);
     // Render this entity.
     final tech = state.technique;
-    if (this._shapeBuilder != null) tech?.render(state, this);
+    if (this._shapeBuilder != null) {
+      tech?.render(state, this);
+    }
     // Render all children.
     for (final child in this._children) {
       child.render(state);
@@ -413,7 +438,10 @@ class Entity implements Movable, Changeable {
   /// This isn't meant to be called from outside the entity, in other languages this would
   /// be a protected method. This method is exposed to that the entity is extended and
   /// these methods can be overwritten. If overwritten call this super method to still emit events.
-  void onChanged([EventArgs? args]) => this._changed?.emit(args);
+  void onChanged([
+    final EventArgs? args,
+  ]) =>
+      this._changed?.emit(args);
 
   /// Called when the shape or shape builder is modified.
   ///
@@ -422,7 +450,9 @@ class Entity implements Movable, Changeable {
   /// This isn't meant to be called from outside the entity, in other languages this would
   /// be a protected method. This method is exposed to that the entity is extended and
   /// these methods can be overwritten. If overwritten call this super method to still emit events.
-  void onShapeModified([EventArgs? args]) {
+  void onShapeModified([
+    final EventArgs? args,
+  ]) {
     this.clearCache();
     this.onChanged(args);
   }
@@ -434,8 +464,11 @@ class Entity implements Movable, Changeable {
   /// This isn't meant to be called from outside the entity, in other languages this would
   /// be a protected method. This method is exposed to that the entity is extended and
   /// these methods can be overwritten. If overwritten call this super method to still emit events.
-  void onShapeChanged(Shape? oldShape, Shape? newShape) {
-    final EventArgs args = ValueChangedEventArgs(this, 'shape', oldShape, newShape);
+  void onShapeChanged(
+    final Shape? oldShape,
+    final Shape? newShape,
+  ) {
+    final args = ValueChangedEventArgs(this, 'shape', oldShape, newShape);
     this._shapeChanged?.emit(args);
     this._shapeBuilderChanged?.emit(args);
     this.onChanged(args);
@@ -448,8 +481,11 @@ class Entity implements Movable, Changeable {
   /// This isn't meant to be called from outside the entity, in other languages this would
   /// be a protected method. This method is exposed to that the entity is extended and
   /// these methods can be overwritten. If overwritten call this super method to still emit events.
-  void onShapeBuilderChanged(ShapeBuilder? oldShape, ShapeBuilder? newShape) {
-    final EventArgs args = ValueChangedEventArgs(this, 'shapeBuilder', oldShape, newShape);
+  void onShapeBuilderChanged(
+    final ShapeBuilder? oldShape,
+    final ShapeBuilder? newShape,
+  ) {
+    final args = ValueChangedEventArgs(this, 'shapeBuilder', oldShape, newShape);
     this._shapeBuilderChanged?.emit(args);
     this.onChanged(args);
   }
@@ -459,7 +495,10 @@ class Entity implements Movable, Changeable {
   /// This isn't meant to be called from outside the entity, in other languages this would
   /// be a protected method. This method is exposed to that the entity is extended and
   /// these methods can be overwritten. If overwritten call this super method to still emit events.
-  void onTechModified([EventArgs? args]) => this.onChanged(args);
+  void onTechModified([
+    final EventArgs? args,
+  ]) =>
+      this.onChanged(args);
 
   /// Called when the technique is added or removed.
   ///
@@ -468,8 +507,11 @@ class Entity implements Movable, Changeable {
   /// This isn't meant to be called from outside the entity, in other languages this would
   /// be a protected method. This method is exposed to that the entity is extended and
   /// these methods can be overwritten. If overwritten call this super method to still emit events.
-  void onTechChanged(Technique? oldTech, Technique? newTech) {
-    final EventArgs args = ValueChangedEventArgs(this, 'technique', oldTech, newTech);
+  void onTechChanged(
+    final Technique? oldTech,
+    final Technique? newTech,
+  ) {
+    final args = ValueChangedEventArgs(this, 'technique', oldTech, newTech);
     this._techChanged?.emit(args);
     this.onChanged(args);
   }
@@ -479,7 +521,10 @@ class Entity implements Movable, Changeable {
   /// This isn't meant to be called from outside the entity, in other languages this would
   /// be a protected method. This method is exposed to that the entity is extended and
   /// these methods can be overwritten. If overwritten call this super method to still emit events.
-  void onMoverModified([EventArgs? args]) => this.onChanged(args);
+  void onMoverModified([
+    final EventArgs? args,
+  ]) =>
+      this.onChanged(args);
 
   /// Called when the mover is added or removed is removed.
   ///
@@ -488,8 +533,11 @@ class Entity implements Movable, Changeable {
   /// This isn't meant to be called from outside the entity, in other languages this would
   /// be a protected method. This method is exposed to that the entity is extended and
   /// these methods can be overwritten. If overwritten call this super method to still emit events.
-  void onMoverChanged(Mover? oldMover, Mover? newMover) {
-    final EventArgs args = ValueChangedEventArgs(this, 'mover', oldMover, newMover);
+  void onMoverChanged(
+    final Mover? oldMover,
+    final Mover? newMover,
+  ) {
+    final args = ValueChangedEventArgs(this, 'mover', oldMover, newMover);
     this._moverChanged?.emit(args);
     this.onChanged(args);
   }
@@ -501,8 +549,11 @@ class Entity implements Movable, Changeable {
   /// This isn't meant to be called from outside the entity, in other languages this would
   /// be a protected method. This method is exposed to that the entity is extended and
   /// these methods can be overwritten. If overwritten call this super method to still emit events.
-  void onMatrixChanged(Matrix4? oldMatrix, Matrix4? newMatrix) {
-    final EventArgs args = ValueChangedEventArgs(this, 'matrix', oldMatrix, newMatrix);
+  void onMatrixChanged(
+    final Matrix4? oldMatrix,
+    final Matrix4? newMatrix,
+  ) {
+    final args = ValueChangedEventArgs(this, 'matrix', oldMatrix, newMatrix);
     this._matrixChanged?.emit(args);
     this.onChanged(args);
   }
@@ -512,7 +563,10 @@ class Entity implements Movable, Changeable {
   /// This isn't meant to be called from outside the entity, in other languages this would
   /// be a protected method. This method is exposed to that the entity is extended and
   /// these methods can be overwritten. If overwritten call this super method to still emit events.
-  void onChildrenModified([EventArgs? args]) => this.onChanged(args);
+  void onChildrenModified([
+    final EventArgs? args,
+  ]) =>
+      this.onChanged(args);
 
   /// Called when one or more child is added.
   ///
@@ -521,7 +575,10 @@ class Entity implements Movable, Changeable {
   /// This isn't meant to be called from outside the entity, in other languages this would
   /// be a protected method. This method is exposed to that the entity is extended and
   /// these methods can be overwritten. If overwritten call this super method to still emit events.
-  void onChildrenAdded(int index, Iterable<Entity> entities) {
+  void onChildrenAdded(
+    final int index,
+    final Iterable<Entity> entities,
+  ) {
     this._childrenAdded?.emit(EntityEventArgs(this, entities.toList()));
     for (final entity in entities) {
       entity.changed.add(this.onChildrenModified);
@@ -536,8 +593,13 @@ class Entity implements Movable, Changeable {
   /// This isn't meant to be called from outside the entity, in other languages this would
   /// be a protected method. This method is exposed to that the entity is extended and
   /// these methods can be overwritten. If overwritten call this super method to still emit events.
-  void onChildrenRemoved(int index, Iterable<Entity> entities) {
-    this._childrenRemoved?.emit(EntityEventArgs(this, entities.toList()));
+  void onChildrenRemoved(
+    final int index,
+    final Iterable<Entity> entities,
+  ) {
+    this._childrenRemoved?.emit(
+          EntityEventArgs(this, entities.toList()),
+        );
     for (final entity in entities) {
       entity.changed.remove(this.onChildrenModified);
     }
@@ -547,10 +609,10 @@ class Entity implements Movable, Changeable {
   /// Gets a string for this entity, the name if it has one.
   @override
   String toString() {
-    if (_name.isEmpty) {
+    if (name.isEmpty) {
       return 'Unnamed entity';
     } else {
-      return _name;
+      return name;
     }
   }
 
@@ -564,7 +626,10 @@ class Entity implements Movable, Changeable {
   }
 
   /// Gets a string for the branch of entities from this entity.
-  String outlineString([String indent = '']) => this._stringTree().toString(indent);
+  String outlineString([
+    final String indent = '',
+  ]) =>
+      this._stringTree().toString(indent);
 }
 
 /// The event argument for event's with information about entities changing.
@@ -574,7 +639,10 @@ class EntityEventArgs extends EventArgs {
   final List<Entity> entities;
 
   /// Creates an entity event argument.
-  EntityEventArgs(Object sender, this.entities) : super(sender);
+  EntityEventArgs(
+    final Object sender,
+    final this.entities,
+  ) : super(sender);
 }
 
 /// This is the type of the browser this code is running on.
@@ -627,8 +695,12 @@ class Environment {
 
   /// This will call the first method in the given method names which exists on the given object.
   /// Returns true if the method was called, false if none of those methods were found.
-  static bool callMethod(Object browserObject, List<String> methods, [List<Object>? args]) {
-    final jsElem = js.JsObject.fromBrowserObject(browserObject);
+  static bool callMethod(
+    final Object browserObject,
+    final List<String> methods, [
+    final List<Object>? args,
+  ]) {
+    final jsElem = JsObject.fromBrowserObject(browserObject);
     for (final methodName in methods) {
       if (jsElem.hasProperty(methodName)) {
         jsElem.callMethod(methodName, args);
@@ -640,8 +712,11 @@ class Environment {
 
   /// This will call the first property and return the value cast as given [T] type.
   /// Returns null if methods were found.
-  static T? getProperty<T>(Object browserObject, List<String> properties) {
-    final jsElem = js.JsObject.fromBrowserObject(browserObject);
+  static T? getProperty<T>(
+    final Object browserObject,
+    final List<String> properties,
+  ) {
+    final jsElem = JsObject.fromBrowserObject(browserObject);
     for (final propertyName in properties) {
       if (jsElem.hasProperty(propertyName)) return jsElem[propertyName] as T?;
     }
@@ -663,18 +738,29 @@ class _EnvironmentData {
   }
 
   /// Creates a new environment with the given data.
-  _EnvironmentData._(this.browser, this.os);
+  _EnvironmentData._(
+    final this.browser,
+    final this.os,
+  );
 
   /// Determines which kind of browser is being used.
   static Browser _determineBrowser() {
-    final vendor = html.window.navigator.vendor;
-    if (vendor.contains('Google')) return Browser.chrome;
-    final userAgent = html.window.navigator.userAgent;
-    if (userAgent.contains('Firefox')) return Browser.firefox;
-    final appVersion = html.window.navigator.appVersion;
-    if (appVersion.contains('Trident') || appVersion.contains('Edge')) return Browser.edge;
-    final appName = html.window.navigator.appName;
-    if (appName.contains('Microsoft')) return Browser.edge;
+    final vendor = window.navigator.vendor;
+    if (vendor.contains('Google')) {
+      return Browser.chrome;
+    }
+    final userAgent = window.navigator.userAgent;
+    if (userAgent.contains('Firefox')) {
+      return Browser.firefox;
+    }
+    final appVersion = window.navigator.appVersion;
+    if (appVersion.contains('Trident') || appVersion.contains('Edge')) {
+      return Browser.edge;
+    }
+    final appName = window.navigator.appName;
+    if (appName.contains('Microsoft')) {
+      return Browser.edge;
+    }
 
     return Browser.other;
   }
@@ -682,27 +768,32 @@ class _EnvironmentData {
   /// Determines which kind of operating system is being used.
   /// This doesn't use `dart:io` so it can run on a browser.
   static OperatingSystem _determineOS() {
-    final appVersion = html.window.navigator.appVersion;
-    if (appVersion.contains('Win')) return OperatingSystem.windows;
-    if (appVersion.contains('Mac')) return OperatingSystem.mac;
-    if (appVersion.contains('Linux')) return OperatingSystem.linux;
-    return OperatingSystem.other;
+    final appVersion = window.navigator.appVersion;
+    if (appVersion.contains('Win')) {
+      return OperatingSystem.windows;
+    } else if (appVersion.contains('Mac')) {
+      return OperatingSystem.mac;
+    } else if (appVersion.contains('Linux')) {
+      return OperatingSystem.linux;
+    } else {
+      return OperatingSystem.other;
+    }
   }
 }
 
 /// The state of a render in progress.
 class RenderState {
   /// The rendering context for this render.
-  final webgl.RenderingContext2 _gl;
+  final RenderingContext2 _gl;
 
   /// The canvas being rendered to.
-  final html.CanvasElement _canvas;
+  final CanvasElement _canvas;
 
   /// The width of the render viewport in pixels.
-  int _width;
+  int width;
 
   /// The height of the render viewport in pixels.
-  int _height;
+  int height;
 
   /// The number of this frame.
   int _frameNum;
@@ -755,9 +846,11 @@ class RenderState {
   final Map<String, Shader> _shaderCache;
 
   /// Constructs a new render state with the given context and canvas.
-  RenderState(this._gl, this._canvas)
-      : this._width = 512,
-        this._height = 512,
+  RenderState(
+    final this._gl,
+    final this._canvas,
+  )   : this.width = 512,
+        this.height = 512,
         this._frameNum = 0,
         this._startTime = DateTime.now(),
         this._lastTime = DateTime.now(),
@@ -772,17 +865,17 @@ class RenderState {
         this._objStack = Matrix4Stack(),
         this._tech = [null],
         this._shaderCache = {} {
-    this._projStack.changed.add((EventArgs e) {
+    this._projStack.changed.add((final e) {
       this._projViewMat = null;
       this._projViewObjMat = null;
     });
-    this._viewStack.changed.add((EventArgs e) {
+    this._viewStack.changed.add((final e) {
       this._projViewMat = null;
       this._invViewMat = null;
       this._projViewObjMat = null;
       this._viewObjMat = null;
     });
-    this._objStack.changed.add((EventArgs e) {
+    this._objStack.changed.add((final e) {
       this._projViewObjMat = null;
       this._viewObjMat = null;
     });
@@ -794,7 +887,10 @@ class RenderState {
     this._frameNum++;
     this._lastTime = this._curTime;
     this._curTime = DateTime.now();
-    this._dt = diffInSecs(this._lastTime, this._curTime);
+    this._dt = diffInSecs(
+      this._lastTime,
+      this._curTime,
+    );
     this._projStack.clear();
     this._viewStack.clear();
     this._objStack.clear();
@@ -803,20 +899,10 @@ class RenderState {
   }
 
   /// The rendering context for the render.
-  webgl.RenderingContext2 get gl => this._gl;
+  RenderingContext2 get gl => this._gl;
 
   /// The canvas being rendered onto.
-  html.CanvasElement get canvas => this._canvas;
-
-  /// The width of the viewport in pixels.
-  int get width => this._width;
-
-  set width(int width) => this._width = width;
-
-  /// The height of the viewport in pixels.
-  int get height => this._height;
-
-  set height(int height) => this._height = height;
+  CanvasElement get canvas => this._canvas;
 
   /// The number of this frame.
   int get frameNumber => this._frameNum;
@@ -860,21 +946,33 @@ class RenderState {
 
   /// Pushes a new technique onto the stack of techniques.
   /// Pushing null will put the current technique onto the top of the stack.
-  void pushTechnique(Technique? tech) => this._tech.add(tech ?? this.technique);
+  void pushTechnique(
+    final Technique? tech,
+  ) =>
+      this._tech.add(tech ?? this.technique);
 
   /// Pops the current technique off of the top of the stack.
   /// This will not remove the last technique on the stack.
   void popTechnique() {
-    if (this._tech.length > 1) this._tech.removeLast();
+    if (this._tech.length > 1) {
+      this._tech.removeLast();
+    }
   }
 
   /// Gets the cached shader by the given [name].
-  Shader? shader(String name) => this._shaderCache[name];
+  Shader? shader(
+    final String name,
+  ) =>
+      this._shaderCache[name];
 
   /// Adds the given [shader] to the shader cache.
-  void addShader(Shader shader) {
+  void addShader(
+    final Shader shader,
+  ) {
     final name = shader.name;
-    if (name.isEmpty) throw Exception('May not cache a shader with no name.');
+    if (name.isEmpty) {
+      throw Exception('May not cache a shader with no name.');
+    }
     if (this._shaderCache.containsKey(name)) {
       throw Exception('Shader cache already contains a shader by the name "$name".');
     }
@@ -888,19 +986,22 @@ class StateEventArgs extends EventArgs {
   final RenderState state;
 
   /// Creates a new state event argument.
-  StateEventArgs(Object sender, this.state) : super(sender);
+  StateEventArgs(
+    final Object sender,
+    final this.state,
+  ) : super(sender);
 }
 
 /// [ThreeDart] (3Dart) is the a tool for rendering WebGL with Dart.
 class ThreeDart implements Changeable {
   /// The element the canvas was added to or the canvas being drawn to.
-  html.Element _elem;
+  Element _elem;
 
   /// The given or added canvas being drawn to.
-  html.CanvasElement _canvas;
+  CanvasElement _canvas;
 
   /// The rendering context to draw with.
-  webgl.RenderingContext2 _gl;
+  RenderingContext2 _gl;
 
   /// The current scene to draw.
   Scene? _scene;
@@ -944,13 +1045,19 @@ class ThreeDart implements Changeable {
   /// [depth] indicates if the target will have a back buffer or not.
   /// [stencil] indicates if the target will have a stencil buffer or not.
   /// [antialias] indicates if the target is antialiased or not.
-  factory ThreeDart.fromId(String elementId,
-      {bool alpha = true, bool depth = true, bool stencil = false, bool antialias = true}) {
-    final elem = html.document.getElementById(elementId);
+  factory ThreeDart.fromId(
+    final String elementId, {
+    final bool alpha = true,
+    final bool depth = true,
+    final bool stencil = false,
+    final bool antialias = true,
+  }) {
+    final elem = document.getElementById(elementId);
     if (elem == null) {
       throw Exception('Failed to find an element with the identifier, ${elementId}.');
+    } else {
+      return ThreeDart.fromElem(elem, alpha: alpha, depth: depth, stencil: stencil, antialias: antialias);
     }
-    return ThreeDart.fromElem(elem, alpha: alpha, depth: depth, stencil: stencil, antialias: antialias);
   }
 
   /// Creates a new 3Dart rendering on the given element.
@@ -959,23 +1066,27 @@ class ThreeDart implements Changeable {
   /// [depth] indicates if the target will have a back buffer or not.
   /// [stencil] indicates if the target will have a stencil buffer or not.
   /// [antialias] indicates if the target is antialiased or not.
-  factory ThreeDart.fromElem(html.Element? elem,
-      {bool alpha = true, bool depth = true, bool stencil = false, bool antialias = true}) {
+  factory ThreeDart.fromElem(
+    final Element? elem, {
+    final bool alpha = true,
+    final bool depth = true,
+    final bool stencil = false,
+    final bool antialias = true,
+  }) {
     if (elem == null) {
       throw Exception('May not create a manager from a null element.');
-    }
-    if (elem is html.CanvasElement) {
+    } else if (elem is CanvasElement) {
       return ThreeDart.fromCanvas(elem, alpha: alpha, depth: depth, stencil: stencil, antialias: antialias);
+    } else {
+      final canvas = CanvasElement();
+      canvas.style
+        ..width = '100%'
+        ..height = '100%';
+      elem.children.add(canvas);
+      final td = ThreeDart.fromCanvas(canvas, alpha: alpha, depth: depth, stencil: stencil, antialias: antialias);
+      td._elem = elem;
+      return td;
     }
-    final canvas = html.CanvasElement();
-    canvas.style
-      ..width = '100%'
-      ..height = '100%';
-    elem.children.add(canvas);
-    final td =
-        ThreeDart.fromCanvas(canvas, alpha: alpha, depth: depth, stencil: stencil, antialias: antialias);
-    td._elem = elem;
-    return td;
   }
 
   /// Creates a new 3Dart rendering on the given canvas.
@@ -984,29 +1095,44 @@ class ThreeDart implements Changeable {
   /// [depth] indicates if the target will have a back buffer or not.
   /// [stencil] indicates if the target will have a stencil buffer or not.
   /// [antialias] indicates if the target is antialiased or not.
-  factory ThreeDart.fromCanvas(html.CanvasElement? canvas,
-      {bool alpha = true, bool depth = true, bool stencil = false, bool antialias = true}) {
+  factory ThreeDart.fromCanvas(
+    final CanvasElement? canvas, {
+    final bool alpha = true,
+    final bool depth = true,
+    final bool stencil = false,
+    final bool antialias = true,
+  }) {
     if (canvas == null) {
       throw Exception('May not create a manager from a null canvas.');
+    } else {
+      // Create a WebGL 2.0 render target
+      // https://www.khronos.org/registry/webgl/specs/latest/2.0/
+      final gl = canvas.getContext(
+        'webgl2',
+        <String, dynamic>{'alpha': alpha, 'depth': depth, 'stencil': stencil, 'antialias': antialias},
+      ) as RenderingContext2?;
+      if (gl == null) {
+        throw Exception('Failed to get the rendering context for WebGL.');
+      } else {
+        final state = RenderState(gl, canvas);
+        final txtLoader = TextureLoader(gl);
+        final audioLoader = AudioLoader();
+        final input = UserInput(canvas);
+        return ThreeDart._(canvas, canvas, gl, state, txtLoader, audioLoader, input);
+      }
     }
-    // Create a WebGL 2.0 render target
-    // https://www.khronos.org/registry/webgl/specs/latest/2.0/
-    final gl = canvas.getContext(
-            'webgl2', <String, dynamic>{'alpha': alpha, 'depth': depth, 'stencil': stencil, 'antialias': antialias})
-        as webgl.RenderingContext2?;
-    if (gl == null) {
-      throw Exception('Failed to get the rendering context for WebGL.');
-    }
-    final state = RenderState(gl, canvas);
-    final txtLoader = TextureLoader(gl);
-    final audioLoader = AudioLoader();
-    final input = UserInput(canvas);
-    return ThreeDart._(canvas, canvas, gl, state, txtLoader, audioLoader, input);
   }
 
   /// Creates a new 3Dart instance with the given values.
-  ThreeDart._(this._elem, this._canvas, this._gl, this._state, this._txtLoader, this._audioLoader, this._input)
-      : this._scene = null,
+  ThreeDart._(
+    final this._elem,
+    final this._canvas,
+    final this._gl,
+    final this._state,
+    final this._txtLoader,
+    final this._audioLoader,
+    final this._input,
+  )   : this._scene = null,
         this._changed = null,
         this._prerender = null,
         this._postrender = null,
@@ -1018,7 +1144,7 @@ class ThreeDart implements Changeable {
   }
 
   /// The rendering context to draw with.
-  webgl.RenderingContext2 get glContext => this._gl;
+  RenderingContext2 get glContext => this._gl;
 
   /// The width of the canvas in pixels.
   int get width => this._canvas.width ?? 100;
@@ -1027,7 +1153,7 @@ class ThreeDart implements Changeable {
   int get height => this._canvas.height ?? 100;
 
   /// The canvas being written to.
-  html.CanvasElement get canvas => this._canvas;
+  CanvasElement get canvas => this._canvas;
 
   /// The user input listener.
   UserInput get userInput => this._input;
@@ -1045,7 +1171,9 @@ class ThreeDart implements Changeable {
   /// when something internally is changed.
   bool get autoRefresh => this._autoRefresh;
 
-  set autoRefresh(bool autoRefresh) {
+  set autoRefresh(
+    final bool autoRefresh,
+  ) {
     if (this._autoRefresh == autoRefresh) {
       this._autoRefresh = autoRefresh;
       this._onChanged();
@@ -1060,7 +1188,9 @@ class ThreeDart implements Changeable {
   Event get changed => this._changed ??= Event();
 
   /// Handles a change in this instance.
-  void _onChanged([EventArgs? args]) {
+  void _onChanged([
+    final EventArgs? args,
+  ]) {
     this._changed?.emit(args);
     if (this._autoRefresh) this.requestRender();
   }
@@ -1069,18 +1199,26 @@ class ThreeDart implements Changeable {
   Event get prerender => this._prerender ??= Event();
 
   /// Handles an event to fire prior to rendering.
-  void _onPrerender([EventArgs? args]) => this._prerender?.emit(args);
+  void _onPrerender([
+    final EventArgs? args,
+  ]) =>
+      this._prerender?.emit(args);
 
   /// Indicates that a render has just occurred.
   Event get postrender => this._postrender ??= Event();
 
   /// Handles an event to fire after a render.
-  void _onPostrender([EventArgs? args]) => this._postrender?.emit(args);
+  void _onPostrender([
+    final EventArgs? args,
+  ]) =>
+      this._postrender?.emit(args);
 
   /// The scene to render to the canvas.
   Scene? get scene => this._scene;
 
-  set scene(Scene? scene) {
+  set scene(
+    final Scene? scene,
+  ) {
     if (this._scene != scene) {
       this._scene?.changed.remove(this._onChanged);
       this._scene = scene;
@@ -1104,7 +1242,7 @@ class ThreeDart implements Changeable {
   void _resize() {
     // Lookup the size the browser is displaying the canvas in CSS pixels and
     // compute a size needed to make our drawing buffer match it in device pixels.
-    final ratio = html.window.devicePixelRatio;
+    final ratio = window.devicePixelRatio;
     final displayWidth = (this._canvas.clientWidth * ratio).floor();
     final displayHeight = (this._canvas.clientHeight * ratio).floor();
     // Check if the canvas is not the same size.
@@ -1119,7 +1257,7 @@ class ThreeDart implements Changeable {
   /// Determines if this page can be fullscreened or not.
   bool get fullscreenAvailable {
     //return html.document.fullscreenEnabled ?? false;
-    return Environment.getProperty<bool>(html.document, [
+    return Environment.getProperty<bool>(document, [
           'webkitFullscreenEnabled',
           'mozFullScreenEnabled',
           'msFullscreenEnabled',
@@ -1139,7 +1277,7 @@ class ThreeDart implements Changeable {
   /// and "Uncaught TypeError: this.webkitExitFullscreen is undefined"
   /// This fix si from https://stackoverflow.com/a/29751708
   bool get fullscreen {
-    return Environment.getProperty<Object>(html.document, [
+    return Environment.getProperty<Object>(document, [
           'webkitFullscreenElement',
           'mozFullScreenElement',
           'msFullscreenElement',
@@ -1149,7 +1287,9 @@ class ThreeDart implements Changeable {
         null;
   }
 
-  set fullscreen(bool enable) {
+  set fullscreen(
+    final bool enable,
+  ) {
     if (enable) {
       //this._canvas.requestFullscreen();
       Environment.callMethod(this._canvas, [
@@ -1161,7 +1301,7 @@ class ThreeDart implements Changeable {
       ]);
     } else {
       // html.document.exitFullscreen();
-      Environment.callMethod(html.document,
+      Environment.callMethod(document,
           ['webkitExitFullscreen', 'mozCancelFullScreen', 'msExitFullscreen', 'oExitFullscreen', 'exitFullscreen']);
     }
   }
@@ -1172,7 +1312,7 @@ class ThreeDart implements Changeable {
   void requestRender() {
     if (!this._pendingRender) {
       this._pendingRender = true;
-      html.window.requestAnimationFrame((num t) {
+      window.requestAnimationFrame((final t) {
         if (this._pendingRender) {
           this._pendingRender = false;
           this.render();
@@ -1185,7 +1325,9 @@ class ThreeDart implements Changeable {
   /// An optional different scene can be provided but
   /// typically the scene attached to this object should be used.
   /// If the scene parameter isn't set, the attached scene is used.
-  void render([Scene? scene]) {
+  void render([
+    Scene? scene,
+  ]) {
     try {
       this._frameCount++;
       this._pendingRender = false;
@@ -1206,7 +1348,9 @@ class ThreeDart implements Changeable {
 
   /// Disposes this instance of 3Dart.
   void dispose() {
-    if (this._elem != this._canvas) this._elem.children.remove(this._canvas);
+    if (this._elem != this._canvas) {
+      this._elem.children.remove(this._canvas);
+    }
     this._scene = null;
   }
 }

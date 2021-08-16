@@ -127,9 +127,14 @@ class Offset extends OffsetBase {
   /// The direction is in radians clockwise from the positive x-axis.
   ///
   /// The distance can be omitted, to create a unit vector (distance = 1.0).
-  factory Offset.fromDirection(double direction, [double distance = 1.0]) {
-    return Offset(distance * math.cos(direction), distance * math.sin(direction));
-  }
+  static Offset fromDirection(
+    final double direction, [
+    final double distance = 1.0,
+  ]) =>
+      Offset(
+        distance * math.cos(direction),
+        distance * math.sin(direction),
+      );
 
   /// The x component of the offset.
   ///
@@ -628,7 +633,8 @@ class Rect {
   ///
   /// To construct a [Rect] from an [Offset] and a [Size], you can use the
   /// rectangle constructor operator `&`. See [Offset.&].
-  const Rect.fromLTWH(double left, double top, double width, double height) : this.fromLTRB(left, top, left + width, top + height);
+  const Rect.fromLTWH(double left, double top, double width, double height)
+      : this.fromLTRB(left, top, left + width, top + height);
 
   /// Construct a rectangle that bounds the given circle.
   ///
@@ -743,8 +749,8 @@ class Rect {
   /// for this to be meaningful. If the two rectangles do not overlap,
   /// then the resulting Rect will have a negative width or height.
   Rect intersect(Rect other) {
-    return Rect.fromLTRB(
-        math.max(left, other.left), math.max(top, other.top), math.min(right, other.right), math.min(bottom, other.bottom));
+    return Rect.fromLTRB(math.max(left, other.left), math.max(top, other.top), math.min(right, other.right),
+        math.min(bottom, other.bottom));
   }
 
   /// Returns a new rectangle which is the bounding box containing this
@@ -1131,7 +1137,10 @@ class RRect {
   ///
   /// The corner radii default to [Radius.zero], i.e. right-angled corners
   RRect.fromRectAndCorners(Rect rect,
-      {Radius topLeft = Radius.zero, Radius topRight = Radius.zero, Radius bottomRight = Radius.zero, Radius bottomLeft = Radius.zero})
+      {Radius topLeft = Radius.zero,
+      Radius topRight = Radius.zero,
+      Radius bottomRight = Radius.zero,
+      Radius bottomLeft = Radius.zero})
       : this._raw(
           top: rect.top,
           left: rect.left,
@@ -1272,8 +1281,8 @@ class RRect {
     final topRadius = math.max(tlRadiusY, trRadiusY);
     final rightRadius = math.max(trRadiusX, brRadiusX);
     final bottomRadius = math.max(brRadiusY, blRadiusY);
-    return Rect.fromLTRB(left + leftRadius * kInsetFactor, top + topRadius * kInsetFactor, right - rightRadius * kInsetFactor,
-        bottom - bottomRadius * kInsetFactor);
+    return Rect.fromLTRB(left + leftRadius * kInsetFactor, top + topRadius * kInsetFactor,
+        right - rightRadius * kInsetFactor, bottom - bottomRadius * kInsetFactor);
   }
 
   /// The rectangle that would be formed using the axis-aligned intersection of
@@ -1328,12 +1337,19 @@ class RRect {
 
   /// Whether this rounded rectangle has a side with no straight section.
   bool get isStadium {
-    return tlRadius == trRadius && trRadius == brRadius && brRadius == blRadius && (width <= 2.0 * tlRadiusX || height <= 2.0 * tlRadiusY);
+    return tlRadius == trRadius &&
+        trRadius == brRadius &&
+        brRadius == blRadius &&
+        (width <= 2.0 * tlRadiusX || height <= 2.0 * tlRadiusY);
   }
 
   /// Whether this rounded rectangle has no side with a straight section.
   bool get isEllipse {
-    return tlRadius == trRadius && trRadius == brRadius && brRadius == blRadius && width <= 2.0 * tlRadiusX && height <= 2.0 * tlRadiusY;
+    return tlRadius == trRadius &&
+        trRadius == brRadius &&
+        brRadius == blRadius &&
+        width <= 2.0 * tlRadiusX &&
+        height <= 2.0 * tlRadiusY;
   }
 
   /// Whether this rounded rectangle would draw as a circle.
@@ -1564,8 +1580,8 @@ class RRect {
   }
 
   @override
-  int get hashCode =>
-      hashValues(left, top, right, bottom, tlRadiusX, tlRadiusY, trRadiusX, trRadiusY, blRadiusX, blRadiusY, brRadiusX, brRadiusY);
+  int get hashCode => hashValues(
+      left, top, right, bottom, tlRadiusX, tlRadiusY, trRadiusX, trRadiusY, blRadiusX, blRadiusY, brRadiusX, brRadiusY);
 
   @override
   String toString() {
@@ -1646,7 +1662,7 @@ class RSTransform {
   /// (which are computed each time this constructor is called) and reuse them
   /// over multiple [RSTransform] objects, it may be more efficient to directly
   /// use the more direct [new RSTransform] constructor instead.
-  factory RSTransform.fromComponents({
+  static RSTransform fromComponents({
     required double rotation,
     required double scale,
     required double anchorX,

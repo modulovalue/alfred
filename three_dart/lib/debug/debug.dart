@@ -5,17 +5,25 @@ abstract class Logger {
   bool get failed;
 
   /// Prints text to the log's output console as an information.
-  void info(String text);
+  void info(
+    final String text,
+  );
 
   /// Prints text to the log's output console as a notice.
-  void notice(String text);
+  void notice(
+    final String text,
+  );
 
   /// Prints text to the log's output console as a warning.
-  void warning(String text);
+  void warning(
+    final String text,
+  );
 
   /// Prints text to the log's output console as an error.
   /// This will also mark this test as a failure.
-  void error(String text);
+  void error(
+    final String text,
+  );
 }
 
 /// DefaultLogger writes the output to the console.
@@ -31,20 +39,31 @@ class DefaultLogger implements Logger {
 
   /// Prints text to the log's output console as an information.
   @override
-  void info(String text) => print(text);
+  void info(
+    final String text,
+  ) =>
+      print(text);
 
   /// Prints text to the log's output console as a notice.
   @override
-  void notice(String text) => print(text);
+  void notice(
+    final String text,
+  ) =>
+      print(text);
 
   /// Prints text to the log's output console as a warning.
   @override
-  void warning(String text) => print(text);
+  void warning(
+    final String text,
+  ) =>
+      print(text);
 
   /// Prints text to the log's output console as an error.
   /// This will also mark this test as a failure.
   @override
-  void error(String text) {
+  void error(
+    final String text,
+  ) {
     print(text);
     this._failed = true;
   }
@@ -67,13 +86,20 @@ class StringTree {
   List<StringTree> children;
 
   /// Creates a new string tree.
-  StringTree([this.text = '']) : this.children = [];
+  StringTree([
+    final this.text = '',
+  ]) : this.children = [];
 
   /// Adds a child to this string tree.
-  void append(StringTree child) => this.children.add(child);
+  void append(
+    final StringTree child,
+  ) =>
+      this.children.add(child);
 
   /// Creates a new child to this string tree and returns it.
-  StringTree add(String text) {
+  StringTree add(
+    final String text,
+  ) {
     final child = StringTree(text);
     this.children.add(child);
     return child;
@@ -81,21 +107,47 @@ class StringTree {
 
   /// Outputs the string tree.
   @override
-  String toString([String indent = '']) {
+  String toString([
+    final String indent = '',
+  ]) {
     final buf = StringBuffer();
     this._subString(buf, indent, true, true);
     return buf.toString();
   }
 
   /// Outputs a part of the tree and its children.
-  void _subString(StringBuffer buf, String indent, bool first, bool last) {
+  void _subString(
+    final StringBuffer buf,
+    final String indent,
+    final bool first,
+    final bool last,
+  ) {
     buf.write(indent);
     if (first) {
-      buf.write(last ? _singleStr : _startStr);
+      buf.write(() {
+        if (last) {
+          return _singleStr;
+        } else {
+          return _startStr;
+        }
+      }());
     } else {
-      buf.write(last ? _endStr : _branchStr);
+      buf.write(() {
+        if (last) {
+          return _endStr;
+        } else {
+          return _branchStr;
+        }
+      }());
     }
-    final follow = indent + (last ? _spaceStr : _pipeStr);
+    final follow = indent +
+        (() {
+          if (last) {
+            return _spaceStr;
+          } else {
+            return _pipeStr;
+          }
+        }());
     buf.write(this.text.replaceAll(_breakStr, _breakStr + follow));
     final count = this.children.length;
     for (int i = 0; i < count; ++i) {

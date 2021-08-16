@@ -12,7 +12,7 @@ Future<void> runTest({
   final AlfredLoggingDelegate LOG = const AlfredLoggingDelegatePrintImpl(LogType.info),
   final Middleware notFound = const NotFound404Middleware(),
 }) async {
-  final app = AlfredImpl(onNotFound: notFound);
+  final app = makeSimpleAlfred(onNotFound: notFound);
   final built = await app.build(
     config: const ServerConfigDefaultWithPort(0),
     log: LOG,

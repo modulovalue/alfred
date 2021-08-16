@@ -1,9 +1,5 @@
 import 'dart:async' as async;
 
-/// The method signature for event handlers.
-/// The [args] are any additional information about the event.
-typedef EventHandler = void Function(EventArgs args);
-
 /// The collection of handles which can be called when some action has occurred.
 ///
 /// This is similar to an [async.Stream] except it is lighter weight and
@@ -32,18 +28,30 @@ class Event {
   bool get isEmpty => (this._hndls?.isEmpty ?? true) && (this._onceHndls?.isEmpty ?? true);
 
   /// Adds a new event handler to be called by this event when an action has occurred.
-  void add(EventHandler hndl) => (this._hndls ??= []).add(hndl);
+  void add(
+    final EventHandler hndl,
+  ) =>
+      (this._hndls ??= []).add(hndl);
 
   /// Adds a new event handler to be called by this event when an action has occurred.
   /// This event is only called once and then removed.
-  void once(EventHandler hndl) => (this._onceHndls ??= []).add(hndl);
+  void once(
+    final EventHandler hndl,
+  ) =>
+      (this._onceHndls ??= []).add(hndl);
 
   /// Removes the first instance of the event handler from this event.
   /// True is returned if the handler is found, false if not found.
-  bool remove(EventHandler hndl) {
+  bool remove(
+    final EventHandler hndl,
+  ) {
     bool removed = false;
-    if (this._hndls?.contains(hndl) ?? false) removed = (this._hndls?.remove(hndl) ?? false) || removed;
-    if (this._onceHndls?.contains(hndl) ?? false) removed = (this._onceHndls?.remove(hndl) ?? false) || removed;
+    if (this._hndls?.contains(hndl) ?? false) {
+      removed = (this._hndls?.remove(hndl) ?? false) || removed;
+    }
+    if (this._onceHndls?.contains(hndl) ?? false) {
+      removed = (this._onceHndls?.remove(hndl) ?? false) || removed;
+    }
     return removed;
   }
 
@@ -53,11 +61,17 @@ class Event {
   /// The event will not be emitted if it is currently suspended.
   /// The method will return after all event handlers has returned.
   /// Returns true if any handler could be emitted even if suspended, false if empty.
-  bool emit([EventArgs? args]) {
-    if (this.isEmpty) return false;
+  bool emit([
+    final EventArgs? args,
+  ]) {
+    if (this.isEmpty) {
+      return false;
+    }
     final args2 = args ?? EventArgs(null);
     if (this.suspended) {
-      if (!this.pending) this._pendingArgs = args2;
+      if (!this.pending) {
+        this._pendingArgs = args2;
+      }
       return true;
     }
     final hndls = this._hndls;
@@ -65,16 +79,20 @@ class Event {
       // Create a copy so that if this event is modified
       // inside of it's handler it doesn't cause a problem.
       final copy = List<EventHandler>.from(hndls);
-      copy.forEach((EventHandler hndl) {
-        if (args2.propagate) hndl(args2);
+      copy.forEach((final hndl) {
+        if (args2.propagate) {
+          hndl(args2);
+        }
       });
     }
     final onceHndls = this._onceHndls;
     if (onceHndls != null) {
       final lastOnce = onceHndls;
       this._onceHndls = [];
-      lastOnce.forEach((EventHandler hndl) {
-        if (args2.propagate) hndl(args2);
+      lastOnce.forEach((final hndl) {
+        if (args2.propagate) {
+          hndl(args2);
+        }
       });
     }
     return true;
@@ -86,7 +104,7 @@ class Event {
   /// This is not effected by the suspended flag.
   /// The future is returned.
   async.Future<void> asyncEmit([
-    EventArgs? args,
+    final EventArgs? args,
   ]) =>
       async.Future<void>(() => this.emit(args));
 
@@ -106,7 +124,10 @@ class Event {
   /// The pending argument is used once the event is resumed.
   EventArgs? get pendingArgs => this._pendingArgs;
 
-  set pendingArgs(EventArgs? args) => this._pendingArgs = args;
+  set pendingArgs(
+    final EventArgs? args,
+  ) =>
+      this._pendingArgs = args;
 
   /// Resumes the event or removes a level of suspension.
   ///
@@ -114,7 +135,10 @@ class Event {
   /// the event is emitted with that pending argument.
   /// If [force] is set to true then the level of suspension is
   /// ignored an the event is immediately set to no longer suspended.
-  void resume({bool force = false, bool emitPending = true}) {
+  void resume({
+    final bool force = false,
+    final bool emitPending = true,
+  }) {
     if (this.suspended) {
       if (force) {
         this._suspended = 0;
@@ -130,6 +154,10 @@ class Event {
   }
 }
 
+/// The method signature for event handlers.
+/// The [args] are any additional information about the event.
+typedef EventHandler = void Function(EventArgs args);
+
 /// The event argument for carrying an event's additional information.
 class EventArgs {
   /// The sender of the event.
@@ -140,7 +168,9 @@ class EventArgs {
   bool propagate;
 
   /// Creates a new event argument.
-  EventArgs(this.sender) : this.propagate = true;
+  EventArgs(
+    final this.sender,
+  ) : this.propagate = true;
 }
 
 /// The event argument for event's when items are added to a collection.
@@ -152,7 +182,11 @@ class ItemsAddedEventArgs<T> extends EventArgs {
   final Iterable<T> added;
 
   /// Creates an items added event argument.
-  ItemsAddedEventArgs(Object sender, this.index, this.added) : super(sender);
+  ItemsAddedEventArgs(
+    final Object sender,
+    final this.index,
+    final this.added,
+  ) : super(sender);
 }
 
 /// The event argument for event's when items removed from a collection.
@@ -164,7 +198,11 @@ class ItemsRemovedEventArgs<T> extends EventArgs {
   final Iterable<T> removed;
 
   /// Creates an items removed event argument.
-  ItemsRemovedEventArgs(Object sender, this.index, this.removed) : super(sender);
+  ItemsRemovedEventArgs(
+    final Object sender,
+    final this.index,
+    final this.removed,
+  ) : super(sender);
 }
 
 /// The event argument for event's with information about entities changing.
@@ -179,7 +217,12 @@ class ValueChangedEventArgs<T> extends EventArgs {
   final T value;
 
   /// Creates an entity event argument.
-  ValueChangedEventArgs(Object sender, this.name, this.previous, this.value) : super(sender);
+  ValueChangedEventArgs(
+    final Object sender,
+    final this.name,
+    final this.previous,
+    final this.value,
+  ) : super(sender);
 
   /// The string for this event argument.
   @override

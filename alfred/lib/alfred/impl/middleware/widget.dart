@@ -6,17 +6,7 @@ import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
 import 'html.dart';
 
-abstract class ServeWidget implements Middleware {
-  const factory ServeWidget({
-    required final Widget child,
-  }) = _ServeWidgetImpl;
-
-  const factory ServeWidget.app({
-    required final String title,
-    required final Widget child,
-    final void Function()? onProcess,
-  }) = _ServeWidgetAppImpl;
-}
+abstract class ServeWidget implements Middleware {}
 
 class ServeWidgetBuilder implements Middleware {
   final Widget Function(ServeContext c, BuildContext context) builder;
@@ -36,10 +26,10 @@ class ServeWidgetBuilder implements Middleware {
   }
 }
 
-class _ServeWidgetImpl implements ServeWidget {
+class ServeWidgetImpl implements ServeWidget {
   final Widget child;
 
-  const _ServeWidgetImpl({
+  const ServeWidgetImpl({
     required final this.child,
   });
 
@@ -54,11 +44,11 @@ class _ServeWidgetImpl implements ServeWidget {
   }
 }
 
-class _ServeWidgetAppImpl implements ServeWidget {
+class ServeWidgetAppImpl implements ServeWidget {
   final Widget child;
   final String title;
   final void Function()? onProcess;
-  const _ServeWidgetAppImpl({
+  const ServeWidgetAppImpl({
     required final this.title,
     required final this.child,
     final this.onProcess,

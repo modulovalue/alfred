@@ -1,5 +1,6 @@
 import 'dart:io';
 
+// TODO inline this dependency.
 import 'package:mime_type/mime_type.dart' as _m;
 
 /// Get the contentType header from the given file.

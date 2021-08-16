@@ -1,7 +1,7 @@
 // Textures defines how to load and store images for rendering.
-import 'dart:html' as html;
-import 'dart:math' as math;
-import 'dart:typed_data' as typed;
+import 'dart:html';
+import 'dart:math';
+import 'dart:typed_data';
 import 'dart:web_gl' as webgl;
 
 import '../core/core.dart';
@@ -410,8 +410,8 @@ class Texture2DSolid extends Texture2D {
     int aWidth = nearestPower(width);
     int aHeight = nearestPower(height);
     maxSize = nearestPower(maxSize);
-    aWidth = math.min(aWidth, maxSize);
-    aHeight = math.min(aHeight, maxSize);
+    aWidth = min(aWidth, maxSize);
+    aHeight = min(aHeight, maxSize);
 
     final webgl.Texture texture = gl.createTexture();
     gl.bindTexture(webgl.WebGL.TEXTURE_2D, texture);
@@ -636,7 +636,7 @@ class TextureLoader {
     this._gl.bindTexture(webgl.WebGL.TEXTURE_2D, null);
 
     this._incLoading();
-    final html.ImageElement image = html.ImageElement(src: path);
+    final ImageElement image = ImageElement(src: path);
     final Texture2DSolid result = Texture2DSolid(texture: texture);
     image.onLoad.listen((_) {
       result._width = image.width ?? 512;
@@ -709,7 +709,7 @@ class TextureLoader {
   /// Loads a face from the given path.
   /// The image will load asynchronously.
   void _loadCubeFace(TextureCube result, webgl.Texture texture, String path, int face, bool flipY, bool nearest) {
-    final html.ImageElement image = html.ImageElement(src: path);
+    final ImageElement image = ImageElement(src: path);
     this._incLoading();
     image.onLoad.listen((_) {
       final dynamic data = this._resizeImage(image, this._maxCubeSize, nearest);
@@ -723,20 +723,20 @@ class TextureLoader {
   }
 
   /// Resizes the given image to the maximum size proportional to the power of 2.
-  dynamic _resizeImage(html.ImageElement image, int maxSize, bool nearest) {
+  dynamic _resizeImage(ImageElement image, int maxSize, bool nearest) {
     // ignore: parameter_assignments
     maxSize = nearestPower(maxSize);
     int width = nearestPower(image.width ?? 512);
     int height = nearestPower(image.height ?? 512);
-    width = math.min(width, maxSize);
-    height = math.min(height, maxSize);
+    width = min(width, maxSize);
+    height = min(height, maxSize);
     if ((image.width == width) && (image.height == height)) {
       return image;
     } else {
-      final  canvas = html.CanvasElement()
+      final  canvas = CanvasElement()
         ..width = width
         ..height = height;
-      final ctx = (canvas.getContext('2d') as html.CanvasRenderingContext2D?)!;
+      final ctx = (canvas.getContext('2d') as CanvasRenderingContext2D?)!;
       ctx.imageSmoothingEnabled = nearest;
       ctx.drawImageScaled(image, 0, 0, canvas.width ?? 512, canvas.height ?? 512);
       return ctx.getImageData(0, 0, canvas.width ?? 512, canvas.height ?? 512);
@@ -752,7 +752,7 @@ class TextureLoader {
 
 /// A 2D texture reader for getting the color from a texture.
 class TextureReader {
-  typed.Uint8List _data;
+  Uint8List _data;
   final int _width;
   final int _height;
 
@@ -771,7 +771,7 @@ class TextureReader {
     gl.framebufferTexture2D(
         webgl.WebGL.FRAMEBUFFER, webgl.WebGL.COLOR_ATTACHMENT0, webgl.WebGL.TEXTURE_2D, texture.texture, 0);
 
-    final typed.Uint8List data = typed.Uint8List(width * height * 4);
+    final Uint8List data = Uint8List(width * height * 4);
     gl.readPixels(x, y, width, height, webgl.WebGL.RGBA, webgl.WebGL.UNSIGNED_BYTE, data);
     gl.bindFramebuffer(webgl.WebGL.FRAMEBUFFER, null);
     final TextureReader reader = TextureReader._(data, width, height);
@@ -785,7 +785,7 @@ class TextureReader {
   TextureReader._(this._data, this._width, this._height);
 
   /// Gets the buffer for the reader.
-  typed.Uint8List get data => this._data;
+  Uint8List get data => this._data;
 
   /// Gets the width of the read section.
   int get width => this._width;
@@ -823,7 +823,7 @@ class TextureReader {
 
   /// Creates a copy of this texture data.
   TextureReader copy() {
-    final typed.Uint8List data = typed.Uint8List(this._data.length);
+    final Uint8List data = Uint8List(this._data.length);
     data.setAll(0, this._data);
     return TextureReader._(data, this._width, this._height);
   }
@@ -849,10 +849,10 @@ class TextureReader {
 
   /// Gets the data for the given mime type as a base64 string.
   String toDataUrl({String type = 'image/png', double quality = 100.0}) {
-    final html.CanvasElement canvas = html.CanvasElement()
+    final CanvasElement canvas = CanvasElement()
       ..width = this._width
       ..height = this._height;
-    final ctx = (canvas.getContext('2d') as html.CanvasRenderingContext2D?)!;
+    final ctx = (canvas.getContext('2d') as CanvasRenderingContext2D?)!;
     final  img = ctx.createImageData(this._width, this._height);
     img.data.setAll(0, this._data);
     ctx.putImageData(img, 0, 0);
@@ -862,8 +862,7 @@ class TextureReader {
   /// Save this texture information to the given PNG file.
   void savePng(String fileName, {double quality = 100.0}) {
     final String data = this.toDataUrl(quality: quality).replaceFirst("image/png", "image/octet-stream");
-
-    final html.AnchorElement link = html.AnchorElement();
+    final AnchorElement link = AnchorElement();
     link.setAttribute("download", fileName);
     link.setAttribute("href", data);
     link.click();

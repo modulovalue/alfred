@@ -5,20 +5,12 @@ import '../../interface/alfred.dart';
 import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
 
-abstract class ServeFile implements Middleware {
-  const factory ServeFile(
-    final File file,
-  ) = _ServeFile_IoFile;
+abstract class ServeFile implements Middleware {}
 
-  const factory ServeFile.at(
-    final String path,
-  ) = _ServeFile_StringPath;
-}
-
-class _ServeFile_IoFile implements ServeFile {
+class ServeFileIoFileImpl implements ServeFile {
   final File file;
 
-  const _ServeFile_IoFile(
+  const ServeFileIoFileImpl(
     final this.file,
   );
 
@@ -29,10 +21,10 @@ class _ServeFile_IoFile implements ServeFile {
       _serveFile(file, c);
 }
 
-class _ServeFile_StringPath implements ServeFile {
+class ServeFileStringPathImpl implements ServeFile {
   final String path;
 
-  const _ServeFile_StringPath(
+  const ServeFileStringPathImpl(
     final this.path,
   );
 

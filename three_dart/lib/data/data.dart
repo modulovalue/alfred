@@ -1,14 +1,14 @@
 // Data provides the storage mechanism for shapes components
 // which can be rendered with WebGL.
-import 'dart:typed_data' as typed;
+import 'dart:typed_data';
 import 'dart:web_gl' as web_gl;
 
-import '../core/core.dart' as core;
-import '../math/math.dart' as math;
+import '../core/core.dart';
+import '../math/math.dart';
 
 /// A buffer is a special type of bindable designed to
 /// store cached shape information for rendering.
-abstract class Buffer extends core.Bindable {
+abstract class Buffer extends Bindable {
   // Empty
 }
 
@@ -21,37 +21,60 @@ class WebGLBuffer implements Buffer {
   web_gl.Buffer _buf;
 
   /// Creates a new WebGL buffer.
-  WebGLBuffer(this._bufType, this._buf);
+  WebGLBuffer(
+    final this._bufType,
+    final this._buf,
+  );
 
   /// Creates a new WebGL buffer from a double list of data.
   /// Typically used for creating a vertex buffer, ARRAY_BUFFER.
-  factory WebGLBuffer.fromDoubleList(web_gl.RenderingContext2 gl, int bufType, List<double> data) {
+  factory WebGLBuffer.fromDoubleList(
+    final web_gl.RenderingContext2 gl,
+    final int bufType,
+    final List<double> data,
+  ) {
     final buffer = gl.createBuffer();
     gl.bindBuffer(bufType, buffer);
-    gl.bufferData(bufType, typed.Float32List.fromList(data), web_gl.WebGL.STATIC_DRAW);
+    gl.bufferData(
+      bufType,
+      Float32List.fromList(data),
+      web_gl.WebGL.STATIC_DRAW,
+    );
     gl.bindBuffer(bufType, null);
     return WebGLBuffer(bufType, buffer);
   }
 
   /// Creates a new WebGL buffer from a integer list of data.
   /// Typically used for creating an index buffer, ELEMENT_ARRAY_BUFFER.
-  factory WebGLBuffer.fromIntList(web_gl.RenderingContext2 gl, int bufType, List<int> data) {
+  factory WebGLBuffer.fromIntList(
+    final web_gl.RenderingContext2 gl,
+    final int bufType,
+    final List<int> data,
+  ) {
     final buffer = gl.createBuffer();
     gl.bindBuffer(bufType, buffer);
-    gl.bufferData(bufType, typed.Int16List.fromList(data), web_gl.WebGL.STATIC_DRAW);
+    gl.bufferData(
+      bufType,
+      Int16List.fromList(data),
+      web_gl.WebGL.STATIC_DRAW,
+    );
     gl.bindBuffer(bufType, null);
     return WebGLBuffer(bufType, buffer);
   }
 
   /// Binds the buffer to prepare for rendering.
   @override
-  void bind(core.RenderState state) {
+  void bind(
+    final RenderState state,
+  ) {
     state.gl.bindBuffer(this._bufType, this._buf);
   }
 
   /// Unbinds the buffer when done rendering.
   @override
-  void unbind(core.RenderState state) {
+  void unbind(
+    final RenderState state,
+  ) {
     state.gl.bindBuffer(this._bufType, null);
   }
 }
@@ -65,17 +88,24 @@ class TestDoubleBuffer implements Buffer {
   final List<double> _buf;
 
   /// Creates a new test double buffer.
-  TestDoubleBuffer(this._bufType, this._buf);
+  TestDoubleBuffer(
+    final this._bufType,
+    final this._buf,
+  );
 
   /// Throws an error because test buffers may not be binded.
   @override
-  void bind(core.RenderState state) {
+  void bind(
+    final RenderState state,
+  ) {
     throw Exception("May not bind a test double buffer.");
   }
 
   /// Has no effect for testing.
   @override
-  void unbind(core.RenderState state) {
+  void unbind(
+    final RenderState state,
+  ) {
     // Do Nothing
   }
 
@@ -84,7 +114,7 @@ class TestDoubleBuffer implements Buffer {
   String toString() {
     final parts = <String>[];
     for (int i = 0; i < this._buf.length; ++i) {
-      parts.add(math.formatDouble(this._buf[i]));
+      parts.add(formatDouble(this._buf[i]));
     }
     return "${this._bufType}:${parts.join(',')}";
   }
@@ -99,17 +129,23 @@ class TestIntBuffer implements Buffer {
   final List<int> _buf;
 
   /// Creates a new test integer buffer.
-  TestIntBuffer(this._bufType, this._buf);
+  TestIntBuffer(
+    final this._bufType,
+    final this._buf,
+  );
 
   /// Throws an error because test buffers may not be binded.
   @override
-  void bind(core.RenderState state) {
-    throw Exception("May not bind a test int buffer.");
-  }
+  void bind(
+    final RenderState state,
+  ) =>
+      throw Exception("May not bind a test int buffer.");
 
   /// Has no effect for testing.
   @override
-  void unbind(core.RenderState state) {
+  void unbind(
+    final RenderState state,
+  ) {
     // Do Nothing
   }
 
@@ -125,7 +161,7 @@ class TestIntBuffer implements Buffer {
 }
 
 /// An attribute for a buffer to describe the contents in a buffer.
-class BufferAttr extends core.Bindable {
+class BufferAttr extends Bindable {
   /// The type of vertex being stored.
   final VertexType _type;
 
@@ -163,7 +199,7 @@ class BufferAttr extends core.Bindable {
   /// be used when rendering from it's associated buffer.
   @override
   void bind(
-    final core.RenderState state,
+    final RenderState state,
   ) {
     try {
       state.gl.enableVertexAttribArray(this.attr);
@@ -175,24 +211,30 @@ class BufferAttr extends core.Bindable {
 
   /// Unbinds this attribute from the render state.
   @override
-  void unbind(core.RenderState state) {
-    state.gl.disableVertexAttribArray(this.attr);
-  }
+  void unbind(
+    final RenderState state,
+  ) =>
+      state.gl.disableVertexAttribArray(this.attr);
 
   /// Get the string for the buffer attribute.
   @override
-  String toString() {
-    return "[${this._type.toString()}, Size: ${this._size}, Offset: ${this._offset}, Stride: ${this._stride}, Attr: ${this.attr}]";
-  }
+  String toString() =>
+      "[${this._type.toString()}, Size: ${this._size}, Offset: ${this._offset}, Stride: ${this._stride}, Attr: ${this.attr}]";
 }
 
 /// A builder for creating buffers while building a cache for a shape.
 abstract class BufferBuilder {
   /// Creates a new buffer from the given double list.
-  Buffer fromDoubleList(int bufType, List<double> vertices);
+  Buffer fromDoubleList(
+    final int bufType,
+    final List<double> vertices,
+  );
 
   /// Creates a new buffer from the given integer list.
-  Buffer fromIntList(int bufType, List<int> vertices);
+  Buffer fromIntList(
+    final int bufType,
+    final List<int> vertices,
+  );
 }
 
 /// A builder for creating WebGL buffers.
@@ -201,19 +243,33 @@ class WebGLBufferBuilder implements BufferBuilder {
   final web_gl.RenderingContext2 _gl;
 
   /// Creates a new WebGL buffer builder.
-  WebGLBufferBuilder(this._gl);
+  WebGLBufferBuilder(
+    final this._gl,
+  );
 
   /// Creates a new buffer from the given double list.
   @override
-  Buffer fromDoubleList(int bufType, List<double> vertices) {
-    return WebGLBuffer.fromDoubleList(this._gl, bufType, vertices);
-  }
+  Buffer fromDoubleList(
+    final int bufType,
+    final List<double> vertices,
+  ) =>
+      WebGLBuffer.fromDoubleList(
+        this._gl,
+        bufType,
+        vertices,
+      );
 
   /// Creates a new buffer from the given integer list.
   @override
-  Buffer fromIntList(int bufType, List<int> vertices) {
-    return WebGLBuffer.fromIntList(this._gl, bufType, vertices);
-  }
+  Buffer fromIntList(
+    final int bufType,
+    final List<int> vertices,
+  ) =>
+      WebGLBuffer.fromIntList(
+        this._gl,
+        bufType,
+        vertices,
+      );
 }
 
 /// A builder for creating test buffers.
@@ -223,19 +279,23 @@ class TestBufferBuilder implements BufferBuilder {
 
   /// Creates a new buffer from the given double list.
   @override
-  Buffer fromDoubleList(int bufType, List<double> vertices) {
-    return TestDoubleBuffer(bufType, vertices);
-  }
+  Buffer fromDoubleList(
+    final int bufType,
+    final List<double> vertices,
+  ) =>
+      TestDoubleBuffer(bufType, vertices);
 
   /// Creates a new buffer from the given integer list.
   @override
-  Buffer fromIntList(int bufType, List<int> vertices) {
-    return TestIntBuffer(bufType, vertices);
-  }
+  Buffer fromIntList(
+    final int bufType,
+    final List<int> vertices,
+  ) =>
+      TestIntBuffer(bufType, vertices);
 }
 
 /// A storage for a shapes with the components required for a specific technique.
-class BufferStore implements core.Bindable, TechniqueCache {
+class BufferStore implements Bindable, TechniqueCache {
   /// The buffer storing all the vertex data for the shape.
   final Buffer _vertexBuf;
 
@@ -249,7 +309,11 @@ class BufferStore implements core.Bindable, TechniqueCache {
   final VertexType _vertexType;
 
   /// Creates a new buffer store.
-  BufferStore(this._vertexBuf, this._attrs, this._vertexType) : this._indexObjs = [];
+  BufferStore(
+    final this._vertexBuf,
+    final this._attrs,
+    final this._vertexType,
+  ) : this._indexObjs = [];
 
   /// The list of buffer attributes describing the type of vertices in the buffer.
   List<BufferAttr> get attributes => this._attrs;
@@ -261,16 +325,22 @@ class BufferStore implements core.Bindable, TechniqueCache {
   VertexType get vertexType => this._vertexType;
 
   /// Finds the attribute which has the given type.
-  BufferAttr? findAttribute(VertexType type) {
+  BufferAttr? findAttribute(
+    final VertexType type,
+  ) {
     for (final attr in this._attrs) {
-      if (attr._type.has(type)) return attr;
+      if (attr._type.has(type)) {
+        return attr;
+      }
     }
     return null;
   }
 
   /// Binds the buffer to prepare for rendering.
   @override
-  void bind(core.RenderState state) {
+  void bind(
+    final RenderState state,
+  ) {
     this._vertexBuf.bind(state);
     for (int i = this._attrs.length - 1; i >= 0; i--) {
       this._attrs[i].bind(state);
@@ -279,7 +349,9 @@ class BufferStore implements core.Bindable, TechniqueCache {
 
   /// Unbinds the buffer when done rendering.
   @override
-  void unbind(core.RenderState state) {
+  void unbind(
+    final RenderState state,
+  ) {
     for (int i = this._attrs.length - 1; i >= 0; i--) {
       this._attrs[i].unbind(state);
     }
@@ -289,7 +361,9 @@ class BufferStore implements core.Bindable, TechniqueCache {
   /// Renders the buffer with the current technique.
   ///
   /// The buffer must be bound to the state first.
-  void render(core.RenderState state) {
+  void render(
+    final RenderState state,
+  ) {
     final objCount = this._indexObjs.length;
     for (int i = 0; i < objCount; i++) {
       final indexObj = this._indexObjs[i];
@@ -300,7 +374,9 @@ class BufferStore implements core.Bindable, TechniqueCache {
   }
 
   /// Binds the buffers, renders, then unbinds with the given state.
-  void oneRender(core.RenderState state) {
+  void oneRender(
+    final RenderState state,
+  ) {
     this.bind(state);
     this.render(state);
     this.unbind(state);
@@ -360,13 +436,15 @@ class IndexObject {
   /// [type] is the type of rasterization to use.
   /// [count] is the number of indices in the buffer.
   /// [buffer] is the buffer of indices for a shape.
-  IndexObject(this.type, this.count, this.buffer);
+  IndexObject(
+    final this.type,
+    final this.count,
+    final this.buffer,
+  );
 
   /// Gets the string for this index Entity.
   @override
-  String toString() {
-    return "Type: ${this.type}, Count: ${this.count}, [${this.buffer.toString()}]";
-  }
+  String toString() => "Type: ${this.type}, Count: ${this.count}, [${this.buffer.toString()}]";
 }
 
 /// A cache for a shape with the components required for a specific technique.
@@ -416,13 +494,25 @@ class VertexType {
   final int _value;
 
   /// Creates a new vertex type.
-  VertexType._(this._value);
+  VertexType._(
+    final this._value,
+  );
 
   /// Combines two vertex types into one.
-  VertexType operator |(VertexType right) => VertexType._(this._value | right._value);
+  VertexType operator |(
+    final VertexType right,
+  ) =>
+      VertexType._(
+        this._value | right._value,
+      );
 
   /// Unions two vertex types.
-  VertexType operator &(VertexType right) => VertexType._(this._value & right._value);
+  VertexType operator &(
+    final VertexType right,
+  ) =>
+      VertexType._(
+        this._value & right._value,
+      );
 
   /// Gets the opposite of this type.
   VertexType operator ~() => VertexType._(All._value & ~this._value);
@@ -464,126 +554,186 @@ class VertexType {
   }
 
   /// The vertex type at the given [index].
-  VertexType at(int index) {
+  VertexType at(
+    final int index,
+  ) {
     int count = 0;
     if (this.has(Pos)) {
-      if (count == index) return Pos;
+      if (count == index) {
+        return Pos;
+      }
       count++;
     }
     if (this.has(Norm)) {
-      if (count == index) return Norm;
+      if (count == index) {
+        return Norm;
+      }
       count++;
     }
     if (this.has(Binm)) {
-      if (count == index) return Binm;
+      if (count == index) {
+        return Binm;
+      }
       count++;
     }
     if (this.has(Txt2D)) {
-      if (count == index) return Txt2D;
+      if (count == index) {
+        return Txt2D;
+      }
       count++;
     }
     if (this.has(TxtCube)) {
-      if (count == index) return TxtCube;
+      if (count == index) {
+        return TxtCube;
+      }
       count++;
     }
     if (this.has(Clr3)) {
-      if (count == index) return Clr3;
+      if (count == index) {
+        return Clr3;
+      }
       count++;
     }
     if (this.has(Clr4)) {
-      if (count == index) return Clr4;
+      if (count == index) {
+        return Clr4;
+      }
       count++;
     }
     if (this.has(Weight)) {
-      if (count == index) return Weight;
+      if (count == index) {
+        return Weight;
+      }
       count++;
     }
     if (this.has(Bending)) {
-      if (count == index) return Bending;
+      if (count == index) {
+        return Bending;
+      }
       count++;
     }
     return None;
   }
 
   /// The index of the given [type] in this combined type.
-  int indexOf(VertexType type) {
+  int indexOf(
+    final VertexType type,
+  ) {
     int result = 0;
     if (this.has(Pos)) {
-      if (type == Pos) return result;
+      if (type == Pos) {
+        return result;
+      }
       result++;
     }
     if (this.has(Norm)) {
-      if (type == Norm) return result;
+      if (type == Norm) {
+        return result;
+      }
       result++;
     }
     if (this.has(Binm)) {
-      if (type == Binm) return result;
+      if (type == Binm) {
+        return result;
+      }
       result++;
     }
     if (this.has(Txt2D)) {
-      if (type == Txt2D) return result;
+      if (type == Txt2D) {
+        return result;
+      }
       result++;
     }
     if (this.has(TxtCube)) {
-      if (type == TxtCube) return result;
+      if (type == TxtCube) {
+        return result;
+      }
       result++;
     }
     if (this.has(Clr3)) {
-      if (type == Clr3) return result;
+      if (type == Clr3) {
+        return result;
+      }
       result++;
     }
     if (this.has(Clr4)) {
-      if (type == Clr4) return result;
+      if (type == Clr4) {
+        return result;
+      }
       result++;
     }
     if (this.has(Weight)) {
-      if (type == Weight) return result;
+      if (type == Weight) {
+        return result;
+      }
       result++;
     }
     if (this.has(Bending)) {
-      if (type == Bending) return result;
+      if (type == Bending) {
+        return result;
+      }
       //result++;
     }
     return -1;
   }
 
   /// The number of floats to the given [type] in this combined type.
-  int offset(VertexType type) {
+  int offset(
+    final VertexType type,
+  ) {
     int result = 0;
     if (this.has(Pos)) {
-      if (type == Pos) return result;
+      if (type == Pos) {
+        return result;
+      }
       result += 3;
     }
     if (this.has(Norm)) {
-      if (type == Norm) return result;
+      if (type == Norm) {
+        return result;
+      }
       result += 3;
     }
     if (this.has(Binm)) {
-      if (type == Binm) return result;
+      if (type == Binm) {
+        return result;
+      }
       result += 3;
     }
     if (this.has(Txt2D)) {
-      if (type == Txt2D) return result;
+      if (type == Txt2D) {
+        return result;
+      }
       result += 2;
     }
     if (this.has(TxtCube)) {
-      if (type == TxtCube) return result;
+      if (type == TxtCube) {
+        return result;
+      }
       result += 3;
     }
     if (this.has(Clr3)) {
-      if (type == Clr3) return result;
+      if (type == Clr3) {
+        return result;
+      }
       result += 3;
     }
     if (this.has(Clr4)) {
-      if (type == Clr4) return result;
+      if (type == Clr4) {
+        return result;
+      }
       result += 4;
     }
     if (this.has(Weight)) {
-      if (type == Weight) return result;
+      if (type == Weight) {
+        return result;
+      }
       result += 1;
     }
     if (this.has(Bending)) {
-      if (type == Bending) return result;
+      if (type == Bending) {
+        return result;
+      }
       result += 4;
     }
     return -1;
@@ -591,10 +741,10 @@ class VertexType {
 
   /// Determines if the given [other] variable is a [VertexType] equal to this value.
   @override
-  bool operator ==(Object other) {
-    if (other is! VertexType) return false;
-    return this._value == other._value;
-  }
+  bool operator ==(
+    final Object other,
+  ) =>
+      other is VertexType && this._value == other._value;
 
   @override
   int get hashCode => _value.hashCode;

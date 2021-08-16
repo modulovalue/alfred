@@ -1,33 +1,34 @@
-library three_dart.tests;
+import 'dart:html';
 
-import 'dart:html' as html;
-
-import '../common/common.dart' as common;
+import '../common/common.dart';
 
 void main() {
-  final html.DivElement elem = html.DivElement();
+  final elem = DivElement();
   // Add all tests in the format: addTest(elem, "test000");
   for (int i = 0; i <= 49; i++) {
-    addTest(elem, "test"+"$i".padLeft(3, '0'));
+    addTest(elem, "test" + "$i".padLeft(3, '0'));
   }
-  common.ShellPage("3Dart Tests")
+  ShellPage("3Dart Tests")
     ..addElem(elem)
     ..addPar(["«[Back to Home|../]"]);
 }
 
-void addTest(html.Element elem, String testName) {
-  final html.ImageElement img = html.ImageElement()
+void addTest(
+  final Element elem,
+  final String testName,
+) {
+  final img = ImageElement()
     ..alt = "$testName"
     // ignore: unsafe_html
     ..src = "./$testName/test.png";
-  final html.AnchorElement a = html.AnchorElement()
+  final a = AnchorElement()
     // ignore: unsafe_html
     ..href = "./$testName/"
     ..children.add(img);
-  final html.DivElement innerBox = html.DivElement()
+  final innerBox = DivElement()
     ..className = "test-link"
     ..children.add(a);
-  final html.DivElement outterBox = html.DivElement()
+  final outterBox = DivElement()
     ..className = "test-box"
     ..children.add(innerBox);
   elem.children.add(outterBox);

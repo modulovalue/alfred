@@ -30,10 +30,21 @@ Future<BuiltAlfred> helloAlfred({
 AlfredImpl alfredWithRoutes({
   required final Iterable<Route> routes,
 }) {
-  final alfred = AlfredImpl();
+  final alfred = makeSimpleAlfred();
   alfred.addRoutes(routes);
   return alfred;
 }
+
+
+AlfredImpl makeSimpleAlfred({
+  final Middleware? onNotFound,
+  final Middleware Function(Object error)? onInternalError,
+}) =>
+    AlfredImpl.raw(
+      routes: <HttpRoute>[],
+      onNotFound: onNotFound ?? const NotFound404Middleware(),
+      onInternalError: onInternalError ?? InternalError500Middleware.make,
+    );
 
 class AlfredImpl with HttpRouteFactoryBoilerplateMixin implements Alfred {
   @override
@@ -42,16 +53,6 @@ class AlfredImpl with HttpRouteFactoryBoilerplateMixin implements Alfred {
   final Middleware onNotFound;
 
   final Middleware Function(Object error) onInternalError;
-
-  factory AlfredImpl({
-    final Middleware? onNotFound,
-    final Middleware Function(Object error)? onInternalError,
-  }) =>
-      AlfredImpl.raw(
-        routes: <HttpRoute>[],
-        onNotFound: onNotFound ?? const NotFound404Middleware(),
-        onInternalError: onInternalError ?? InternalError500Middleware.make,
-      );
 
   AlfredImpl.raw({
     required final this.routes,

@@ -2,7 +2,7 @@ library graphics;
 
 import 'dart:html' as html;
 
-import 'package:three_dart/core/core.dart' as three_dart;
+import 'package:three_dart/core/core.dart';
 import 'package:three_dart/events/events.dart';
 import 'package:three_dart/io/io.dart';
 import 'package:three_dart/lights/lights.dart';
@@ -14,33 +14,42 @@ import 'package:three_dart/techniques/techniques.dart';
 import 'package:three_dart/textures/textures.dart';
 import 'package:three_dart/views/views.dart';
 
-import '../../common/common.dart' as common;
-import 'game.dart' as game;
+import '../../common/common.dart';
+import 'game.dart';
 
 /// Starts the graphics for the chess game.
-void startGraphics(game.Game game) {
-  final three_dart.ThreeDart td = three_dart.ThreeDart.fromId('targetCanvas');
-  final Perspective camera = Perspective(
-      mover: Group([
-    UserRotator(input: td.userInput)
-      ..pitch.minimumLocation = -PI_2
-      ..pitch.maximumLocation = 0.0
-      ..pitch.location = -0.5
-      ..pitch.wrap = false,
-    Constant.scale(1.75, 1.75, 1.75),
-    Constant.translate(0.0, 0.0, 15.0)
-  ]));
-  final FrontTarget frontTarget = FrontTarget()..clearColor = false;
-  final Board board = Board(td, game);
-  final CoverPass skybox = CoverPass.skybox(board.materials.environment)
+void startGraphics(
+  final Game game,
+) {
+  final td = ThreeDart.fromId('targetCanvas');
+  final camera = Perspective(
+    mover: Group(
+      [
+        UserRotator(input: td.userInput)
+          ..pitch.minimumLocation = -PI_2
+          ..pitch.maximumLocation = 0.0
+          ..pitch.location = -0.5
+          ..pitch.wrap = false,
+        Constant.scale(1.75, 1.75, 1.75),
+        Constant.translate(0.0, 0.0, 15.0)
+      ],
+    ),
+  );
+  final frontTarget = FrontTarget()..clearColor = false;
+  final board = Board(td, game);
+  final skybox = CoverPass.skybox(board.materials.environment)
     ..target = frontTarget
     ..camera = camera;
-  final EntityPass mainScene = EntityPass()
+  final mainScene = EntityPass()
     ..target = frontTarget
     ..camera = camera
     ..children.add(board);
-  final BackTarget pickTarget = BackTarget(autoResize: true, autoResizeScalarX: 0.5, autoResizeScalarY: 0.5);
-  final EntityPass pickScene = EntityPass()
+  final pickTarget = BackTarget(
+    autoResize: true,
+    autoResizeScalarX: 0.5,
+    autoResizeScalarY: 0.5,
+  );
+  final pickScene = EntityPass()
     ..target = pickTarget
     ..camera = camera
     ..children.add(board);
@@ -51,17 +60,24 @@ void startGraphics(game.Game game) {
       board.showPick = false;
       td.requestRender();
     })
-    ..colorPicked.add((EventArgs args) {
-      final ColorPickerEventArgs pickArgs = args as ColorPickerEventArgs;
+    ..colorPicked.add((final args) {
+      final pickArgs = args as ColorPickerEventArgs;
       board.pick(pickArgs.color.trim32());
     });
-  td.scene = Compound(passes: [skybox, mainScene]);
-  final html.Element? elem = html.document.getElementById('buttons');
-  final html.ButtonElement button = html.ButtonElement()
+  td.scene = Compound(
+    passes: [
+      skybox,
+      mainScene,
+    ],
+  );
+  final elem = html.document.getElementById('buttons');
+  final button = html.ButtonElement()
     ..text = 'Fullscreen'
-    ..onClick.listen((_) => td.fullscreen = true);
+    ..onClick.listen(
+      (final _) => td.fullscreen = true,
+    );
   elem?.children.add(button);
-  common.showFPS(td);
+  showFPS(td);
 }
 
 /// Bishop is a piece which the player starts with two of.
@@ -70,44 +86,44 @@ void startGraphics(game.Game game) {
 class Bishop extends Piece {
   /// The singleton for the shape of the bishop with the render cache for the color shader.
   /// Used for rendering to the screen.
-  static three_dart.Entity? _colorShapeEntity;
+  static Entity? _colorShapeEntity;
 
   /// The singleton for the shape of the bishop with the render cache for the picker shader.
   /// Used for determining which piece or tile was clicked on.
-  static three_dart.Entity? _pickShapeEntity;
+  static Entity? _pickShapeEntity;
 
   /// Creates a new bishop entity.
-  Bishop(three_dart.ThreeDart td, Board board, bool white, int index, double angle, double scalar)
+  Bishop(ThreeDart td, Board board, bool white, int index, double angle, double scalar)
       : super._(board, white, angle, scalar) {
     var colorEntity = _colorShapeEntity;
     var pickEntity = _pickShapeEntity;
     if (colorEntity == null || pickEntity == null) {
-      _colorShapeEntity = colorEntity = three_dart.Entity(name: 'color bishop shape');
-      _pickShapeEntity = pickEntity = three_dart.Entity(name: 'pick bishop shape');
-      ObjType.fromFile('./resources/bishop.obj', td.textureLoader).then((three_dart.Entity loadedEntity) {
+      _colorShapeEntity = colorEntity = Entity(name: 'color bishop shape');
+      _pickShapeEntity = pickEntity = Entity(name: 'pick bishop shape');
+      ObjType.fromFile('./resources/bishop.obj', td.textureLoader).then((Entity loadedEntity) {
         colorEntity?.shape = loadedEntity.shape;
         pickEntity?.shape = loadedEntity.shape;
       });
     }
     final String name = (this._white ? 'white' : 'black') + ' bishop $index';
-    final game.TileValue value = game.TileValue.bishop(this._white, index);
+    final TileValue value = TileValue.bishop(this._white, index);
     this._initialize(name, value, colorEntity, pickEntity);
   }
 }
 
 /// The board entity which contains tiles, pieces, and edges.
-class Board extends three_dart.Entity {
-  final game.Game _game;
+class Board extends Entity {
+  final Game _game;
   final List<Piece> _pieces;
   final List<Tile> _tiles;
-  List<game.Movement> _moves;
-  three_dart.Entity? _table;
-  three_dart.Entity? _edges;
+  List<Movement> _moves;
+  Entity? _table;
+  Entity? _edges;
   final Materials _mats;
   bool _showPick;
 
   /// Creates a board for the given game.
-  Board(three_dart.ThreeDart td, this._game)
+  Board(ThreeDart td, this._game)
       : this._pieces = [],
         this._tiles = [],
         this._moves = [],
@@ -118,7 +134,7 @@ class Board extends three_dart.Entity {
     this.name = "board";
     for (int i = 1; i <= 8; i++) {
       for (int j = 1; j <= 8; j++) {
-        final Tile tile = Tile(td, this, ((i + j) % 2) == 0, game.Location(i, j));
+        final Tile tile = Tile(td, this, ((i + j) % 2) == 0, Location(i, j));
         this._tiles.add(tile);
         this.children.add(tile);
       }
@@ -143,18 +159,16 @@ class Board extends three_dart.Entity {
     this._add(Queen(td, this, false, 1, 0.0, 1.0));
     this._add(King(td, this, true, PI_2, 0.9));
     this._add(King(td, this, false, PI_2, 0.9));
-    final three_dart.Entity edges = this._edges = three_dart.Entity();
+    final Entity edges = this._edges = Entity();
     this.children.add(edges);
     edges.children.add(Edge(td, this, 0.0, 0.0, 0.0, 0));
     edges.children.add(Edge(td, this, 8.0, 0.0, PI_2, 1));
     edges.children.add(Edge(td, this, 8.0, 8.0, PI, 2));
     edges.children.add(Edge(td, this, 0.0, 8.0, PI3_2, 3));
-    final three_dart.Entity table = this._table = three_dart.Entity(
+    final Entity table = this._table = Entity(
         shape: disk(sides: 30),
         tech: this._mats.tableTech,
-        mover: Constant(Matrix4.translate(0.0, -0.5, 0.0) *
-            Matrix4.rotateX(-PI_2) *
-            Matrix4.scale(12.0, 12.0, 12.0)));
+        mover: Constant(Matrix4.translate(0.0, -0.5, 0.0) * Matrix4.rotateX(-PI_2) * Matrix4.scale(12.0, 12.0, 12.0)));
     this.children.add(table);
     this._game.changed.add(_onGameChange);
     this.setLocations(this._game.state);
@@ -191,9 +205,9 @@ class Board extends three_dart.Entity {
   }
 
   /// Handles a location being clicked on.
-  void _pickLoc(game.Location loc) {
+  void _pickLoc(Location loc) {
     // Check if a movement location was picked
-    for (final game.Movement move in this._moves) {
+    for (final Movement move in this._moves) {
       if ((move.destination == loc) || (move.otherSource == loc)) {
         this._game.makeMove(move);
         this._moves.clear();
@@ -201,7 +215,7 @@ class Board extends three_dart.Entity {
       }
     }
     // Check if a piece was picked.
-    final game.TileValue stateItem = this._game.getValue(loc);
+    final TileValue stateItem = this._game.getValue(loc);
     if (stateItem.empty || stateItem.white != this._game.whiteTurn) return;
     final bool selected = this.isSelected(stateItem);
     this.clearHighlights();
@@ -224,8 +238,8 @@ class Board extends three_dart.Entity {
   }
 
   /// Finds the piece entity with the given piece value or null if not found.
-  Piece? findPiece(game.TileValue stateValue) {
-    final game.TileValue item = stateValue.item;
+  Piece? findPiece(TileValue stateValue) {
+    final TileValue item = stateValue.item;
     for (final Piece piece in this._pieces) {
       if (piece.stateItem.item == item) return piece;
     }
@@ -233,7 +247,7 @@ class Board extends three_dart.Entity {
   }
 
   /// Gets the piece entity at the given location or null if that location is empty.
-  Piece? pieceAt(game.Location loc) {
+  Piece? pieceAt(Location loc) {
     for (final Piece piece in this._pieces) {
       if (piece.location == loc) return piece;
     }
@@ -241,7 +255,7 @@ class Board extends three_dart.Entity {
   }
 
   /// Gets the tile entity at the given location or null if out of bounds.
-  Tile? tileAt(game.Location loc) {
+  Tile? tileAt(Location loc) {
     for (final Tile tile in this._tiles) {
       if (tile.location == loc) return tile;
     }
@@ -288,13 +302,13 @@ class Board extends three_dart.Entity {
   }
 
   /// Determines if the piece with the given game piece value is currently selected.
-  bool isSelected(game.TileValue stateItem) {
+  bool isSelected(TileValue stateItem) {
     final Piece? piece = this.findPiece(stateItem);
     return (piece != null) && piece.selected;
   }
 
   /// Sets the piece with the given game piece value and the tile it is on as selected.
-  void setSelection(game.TileValue stateItem) {
+  void setSelection(TileValue stateItem) {
     final Piece? piece = this.findPiece(stateItem);
     if (piece != null) {
       piece.selected = true;
@@ -304,17 +318,17 @@ class Board extends three_dart.Entity {
   }
 
   /// Sets the location of the pieces based on the current board state.
-  void setLocations(game.State state) {
+  void setLocations(State state) {
     for (final Piece piece in this._pieces) {
-      final game.Location loc = state.findItem(piece.stateItem);
+      final Location loc = state.findItem(piece.stateItem);
       piece.location = loc;
       piece.enabled = loc.onBoard;
     }
   }
 
   /// Sets the highlights for all the given movements.
-  void setHighlights(List<game.Movement> movements) {
-    for (final game.Movement movement in movements) {
+  void setHighlights(List<Movement> movements) {
+    for (final Movement movement in movements) {
       final Tile? tile = this.tileAt(movement.destination);
       tile?.highlighted = true;
       final otherSource = movement.otherSource;
@@ -327,22 +341,21 @@ class Board extends three_dart.Entity {
 }
 
 /// An entity for rendering the edge of the chess board.
-class Edge extends three_dart.Entity {
+class Edge extends Entity {
   /// The singleton for the shape of the edge with the render cache for the color shader.
   /// Used for rendering to the screen.
-  static three_dart.Entity? _shapeEntity;
+  static Entity? _shapeEntity;
 
   /// Creates a new edge entity.
-  Edge(three_dart.ThreeDart td, Board board, double dx, double dz, double angle, int textureIndex) {
+  Edge(ThreeDart td, Board board, double dx, double dz, double angle, int textureIndex) {
     var shapeEntity = _shapeEntity;
     if (shapeEntity == null) {
-      _shapeEntity = shapeEntity = three_dart.Entity(name: "edge shape");
-      ObjType.fromFile("./resources/edge.obj", td.textureLoader).then((three_dart.Entity loadedEntity) {
+      _shapeEntity = shapeEntity = Entity(name: "edge shape");
+      ObjType.fromFile("./resources/edge.obj", td.textureLoader).then((Entity loadedEntity) {
         _shapeEntity?.shape = loadedEntity.shape;
       });
     }
-    this.mover =
-        Constant(Matrix4.translate(dx - 4.0, 0.0, dz - 4.0) * Matrix4.rotateY(angle));
+    this.mover = Constant(Matrix4.translate(dx - 4.0, 0.0, dz - 4.0) * Matrix4.rotateY(angle));
     this.name = "edge";
     this.children.add(shapeEntity);
     this.technique = board.materials.edgeTechs[textureIndex];
@@ -355,27 +368,26 @@ class Edge extends three_dart.Entity {
 class King extends Piece {
   /// The singleton for the shape of the king with the render cache for the color shader.
   /// Used for rendering to the screen.
-  static three_dart.Entity? _colorShapeEntity;
+  static Entity? _colorShapeEntity;
 
   /// The singleton for the shape of the king with the render cache for the picker shader.
   /// Used for determining which piece or tile was clicked on.
-  static three_dart.Entity? _pickShapeEntity;
+  static Entity? _pickShapeEntity;
 
   /// Creates a new king entity.
-  King(three_dart.ThreeDart td, Board board, bool white, double angle, double scalar)
-      : super._(board, white, angle, scalar) {
+  King(ThreeDart td, Board board, bool white, double angle, double scalar) : super._(board, white, angle, scalar) {
     var colorEntity = _colorShapeEntity;
     var pickEntity = _pickShapeEntity;
     if (colorEntity == null || pickEntity == null) {
-      _colorShapeEntity = colorEntity = three_dart.Entity(name: "color king shape");
-      _pickShapeEntity = pickEntity = three_dart.Entity(name: "pick king shape");
-      ObjType.fromFile("./resources/king.obj", td.textureLoader).then((three_dart.Entity loadedEntity) {
+      _colorShapeEntity = colorEntity = Entity(name: "color king shape");
+      _pickShapeEntity = pickEntity = Entity(name: "pick king shape");
+      ObjType.fromFile("./resources/king.obj", td.textureLoader).then((Entity loadedEntity) {
         colorEntity?.shape = loadedEntity.shape;
         pickEntity?.shape = loadedEntity.shape;
       });
     }
     final String name = (this._white ? "white" : "black") + " king";
-    final game.TileValue value = game.TileValue.king(this._white);
+    final TileValue value = TileValue.king(this._white);
     this._initialize(name, value, colorEntity, pickEntity);
   }
 }
@@ -386,34 +398,34 @@ class King extends Piece {
 class Knight extends Piece {
   /// The singleton for the shape of the knight with the render cache for the color shader.
   /// Used for rendering to the screen.
-  static three_dart.Entity? _colorShapeEntity;
+  static Entity? _colorShapeEntity;
 
   /// The singleton for the shape of the knight with the render cache for the picker shader.
   /// Used for determining which piece or tile was clicked on.
-  static three_dart.Entity? _pickShapeEntity;
+  static Entity? _pickShapeEntity;
 
   /// Creates a new knight entity.
-  Knight(three_dart.ThreeDart td, Board board, bool white, int index, double angle, double scalar)
+  Knight(ThreeDart td, Board board, bool white, int index, double angle, double scalar)
       : super._(board, white, angle, scalar) {
     var colorEntity = _colorShapeEntity;
     var pickEntity = _pickShapeEntity;
     if (colorEntity == null || pickEntity == null) {
-      _colorShapeEntity = colorEntity = three_dart.Entity(name: "color knight shape");
-      _pickShapeEntity = pickEntity = three_dart.Entity(name: "pick knight shape");
-      ObjType.fromFile("./resources/knight.obj", td.textureLoader).then((three_dart.Entity loadedEntity) {
+      _colorShapeEntity = colorEntity = Entity(name: "color knight shape");
+      _pickShapeEntity = pickEntity = Entity(name: "pick knight shape");
+      ObjType.fromFile("./resources/knight.obj", td.textureLoader).then((Entity loadedEntity) {
         colorEntity?.shape = loadedEntity.shape;
         pickEntity?.shape = loadedEntity.shape;
       });
     }
     final String name = (this._white ? "white" : "black") + " knight $index";
-    final game.TileValue value = game.TileValue.knight(this._white, index);
+    final TileValue value = TileValue.knight(this._white, index);
     this._initialize(name, value, colorEntity, pickEntity);
   }
 }
 
 /// The collection of material techniques used for chess.
 class Materials {
-  final three_dart.ThreeDart _td;
+  final ThreeDart _td;
 
   /// Creates a new collection of materials techniques.
   Materials(this._td);
@@ -489,28 +501,26 @@ class Materials {
     ..lights.add(bottomLight);
   MaterialLight? _selectedBlackPieceTech;
 
-  MaterialLight get highlightedWhitePieceTech =>
-      this._highlightedWhitePieceTech ??= MaterialLight()
-        ..diffuse.color = Color3(0.5, 0.5, 0.0)
-        ..ambient.color = Color3(0.7, 0.7, 0.0)
-        ..specular.color = Color3.white()
-        ..specular.shininess = 100.0
-        ..environment = this.environment
-        ..reflection.color = pieceReflection
-        ..lights.add(topLight)
-        ..lights.add(bottomLight);
+  MaterialLight get highlightedWhitePieceTech => this._highlightedWhitePieceTech ??= MaterialLight()
+    ..diffuse.color = Color3(0.5, 0.5, 0.0)
+    ..ambient.color = Color3(0.7, 0.7, 0.0)
+    ..specular.color = Color3.white()
+    ..specular.shininess = 100.0
+    ..environment = this.environment
+    ..reflection.color = pieceReflection
+    ..lights.add(topLight)
+    ..lights.add(bottomLight);
   MaterialLight? _highlightedWhitePieceTech;
 
-  MaterialLight get highlightedBlackPieceTech =>
-      this._highlightedBlackPieceTech ??= MaterialLight()
-        ..diffuse.color = Color3(0.1, 0.1, 0.0)
-        ..ambient.color = Color3(0.5, 0.5, 0.0)
-        ..specular.color = Color3.white()
-        ..specular.shininess = 100.0
-        ..environment = this.environment
-        ..reflection.color = pieceReflection
-        ..lights.add(topLight)
-        ..lights.add(bottomLight);
+  MaterialLight get highlightedBlackPieceTech => this._highlightedBlackPieceTech ??= MaterialLight()
+    ..diffuse.color = Color3(0.1, 0.1, 0.0)
+    ..ambient.color = Color3(0.5, 0.5, 0.0)
+    ..specular.color = Color3.white()
+    ..specular.shininess = 100.0
+    ..environment = this.environment
+    ..reflection.color = pieceReflection
+    ..lights.add(topLight)
+    ..lights.add(bottomLight);
   MaterialLight? _highlightedBlackPieceTech;
 
   MaterialLight get whiteTileTech => this._whiteTileTech ??= MaterialLight()
@@ -625,54 +635,54 @@ class Materials {
 class Pawn extends Piece {
   /// The singleton for the shape of the pawn with the render cache for the color shader.
   /// Used for rendering to the screen.
-  static three_dart.Entity? _colorShapeEntity;
+  static Entity? _colorShapeEntity;
 
   /// The singleton for the shape of the pawn with the render cache for the picker shader.
   /// Used for determining which piece or tile was clicked on.
-  static three_dart.Entity? _pickShapeEntity;
+  static Entity? _pickShapeEntity;
 
   /// Creates a new pawn entity.
-  Pawn(three_dart.ThreeDart td, Board board, bool white, int index, double angle, double scalar)
+  Pawn(ThreeDart td, Board board, bool white, int index, double angle, double scalar)
       : super._(board, white, angle, scalar) {
-    three_dart.Entity? colorEntity = _colorShapeEntity;
-    three_dart.Entity? pickEntity = _pickShapeEntity;
+    Entity? colorEntity = _colorShapeEntity;
+    Entity? pickEntity = _pickShapeEntity;
     if (colorEntity == null || pickEntity == null) {
-      _colorShapeEntity = colorEntity = three_dart.Entity(name: 'color pawn shape');
-      _pickShapeEntity = pickEntity = three_dart.Entity(name: 'pick pawn shape');
-      ObjType.fromFile('./resources/pawn.obj', td.textureLoader).then((three_dart.Entity loadedEntity) {
+      _colorShapeEntity = colorEntity = Entity(name: 'color pawn shape');
+      _pickShapeEntity = pickEntity = Entity(name: 'pick pawn shape');
+      ObjType.fromFile('./resources/pawn.obj', td.textureLoader).then((Entity loadedEntity) {
         colorEntity?.shape = loadedEntity.shape;
         pickEntity?.shape = loadedEntity.shape;
       });
     }
     final String name = (this._white ? 'white' : 'black') + ' pawn $index';
-    final game.TileValue value = game.TileValue.pawn(this._white, index);
+    final TileValue value = TileValue.pawn(this._white, index);
     this._initialize(name, value, colorEntity, pickEntity);
   }
 }
 
 /// The abstract base entity for all chess pieces.
-abstract class Piece extends three_dart.Entity {
+abstract class Piece extends Entity {
   final Board _board;
   final bool _white;
   final double _angle;
   final double _scalar;
 
-  game.Location _loc;
+  Location _loc;
   final Constant _mover;
-  game.TileValue _stateItem;
+  TileValue _stateItem;
   bool _selected;
   bool _highlighted;
   bool _showPick;
 
   SolidColor? _pickTech;
-  three_dart.Entity? _colorEntity;
-  three_dart.Entity? _pickEntity;
+  Entity? _colorEntity;
+  Entity? _pickEntity;
 
   /// Creates a new piece.
   Piece._(this._board, this._white, this._angle, this._scalar)
-      : this._loc = const game.Location(0, 0),
+      : this._loc = const Location(0, 0),
         this._mover = Constant(),
-        this._stateItem = game.TileValue.Empty,
+        this._stateItem = TileValue.Empty,
         this._selected = false,
         this._highlighted = false,
         this._showPick = false,
@@ -681,14 +691,12 @@ abstract class Piece extends three_dart.Entity {
         this._pickEntity = null;
 
   /// Must be called by the inheriting piece kind to finish initialize the piece.
-  void _initialize(
-      String name, game.TileValue stateItem, three_dart.Entity colorShapeEntity, three_dart.Entity pickShapeEntity) {
+  void _initialize(String name, TileValue stateItem, Entity colorShapeEntity, Entity pickShapeEntity) {
     this._pickTech = this._board.nextPickTech();
     this._stateItem = stateItem;
-    final three_dart.Entity colorEntity =
-        this._colorEntity = three_dart.Entity(children: [colorShapeEntity], name: "color " + name);
-    final three_dart.Entity pickEntity = this._pickEntity =
-        three_dart.Entity(children: [pickShapeEntity], name: "pick " + name, tech: this._pickTech, enabled: false);
+    final Entity colorEntity = this._colorEntity = Entity(children: [colorShapeEntity], name: "color " + name);
+    final Entity pickEntity = this._pickEntity =
+        Entity(children: [pickShapeEntity], name: "pick " + name, tech: this._pickTech, enabled: false);
     this.mover = this._mover;
     this.name = name;
     this.children.add(colorEntity);
@@ -701,7 +709,7 @@ abstract class Piece extends three_dart.Entity {
   bool get white => this._white;
 
   /// Get the value which represents this piece in the game.
-  game.TileValue get stateItem => this._stateItem;
+  TileValue get stateItem => this._stateItem;
 
   /// Gets or sets if the pick color should be rendered.
   bool get showPick => this._showPick;
@@ -740,9 +748,9 @@ abstract class Piece extends three_dart.Entity {
   bool isPick(Color4 pick) => this._pickTech?.color == pick;
 
   /// Gets or sets the location of this piece.
-  game.Location get location => this._loc;
+  Location get location => this._loc;
 
-  set location(game.Location loc) {
+  set location(Location loc) {
     if (this._loc != loc) {
       this._loc = loc;
       this._updateLocation();
@@ -750,8 +758,8 @@ abstract class Piece extends three_dart.Entity {
   }
 
   /// Updates the movement matrix to place the piece.
-  void _updateLocation() => this._mover.matrix =
-      Matrix4.translate(this._loc.row.toDouble() - 4.5, 0.0, this._loc.column.toDouble() - 4.5) *
+  void _updateLocation() =>
+      this._mover.matrix = Matrix4.translate(this._loc.row.toDouble() - 4.5, 0.0, this._loc.column.toDouble() - 4.5) *
           Matrix4.rotateY(this._angle) *
           Matrix4.scale(this._scalar, this._scalar, this._scalar);
 
@@ -783,27 +791,27 @@ abstract class Piece extends three_dart.Entity {
 class Queen extends Piece {
   /// The singleton for the shape of the queen with the render cache for the color shader.
   /// Used for rendering to the screen.
-  static three_dart.Entity? _colorShapeEntity;
+  static Entity? _colorShapeEntity;
 
   /// The singleton for the shape of the queen with the render cache for the picker shader.
   /// Used for determining which piece or tile was clicked on.
-  static three_dart.Entity? _pickShapeEntity;
+  static Entity? _pickShapeEntity;
 
   /// Creates a new queen entity.
-  Queen(three_dart.ThreeDart td, Board board, bool white, int index, double angle, double scalar)
+  Queen(ThreeDart td, Board board, bool white, int index, double angle, double scalar)
       : super._(board, white, angle, scalar) {
-    three_dart.Entity? colorEntity = _colorShapeEntity;
-    three_dart.Entity? pickEntity = _pickShapeEntity;
+    Entity? colorEntity = _colorShapeEntity;
+    Entity? pickEntity = _pickShapeEntity;
     if (colorEntity == null || pickEntity == null) {
-      _colorShapeEntity = colorEntity = three_dart.Entity(name: 'color queen shape');
-      _pickShapeEntity = pickEntity = three_dart.Entity(name: 'pick queen shape');
-      ObjType.fromFile('./resources/queen.obj', td.textureLoader).then((three_dart.Entity loadedEntity) {
+      _colorShapeEntity = colorEntity = Entity(name: 'color queen shape');
+      _pickShapeEntity = pickEntity = Entity(name: 'pick queen shape');
+      ObjType.fromFile('./resources/queen.obj', td.textureLoader).then((Entity loadedEntity) {
         colorEntity?.shape = loadedEntity.shape;
         pickEntity?.shape = loadedEntity.shape;
       });
     }
     final String name = (this._white ? 'white' : 'black') + ' queen $index';
-    final game.TileValue value = game.TileValue.queen(this._white, index);
+    final TileValue value = TileValue.queen(this._white, index);
     this._initialize(name, value, colorEntity, pickEntity);
   }
 }
@@ -814,43 +822,43 @@ class Queen extends Piece {
 class Rook extends Piece {
   /// The singleton for the shape of the rook with the render cache for the color shader.
   /// Used for rendering to the screen.
-  static three_dart.Entity? _colorShapeEntity;
+  static Entity? _colorShapeEntity;
 
   /// The singleton for the shape of the rook with the render cache for the picker shader.
   /// Used for determining which piece or tile was clicked on.
-  static three_dart.Entity? _pickShapeEntity;
+  static Entity? _pickShapeEntity;
 
   /// Creates a new rook entity.
-  Rook(three_dart.ThreeDart td, Board board, bool white, int index, double angle, double scalar)
+  Rook(ThreeDart td, Board board, bool white, int index, double angle, double scalar)
       : super._(board, white, angle, scalar) {
-    three_dart.Entity? colorEntity = _colorShapeEntity;
-    three_dart.Entity? pickEntity = _pickShapeEntity;
+    Entity? colorEntity = _colorShapeEntity;
+    Entity? pickEntity = _pickShapeEntity;
     if (colorEntity == null || pickEntity == null) {
-      _colorShapeEntity = colorEntity = three_dart.Entity(name: 'rook shape');
-      _pickShapeEntity = pickEntity = three_dart.Entity(name: 'rook shape');
-      ObjType.fromFile('./resources/rook.obj', td.textureLoader).then((three_dart.Entity loadedEntity) {
+      _colorShapeEntity = colorEntity = Entity(name: 'rook shape');
+      _pickShapeEntity = pickEntity = Entity(name: 'rook shape');
+      ObjType.fromFile('./resources/rook.obj', td.textureLoader).then((Entity loadedEntity) {
         colorEntity?.shape = loadedEntity.shape;
         pickEntity?.shape = loadedEntity.shape;
       });
     }
     final String name = (this._white ? 'white' : 'black') + ' rook $index';
-    final game.TileValue value = game.TileValue.rook(this._white, index);
+    final TileValue value = TileValue.rook(this._white, index);
     this._initialize(name, value, colorEntity, pickEntity);
   }
 }
 
 /// A tile is the entity on the board which can be clicked on and highlighted.
-class Tile extends three_dart.Entity {
+class Tile extends Entity {
   /// The singleton for the shape of the tile with the render cache for the color shader.
   /// Used for rendering to the screen.
-  static three_dart.Entity? _colorShapeEntity;
+  static Entity? _colorShapeEntity;
 
   /// The singleton for the shape of the tile with the render cache for the picker shader.
   /// Used for determining which piece or tile was clicked on.
-  static three_dart.Entity? _pickShapeEntity;
+  static Entity? _pickShapeEntity;
 
   /// The location for this tile on the board.
-  final game.Location _loc;
+  final Location _loc;
 
   /// The board which this tile belongs to.
   final Board _board;
@@ -871,35 +879,34 @@ class Tile extends three_dart.Entity {
   SolidColor? _pickTech;
 
   /// The child entity for the shown color of this tile.
-  three_dart.Entity? _colorEntity;
+  Entity? _colorEntity;
 
   /// The child entity for the pick color of this tile.
-  three_dart.Entity? _pickEntity;
+  Entity? _pickEntity;
 
   /// Creates a new tile entity.
-  Tile(three_dart.ThreeDart td, this._board, this._white, this._loc)
+  Tile(ThreeDart td, this._board, this._white, this._loc)
       : this._selected = false,
         this._highlighted = false,
         this._showPick = false,
         this._pickTech = null,
         this._colorEntity = null,
         this._pickEntity = null {
-    three_dart.Entity? colorShapeEntity = _colorShapeEntity;
-    three_dart.Entity? pickShapeEntity = _pickShapeEntity;
+    Entity? colorShapeEntity = _colorShapeEntity;
+    Entity? pickShapeEntity = _pickShapeEntity;
     if (colorShapeEntity == null || pickShapeEntity == null) {
-      _colorShapeEntity = colorShapeEntity = three_dart.Entity(name: 'color tile shape');
-      _pickShapeEntity = pickShapeEntity = three_dart.Entity(name: 'pick tile shape');
-      ObjType.fromFile('./resources/tile.obj', td.textureLoader).then((three_dart.Entity loadedEntity) {
+      _colorShapeEntity = colorShapeEntity = Entity(name: 'color tile shape');
+      _pickShapeEntity = pickShapeEntity = Entity(name: 'pick tile shape');
+      ObjType.fromFile('./resources/tile.obj', td.textureLoader).then((Entity loadedEntity) {
         colorShapeEntity?.shape = loadedEntity.shape;
         pickShapeEntity?.shape = loadedEntity.shape;
       });
     }
     final String name = (this._white ? 'white' : 'black') + ' tile ${this._loc.row} ${this._loc.column}';
     this._pickTech = this._board.nextPickTech();
-    final three_dart.Entity colorEntity =
-        this._colorEntity = three_dart.Entity(children: [colorShapeEntity], name: 'color ' + name);
-    final three_dart.Entity pickEntity = this._pickEntity =
-        three_dart.Entity(children: [pickShapeEntity], name: 'pick ' + name, tech: this._pickTech, enabled: false);
+    final Entity colorEntity = this._colorEntity = Entity(children: [colorShapeEntity], name: 'color ' + name);
+    final Entity pickEntity = this._pickEntity =
+        Entity(children: [pickShapeEntity], name: 'pick ' + name, tech: this._pickTech, enabled: false);
     this.mover = Constant.translate(this._loc.row.toDouble() - 4.5, 0.0, this._loc.column.toDouble() - 4.5);
     this.name = name;
     this.children.add(colorEntity);
@@ -908,7 +915,7 @@ class Tile extends three_dart.Entity {
   }
 
   /// Gets the location of this tile.
-  game.Location get location => this._loc;
+  Location get location => this._loc;
 
   /// Gets or sets if the pick color should be rendered.
   bool get showPick => this._showPick;

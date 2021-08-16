@@ -16,15 +16,25 @@ class Animation {
 
   /// Creates a new animation which optionally loops.
   Animation({
-    bool loop = false,
+    final bool loop = false,
   })  : this._running = false,
         this._loop = loop,
         this._start = DateTime.now(),
         this._shifters = [];
 
   /// Adds a shifter to this animation.
-  Shifter add({int delay = 0, int duration = 1000, bool init = false, Smoother? easing}) {
-    final shifter = Shifter(delay: delay, duration: duration, init: init, easing: easing);
+  Shifter add({
+    final int delay = 0,
+    final int duration = 1000,
+    final bool init = false,
+    final Smoother? easing,
+  }) {
+    final shifter = Shifter(
+      delay: delay,
+      duration: duration,
+      init: init,
+      easing: easing,
+    );
     this._shifters.add(shifter);
     return shifter;
   }
@@ -43,51 +53,58 @@ class Animation {
   /// Starts the animation running.
   /// If the animation is already running then this has no effect.
   void start() {
-    if (this._running) return;
-    this._running = true;
-    this._reset();
-    this._requestUpdate();
+    if (!this._running) {
+      this._running = true;
+      this._reset();
+      this._requestUpdate();
+    }
   }
 
   /// Stops the animation running.
   /// If the animation is not running this has no effect.
   void stop() {
-    if (!this._running) return;
-    this._running = false;
+    if (this._running) {
+      this._running = false;
+    }
   }
 
   /// Gets the current time.
   DateTime get _now => DateTime.now();
 
   /// Requests an update at the next browser animation frame event.
-  void _requestUpdate() {
-    window.requestAnimationFrame(this._update);
-  }
+  void _requestUpdate() => window.requestAnimationFrame(this._update);
 
   /// Performs an update of the animation.
-  void _update(num num) {
-    if (!this._running) return;
-    final offset = this._now.difference(this._start).inMilliseconds;
-    bool done = true;
-    for (final shifter in this._shifters) {
-      done = shifter._update(offset) && done;
-    }
-    if (done) {
-      if (this._loop) {
-        this._reset();
-      } else {
-        this._running = false;
-        return;
+  void _update(
+    final num num,
+  ) {
+    if (this._running) {
+      final offset = this._now.difference(this._start).inMilliseconds;
+      bool done = true;
+      for (final shifter in this._shifters) {
+        done = shifter._update(offset) && done;
       }
+      if (done) {
+        if (this._loop) {
+          this._reset();
+        } else {
+          this._running = false;
+          return;
+        }
+      }
+      this._requestUpdate();
     }
-    this._requestUpdate();
   }
 }
 
 /// Cubic Bezier smoother class.
 class CubicBezier extends Polynomial {
   /// The Cubic Bezier function from P0=0, P1, P2, and P3=1.
-  static double _curve(double p1, double p2, double t) {
+  static double _curve(
+    final double p1,
+    final double p2,
+    final double t,
+  ) {
     final t2 = t * t;
     final t3 = t2 * t;
     final i = 1.0 - t;
@@ -96,40 +113,57 @@ class CubicBezier extends Polynomial {
   }
 
   /// Internal smoother for creating constant cubic Bezier.
-  CubicBezier(double dx1, double dy1, double dx2, double dy2, [int samples = 20])
-      : super(
-          (final t) => _curve(Smoother.clamp(dx1), Smoother.clamp(dx2), t),
-          (final t) => _curve(dy1, dy2, t),
+  CubicBezier(
+    final double dx1,
+    final double dy1,
+    final double dx2,
+    final double dy2, [
+    final int samples = 20,
+  ]) : super(
+          (final t) => _curve(
+            clamp(dx1),
+            clamp(dx2),
+            t,
+          ),
+          (final t) => _curve(
+            dy1,
+            dy2,
+            t,
+          ),
           samples,
         );
 }
 
-/// A handler for changing how smoothing is performed.
-typedef SmoothHandle = double Function(double t);
-
 /// A class for smoothing movements.
-class Handler extends Smoother {
+class Handler implements Smoother {
   /// The handler function to call on smooth.
-  final SmoothHandle _handle;
+  final double Function(double t) _handle;
 
   /// Privatize the constructor for the smoother.
-  Handler(this._handle) : super._();
+  Handler(
+    final this._handle,
+  );
 
   /// [smooth] changes a linear 0.0 to 1.0 into different order of movements.
   /// This should return 0.0 for 0.0 and be a continuous function up to 1.0 which should return 1.0.
   @override
-  double smooth(double t) => this._handle(t);
+  double smooth(
+    final double t,
+  ) =>
+      this._handle(t);
 }
 
-/// A handler to set some value from a mover.
-typedef Setter = void Function(double value);
-
-// Linear interpolation between the start and goal.
-// The given [i] must be between 0.0 and 1.0.
-double Lerp(double start, double goal, double i) => start * (1.0 - i) + goal * i;
+/// Linear interpolation between the start and goal.
+/// The given [i] must be between 0.0 and 1.0.
+double Lerp(
+  final double start,
+  final double goal,
+  final double i,
+) =>
+    start * (1.0 - i) + goal * i;
 
 /// A double modifier for setting a value for a mover.
-class _modifier {
+class _Modifier {
   /// The initial value to start from.
   final double start;
 
@@ -137,38 +171,50 @@ class _modifier {
   final double goal;
 
   /// The handler to set the value with.
-  final Setter _setHndl;
+  final void Function(double value) _setHndl;
 
   /// Creates a new double modifier.
-  _modifier(this.start, this.goal, this._setHndl);
+  _Modifier(
+    final this.start,
+    final this.goal,
+    final this._setHndl,
+  );
 
   /// Updates the value for the mover.
-  void _update(double i) => this._setHndl(Lerp(start, goal, i));
+  void _update(
+    final double i,
+  ) =>
+      this._setHndl(Lerp(start, goal, i));
 }
 
-/// A handler for a coordinate function for a polynomial.
-typedef PolynomialHandle = double Function(double double);
-
 /// A smoother which is initialized with a polynomial.
-class Polynomial extends Smoother {
+class Polynomial implements Smoother {
   /// The precalculated data for the polynomial.
   List<double> _data = [];
 
   /// Finds a specific t value for a given x value and the t to x function.
   /// This reverses the given function so that a x to y can be figured out.
-  static double _find(PolynomialHandle xFunc, double x, double tmin, double tmax) {
+  static double _find(
+    final double Function(double double) xFunc,
+    final double x,
+    double tmin,
+    double tmax,
+  ) {
     double t = x;
     while (tmin < tmax) {
       final xp = xFunc(t);
-      if ((xp - x).abs() < 1.0e-9) return t;
-      if (x > xp) {
-        // ignore: parameter_assignments
-        tmin = t;
+      if ((xp - x).abs() < 1.0e-9) {
+        return t;
       } else {
-        // ignore: parameter_assignments
-        tmax = t;
+        if (x > xp) {
+          // ignore: parameter_assignments
+          tmin = t;
+        } else {
+          // ignore: parameter_assignments
+          tmax = t;
+        }
+        t = (tmax + tmin) / 2;
       }
-      t = (tmax + tmin) / 2;
     }
     return t;
   }
@@ -177,7 +223,11 @@ class Polynomial extends Smoother {
   /// This precalculates the polynomial with the given number of sample locations.
   /// The more the samples, the slower the precalculations take and more memory used.
   /// The less samples, the rougher the polynomial result data is.
-  Polynomial(PolynomialHandle xFunc, PolynomialHandle yFunc, [int samples = 20]) : super._() {
+  Polynomial(
+    final double Function(double double) xFunc,
+    final double Function(double double) yFunc, [
+    final int samples = 20,
+  ]) {
     final yValues = List<double>.filled(samples, 0.0);
     double t = 0.0;
     for (int i = 0; i < samples; i++) {
@@ -190,23 +240,29 @@ class Polynomial extends Smoother {
 
   /// Linear interpolates between the precalculated polynomial data.
   @override
-  double smooth(double x) {
+  double smooth(
+    final double x,
+  ) {
     final len = this._data.length;
     final f = x * len;
     final i = f.floor();
-    if (i < 0) return 0.0;
-    if (i >= len) return 1.0;
-    final p0 = this._data[i];
-    final p1 = (i == len - 1) ? 1.0 : this._data[i + 1];
-    final r = f - i;
-    return p0 * (1.0 - r) + p1 * r;
+    if (i < 0) {
+      return 0.0;
+    } else if (i >= len) {
+      return 1.0;
+    } else {
+      final p0 = this._data[i];
+      final p1 = (i == len - 1) ? 1.0 : this._data[i + 1];
+      final r = f - i;
+      return p0 * (1.0 - r) + p1 * r;
+    }
   }
 }
 
 /// Shifter for changing several values from start values to another in a specific duration.
 class Shifter {
   /// Set of values to be modified.
-  List<_modifier> _mods;
+  List<_Modifier> _mods;
 
   /// The milliseconds to delay before starting shifting.
   final int _delay;
@@ -227,60 +283,97 @@ class Shifter {
   bool _inited;
 
   /// Creates a new shifter for the given duration and optional smoother.
-  factory Shifter({int delay = 0, int duration = 1000, bool init = false, Smoother? easing}) {
+  factory Shifter({
+    int delay = 0,
+    int duration = 1000,
+    final bool init = false,
+    Smoother? easing,
+  }) {
     if (delay < 0) delay = 0;
     if (duration < 1) duration = 1;
     easing ??= Smoothers.linear;
-    return Shifter._(delay, duration, init, easing);
+    return Shifter._(
+      delay,
+      duration,
+      init,
+      easing,
+    );
   }
 
   /// Constructs a shifter with the final information set.
-  Shifter._(this._delay, this._duration, this._init, this._smoother)
-      : this._mods = [],
+  Shifter._(
+    final this._delay,
+    final this._duration,
+    final this._init,
+    final this._smoother,
+  )   : this._mods = [],
         this._done = false,
         this._inited = false;
 
   /// Updates the shifter to the new time.
   /// The given offset it the milliseconds since the animation started.
   /// Returns true if done, false to keep going.
-  bool _update(int offset) {
-    if (this._done) return true;
-    final t = (offset - this._delay) / this._duration;
-    if ((!this._init || this._inited) && (t < 0.0)) return false;
-    final y = Smoother.clamp(this._smoother.smooth(Smoother.clamp(t)));
-    for (final mod in this._mods) {
-      mod._update(y);
+  bool _update(
+    final int offset,
+  ) {
+    if (this._done) {
+      return true;
+    } else {
+      final t = (offset - this._delay) / this._duration;
+      if ((!this._init || this._inited) && (t < 0.0)) {
+        return false;
+      } else {
+        final y = clamp(this._smoother.smooth(clamp(t)));
+        for (final mod in this._mods) {
+          mod._update(y);
+        }
+        this._done = t >= 1.0;
+        this._inited = true;
+        return this._done;
+      }
     }
-    this._done = t >= 1.0;
-    this._inited = true;
-    return this._done;
   }
 
   /// Resets the done flag.
   void _reset() => this._done = this._inited = false;
 
   /// Adds a value that will be moved.
-  void move(double start, double end, Setter hndl) => this._mods.add(_modifier(start, end, hndl));
+  void move(
+    final double start,
+    final double end,
+    final void Function(double value) hndl,
+  ) =>
+      this._mods.add(
+            _Modifier(start, end, hndl),
+          );
 }
 
 /// A class for smoothing movements.
 abstract class Smoother {
-  /// Clamps the given value to between 0.0 and 1.0 inclusively.
-  static double clamp(double val) => (val < 0.0) ? 0.0 : ((val > 1.0) ? 1.0 : val);
-
-  /// Privatize the constructor for the smoother.
-  const Smoother._();
-
   /// [smooth] changes a linear 0.0 to 1.0 into different order of movements.
   /// This should return 0.0 for 0.0 and be a continuous function up to 1.0 which should return 1.0.
-  double smooth(double t);
+  double smooth(
+    final double t,
+  );
+}
+
+/// Clamps the given value to between 0.0 and 1.0 inclusively.
+double clamp(
+  final double val,
+) {
+  if (val < 0.0) {
+    return 0.0;
+  } else {
+    if (val > 1.0) {
+      return 1.0;
+    } else {
+      return val;
+    }
+  }
 }
 
 /// Set of predefined smoothers.
-class Smoothers {
-  /// Privatize this set of smoothers.
-  Smoothers._();
-
+abstract class Smoothers {
   /// Default linear interpretation.
   static Smoother get linear => _linearLazy ??= Handler((t) => t);
   static Smoother? _linearLazy;

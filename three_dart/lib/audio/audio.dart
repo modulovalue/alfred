@@ -29,7 +29,9 @@ class AudioLoader {
   }
 
   /// Handles loading a new audio player with the audio from the given file path.
-  Player loadFromFile(String path) {
+  Player loadFromFile(
+    final String path,
+  ) {
     final elem = html.AudioElement(path)
       ..autoplay = false
       ..preload = "auto";
@@ -57,10 +59,18 @@ class MultiPlayer {
   final int _limit;
 
   /// Creates a player which can play the same sound overlapping each other.
-  MultiPlayer(Player player, [int limit = 10])
-      : this._original = player,
+  MultiPlayer(
+    final Player player, [
+    final int limit = 10,
+  ])  : this._original = player,
         this._players = [],
-        this._limit = (limit < 1) ? 1 : limit {
+        this._limit = (() {
+          if (limit < 1) {
+            return 1;
+          } else {
+            return limit;
+          }
+        }()) {
     this._players.add(player);
   }
 
@@ -80,13 +90,18 @@ class MultiPlayer {
 
   /// Plays one of these audios. Returns true if played,
   /// false if all instances are already playing.
-  bool play({double? volume, double? rate, bool? loop}) {
+  bool play({
+    final double? volume,
+    final double? rate,
+    final bool? loop,
+  }) {
     final player = this._getNextPlayer();
     if (player != null && !player.playing) {
       player.play(volume: volume, rate: rate, loop: loop);
       return true;
+    } else {
+      return false;
     }
-    return false;
   }
 
   /// Pauses all the audio.
@@ -106,8 +121,9 @@ class Player {
   Event? _onPause;
 
   /// Creates a new audio player.
-  Player._(this._elem)
-      : this._loaded = false,
+  Player._(
+    final this._elem,
+  )   : this._loaded = false,
         this._changed = null,
         this._onPlaying = null,
         this._onPause = null {
@@ -116,7 +132,9 @@ class Player {
   }
 
   /// Create a copy of this audio player.
-  Player copy() => Player._(this._elem.clone(true) as html.AudioElement);
+  Player copy() => Player._(
+        _elem.clone(true) as html.AudioElement,
+      );
 
   /// Sets the loaded state for this audio.
   void _setLoaded() {
@@ -127,10 +145,16 @@ class Player {
   }
 
   /// Handles the audio element playing.
-  void _onElemPlaying(html.Event _) => this._onPlaying?.emit();
+  void _onElemPlaying(
+    final html.Event _,
+  ) =>
+      this._onPlaying?.emit();
 
   /// Handles the audio element pausing.
-  void _onElemPause(html.Event _) => this._onPause?.emit();
+  void _onElemPause(
+    final html.Event _,
+  ) =>
+      this._onPause?.emit();
 
   /// The loaded state of the audio.
   bool get loaded => this._loaded;
@@ -142,7 +166,9 @@ class Player {
   /// again once it is done, the audio will loop.
   bool get loop => this._elem.loop;
 
-  set loop(bool loop) {
+  set loop(
+    final bool loop,
+  ) {
     if (this.loop != loop) {
       this._elem.loop = loop;
       this._changed?.emit();
@@ -152,7 +178,9 @@ class Player {
   /// This is the volume to playback the audio at.
   double get volume => this._elem.volume.toDouble();
 
-  set volume(double volume) {
+  set volume(
+    double volume,
+  ) {
     // ignore: parameter_assignments
     volume = clampVal(volume);
     if (Comparer.notEquals(this.volume, volume)) {
@@ -164,7 +192,9 @@ class Player {
   /// This is the rate to playback the audio at.
   double get rate => this._elem.playbackRate.toDouble();
 
-  set rate(double rate) {
+  set rate(
+    double rate,
+  ) {
     // ignore: parameter_assignments
     rate = clampVal(rate, 0.001, 100.0);
     if (Comparer.notEquals(this.rate, rate)) {
@@ -174,7 +204,11 @@ class Player {
   }
 
   /// Plays this audio.
-  void play({double? volume, double? rate, bool? loop}) {
+  void play({
+    final double? volume,
+    final double? rate,
+    final bool? loop,
+  }) {
     if (volume != null) this.volume = volume;
     if (rate != null) this.rate = rate;
     if (loop != null) this.loop = loop;

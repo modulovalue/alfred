@@ -14,7 +14,7 @@ Future<void> main() async {
       // Let any other routes handle by client SPA
       const RouteGet(
         path: '/frontend/*',
-        middleware: ServeFile.at('test/files/spa/index.html'),
+        middleware: ServeFileStringPathImpl('test/files/spa/index.html'),
       ),
     ],
   );

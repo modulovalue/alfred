@@ -1,11 +1,5 @@
-import '../events/events.dart' as events;
-import '../math/math.dart' as math;
-
-/// The handler for the call back prior to an item being added.
-typedef CollectionPreaddHandle<T> = bool Function(Iterable<T> added);
-
-/// The handler for the call back when the collection is changed.
-typedef CollectionChangeHandle<T> = void Function(int index, Iterable<T> items);
+import '../events/events.dart';
+import '../math/math.dart';
 
 /// A collection of objects.
 class Collection<T> implements Iterable<T> {
@@ -13,13 +7,13 @@ class Collection<T> implements Iterable<T> {
   List<T> _list;
 
   /// The handler method for before adding items to this collection.
-  CollectionPreaddHandle<T>? _onPreaddHndl;
+  bool Function(Iterable<T> added)? _onPreaddHndl;
 
   /// The handler method for added items to this collection.
-  CollectionChangeHandle<T>? _onAddedHndl;
+  void Function(int index, Iterable<T> items)? _onAddedHndl;
 
   /// The handler method for remvoed items to this collection.
-  CollectionChangeHandle<T>? _onRemovedHndl;
+  void Function(int index, Iterable<T> items)? _onRemovedHndl;
 
   /// Constructs a new collection.
   Collection()
@@ -34,9 +28,9 @@ class Collection<T> implements Iterable<T> {
   /// Do not call this method unless calling from an inheriting or including
   /// class otherwise unexpected errors may occur.
   void setHandlers({
-    CollectionPreaddHandle<T>? onPreaddHndl,
-    CollectionChangeHandle<T>? onAddedHndl,
-    CollectionChangeHandle<T>? onRemovedHndl,
+    final bool Function(Iterable<T> added)? onPreaddHndl,
+    final void Function(int index, Iterable<T> items)? onAddedHndl,
+    final void Function(int index, Iterable<T> items)? onRemovedHndl,
   }) {
     _onPreaddHndl = onPreaddHndl;
     _onAddedHndl = onAddedHndl;
@@ -387,12 +381,12 @@ class Collection<T> implements Iterable<T> {
 }
 
 /// A stack of matrix 4x4s.
-class Matrix4Stack implements events.Changeable {
+class Matrix4Stack implements Changeable {
   /// The list storing the stack.
-  final List<math.Matrix4> _mat;
+  final List<Matrix4> _mat;
 
   /// The event indicating the stack has changed.
-  events.Event? _changed;
+  Event? _changed;
 
   /// Creates a new matrix stack.
   Matrix4Stack()
@@ -410,31 +404,31 @@ class Matrix4Stack implements events.Changeable {
 
   /// The event emitted when the stack has changed.
   @override
-  events.Event get changed => _changed ??= events.Event();
+  Event get changed => _changed ??= Event();
 
   /// Handles changes to the stack.
   void _onChanged([
-    final events.EventArgs? args,
+    final EventArgs? args,
   ]) =>
       _changed?.emit(args);
 
   /// The current matrix on the top of the stack.
   /// Returns the identity matrix if the stack is empty.
-  math.Matrix4 get matrix {
+  Matrix4 get matrix {
     if (_mat.isNotEmpty) {
       return _mat.last;
     } else {
-      return math.Matrix4.identity;
+      return Matrix4.identity;
     }
   }
 
   /// Pushes a new matrix onto the stack.
   /// If null is pushed the identity matrix will be put on the top of the stack.
   void push(
-    final math.Matrix4? mat,
+    final Matrix4? mat,
   ) {
     if (mat == null) {
-      _mat.add(math.Matrix4.identity);
+      _mat.add(Matrix4.identity);
     } else {
       _mat.add(mat);
     }
@@ -445,7 +439,7 @@ class Matrix4Stack implements events.Changeable {
   /// If null is pushed the current top of the stack will be pushed on the top
   /// of the stack as if multiplies by the identity.
   void pushMul(
-    final math.Matrix4? mat,
+    final Matrix4? mat,
   ) {
     if (mat == null) {
       _mat.add(matrix);

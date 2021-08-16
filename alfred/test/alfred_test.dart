@@ -67,7 +67,7 @@ void main() {
         [
           const RouteGet(
             path: '/test',
-            middleware: ServeFile.at('test/files/image.jpg'),
+            middleware: ServeFileStringPathImpl('test/files/image.jpg'),
           ),
         ],
       );
@@ -81,7 +81,7 @@ void main() {
         [
           const RouteGet(
             path: '/test',
-            middleware: ServeFile.at('test/files/dummy.pdf'),
+            middleware: ServeFileStringPathImpl('test/files/dummy.pdf'),
           ),
         ],
       );
@@ -115,7 +115,7 @@ void main() {
   test('error handling', () async {
     await runTest(fn: (app, final built, final port) async {
       await built.close();
-      app = AlfredImpl(
+      app = makeSimpleAlfred(
         onInternalError: (dynamic e) => MiddlewareBuilder(
           (c) {
             c.res.statusCode = 500;
@@ -140,7 +140,7 @@ void main() {
   test('error default handling', () async {
     await runTest(fn: (app, final built, final port) async {
       await built.close();
-      app = AlfredImpl();
+      app = makeSimpleAlfred();
       await buildAlfred(alfred: app, port: port);
       app.addRoutes(
         [
@@ -157,7 +157,7 @@ void main() {
   test('not found handling', () async {
     await runTest(fn: (app, final built, final port) async {
       await built.close();
-      app = AlfredImpl(
+      app = makeSimpleAlfred(
         onNotFound: MiddlewareBuilder(
           (final c) async {
             c.res.statusCode = 404;
@@ -174,7 +174,7 @@ void main() {
   test('not found default handling', () async {
     await runTest(fn: (app, final built, final port) async {
       await built.close();
-      app = AlfredImpl();
+      app = makeSimpleAlfred();
       await buildAlfred(alfred: app, port: port);
       final response = await http.get(Uri.parse('http://localhost:$port/notfound'));
       expect(response.body, '404 not found');
@@ -228,7 +228,7 @@ void main() {
           [
             const RouteGet(
               path: '/index.html',
-              middleware: ServeFile.at('does-not.exists'),
+              middleware: ServeFileStringPathImpl('does-not.exists'),
             ),
           ],
         );
@@ -428,7 +428,7 @@ void main() {
             path: '/test',
             middleware: ServeDownload(
               filename: 'testfile.jpg',
-              child: ServeFile.at('./test/files/image.jpg'),
+              child: ServeFileStringPathImpl('./test/files/image.jpg'),
             ),
           )
         ],
@@ -444,7 +444,7 @@ void main() {
         [
           const RouteGet(
             path: '/test',
-            middleware: ServeFile.at('./test/files/dummy.pdf'),
+            middleware: ServeFileStringPathImpl('./test/files/dummy.pdf'),
           ),
         ],
       );
@@ -554,7 +554,7 @@ void main() {
           ),
           const RouteGet(
             path: '/spa/*',
-            middleware: ServeFile.at('test/files/spa/index.html'),
+            middleware: ServeFileStringPathImpl('test/files/spa/index.html'),
           ),
         ],
       );
@@ -582,7 +582,7 @@ void main() {
         [
           const RouteGet(
             path: 'error',
-            middleware: ServeFile.at('does-not-exists'),
+            middleware: ServeFileStringPathImpl('does-not-exists'),
           ),
           const RouteGet(
             path: 'works',

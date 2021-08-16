@@ -8,7 +8,7 @@ import 'logging_delegate.dart';
 ///
 /// This is the core of the server application. Generally you would create one
 /// for each app.
-/// TODO support swapping out darts http stack for different ones (i.e. ffi).
+/// TODO support swapping out darts http stack for different ones (cronet).
 abstract class Alfred implements HttpRouteFactory {
   /// List of routes.
   ///

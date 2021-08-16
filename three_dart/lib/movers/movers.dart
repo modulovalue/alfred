@@ -513,12 +513,7 @@ class UserZoom implements Mover, Interactable {
 
   /// Creates an instance of [UserZoom].
   /// If [mod] is provided it will override any value given to [ctrl], [alt], and [shift].
-  UserZoom(
-      {bool ctrl = false,
-      bool alt = false,
-      bool shift = false,
-      Modifiers? mod,
-      UserInput? input})
+  UserZoom({bool ctrl = false, bool alt = false, bool shift = false, Modifiers? mod, UserInput? input})
       : this._input = null,
         this._modPressed = Modifiers.none(),
         this._zoomScalar = 0.01,
@@ -1316,12 +1311,7 @@ class UserRoller implements Mover, Interactable {
 
   /// Creates a new user rotator instance.
   /// If [mod] is provided it will override any value given to [ctrl], [alt], and [shift].
-  UserRoller(
-      {bool ctrl = false,
-      bool alt = false,
-      bool shift = false,
-      Modifiers? mod,
-      UserInput? input})
+  UserRoller({bool ctrl = false, bool alt = false, bool shift = false, Modifiers? mod, UserInput? input})
       : this._input = null,
         this._roll = ComponentShift(),
         this._modPressed = Modifiers.none(),
@@ -1590,7 +1580,9 @@ class Rotator extends Mover {
   /// The change in roll, in radians per second.
   double get deltaRoll => this._deltaRoll;
 
-  set deltaRoll(double value) {
+  set deltaRoll(
+    final double value,
+  ) {
     if (!math2.Comparer.equals(this._deltaRoll, value)) {
       final prev = this._deltaRoll;
       this._deltaRoll = value;
@@ -1602,16 +1594,18 @@ class Rotator extends Mover {
   ///
   /// This updates with the given [state] and the [obj] this mover is attached to.
   @override
-  math2.Matrix4 update(RenderState state, Movable? obj) {
+  math2.Matrix4 update(
+    final RenderState state,
+    final Movable? obj,
+  ) {
     if (this._frameNum < state.frameNumber) {
       this._frameNum = state.frameNumber;
       this._changed?.suspend();
       this.yaw += this._deltaYaw * state.dt;
       this.pitch += this._deltaPitch * state.dt;
       this.roll += this._deltaRoll * state.dt;
-      this._mat = math2.Matrix4.rotateZ(this._roll) *
-          math2.Matrix4.rotateY(this._pitch) *
-          math2.Matrix4.rotateX(this._yaw);
+      this._mat =
+          math2.Matrix4.rotateZ(this._roll) * math2.Matrix4.rotateY(this._pitch) * math2.Matrix4.rotateX(this._yaw);
       this._changed?.resume();
     }
     return this._mat;
@@ -1623,7 +1617,9 @@ class Rotator extends Mover {
   @override
   // TODO fix this
   // ignore: hash_and_equals
-  bool operator ==(Object other) {
+  bool operator ==(
+    final Object other,
+  ) {
     if (identical(this, other)) return true;
     if (other is! Rotator) return false;
     if (!math2.Comparer.equals(this._yaw, other._yaw)) return false;
@@ -1640,7 +1636,10 @@ class Rotator extends Mover {
   String toString() => this.format();
 
   /// Gets the formatted string for this constant mover.
-  String format([int fraction = 3, int whole = 0]) {
+  String format([
+    final int fraction = 3,
+    final int whole = 0,
+  ]) {
     return 'Rotator: [' +
         math2.formatDouble(this._yaw, fraction, whole) +
         ', ' +

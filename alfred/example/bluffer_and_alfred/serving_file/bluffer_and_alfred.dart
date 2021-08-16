@@ -19,12 +19,12 @@ import 'package:alfred/bluffer/widgets/theme/theme.dart';
 
 Future<void> main() async {
   const dartLogoRelativePath = "/dartlogo.svg";
-  final app = AlfredImpl()
+  final app = makeSimpleAlfred()
     ..addRoutes(
       [
         const RouteGet(
           path: dartLogoRelativePath,
-          middleware: ServeFile.at(
+          middleware: ServeFileStringPathImpl(
             "../../bluffer/example/assets/images/logo_dart_192px.svg",
           ),
         ),

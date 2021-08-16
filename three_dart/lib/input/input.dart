@@ -1,4 +1,4 @@
-import 'dart:async' as async;
+import 'dart:async';
 import 'dart:html' as html;
 
 import '../collections/collections.dart';
@@ -18,12 +18,13 @@ class UserInput {
   bool _lockOnClick;
   bool _pointerLocked;
   html.MouseEvent? _msEventOnLock;
-  final List<async.StreamSubscription<Object>> _eventStreams;
+  final List<StreamSubscription<Object>> _eventStreams;
   final double _wheelScalar;
 
   /// Creates a new user input for the given [_elem].
-  UserInput(this._elem)
-      : this._key = null,
+  UserInput(
+    final this._elem,
+  )   : this._key = null,
         this._mouse = null,
         this._locked = null,
         this._touch = null,
@@ -83,7 +84,9 @@ class UserInput {
   /// Gets or sets if the mouse should lock the pointer on click.
   bool get lockOnClick => this._lockOnClick;
 
-  set lockOnClick(bool enable) {
+  set lockOnClick(
+    final bool enable,
+  ) {
     this._lockOnClick = enable;
   }
 
@@ -97,16 +100,22 @@ class UserInput {
   Region2 get clientRect => Region2(0.0, 0.0, this._elem.client.width.toDouble(), this._elem.client.height.toDouble());
 
   /// Converts the html key into the 3Dart key.
-  Key _convertKey(html.KeyboardEvent kEvent) =>
+  Key _convertKey(
+    final html.KeyboardEvent kEvent,
+  ) =>
       Key(kEvent.keyCode, ctrl: kEvent.ctrlKey || kEvent.metaKey, alt: kEvent.altKey, shift: kEvent.shiftKey);
 
   /// Sets the modifier keys for a mouse event.
-  void _setMouseModifiers(html.MouseEvent msEvent) {
+  void _setMouseModifiers(
+    final html.MouseEvent msEvent,
+  ) {
     this.key._mods = Modifiers(msEvent.ctrlKey || msEvent.metaKey, msEvent.altKey, msEvent.shiftKey);
   }
 
   /// Sets the modifier keys for a touch event.
-  void _setTouchModifiers(html.TouchEvent? tEvent) {
+  void _setTouchModifiers(
+    final html.TouchEvent? tEvent,
+  ) {
     if (tEvent == null) {
       this.key._mods = Modifiers.none();
     } else {
@@ -116,80 +125,136 @@ class UserInput {
   }
 
   /// Gets the raw mouse point relative to the client rectangle in pixels.
-  Point2 _rawPoint(html.MouseEvent? msEvent) {
-    if (msEvent == null) return Point2.zero;
-    final rect = this._elem.getBoundingClientRect();
-    return Point2((msEvent.page.x - rect.left).toDouble(), (msEvent.page.y - rect.top).toDouble());
+  Point2 _rawPoint(
+    final html.MouseEvent? msEvent,
+  ) {
+    if (msEvent == null) {
+      return Point2.zero;
+    } else {
+      final rect = this._elem.getBoundingClientRect();
+      return Point2((msEvent.page.x - rect.left).toDouble(), (msEvent.page.y - rect.top).toDouble());
+    }
   }
 
   /// Gets the raw movement on the client in delta pixels.
-  Vector2 _rawMove(html.MouseEvent? msEvent) {
-    if (msEvent == null) return Vector2.zero;
-    return Vector2(msEvent.movement.x.toDouble(), msEvent.movement.y.toDouble());
+  Vector2 _rawMove(
+    final html.MouseEvent? msEvent,
+  ) {
+    if (msEvent == null) {
+      return Vector2.zero;
+    } else {
+      return Vector2(msEvent.movement.x.toDouble(), msEvent.movement.y.toDouble());
+    }
   }
 
   /// Gets the raw touch points relative to the client rectangle in pixels.
-  List<Point2> _rawTouchPoints(html.TouchEvent? tEvent) {
-    if (tEvent == null) return [];
-    final rect = this._elem.getBoundingClientRect();
-    final pnts = <Point2>[];
-    for (final touch in tEvent.touches ?? <html.Touch>[]) {
-      pnts.add(Point2((touch.page.x - rect.left).toDouble(), (touch.page.y - rect.top).toDouble()));
+  List<Point2> _rawTouchPoints(
+    final html.TouchEvent? tEvent,
+  ) {
+    if (tEvent == null) {
+      return [];
+    } else {
+      final rect = this._elem.getBoundingClientRect();
+      final pnts = <Point2>[];
+      for (final touch in tEvent.touches ?? <html.Touch>[]) {
+        pnts.add(Point2((touch.page.x - rect.left).toDouble(), (touch.page.y - rect.top).toDouble()));
+      }
+      return pnts;
     }
-    return pnts;
   }
 
   /// Converts the html button into the 3Dart button.
-  Button _convertButton(html.MouseEvent? msEvent) {
-    if (msEvent == null) return Button(0);
-    return Button(msEvent.buttons ?? 0,
-        ctrl: msEvent.ctrlKey || msEvent.metaKey, alt: msEvent.altKey, shift: msEvent.shiftKey);
+  Button _convertButton(
+    final html.MouseEvent? msEvent,
+  ) {
+    if (msEvent == null) {
+      return Button(0);
+    } else {
+      return Button(
+        msEvent.buttons ?? 0,
+        ctrl: msEvent.ctrlKey || msEvent.metaKey,
+        alt: msEvent.altKey,
+        shift: msEvent.shiftKey,
+      );
+    }
   }
 
   /// Determines if the given mouse location is contained in the canvas.
-  bool _mouseContained(html.MouseEvent msEvent) {
+  bool _mouseContained(
+    final html.MouseEvent msEvent,
+  ) {
     final rect = this._elem.getBoundingClientRect();
     final x = msEvent.page.x - rect.left;
-    if (x < 0) return false;
-    final y = msEvent.page.y - rect.top;
-    if (y < 0) return false;
-    return (x < rect.width) && (y < rect.height);
+    if (x < 0) {
+      return false;
+    } else {
+      final y = msEvent.page.y - rect.top;
+      if (y < 0) {
+        return false;
+      } else {
+        return (x < rect.width) && (y < rect.height);
+      }
+    }
   }
 
   /// Handles focus of the canvas.
-  void _onFocus(html.Event _) => this._focused = true;
+  void _onFocus(
+    final html.Event _,
+  ) =>
+      this._focused = true;
 
   /// Handles blur (focus lost) of the canvas.
-  void _onBlur(html.Event _) => this._focused = false;
+  void _onBlur(
+    final html.Event _,
+  ) =>
+      this._focused = false;
 
   /// Handles cancelling the content menu for the canvas.
-  void _onContentMenu(html.MouseEvent msEvent) {
-    if (this.hasFocus && this._mouseContained(msEvent)) msEvent.preventDefault();
+  void _onContentMenu(
+    final html.MouseEvent msEvent,
+  ) {
+    if (this.hasFocus && this._mouseContained(msEvent)) {
+      msEvent.preventDefault();
+    }
   }
 
   /// Handles a keyboard key being released.
-  void _onKeyUp(html.KeyboardEvent kEvent) {
-    if (!this.hasFocus) return;
-    final key = this._convertKey(kEvent);
-    if (this.key.performUp(key)) kEvent.preventDefault();
+  void _onKeyUp(
+    final html.KeyboardEvent kEvent,
+  ) {
+    if (this.hasFocus) {
+      final key = this._convertKey(kEvent);
+      if (this.key.performUp(key)) {
+        kEvent.preventDefault();
+      }
+    }
   }
 
   /// Handles a keyboard key being pressed.
-  void _onKeyDown(html.KeyboardEvent kEvent) {
-    if (!this.hasFocus) return;
-    final key = this._convertKey(kEvent);
-    if (this.key.performDown(key)) kEvent.preventDefault();
+  void _onKeyDown(
+    final html.KeyboardEvent kEvent,
+  ) {
+    if (this.hasFocus) {
+      final key = this._convertKey(kEvent);
+      if (this.key.performDown(key)) {
+        kEvent.preventDefault();
+      }
+    }
   }
 
   /// Handles the mouse down in canvas event.
-  void _onMouseDown(html.MouseEvent msEvent) {
+  void _onMouseDown(
+    final html.MouseEvent msEvent,
+  ) {
     this._elem.focus();
     this._focused = true; // This is here because focus/blur doesn't work right now.
     this._setMouseModifiers(msEvent);
     if (this._pointerLocked) {
       final button = this._convertButton(msEvent);
       final vec = this._rawMove(msEvent);
-      if (this.locked.performDown(button, vec)) msEvent.preventDefault();
+      if (this.locked.performDown(button, vec)) {
+        msEvent.preventDefault();
+      }
       return;
     }
     if (this._lockOnClick) {
@@ -199,86 +264,129 @@ class UserInput {
     }
     final button = this._convertButton(msEvent);
     final pnt = this._rawPoint(msEvent);
-    if (this.mouse.performDown(button, pnt)) msEvent.preventDefault();
+    if (this.mouse.performDown(button, pnt)) {
+      msEvent.preventDefault();
+    }
   }
 
   /// Handles the mouse up in canvas event.
-  void _onMouseUp(html.MouseEvent msEvent) {
+  void _onMouseUp(
+    final html.MouseEvent msEvent,
+  ) {
     this._setMouseModifiers(msEvent);
     final button = this._convertButton(msEvent);
     if (this._pointerLocked) {
       final vec = this._rawMove(msEvent);
-      if (this.locked.performUp(button, vec)) msEvent.preventDefault();
+      if (this.locked.performUp(button, vec)) {
+        msEvent.preventDefault();
+      }
       return;
     }
-    if (this._lockOnClick) return;
+    if (this._lockOnClick) {
+      return;
+    }
     final pnt = this._rawPoint(msEvent);
-    if (this.mouse.performUp(button, pnt)) msEvent.preventDefault();
+    if (this.mouse.performUp(button, pnt)) {
+      msEvent.preventDefault();
+    }
   }
 
   /// Handles the mouse up outside the canvas event
   /// when the mouse was pressed while over the canvas.
-  void _onDocMouseUp(html.MouseEvent msEvent) {
+  void _onDocMouseUp(
+    final html.MouseEvent msEvent,
+  ) {
     if (!this._mouseContained(msEvent)) {
       this._setMouseModifiers(msEvent);
       final button = this._convertButton(msEvent);
       if (this._pointerLocked) {
         final vec = this._rawMove(msEvent);
-        if (this.locked.performUp(button, vec)) msEvent.preventDefault();
+        if (this.locked.performUp(button, vec)) {
+          msEvent.preventDefault();
+        }
         return;
       }
-      if (this._lockOnClick) return;
+      if (this._lockOnClick) {
+        return;
+      }
       final pnt = this._rawPoint(msEvent);
-      if (this.mouse.performUp(button, pnt)) msEvent.preventDefault();
+      if (this.mouse.performUp(button, pnt)) {
+        msEvent.preventDefault();
+      }
     }
   }
 
   /// Handles the mouse move on the canvas event.
-  void _onMouseMove(html.MouseEvent msEvent) {
+  void _onMouseMove(
+    final html.MouseEvent msEvent,
+  ) {
     this._setMouseModifiers(msEvent);
     final button = this._convertButton(msEvent);
     if (this._pointerLocked) {
       final vec = this._rawMove(msEvent);
-      if (this.locked.performMove(button, vec)) msEvent.preventDefault();
+      if (this.locked.performMove(button, vec)) {
+        msEvent.preventDefault();
+      }
       return;
     }
-    if (this._lockOnClick) return;
-    final pnt = this._rawPoint(msEvent);
-    if (this.mouse.performMove(button, pnt)) msEvent.preventDefault();
+    if (!this._lockOnClick) {
+      final pnt = this._rawPoint(msEvent);
+      if (this.mouse.performMove(button, pnt)) {
+        msEvent.preventDefault();
+      }
+    }
   }
 
   /// Handles the mouse move off the canvas event
   /// when the mouse was pressed while over the canvas.
-  void _onDocMouseMove(html.MouseEvent msEvent) {
+  void _onDocMouseMove(
+    final html.MouseEvent msEvent,
+  ) {
     if (!this._mouseContained(msEvent)) {
       this._setMouseModifiers(msEvent);
       final button = this._convertButton(msEvent);
       if (this._pointerLocked) {
         final vec = this._rawMove(msEvent);
-        if (this.locked.performMove(button, vec)) msEvent.preventDefault();
+        if (this.locked.performMove(button, vec)) {
+          msEvent.preventDefault();
+        }
         return;
       }
-      if (this._lockOnClick) return;
+      if (this._lockOnClick) {
+        return;
+      }
       final pnt = this._rawPoint(msEvent);
-      if (this.mouse.performMove(button, pnt)) msEvent.preventDefault();
+      if (this.mouse.performMove(button, pnt)) {
+        msEvent.preventDefault();
+      }
     }
   }
 
   /// Handles the mouse wheel being moved over the canvas.
-  void _onMouseWheel(html.WheelEvent msEvent) {
+  void _onMouseWheel(
+    final html.WheelEvent msEvent,
+  ) {
     this._setMouseModifiers(msEvent);
     final wheel = Vector2(msEvent.deltaX.toDouble(), msEvent.deltaY.toDouble()) * this._wheelScalar;
     if (this._pointerLocked) {
-      if (this.locked.performWheel(wheel)) msEvent.preventDefault();
+      if (this.locked.performWheel(wheel)) {
+        msEvent.preventDefault();
+      }
       return;
     }
-    if (this._lockOnClick) return;
+    if (this._lockOnClick) {
+      return;
+    }
     final pnt = this._rawPoint(msEvent);
-    if (this.mouse.performWheel(wheel, pnt)) msEvent.preventDefault();
+    if (this.mouse.performWheel(wheel, pnt)) {
+      msEvent.preventDefault();
+    }
   }
 
   /// Handles the mouse lock and unlock on the canvas.
-  void _onPointerLockChanged(html.Event _) {
+  void _onPointerLockChanged(
+    final html.Event _,
+  ) {
     final locked = html.document.pointerLockElement == this._elem;
     if (locked != this._pointerLocked) {
       this._pointerLocked = locked;
@@ -289,7 +397,9 @@ class UserInput {
   }
 
   // Handles touch screen point presses starting on the canvas.
-  void _onTouchStart(html.TouchEvent tEvent) {
+  void _onTouchStart(
+    final html.TouchEvent tEvent,
+  ) {
     this._elem.focus();
     this._focused = true; // TODO: Fix focus. This is here because focus/blur doesn't work right now.
     this._setTouchModifiers(tEvent);
@@ -298,17 +408,25 @@ class UserInput {
   }
 
   // Handles touch screen point presses ending.
-  void _onTouchEnd(html.TouchEvent tEvent) {
+  void _onTouchEnd(
+    final html.TouchEvent tEvent,
+  ) {
     this._setTouchModifiers(tEvent);
     final pnts = this._rawTouchPoints(tEvent);
-    if (this.touch.performEnd(pnts)) tEvent.preventDefault();
+    if (this.touch.performEnd(pnts)) {
+      tEvent.preventDefault();
+    }
   }
 
   // Handles touch screen points moving.
-  void _onTouchMove(html.TouchEvent tEvent) {
+  void _onTouchMove(
+    final html.TouchEvent tEvent,
+  ) {
     this._setTouchModifiers(tEvent);
     final pnts = this._rawTouchPoints(tEvent);
-    if (this.touch.performMove(pnts)) tEvent.preventDefault();
+    if (this.touch.performMove(pnts)) {
+      tEvent.preventDefault();
+    }
   }
 }
 
@@ -340,8 +458,9 @@ class TouchInput {
   DateTime _prevTime;
 
   /// Creates a new user input for the given [_input].
-  TouchInput._(this._input)
-      : this._start = null,
+  TouchInput._(
+    final this._input,
+  )   : this._start = null,
         this._end = null,
         this._move = null,
         this._startPnt = Point2.zero,
@@ -351,7 +470,10 @@ class TouchInput {
 
   /// Gets the locked mouse arguments.
   /// If [setStart] is true then the start point and time are set.
-  TouchEventArgs _getMouseArgs(List<Point2> pnts, bool setStart) {
+  TouchEventArgs _getMouseArgs(
+    final List<Point2> pnts,
+    final bool setStart,
+  ) {
     final curTime = DateTime.now();
     final Point2 pnt;
     if (pnts.isNotEmpty) {
@@ -359,8 +481,17 @@ class TouchInput {
     } else {
       pnt = Point2.zero;
     }
-    final args = TouchEventArgs(this, pnts, this._input.clientRect, this._startPnt, this._prevPnt, pnt,
-        this._startTime, this._prevTime, curTime);
+    final args = TouchEventArgs(
+      this,
+      pnts,
+      this._input.clientRect,
+      this._startPnt,
+      this._prevPnt,
+      pnt,
+      this._startTime,
+      this._prevTime,
+      curTime,
+    );
     if (setStart) {
       this._startTime = curTime;
       this._startPnt = pnt;
@@ -372,15 +503,21 @@ class TouchInput {
 
   // Performs a touch screen touch start.
   // Returns true if any events were called, false if none were called.
-  bool performStart(List<Point2> pnts) {
-    if (this._start == null) return false;
+  bool performStart(
+    final List<Point2> pnts,
+  ) {
+    if (this._start == null) {
+      return false;
+    }
     this._start?.emit(this._getMouseArgs(pnts, true));
     return true;
   }
 
   // Performs a touch screen touch end.
   // Returns true if any events were called, false if none were called.
-  bool performEnd(List<Point2> pnts) {
+  bool performEnd(
+    final List<Point2> pnts,
+  ) {
     if (this._end == null) return false;
     this._end?.emit(this._getMouseArgs(pnts, true));
     return true;
@@ -388,8 +525,12 @@ class TouchInput {
 
   // Performs a touch screen touch movement.
   // Returns true if any events were called, false if none were called.
-  bool performMove(List<Point2> pnts) {
-    if (this._move == null) return false;
+  bool performMove(
+    final List<Point2> pnts,
+  ) {
+    if (this._move == null) {
+      return false;
+    }
     this._move?.emit(this._getMouseArgs(pnts, false));
     return true;
   }
@@ -422,9 +563,17 @@ class TouchEventArgs extends PointEventArgs {
   final DateTime previousTime;
 
   /// Creates a touch event argument.
-  TouchEventArgs(Object sender, this.points, Region2 size, this.startRawPoint, this.previousRawPoint, Point2 rawPoint,
-      this.startTime, this.previousTime, DateTime currentTime)
-      : super(sender, size, rawPoint, currentTime);
+  TouchEventArgs(
+    final Object sender,
+    final this.points,
+    final Region2 size,
+    final this.startRawPoint,
+    final this.previousRawPoint,
+    final Point2 rawPoint,
+    final this.startTime,
+    final this.previousTime,
+    final DateTime currentTime,
+  ) : super(sender, size, rawPoint, currentTime);
 
   /// The start point adjusted into the region.
   Point2 get adjustedStartPoint => this.size.adjustPoint(this.startRawPoint);
@@ -464,7 +613,14 @@ class PointEventArgs extends EventArgs {
   final DateTime currentTime;
 
   /// Creates a new point event argument.
-  PointEventArgs(Object sender, this.size, this.rawPoint, this.currentTime) : super(sender);
+  PointEventArgs(
+    final Object sender,
+    final this.size,
+    final this.rawPoint,
+    final this.currentTime,
+  ) : super(
+          sender,
+        );
 
   /// The adjusted point normalized to the region.
   Point2 get adjustedPoint => this.size.adjustPoint(this.rawPoint);
@@ -476,8 +632,13 @@ class MouseWheelEventArgs extends PointEventArgs {
   final Vector2 wheel;
 
   /// Creates a mouse wheel event argument.
-  MouseWheelEventArgs(Object sender, Region2 size, Point2 rawPoint, DateTime currentTime, this.wheel)
-      : super(sender, size, rawPoint, currentTime);
+  MouseWheelEventArgs(
+    final Object sender,
+    final Region2 size,
+    final Point2 rawPoint,
+    final DateTime currentTime,
+    final this.wheel,
+  ) : super(sender, size, rawPoint, currentTime);
 }
 
 /// The user mouse input object for changing HTML Element events
@@ -520,8 +681,9 @@ class MouseInput {
   double _wvSensitivity;
 
   /// Creates a new user mouse input.
-  MouseInput._(this._input)
-      : this._down = null,
+  MouseInput._(
+    final this._input,
+  )   : this._down = null,
         this._up = null,
         this._move = null,
         this._wheel = null,
@@ -535,10 +697,23 @@ class MouseInput {
 
   /// Gets the mouse arguments.
   /// If [setStart] is true then the start point and time are set.
-  MouseEventArgs _getMouseArgs(Button button, Point2 pnt, bool setStart) {
+  MouseEventArgs _getMouseArgs(
+    final Button button,
+    final Point2 pnt,
+    final bool setStart,
+  ) {
     final curTime = DateTime.now();
-    final args = MouseEventArgs(this, button, this._input.clientRect, this._startPnt, this._prevPnt, pnt,
-        this._startTime, this._prevTime, curTime);
+    final args = MouseEventArgs(
+      this,
+      button,
+      this._input.clientRect,
+      this._startPnt,
+      this._prevPnt,
+      pnt,
+      this._startTime,
+      this._prevTime,
+      curTime,
+    );
     if (setStart) {
       this._startTime = curTime;
       this._startPnt = pnt;
@@ -781,8 +956,8 @@ class LockedMouseInput {
   MouseEventArgs _getMouseArgs(Button button, Vector2 vec) {
     final curTime = DateTime.now();
     final pnt = this._prevPnt + Point2(vec.dx * this._hSensitivity, vec.dy * this._vSensitivity);
-    final args = MouseEventArgs(this, button, this._input.clientRect, Point2.zero, this._prevPnt, pnt,
-        this._startTime, this._prevTime, curTime);
+    final args = MouseEventArgs(this, button, this._input.clientRect, Point2.zero, this._prevPnt, pnt, this._startTime,
+        this._prevTime, curTime);
     this._prevTime = curTime;
     this._prevPnt = pnt;
     return args;
@@ -956,7 +1131,11 @@ class KeyGroup extends Collection<Key> implements Interactable, Changeable {
         this._pressed = false,
         this._keyUp = null,
         this._keyDown = null {
-    this.setHandlers(onPreaddHndl: this._onPreadd, onAddedHndl: this._onAdded, onRemovedHndl: this._onRemoved);
+    this.setHandlers(
+      onPreaddHndl: this._onPreadd,
+      onAddedHndl: this._onAdded,
+      onRemovedHndl: this._onRemoved,
+    );
   }
 
   /// Emits when the group has changed.

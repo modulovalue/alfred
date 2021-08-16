@@ -11,7 +11,7 @@ Future<void> main() async {
     routes: [
       const RouteGet(
         path: "/",
-        middleware: ServeWidget.app(
+        middleware: ServeWidgetAppImpl(
           title: "My title!",
           child: Padding(
             padding: EdgeInsets.all(20.0),

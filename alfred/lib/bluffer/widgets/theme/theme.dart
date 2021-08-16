@@ -40,7 +40,7 @@ class ThemeData {
     required final this.text,
   });
 
-  factory ThemeData.base(
+  static ThemeData base(
     final BuildContext context,
   ) {
     final size = MediaQuery.of(context)!.size;

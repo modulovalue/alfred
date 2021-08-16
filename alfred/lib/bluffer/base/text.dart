@@ -221,7 +221,7 @@ class FontFeature {
   /// See also:
   ///
   ///  * <https://docs.microsoft.com/en-us/typography/opentype/spec/features_pt#ssxx>
-  factory FontFeature.stylisticSet(int value) {
+  static FontFeature stylisticSet(int value) {
     assert(value >= 1, "The given value $value must be greater or equal 1.");
     assert(value <= 20, "The given value $value must be less or equal 20.");
     return FontFeature('ss${value.toString().padLeft(2, "0")}');
@@ -365,7 +365,7 @@ class TextDecoration {
   const TextDecoration._(this._mask);
 
   /// Creates a decoration that paints the union of all the given decorations.
-  factory TextDecoration.combine(List<TextDecoration> decorations) {
+  static TextDecoration combine(List<TextDecoration> decorations) {
     int mask = 0;
     for (final decoration in decorations) {
       mask |= decoration._mask;

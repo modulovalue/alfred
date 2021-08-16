@@ -239,7 +239,13 @@ String serializeHtmlNode({
     final className = element.className;
     final id = element.id;
     final css = element.style;
-    final cssContent = css != null ? serializeCss(css: css) : null;
+    final cssContent = () {
+      if (css != null) {
+        return serializeCss(css: css);
+      } else {
+        return null;
+      }
+    }();
     final attributes = [
       if (className != null) //
         'class="' + className + '"',
