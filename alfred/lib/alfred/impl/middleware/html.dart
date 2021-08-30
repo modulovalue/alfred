@@ -6,9 +6,9 @@ import '../../interface/serve_context.dart';
 class ServeHtml implements Middleware {
   final String html;
 
-  const ServeHtml(
-    final this.html,
-  );
+  const ServeHtml({
+    required final this.html,
+  });
 
   @override
   Future<void> process(
@@ -23,9 +23,9 @@ class ServeHtml implements Middleware {
 class ServeHtmlBuilder implements Middleware {
   final String Function(ServeContext context) builder;
 
-  const ServeHtmlBuilder(
-    final this.builder,
-  );
+  const ServeHtmlBuilder({
+    required final this.builder,
+  });
 
   @override
   Future<void> process(

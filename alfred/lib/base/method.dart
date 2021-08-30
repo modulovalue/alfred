@@ -1,11 +1,4 @@
-abstract class Method {
-  String get description;
-
-  bool isMethod(
-    final String method,
-  );
-}
-
+/// https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods
 abstract class Methods {
   static const MethodGet get = MethodGet._();
   static const MethodPost post = MethodPost._();
@@ -14,6 +7,17 @@ abstract class Methods {
   static const MethodOptions options = MethodOptions._();
   static const MethodAll all = MethodAll._();
   static const MethodPatch patch = MethodPatch._();
+  static const MethodHead head = MethodHead._();
+  static const MethodConnect connect = MethodConnect._();
+  static const MethodTrace trace = MethodTrace._();
+}
+
+abstract class Method {
+  String get description;
+
+  bool isMethod(
+    final String method,
+  );
 }
 
 abstract class BuiltinMethod implements Method {
@@ -25,6 +29,9 @@ abstract class BuiltinMethod implements Method {
     required final R Function(MethodOptions) options,
     required final R Function(MethodAll) all,
     required final R Function(MethodPatch) patch,
+    required final R Function(MethodHead) head,
+    required final R Function(MethodConnect) connect,
+    required final R Function(MethodTrace) trace,
   });
 }
 
@@ -45,6 +52,9 @@ class MethodGet implements BuiltinMethod {
     required final R Function(MethodOptions) options,
     required final R Function(MethodAll) all,
     required final R Function(MethodPatch) patch,
+    required final R Function(MethodHead) head,
+    required final R Function(MethodConnect) connect,
+    required final R Function(MethodTrace) trace,
   }) =>
       get(this);
 
@@ -53,6 +63,96 @@ class MethodGet implements BuiltinMethod {
     final String method,
   ) =>
       method == getString;
+}
+
+class MethodHead implements BuiltinMethod {
+  static const String headString = "HEAD";
+
+  const MethodHead._();
+
+  @override
+  String get description => headString;
+
+  @override
+  R matchBuiltinMethods<R>({
+    required final R Function(MethodGet) get,
+    required final R Function(MethodPost) post,
+    required final R Function(MethodPut) put,
+    required final R Function(MethodDelete) delete,
+    required final R Function(MethodOptions) options,
+    required final R Function(MethodAll) all,
+    required final R Function(MethodPatch) patch,
+    required final R Function(MethodHead) head,
+    required final R Function(MethodConnect) connect,
+    required final R Function(MethodTrace) trace,
+  }) =>
+      head(this);
+
+  @override
+  bool isMethod(
+    final String method,
+  ) =>
+      method == headString;
+}
+
+class MethodConnect implements BuiltinMethod {
+  static const String connectString = "CONNECT";
+
+  const MethodConnect._();
+
+  @override
+  String get description => connectString;
+
+  @override
+  R matchBuiltinMethods<R>({
+    required final R Function(MethodGet) get,
+    required final R Function(MethodPost) post,
+    required final R Function(MethodPut) put,
+    required final R Function(MethodDelete) delete,
+    required final R Function(MethodOptions) options,
+    required final R Function(MethodAll) all,
+    required final R Function(MethodPatch) patch,
+    required final R Function(MethodHead) head,
+    required final R Function(MethodConnect) connect,
+    required final R Function(MethodTrace) trace,
+  }) =>
+      connect(this);
+
+  @override
+  bool isMethod(
+    final String method,
+  ) =>
+      method == connectString;
+}
+
+class MethodTrace implements BuiltinMethod {
+  static const String traceString = "TRACE";
+
+  const MethodTrace._();
+
+  @override
+  String get description => traceString;
+
+  @override
+  R matchBuiltinMethods<R>({
+    required final R Function(MethodGet) get,
+    required final R Function(MethodPost) post,
+    required final R Function(MethodPut) put,
+    required final R Function(MethodDelete) delete,
+    required final R Function(MethodOptions) options,
+    required final R Function(MethodAll) all,
+    required final R Function(MethodPatch) patch,
+    required final R Function(MethodHead) head,
+    required final R Function(MethodConnect) connect,
+    required final R Function(MethodTrace) trace,
+  }) =>
+      trace(this);
+
+  @override
+  bool isMethod(
+    final String method,
+  ) =>
+      method == traceString;
 }
 
 class MethodPost implements BuiltinMethod {
@@ -78,6 +178,9 @@ class MethodPost implements BuiltinMethod {
     required final R Function(MethodOptions) options,
     required final R Function(MethodAll) all,
     required final R Function(MethodPatch) patch,
+    required final R Function(MethodHead) head,
+    required final R Function(MethodConnect) connect,
+    required final R Function(MethodTrace) trace,
   }) =>
       post(this);
 }
@@ -105,6 +208,9 @@ class MethodPut implements BuiltinMethod {
     required final R Function(MethodOptions) options,
     required final R Function(MethodAll) all,
     required final R Function(MethodPatch) patch,
+    required final R Function(MethodHead) head,
+    required final R Function(MethodConnect) connect,
+    required final R Function(MethodTrace) trace,
   }) =>
       put(this);
 }
@@ -132,6 +238,9 @@ class MethodDelete implements BuiltinMethod {
     required final R Function(MethodOptions) options,
     required final R Function(MethodAll) all,
     required final R Function(MethodPatch) patch,
+    required final R Function(MethodHead) head,
+    required final R Function(MethodConnect) connect,
+    required final R Function(MethodTrace) trace,
   }) =>
       delete(this);
 }
@@ -159,6 +268,9 @@ class MethodOptions implements BuiltinMethod {
     required final R Function(MethodOptions) options,
     required final R Function(MethodAll) all,
     required final R Function(MethodPatch) patch,
+    required final R Function(MethodHead) head,
+    required final R Function(MethodConnect) connect,
+    required final R Function(MethodTrace) trace,
   }) =>
       options(this);
 }
@@ -186,6 +298,9 @@ class MethodAll implements BuiltinMethod {
     required final R Function(MethodOptions) options,
     required final R Function(MethodAll) all,
     required final R Function(MethodPatch) patch,
+    required final R Function(MethodHead) head,
+    required final R Function(MethodConnect) connect,
+    required final R Function(MethodTrace) trace,
   }) =>
       all(this);
 }
@@ -213,6 +328,9 @@ class MethodPatch implements BuiltinMethod {
     required final R Function(MethodOptions) options,
     required final R Function(MethodAll) all,
     required final R Function(MethodPatch) patch,
+    required final R Function(MethodHead) head,
+    required final R Function(MethodConnect) connect,
+    required final R Function(MethodTrace) trace,
   }) =>
       patch(this);
 }

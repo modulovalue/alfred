@@ -86,7 +86,9 @@ abstract class PointOnEdgeResult {
 class PointOnEdgeResultImpl implements PointOnEdgeResult {
   /// This checks if the given point on edge results are the same.
   static bool equalResults(PointOnEdgeResult? a, PointOnEdgeResult? b) {
-    if (a == null) return b == null;
+    if (a == null) {
+      return b == null;
+    }
     return a.equals(b);
   }
 
@@ -122,11 +124,20 @@ class PointOnEdgeResultImpl implements PointOnEdgeResult {
 
   /// Creates the result container.
   PointOnEdgeResultImpl(
-      this.edge, this.point, this.location, this.closestOnEdge, this.onEdge, this.closestOnLine, this.onLine);
+    this.edge,
+    this.point,
+    this.location,
+    this.closestOnEdge,
+    this.onEdge,
+    this.closestOnLine,
+    this.onLine,
+  );
 
   /// Checks if the other point on edge results are the same as this one.
   @override
-  bool equals(Object? o) {
+  bool equals(
+    final Object? o,
+  ) {
     if (o == null) return false;
     if (o is PointOnEdgeResult) return false;
     final other = o as PointOnEdgeResult;
@@ -142,9 +153,22 @@ class PointOnEdgeResultImpl implements PointOnEdgeResult {
 
   /// Gets the string for this point on edge result.
   @override
-  String toString() {
-    return "(edge:$edge, point:$point, $location, onEdge($closestOnEdge, $onEdge), onLine($closestOnLine, $onLine))";
-  }
+  String toString() =>
+      "(edge:" +
+      edge.toString() +
+      ", point:" +
+      point.toString() +
+      ", " +
+      location.toString() +
+      ", onEdge(" +
+      closestOnEdge.toString() +
+      ", " +
+      onEdge.toString() +
+      "), onLine(" +
+      closestOnLine.toString() +
+      ", " +
+      onLine.toString() +
+      "))";
 }
 
 /// Indicates where an intersection occurs on an edge.

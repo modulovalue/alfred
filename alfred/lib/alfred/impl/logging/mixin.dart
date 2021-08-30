@@ -6,86 +6,86 @@ import 'log_type.dart';
 mixin AlfredLoggingDelegateGeneralizingMixin implements AlfredLoggingDelegate {
   LogType get logLevel;
 
-  void log(
-    final String Function() messageFn,
-    final LogType type,
-  );
+  void log({
+    required final String Function() messageFn,
+    required final LogType type,
+  });
 
   @override
-  void onIsListening(
-    final ServerConfig args,
-  ) =>
+  void onIsListening({
+    required final ServerConfig arguments,
+  }) =>
       log(
-        () =>
+        messageFn: () =>
             'HTTP Server listening on port: ' +
-            args.port.toString() +
+            arguments.port.toString() +
             " • boundIp: " +
-            args.bindIp +
+            arguments.bindIp +
             " • shared: " +
-            args.shared.toString() +
+            arguments.shared.toString() +
             " • simultaneousProcessing: " +
-            args.simultaneousProcessing.toString(),
-        LogType.info,
+            arguments.simultaneousProcessing.toString(),
+        type: const LogTypeInfo(),
       );
 
   @override
-  void onIncomingRequest(
-    final String method,
-    final Uri uri,
-  ) =>
+  void onIncomingRequest({
+    required final String method,
+    required final Uri uri,
+  }) =>
       log(
-        () => method + ' - ' + uri.toString(),
-        LogType.info,
+        messageFn: () => method + ' - ' + uri.toString(),
+        type: const LogTypeInfo(),
       );
 
   @override
   void onResponseSent() => log(
-        () => 'Response sent to client',
-        LogType.debug,
+        messageFn: () => 'Response sent to client',
+        type: const LogTypeDebug(),
       );
 
   @override
   void onNoMatchingRouteFound() => log(
-        () => 'No matching route found.',
-        LogType.debug,
+        messageFn: () => 'No matching route found.',
+        type: const LogTypeDebug(),
       );
 
   @override
-  void onMatchingRoute(
-    final String route,
-  ) =>
+  void onMatchingRoute({
+    required final String route,
+  }) =>
       log(
-        () => 'Match route: ' + route,
-        LogType.debug,
+        messageFn: () => 'Match route: ' + route,
+        type: const LogTypeDebug(),
       );
 
   @override
   void onExecuteRouteCallbackFunction() => log(
-        () => 'Execute route callback function',
-        LogType.debug,
+        messageFn: () => 'Execute route callback function',
+        type: const LogTypeDebug(),
       );
 
   @override
-  void onIncomingRequestException(
-    final Object e,
-    final StackTrace s,
-  ) {
+  void onIncomingRequestException({
+    required final Object e,
+    required final StackTrace s,
+  }) {
     log(
-      () => e.toString(),
-      LogType.error,
+      messageFn: () => e.toString(),
+      type: const LogTypeError(),
     );
     log(
-      () => s.toString(),
-      LogType.error,
+      messageFn: () => s.toString(),
+      type: const LogTypeError(),
     );
   }
 
   @override
-  void logTypeHandler(
-    final String Function() msgFn,
-  ) =>
+  void logTypeHandler({
+    required final String Function() msgFn,
+  }) =>
       log(
-        () => 'DirectoryTypeHandler: ' + msgFn(),
-        LogType.debug,
+        messageFn: () => 'DirectoryTypeHandler: ' + msgFn(),
+        type: const LogTypeDebug(),
       );
 }

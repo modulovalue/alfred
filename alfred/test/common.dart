@@ -9,12 +9,16 @@ import 'package:alfred/alfred/interface/middleware.dart';
 
 Future<void> runTest({
   required final Future<void> Function(Alfred app, BuiltAlfred built, int port) fn,
-  final AlfredLoggingDelegate LOG = const AlfredLoggingDelegatePrintImpl(LogType.info),
+  final AlfredLoggingDelegate LOG = const AlfredLoggingDelegatePrintImpl(LogTypeInfo()),
   final Middleware notFound = const NotFound404Middleware(),
 }) async {
-  final app = makeSimpleAlfred(onNotFound: notFound);
+  final app = makeSimpleAlfred(
+    onNotFound: notFound,
+  );
   final built = await app.build(
-    config: const ServerConfigDefaultWithPort(0),
+    config: const ServerConfigDefaultWithPort(
+      port: 0,
+    ),
     log: LOG,
   );
   await fn(app, built, built.server.port);

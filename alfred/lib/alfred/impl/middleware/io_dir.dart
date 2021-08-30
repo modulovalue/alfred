@@ -14,10 +14,10 @@ class ServeDirectoryIoDirectoryImpl implements Middleware {
   // TODO too capable
   final AlfredLoggingDelegate log;
 
-  const ServeDirectoryIoDirectoryImpl(
-    final this.directory, [
+  const ServeDirectoryIoDirectoryImpl({
+    required final this.directory,
     final this.log = const AlfredLoggingDelegatePrintImpl(),
-  ]);
+  });
 
   @override
   Future<void> process(
@@ -25,39 +25,39 @@ class ServeDirectoryIoDirectoryImpl implements Middleware {
   ) async =>
       _serveDirectory(
         directory: directory,
-        log: log,
+        log: (final a) => log.logTypeHandler(msgFn: a),
         c: c,
       );
 }
 
 class ServeDirectoryStringPathImpl implements Middleware {
-  final String directoryPath;
+  final String path;
 
-  // TODO too capable
+  // TODO too capable.
   final AlfredLoggingDelegate log;
 
-  const ServeDirectoryStringPathImpl(
-    final this.directoryPath, [
+  const ServeDirectoryStringPathImpl({
+    required final this.path,
     final this.log = const AlfredLoggingDelegatePrintImpl(),
-  ]);
+  });
 
   @override
   Future<void> process(
     final ServeContext c,
   ) =>
       _serveDirectory(
-        directory: Directory(directoryPath),
-        log: log,
+        directory: Directory(path),
+        log: (final a) => log.logTypeHandler(msgFn: a),
         c: c,
       );
 }
 
 Future<void> _serveDirectory({
   required final Directory directory,
-  required final AlfredLoggingDelegate log,
+  required final void Function(String Function()) log,
   required final ServeContext c,
 }) async {
-  final usedRoute = c.route.route;
+  final usedRoute = c.route.path;
   final wildcardIndex = usedRoute.indexOf('*');
   if (wildcardIndex < 0) {
     // TODO is there a way to remove this?
@@ -69,7 +69,7 @@ Future<void> _serveDirectory({
     final offset = min(_path.length, wildcardIndex);
     final virtualPath = _path.substring(offset);
     final filePath = directory.path + '/' + virtualPath;
-    log.logTypeHandler(
+    log(
       () => 'Resolve virtual path: ' + virtualPath,
     );
     final fileCandidates = <File>[
@@ -81,16 +81,31 @@ Future<void> _serveDirectory({
       final match = fileCandidates.firstWhere(
         (final file) => file.existsSync(),
       );
-      log.logTypeHandler(() => 'Respond with file: ' + match.path);
+      log(
+        () => 'Respond with file: ' + match.path,
+      );
+      final contentType = fileContentType(
+        filePath: match.path,
+      );
+      final detectedContentType = () {
+        if (contentType == null) {
+          return null;
+        } else {
+          return ContentType(
+            contentType.primaryType,
+            contentType.subType,
+          );
+        }
+      }();
       final c_ = c.res.headers.contentType;
       if (c_ == null || c_.mimeType == 'text/plain') {
-        c.res.headers.contentType = fileContentType(match);
+        c.res.headers.contentType = detectedContentType;
       }
       await c.res.addStream(match.openRead());
       await c.res.close();
       // ignore: avoid_catching_errors
     } on StateError {
-      log.logTypeHandler(
+      log(
         () => 'Could not match with any file. Expected file at: ' + filePath,
       );
     }

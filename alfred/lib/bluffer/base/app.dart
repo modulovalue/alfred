@@ -1,8 +1,8 @@
 import '../html/html.dart';
 import '../html/html_impl.dart';
-import '../widgets/builder/builder.dart';
-import '../widgets/localization/localizations.dart';
-import '../widgets/theme/theme.dart';
+import '../widgets/builder.dart';
+import '../widgets/localizations.dart';
+import '../widgets/theme.dart';
 import '../widgets/widget/impl/widget_mixin.dart';
 import '../widgets/widget/interface/build_context.dart';
 import '../widgets/widget/interface/widget.dart';

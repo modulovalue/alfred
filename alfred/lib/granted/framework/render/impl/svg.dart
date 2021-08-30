@@ -146,7 +146,13 @@ class SvgRenderer implements PlotterRenderer {
     x = _transX(x);
     // ignore: parameter_assignments
     y = _transY(y);
-    final r = (pointSize <= 1.0) ? 1.0 : pointSize;
+    final r = () {
+      if (pointSize <= 1.0) {
+        return 1.0;
+      } else {
+        return pointSize;
+      }
+    }();
     _writePoint(x, y, r);
   }
 

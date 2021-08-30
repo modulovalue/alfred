@@ -11,17 +11,18 @@ import 'package:alfred/bluffer/base/locale.dart';
 import 'package:alfred/bluffer/base/publish/publish.dart';
 import 'package:alfred/bluffer/base/publish/serialize.dart';
 import 'package:alfred/bluffer/base/text.dart';
-import 'package:alfred/bluffer/widgets/click/click.dart';
-import 'package:alfred/bluffer/widgets/container/container.dart';
-import 'package:alfred/bluffer/widgets/flex/flex.dart';
-import 'package:alfred/bluffer/widgets/image/image.dart';
-import 'package:alfred/bluffer/widgets/localization/localizations.dart';
-import 'package:alfred/bluffer/widgets/padding/padding.dart';
-import 'package:alfred/bluffer/widgets/sized_box/sized_box.dart';
-import 'package:alfred/bluffer/widgets/text/text.dart';
-import 'package:alfred/bluffer/widgets/theme/theme.dart';
+import 'package:alfred/bluffer/widgets/click.dart';
+import 'package:alfred/bluffer/widgets/container.dart';
+import 'package:alfred/bluffer/widgets/flex.dart';
+import 'package:alfred/bluffer/widgets/image.dart';
+import 'package:alfred/bluffer/widgets/localizations.dart';
+import 'package:alfred/bluffer/widgets/padding.dart';
+import 'package:alfred/bluffer/widgets/sized_box.dart';
+import 'package:alfred/bluffer/widgets/text.dart';
+import 'package:alfred/bluffer/widgets/theme.dart';
 import 'package:alfred/bluffer/widgets/widget/interface/widget.dart';
 
+// Run 'dart main.dart' so that assets are located correctly.
 void main() {
   final app = App(
     supportedLocales: [

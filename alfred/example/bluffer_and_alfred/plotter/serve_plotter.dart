@@ -6,12 +6,12 @@ import 'package:alfred/util/open.dart';
 Future<void> main() async {
   final built = await helloAlfred(
     routes: [
-      const RouteGet(
+      Route.get(
         path: "/*",
-        middleware: ServeDirectoryStringPathImpl(
-          "/Users/valauskasmodestas/Desktop/alfred/plotter/build",
+        middleware: const ServeDirectoryStringPathImpl(
+          path: "/Users/valauskasmodestas/Desktop/alfred/plotter/build",
         ),
-      )
+      ),
     ],
   );
   openLocalhost(built.args.port);

@@ -8,7 +8,7 @@ void main() {
   PlotFileSvg(
     plotter: plot,
     onNewSvg: (final svg) {
-      final saveAtFile = File("/Users/valauskasmodestas/Desktop/plot.svg");
+      final saveAtFile = File("plot.svg");
       return saveAtFile.writeAsStringSync(svg);
     },
   );

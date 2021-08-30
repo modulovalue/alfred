@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import '../app.dart';
 import '../locale.dart';
 import 'publish.dart';
@@ -7,9 +5,9 @@ import 'publish.dart';
 class PublishingLogPrintImpl implements PublishingLog, PublishingLocaleLog, PublishingAssetLog, PublishingRouteLog {
   final void Function(String) output;
 
-  const PublishingLogPrintImpl(
-    final this.output,
-  );
+  const PublishingLogPrintImpl({
+    required final this.output,
+  });
 
   @override
   void processingLocale({
@@ -19,16 +17,16 @@ class PublishingLogPrintImpl implements PublishingLog, PublishingLocaleLog, Publ
 
   @override
   void processingAssets({
-    required final Directory assets,
+    required final String assetsDirectory,
   }) =>
-      output('Processing Assets ' + assets.path + '...');
+      output('Processing Assets ' + assetsDirectory + '...');
 
   @override
   void processingAssetFile({
-    required final File item,
-    required final File destination,
+    required final String itemFilePath,
+    required final String destinationFilePath,
   }) =>
-      output("  - '" + item.path + "' into > '" + destination.path + "'");
+      output("  - '" + itemFilePath + "' into > '" + destinationFilePath + "'");
 
   @override
   void processingRoute({
@@ -38,9 +36,9 @@ class PublishingLogPrintImpl implements PublishingLog, PublishingLocaleLog, Publ
 
   @override
   void processingRouteFile({
-    required final File file,
+    required final String filePath,
   }) =>
-      output("   - '" + file.path + "'");
+      output("   - '" + filePath + "'");
 
   @override
   PublishingAssetLog get assetLog => this;

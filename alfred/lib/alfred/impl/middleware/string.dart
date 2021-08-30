@@ -4,17 +4,17 @@ import '../../interface/serve_context.dart';
 /// Middleware that doesn't depend on requests and
 /// responses and just returns a value.
 class ServeString implements Middleware {
-  final String value;
+  final String string;
 
-  const ServeString(
-    final this.value,
-  );
+  const ServeString({
+    required final this.string,
+  });
 
   @override
   Future<void> process(
     final ServeContext c,
   ) async {
-    c.res.write(value);
+    c.res.write(string);
     await c.res.close();
   }
 }

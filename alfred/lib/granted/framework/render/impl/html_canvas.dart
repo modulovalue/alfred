@@ -126,7 +126,9 @@ class HtmlCanvasRenderer implements PlotterRenderer {
       size = (x2 - x).abs();
     }
     _context.font = size.toString() + "px " + font!;
-    if (_fillClr != null) _context.fillText(text, x, y);
+    if (_fillClr != null) {
+      _context.fillText(text, x, y);
+    }
     _context.strokeText(text, x, y);
   }
 
@@ -433,7 +435,9 @@ class HtmlCanvasRenderer implements PlotterRenderer {
         }
       }
     }
-    if (pointSize > 1.0) drawPoints(xCoords, yCoords);
+    if (pointSize > 1.0) {
+      drawPoints(xCoords, yCoords);
+    }
   }
 
   /// Draws a line strip to the viewport.

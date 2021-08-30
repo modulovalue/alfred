@@ -1,17 +1,12 @@
 /// Indicates the severity of logged messages.
 abstract class LogType {
-  static const DebugLogType debug = DebugLogType._();
-  static const WarnLogType warn = WarnLogType._();
-  static const InfoLogType info = InfoLogType._();
-  static const ErrorLogType error = ErrorLogType._();
-
   int get index;
 
   String get description;
 }
 
-class DebugLogType implements LogType {
-  const DebugLogType._();
+class LogTypeDebug implements LogType {
+  const LogTypeDebug();
 
   @override
   int get index => 1;
@@ -23,8 +18,8 @@ class DebugLogType implements LogType {
   String toString() => 'DebugLogType{}';
 }
 
-class InfoLogType implements LogType {
-  const InfoLogType._();
+class LogTypeInfo implements LogType {
+  const LogTypeInfo();
 
   @override
   int get index => 2;
@@ -36,8 +31,8 @@ class InfoLogType implements LogType {
   String toString() => 'InfoLogType{}';
 }
 
-class WarnLogType implements LogType {
-  const WarnLogType._();
+class LogTypeWarn implements LogType {
+  const LogTypeWarn();
 
   @override
   int get index => 3;
@@ -49,8 +44,8 @@ class WarnLogType implements LogType {
   String toString() => 'WarnLogType{}';
 }
 
-class ErrorLogType implements LogType {
-  const ErrorLogType._();
+class LogTypeError implements LogType {
+  const LogTypeError();
 
   @override
   int get index => 4;

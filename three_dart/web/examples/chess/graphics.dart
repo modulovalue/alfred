@@ -105,8 +105,15 @@ class Bishop extends Piece {
         pickEntity?.shape = loadedEntity.shape;
       });
     }
-    final String name = (this._white ? 'white' : 'black') + ' bishop $index';
-    final TileValue value = TileValue.bishop(this._white, index);
+    final name = (() {
+          if (this._white) {
+            return 'white';
+          } else {
+            return 'black';
+          }
+        }()) +
+        ' bishop $index';
+    final value = bishopTileValue(this._white, index);
     this._initialize(name, value, colorEntity, pickEntity);
   }
 }
@@ -216,14 +223,17 @@ class Board extends Entity {
     }
     // Check if a piece was picked.
     final TileValue stateItem = this._game.getValue(loc);
-    if (stateItem.empty || stateItem.white != this._game.whiteTurn) return;
-    final bool selected = this.isSelected(stateItem);
-    this.clearHighlights();
-    this.clearSelections();
-    if (!selected) {
-      this.setSelection(stateItem);
-      this._moves = this._game.getMovements(stateItem);
-      this.setHighlights(this._moves);
+    if (stateItem.empty || stateItem.white != this._game.whiteTurn) {
+      return;
+    } else {
+      final selected = this.isSelected(stateItem);
+      this.clearHighlights();
+      this.clearSelections();
+      if (!selected) {
+        this.setSelection(stateItem);
+        this._moves = this._game.getMovements(stateItem);
+        this.setHighlights(this._moves);
+      }
     }
   }
 
@@ -239,35 +249,41 @@ class Board extends Entity {
 
   /// Finds the piece entity with the given piece value or null if not found.
   Piece? findPiece(TileValue stateValue) {
-    final TileValue item = stateValue.item;
-    for (final Piece piece in this._pieces) {
-      if (piece.stateItem.item == item) return piece;
+    final item = stateValue.item;
+    for (final piece in this._pieces) {
+      if (piece.stateItem.item == item) {
+        return piece;
+      }
     }
     return null;
   }
 
   /// Gets the piece entity at the given location or null if that location is empty.
   Piece? pieceAt(Location loc) {
-    for (final Piece piece in this._pieces) {
-      if (piece.location == loc) return piece;
+    for (final piece in this._pieces) {
+      if (piece.location == loc) {
+        return piece;
+      }
     }
     return null;
   }
 
   /// Gets the tile entity at the given location or null if out of bounds.
   Tile? tileAt(Location loc) {
-    for (final Tile tile in this._tiles) {
-      if (tile.location == loc) return tile;
+    for (final tile in this._tiles) {
+      if (tile.location == loc) {
+        return tile;
+      }
     }
     return null;
   }
 
   /// Clears all highlights from pieces and tiles.
   void clearHighlights() {
-    for (final Piece piece in this._pieces) {
+    for (final piece in this._pieces) {
       piece.highlighted = false;
     }
-    for (final Tile tile in this._tiles) {
+    for (final tile in this._tiles) {
       tile.highlighted = false;
     }
   }
@@ -386,8 +402,15 @@ class King extends Piece {
         pickEntity?.shape = loadedEntity.shape;
       });
     }
-    final String name = (this._white ? "white" : "black") + " king";
-    final TileValue value = TileValue.king(this._white);
+    final name = (() {
+          if (this._white) {
+            return "white";
+          } else {
+            return "black";
+          }
+        }()) +
+        " king";
+    final value = kingTileValue(this._white);
     this._initialize(name, value, colorEntity, pickEntity);
   }
 }
@@ -417,8 +440,15 @@ class Knight extends Piece {
         pickEntity?.shape = loadedEntity.shape;
       });
     }
-    final String name = (this._white ? "white" : "black") + " knight $index";
-    final TileValue value = TileValue.knight(this._white, index);
+    final name = (() {
+          if (this._white) {
+            return "white";
+          } else {
+            return "black";
+          }
+        }()) +
+        " knight $index";
+    final value = knightTileValue(this._white, index);
     this._initialize(name, value, colorEntity, pickEntity);
   }
 }
@@ -654,8 +684,15 @@ class Pawn extends Piece {
         pickEntity?.shape = loadedEntity.shape;
       });
     }
-    final String name = (this._white ? 'white' : 'black') + ' pawn $index';
-    final TileValue value = TileValue.pawn(this._white, index);
+    final String name = (() {
+          if (this._white) {
+            return 'white';
+          } else {
+            return 'black';
+          }
+        }()) +
+        ' pawn $index';
+    final value = pawnTileValue(this._white, index);
     this._initialize(name, value, colorEntity, pickEntity);
   }
 }
@@ -810,8 +847,15 @@ class Queen extends Piece {
         pickEntity?.shape = loadedEntity.shape;
       });
     }
-    final String name = (this._white ? 'white' : 'black') + ' queen $index';
-    final TileValue value = TileValue.queen(this._white, index);
+    final name = (() {
+          if (this._white) {
+            return 'white';
+          } else {
+            return 'black';
+          }
+        }()) +
+        ' queen $index';
+    final value = queenTileValue(this._white, index);
     this._initialize(name, value, colorEntity, pickEntity);
   }
 }
@@ -841,8 +885,15 @@ class Rook extends Piece {
         pickEntity?.shape = loadedEntity.shape;
       });
     }
-    final String name = (this._white ? 'white' : 'black') + ' rook $index';
-    final TileValue value = TileValue.rook(this._white, index);
+    final name = (() {
+          if (this._white) {
+            return 'white';
+          } else {
+            return 'black';
+          }
+        }()) +
+        ' rook $index';
+    final value = rookTileValue(this._white, index);
     this._initialize(name, value, colorEntity, pickEntity);
   }
 }
@@ -902,7 +953,14 @@ class Tile extends Entity {
         pickShapeEntity?.shape = loadedEntity.shape;
       });
     }
-    final String name = (this._white ? 'white' : 'black') + ' tile ${this._loc.row} ${this._loc.column}';
+    final name = (() {
+          if (this._white) {
+            return 'white';
+          } else {
+            return 'black';
+          }
+        }()) +
+        ' tile ${this._loc.row} ${this._loc.column}';
     this._pickTech = this._board.nextPickTech();
     final Entity colorEntity = this._colorEntity = Entity(children: [colorShapeEntity], name: 'color ' + name);
     final Entity pickEntity = this._pickEntity =

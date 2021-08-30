@@ -3,7 +3,7 @@ import '../primitives/primitives_impl.dart';
 import '../render/interface.dart';
 import 'plotter_item.dart';
 
-/// TODO these are not items, these are attributes.
+// TODO these are not items, these are attributes.
 /// An attribute for setting if the line is directed or not.
 class DirectedLineAttrImpl implements DirectedLineAttr {
   /// Gets the directed line flag to apply for this attribute.

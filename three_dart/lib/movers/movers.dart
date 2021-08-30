@@ -377,7 +377,9 @@ class ComponentShift extends Changeable {
       if (this._maxLoc < this._minLoc) {
         this._minLoc = this._maxLoc;
         this._loc = this._maxLoc;
-      } else if (this._maxLoc < this._loc) this._loc = this._clapWrap(this._loc);
+      } else if (this._maxLoc < this._loc) {
+        this._loc = this._clapWrap(this._loc);
+      }
       this._onChanged(ValueChangedEventArgs(this, "maximumLocation", prev, this._maxLoc));
     }
   }
@@ -392,7 +394,9 @@ class ComponentShift extends Changeable {
       if (this._maxLoc < this._minLoc) {
         this._maxLoc = this._minLoc;
         this._loc = this._minLoc;
-      } else if (this._minLoc > this._loc) this._loc = this._clapWrap(this._loc);
+      } else if (this._minLoc > this._loc) {
+        this._loc = this._clapWrap(this._loc);
+      }
       this._onChanged(ValueChangedEventArgs(this, "minimumLocation", prev, this._minLoc));
     }
   }

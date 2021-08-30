@@ -1,5 +1,5 @@
-import '../../widgets/builder/builder.dart';
-import '../../widgets/theme/theme.dart';
+import '../../widgets/builder.dart';
+import '../../widgets/theme.dart';
 import '../../widgets/widget/impl/build_context.dart';
 import '../../widgets/widget/impl/widget_mixin.dart';
 import '../../widgets/widget/interface/build_context.dart';

@@ -1,31 +1,31 @@
 import 'alfred.dart';
 
 abstract class AlfredLoggingDelegate {
-  void onIsListening(
-    final ServerConfig arguments,
-  );
+  void onIsListening({
+    required final ServerConfig arguments,
+  });
 
-  void onIncomingRequest(
-    final String method,
-    final Uri uri,
-  );
+  void onIncomingRequest({
+    required final String method,
+    required final Uri uri,
+  });
 
   void onResponseSent();
 
   void onNoMatchingRouteFound();
 
-  void onMatchingRoute(
-    final String route,
-  );
+  void onMatchingRoute({
+    required final String route,
+  });
 
   void onExecuteRouteCallbackFunction();
 
-  void onIncomingRequestException(
-    final Object e,
-    final StackTrace s,
-  );
+  void onIncomingRequestException({
+    required final Object e,
+    required final StackTrace s,
+  });
 
-  void logTypeHandler(
-    final String Function() msgFn,
-  );
+  void logTypeHandler({
+    required final String Function() msgFn,
+  });
 }

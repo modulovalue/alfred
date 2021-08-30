@@ -57,9 +57,13 @@ void _testHttpClientResponseBody() {
     );
     final client = HttpClient();
     try {
-      final request = await client.get('localhost', server.port, '/');
+      final request = await client.get(
+        'localhost',
+        server.port,
+        '/',
+      );
       final response = await request.close();
-      final body = await HttpBodyHandlerImpl.processResponse(response);
+      final body = await processResponse(response);
       expect(shouldFail, isFalse);
       expect(body.type, equals(type));
       expect(body.response, isNotNull);
@@ -259,11 +263,13 @@ File content\r
   check('application/x-www-form-urlencoded', 'a=x%A0x'.codeUnits, null, 'form', shouldFail: true);
   check('application/x-www-form-urlencoded', 'a=x%C0x'.codeUnits, null, 'form', shouldFail: true);
   check('application/x-www-form-urlencoded', 'a=%C3%B8+%C8%A4'.codeUnits, {'a': 'ø Ȥ'}, 'form');
-  check('application/x-www-form-urlencoded', 'a=%F8+%26%23548%3B'.codeUnits, {'a': 'ø &#548;'}, 'form', defaultEncoding: latin1);
+  check('application/x-www-form-urlencoded', 'a=%F8+%26%23548%3B'.codeUnits, {'a': 'ø &#548;'}, 'form',
+      defaultEncoding: latin1);
   check('application/x-www-form-urlencoded', 'name=%26'.codeUnits, {'name': '&'}, 'form', defaultEncoding: latin1);
   check('application/x-www-form-urlencoded', 'name=%F8%26'.codeUnits, {'name': 'ø&'}, 'form', defaultEncoding: latin1);
   check('application/x-www-form-urlencoded', 'name=%26%3B'.codeUnits, {'name': '&;'}, 'form', defaultEncoding: latin1);
-  check('application/x-www-form-urlencoded', 'name=%26%23548%3B%26%23548%3B'.codeUnits, {'name': '&#548;&#548;'}, 'form',
+  check(
+      'application/x-www-form-urlencoded', 'name=%26%23548%3B%26%23548%3B'.codeUnits, {'name': '&#548;&#548;'}, 'form',
       defaultEncoding: latin1);
   check('application/x-www-form-urlencoded', 'name=%26'.codeUnits, {'name': '&'}, 'form');
   check('application/x-www-form-urlencoded', 'name=%C3%B8%26'.codeUnits, {'name': 'ø&'}, 'form');

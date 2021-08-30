@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import '../../html/html.dart';
-import '../../widgets/localization/localizations.dart';
+import '../../widgets/localizations.dart';
 import '../../widgets/widget/impl/build_context.dart';
 import '../../widgets/widget/interface/build_context.dart';
 import '../app.dart';
@@ -18,18 +18,18 @@ void publishRaw({
   );
   final supportedLocales = publishContext.application.supportedLocales;
   for (final locale in supportedLocales) {
-    final localeDirectory = processLocale(
+    final absoluteLocaleDirectory = processLocale(
       locale: locale,
       log: publishContext.localeLog,
       directory: publishContext.directory,
     );
     processAssets(
-      localeDirectory: localeDirectory,
+      assetsDirectory: publishContext.assetsDirectory,
+      absoluteLocaleDirectory: absoluteLocaleDirectory,
       log: publishContext.assetLog,
-      assets: publishContext.assetsDirectory,
     );
     processRoutes(
-      localeDirectory: localeDirectory,
+      absoluteLocaleDirectory: absoluteLocaleDirectory,
       application: publishContext.application,
       locale: locale,
       log: publishContext.routeLog,
@@ -65,19 +65,25 @@ mixin PublishAppContextDefaultMixin implements PublishAppContext {
   Assets get assets => const AssetsDefaultImpl();
 
   @override
-  Directory get assetsDirectory => Directory('assets');
+  String get assetsDirectory => 'assets';
 
   @override
-  Directory get directory => Directory('build');
+  String get directory => 'build';
 
   @override
-  PublishingAssetLog get assetLog => const PublishingLogPrintImpl(print);
+  PublishingAssetLog get assetLog => const PublishingLogPrintImpl(
+        output: print,
+      );
 
   @override
-  PublishingLocaleLog get localeLog => const PublishingLogPrintImpl(print);
+  PublishingLocaleLog get localeLog => const PublishingLogPrintImpl(
+        output: print,
+      );
 
   @override
-  PublishingRouteLog get routeLog => const PublishingLogPrintImpl(print);
+  PublishingRouteLog get routeLog => const PublishingLogPrintImpl(
+        output: print,
+      );
 
   @override
   void serializeTo({
@@ -89,9 +95,9 @@ mixin PublishAppContextDefaultMixin implements PublishAppContext {
 abstract class PublishAppContext {
   App get application;
 
-  Directory get directory;
+  String get directory;
 
-  Directory get assetsDirectory;
+  String get assetsDirectory;
 
   PublishingLocaleLog get localeLog;
 
@@ -117,12 +123,12 @@ abstract class PublishingLog {
 
 abstract class PublishingAssetLog {
   void processingAssets({
-    required final Directory assets,
+    required final String assetsDirectory,
   });
 
   void processingAssetFile({
-    required final File item,
-    required final File destination,
+    required final String itemFilePath,
+    required final String destinationFilePath,
   });
 }
 
@@ -132,7 +138,7 @@ abstract class PublishingRouteLog {
   });
 
   void processingRouteFile({
-    required final File file,
+    required final String filePath,
   });
 }
 
@@ -142,43 +148,45 @@ abstract class PublishingLocaleLog {
   });
 }
 
-Directory processLocale({
+String processLocale({
   required final Locale locale,
   required final PublishingLocaleLog log,
-  required final Directory directory,
+  required final String directory,
 }) {
   log.processingLocale(
     locale: locale,
   );
-  final localeDirectoryPath = directory.path + Platform.pathSeparator + locale.toString();
-  final localeDirectory = Directory(localeDirectoryPath);
-  localeDirectory.createSync(
+  final localeDirectoryPath = directory + Platform.pathSeparator + locale.toString();
+  Directory(localeDirectoryPath).createSync(
     recursive: true,
   );
-  return localeDirectory;
+  return localeDirectoryPath;
 }
 
 void processAssets({
-  required final Directory assets,
-  required final Directory localeDirectory,
+  required final String assetsDirectory,
+  required final String absoluteLocaleDirectory,
   required final PublishingAssetLog log,
 }) {
-  if (assets.existsSync()) {
+  if (!Directory(assetsDirectory).existsSync()) {
+    // TODO handle directory not found?
+    print(" == Asset directory not found " + assetsDirectory + " == " + Uri.base.toString());
+  } else {
     log.processingAssets(
-      assets: assets,
+      assetsDirectory: assetsDirectory,
     );
-    final targetLocaleAssetPath = localeDirectory.path + Platform.pathSeparator + 'assets';
+    final targetLocaleAssetPath = absoluteLocaleDirectory + Platform.pathSeparator + 'assets';
     final localAssetDestination = Directory(targetLocaleAssetPath);
     localAssetDestination.createSync(
       recursive: true,
     );
-    final listedAssetEntities = assets.listSync(
+    final listedAssetEntities = Directory(assetsDirectory).listSync(
       recursive: true,
     );
     for (final item in listedAssetEntities.toList()) {
       if (item is File) {
         final relativePath = item.path.replaceFirst(
-          assets.path + '/',
+          assetsDirectory + '/',
           '',
         );
         final destinationPath = localAssetDestination.path + Platform.pathSeparator + relativePath;
@@ -187,20 +195,16 @@ void processAssets({
           recursive: true,
         );
         log.processingAssetFile(
-          item: item,
-          destination: destination,
+          itemFilePath: item.path,
+          destinationFilePath: destination.path,
         );
         item.copySync(
           destination.path,
         );
       } else {
-        print(" == Listed asset was " + item.toString() + ", ignoring == ");
-        // TODO handle other types?
+        print(" == Listed asset was not a file: " + item.toString() + ", ignoring == ");
       }
     }
-  } else {
-    print(" == Asset directory not found " + assets.path + " == ");
-    // TODO handle directory not found?
   }
 }
 
@@ -209,7 +213,7 @@ void processRoutes({
   required final PublishingRouteLog log,
   required final BuildContext context,
   required final Locale locale,
-  required final Directory localeDirectory,
+  required final String absoluteLocaleDirectory,
   required final void Function({
     required String targetPath,
     required HtmlElement element,
@@ -231,12 +235,10 @@ void processRoutes({
     final result = localizedApp.renderElement(
       context: context,
     );
-    final absoluteLocalDirectory = localeDirectory.path;
     final relativeTargetUrl = route.relativeUrl + '.html';
-    final targetPath = absoluteLocalDirectory + Platform.pathSeparator + relativeTargetUrl;
-    final file = File(targetPath);
+    final targetPath = absoluteLocaleDirectory + Platform.pathSeparator + relativeTargetUrl;
     log.processingRouteFile(
-      file: file,
+      filePath: targetPath,
     );
     serializeTo(
       targetPath: targetPath,

@@ -97,7 +97,7 @@ class BoundaryRegionImpl implements BoundaryRegion {
       case 0x0C:
         return "Horizontal";
       default:
-        return "Unknown($value)";
+        return "Unknown(" + value.toString() + ")";
     }
   }
 }

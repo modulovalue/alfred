@@ -4,6 +4,34 @@ import 'package:queue/queue.dart';
 
 import '../interface/alfred.dart';
 import '../interface/logging_delegate.dart';
+import 'alfred.dart';
+
+Future<BuiltAlfredImpl> makeAlfredImpl({
+  required final ServerConfig config,
+  required final AlfredLoggingDelegate log,
+  required final Future<void> Function(HttpRequest request) requestHandler,
+  required final AlfredImpl alfred,
+}) async {
+  final requestQueue = Queue(
+    parallel: config.simultaneousProcessing,
+  );
+  final server = await _buildHttpServer(config);
+  // ignore: cancel_subscriptions, unused_local_variable
+  final serverSubscription = server.listen(
+    (final request) => requestQueue.add(
+      () => requestHandler(request),
+    ),
+  );
+  log.onIsListening(
+    arguments: config,
+  );
+  return BuiltAlfredImpl(
+    requestQueue: requestQueue,
+    server: server,
+    args: config,
+    alfred: alfred,
+  );
+}
 
 class BuiltAlfredImpl implements BuiltAlfred {
   @override
@@ -12,30 +40,14 @@ class BuiltAlfredImpl implements BuiltAlfred {
   bool closed = false;
   @override
   final ServerConfig args;
+  @override
+  final Alfred alfred;
 
-  static Future<BuiltAlfredImpl> make({
-    required final ServerConfig config,
-    required final AlfredLoggingDelegate log,
-    required final Future<void> Function(HttpRequest request) requestHandler,
-  }) async {
-    final requestQueue = Queue(parallel: config.simultaneousProcessing);
-    final server = await _buildHttpServer(config);
-    // ignore: cancel_subscriptions, unused_local_variable
-    final serverSubscription = server.listen(
-      (final request) => requestQueue.add(() => requestHandler(request)),
-    );
-    log.onIsListening(config);
-    return BuiltAlfredImpl._(
-      requestQueue: requestQueue,
-      server: server,
-      args: config,
-    );
-  }
-
-  BuiltAlfredImpl._({
+  BuiltAlfredImpl({
     required final this.server,
     required final this.requestQueue,
     required final this.args,
+    required final this.alfred,
   });
 
   @override
@@ -114,9 +126,9 @@ class ServerConfigDefaultWithPort implements ServerConfig {
   @override
   final int port;
 
-  const ServerConfigDefaultWithPort(
-    final this.port,
-  );
+  const ServerConfigDefaultWithPort({
+    required final this.port,
+  });
 
   @override
   String get bindIp => ServerConfigDefault.defaultBindIp;

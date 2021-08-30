@@ -97,8 +97,8 @@ Plotter makeExamplePlotter() {
   }
   plot.updateBounds();
   plot.focusOnData();
-  plot.mouseHandles.add(makePointAdder(plot));
-  plot.mouseHandles.add(makeArrowAdder(plot));
+  plot.mouseHandles.add(_makePointAdder(plot));
+  plot.mouseHandles.add(_makeArrowAdder(plot));
   plot.mouseHandles.add(makeMouseCoords(plot));
   plot.mouseHandles.add(makeMouseCrosshairs(plot));
   return plot;
@@ -119,7 +119,7 @@ Group _createBox(
       ..addFillColor(1.0, 1.0, 1.0);
 
 // TODO fix arrow adder.
-_ArrowAdder makeArrowAdder(
+_ArrowAdder _makeArrowAdder(
   final Plotter _plot,
 ) =>
     _ArrowAdder._(
@@ -179,7 +179,7 @@ class _ArrowAdder implements PlotterMouseHandle {
   }
 }
 
-_PointAdder makePointAdder(
+_PointAdder _makePointAdder(
   final Plotter _plot,
 ) =>
     _PointAdder._(

@@ -22,7 +22,9 @@ class ServeWidgetBuilder implements Middleware {
     final html = singlePage(
       builder: (final context) => builder(c, context),
     );
-    return ServeHtml(html).process(c);
+    return ServeHtml(
+      html: html,
+    ).process(c);
   }
 }
 
@@ -40,7 +42,9 @@ class ServeWidgetImpl implements ServeWidget {
     final html = singlePage(
       builder: (final context) => child,
     );
-    return ServeHtml(html).process(c);
+    return ServeHtml(
+      html: html,
+    ).process(c);
   }
 }
 
@@ -48,6 +52,7 @@ class ServeWidgetAppImpl implements ServeWidget {
   final Widget child;
   final String title;
   final void Function()? onProcess;
+
   const ServeWidgetAppImpl({
     required final this.title,
     required final this.child,
@@ -67,6 +72,38 @@ class ServeWidgetAppImpl implements ServeWidget {
         ),
       ),
     );
-    return ServeHtml(html).process(c);
+    return ServeHtml(
+      html: html,
+    ).process(c);
+  }
+}
+
+class ServeWidgetAppBuilderImpl implements ServeWidget {
+  final Widget Function(ServeContext, BuildContext) builder;
+  final String title;
+  final void Function()? onProcess;
+
+  const ServeWidgetAppBuilderImpl({
+    required final this.title,
+    required final this.builder,
+    final this.onProcess,
+  });
+
+  @override
+  Future<void> process(
+    final ServeContext c,
+  ) {
+    onProcess?.call();
+    final html = singlePage(
+      builder: (final context) => AppWidget(
+        route: WidgetRouteSimpleImpl(
+          title: title,
+          child: builder(c, context),
+        ),
+      ),
+    );
+    return ServeHtml(
+      html: html,
+    ).process(c);
   }
 }

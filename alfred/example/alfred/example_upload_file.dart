@@ -11,14 +11,16 @@ Future<void> main() async {
   // Example of handling a multipart/form-data file upload.
   await helloAlfred(
     routes: [
-      RouteGet(
+      Route.get(
         path: '/files/*',
-        middleware: ServeDirectoryIoDirectoryImpl(_uploadDirectory),
+        middleware: ServeDirectoryIoDirectoryImpl(
+          directory: _uploadDirectory,
+        ),
       ),
-      RoutePost(
+      Route.post(
         path: '/upload',
         middleware: ServeJsonBuilder.map(
-          (final context) async {
+          map: (final context) async {
             final _body = await context.body;
             if (_body is Map?) {
               final body = Map<String, dynamic>.from(_body!);

@@ -6,14 +6,14 @@ class AlfredLoggingDelegatePrintImpl with AlfredLoggingDelegateGeneralizingMixin
   final LogType logLevel;
 
   const AlfredLoggingDelegatePrintImpl([
-    this.logLevel = LogType.debug,
+    this.logLevel = const LogTypeDebug(),
   ]);
 
   @override
-  void log(
-    final String Function() messageFn,
-    final LogType type,
-  ) {
+  void log({
+    required final String Function() messageFn,
+    required final LogType type,
+  }) {
     if (type.index >= logLevel.index) {
       print(
         DateTime.now().toString() + ' - ' + type.description + ' - ' + messageFn(),

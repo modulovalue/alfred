@@ -7,9 +7,9 @@ import '../../interface/serve_context.dart';
 class ServetBuilder implements Middleware {
   final FutureOr<Middleware> Function(ServeContext c) builder;
 
-  const ServetBuilder(
-    final this.builder,
-  );
+  const ServetBuilder({
+    required final this.builder,
+  });
 
   @override
   Future<void> process(

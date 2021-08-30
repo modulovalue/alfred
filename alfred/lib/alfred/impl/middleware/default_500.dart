@@ -5,16 +5,11 @@ import '../../interface/serve_context.dart';
 
 /// Responds with a generic 5000 internal error.
 class InternalError500Middleware implements Middleware {
-  static InternalError500Middleware make(
-    final Object error,
-  ) =>
-      InternalError500Middleware(error);
-
   final Object error;
 
-  const InternalError500Middleware(
-    final this.error,
-  );
+  const InternalError500Middleware({
+    required final this.error,
+  });
 
   @override
   Future<void> process(

@@ -257,7 +257,15 @@ class BlockInfo {
   String toString() => '$chunk.block($x, $y, $z, ($chunkX, $chunkZ), ${BlockType.string(value)})';
 
   /// Gets or sets the block value for this block.
-  int get value => this.chunk?.getBlock(x, y, z) ?? ((y < 0) ? BlockType.Boundary : BlockType.Air);
+  int get value =>
+      this.chunk?.getBlock(x, y, z) ??
+      (() {
+        if (y < 0) {
+          return BlockType.Boundary;
+        } else {
+          return BlockType.Air;
+        }
+      }());
 
   set value(int value) {
     this.chunk?.setBlock(x, y, z, value);
@@ -505,11 +513,23 @@ class CheckersGenerator implements Generator {
   int _getValue(int x, int y, int z) {
     if (this._highlightChunkEdges) {
       // Highlight the x and z is zero edge.
-      if (x == 0 || z == 0) return (x == 0 && z == 0) ? BlockType.YellowShine : BlockType.RedShine;
+      if (x == 0 || z == 0) {
+        if (x == 0 && z == 0) {
+          return BlockType.YellowShine;
+        } else {
+          return BlockType.RedShine;
+        }
+      }
       // Indicate which side of the chunk the highlight is on.
-      if (x == 1 && z == 1) return BlockType.RedShine;
+      if (x == 1 && z == 1) {
+        return BlockType.RedShine;
+      }
     }
-    return (x + y + z).isEven ? BlockType.BlackShine : BlockType.WhiteShine;
+    if ((x + y + z).isEven) {
+      return BlockType.BlackShine;
+    } else {
+      return BlockType.WhiteShine;
+    }
   }
 }
 
@@ -798,8 +818,7 @@ class Collider {
       if (!this._hasHit[i]) {
         final Region3 block = this._blocks[i];
         final HitRegion sides = this._blockSides[i];
-        final TwoAABB3Result cur =
-            twoAABB3(region, block, this._vector, Vector3.zero, HitRegion.All, sides);
+        final TwoAABB3Result cur = twoAABB3(region, block, this._vector, Vector3.zero, HitRegion.All, sides);
         if (cur.collided) {
           if ((hitRegion == HitRegion.None) || (parametric > cur.parametric)) {
             hitRegion = cur.region;
@@ -1069,8 +1088,7 @@ class CubeData {
   final int backIndex;
 
   /// Creates a new cube data with the given values.
-  CubeData(this.topIndex, this.bottomIndex, this.leftIndex, this.rightIndex, this.frontIndex,
-      this.backIndex);
+  CubeData(this.topIndex, this.bottomIndex, this.leftIndex, this.rightIndex, this.frontIndex, this.backIndex);
 }
 
 /// This loads and prepares all the materials (colors and textures) used for rendering.
@@ -1095,8 +1113,7 @@ class Materials {
         this._waterChanger = null {
     // Create the light source attached to most of the textures a used for the world being created.
     this._light = Directional(
-        color: Color3.white(),
-        mover: Constant.lookAtTarget(Point3.zero, Vector3.posZ, Point3(0.5, -1.0, 0.2)));
+        color: Color3.white(), mover: Constant.lookAtTarget(Point3.zero, Vector3.posZ, Point3(0.5, -1.0, 0.2)));
     final int boundary = this._addMat("boundary");
     final int brick = this._addMat("brick");
     final int dirt = this._addMat("dirt");
@@ -1309,9 +1326,16 @@ class RandomGenerator implements Generator {
     int offset = 0;
     for (int x = Constants.paddedMin; x < Constants.paddedMax; x++) {
       for (int z = Constants.paddedMin; z < Constants.paddedMax; z++) {
-        final double terrain = 0.6 * this._noise(x, z, 0.001) + 0.3 * this._noise(x, z, 0.01) + 0.1 * this._noise(x, z, 0.1);
+        final double terrain =
+            0.6 * this._noise(x, z, 0.001) + 0.3 * this._noise(x, z, 0.01) + 0.1 * this._noise(x, z, 0.1);
         int maxy = (math.pow(terrain, 2.0) * Constants.chunkYSize).toInt();
-        maxy = (maxy >= Constants.chunkYSize) ? Constants.chunkYSize - 1 : maxy;
+        maxy = () {
+          if (maxy >= Constants.chunkYSize) {
+            return Constants.chunkYSize - 1;
+          } else {
+            return maxy;
+          }
+        }();
         this._tempCache[offset] = maxy;
         offset++;
       }
@@ -1478,7 +1502,9 @@ class RandomGenerator implements Generator {
           this._addPlant(x, z, BlockType.Grass);
         } else if (this._noise(x - 400, z, 12.5) < 0.1) {
           this._addPlant(x, z, BlockType.Fern);
-        } else if (this._noise(x, z - 400, 12.5) < 0.08) this._addPlant(x, z, BlockType.Mushroom);
+        } else if (this._noise(x, z - 400, 12.5) < 0.08) {
+          this._addPlant(x, z, BlockType.Mushroom);
+        }
       }
     }
   }
@@ -1644,13 +1670,10 @@ class Player {
       playerLoc
     ]);
     // Sets up the location for the player's cross hairs.
-    final crossHairLoc = Group(
-        [Constant.scale(0.005, -0.005, 0.005), Constant.translate(0.0, 0.0, -0.2), playerLoc]);
+    final crossHairLoc = Group([Constant.scale(0.005, -0.005, 0.005), Constant.translate(0.0, 0.0, -0.2), playerLoc]);
     // Creates the cross hair entity for drawing the cross hairs.
     final crossHairs = three_dart.Entity(
-        mover: crossHairLoc,
-        shape: square(type: VertexType.Pos | VertexType.Txt2D),
-        tech: world.materials?.crosshair);
+        mover: crossHairLoc, shape: square(type: VertexType.Pos | VertexType.Txt2D), tech: world.materials?.crosshair);
     // Creates the hand entity for showing the selected block type that will be added.
     final blockHand = three_dart.Entity(mover: handLoc);
     final List<three_dart.Entity> blockHandEntities = [];
@@ -1795,7 +1818,7 @@ class Player {
 
   /// Handles when the player clicks a mouse button to modify the voxel values of a chunk.
   void _onClickBlockChange(EventArgs args) {
-    final Button button = (args as MouseEventArgs).button;
+    final button = (args as MouseEventArgs).button;
     this._changeBlock(button.code == Button.right);
   }
 
@@ -1853,8 +1876,10 @@ class Player {
         info.value = blockType;
         // Remove plant if a plant was above a removed block.
         if (blockType == BlockType.Air) {
-          final BlockInfo? aboveInfo = info.above;
-          if (aboveInfo != null && BlockType.plant(aboveInfo.value)) aboveInfo.value = BlockType.Air;
+          final aboveInfo = info.above;
+          if (aboveInfo != null && BlockType.plant(aboveInfo.value)) {
+            aboveInfo.value = BlockType.Air;
+          }
         }
         // Indicate which chunks need to be updated.
         chunk.needUpdate = true;
@@ -1915,8 +1940,8 @@ class Player {
     // Calculates the view vector down the center of the screen out away from the player.
     // The ray is scaled to have the maximum highlight length.
     final Matrix4 mat = this._playerLoc.matrix;
-    final Ray3 playerViewTarget = Ray3.fromVector(
-        mat.transPnt3(Point3.zero), mat.transVec3(Vector3(0.0, 0.0, -Constants.highlightDistance)));
+    final Ray3 playerViewTarget =
+        Ray3.fromVector(mat.transPnt3(Point3.zero), mat.transVec3(Vector3(0.0, 0.0, -Constants.highlightDistance)));
     final Ray3 back = playerViewTarget.reverse;
     final BlockInfo? info = this._world.getBlock(playerViewTarget.x, playerViewTarget.y, playerViewTarget.z);
     NeighborBlockInfo? neighbor = NeighborBlockInfo(info, HitRegion.Inside, playerViewTarget, 0);
@@ -2038,22 +2063,21 @@ class Shaper {
       } else {
         this._addPlantToShapes(loc, value);
       }
-    } else if (BlockType.solid(value)) this._addCubeToShapes(chunk, loc, chunkLoc, value, twoSided, scalar);
+    } else if (BlockType.solid(value)) {
+      this._addCubeToShapes(chunk, loc, chunkLoc, value, twoSided, scalar);
+    }
   }
 
   /// Creates a new vertex object with the given position, normal vector, and texture coordinates.
   Vertex _getVertex(Point3 loc, Vector3? norm, double tu, double tv) {
     return Vertex(
-        type: VertexType.Pos | VertexType.Txt2D | VertexType.Norm,
-        loc: loc,
-        norm: norm,
-        txt2D: Point2(tu, tv));
+        type: VertexType.Pos | VertexType.Txt2D | VertexType.Norm, loc: loc, norm: norm, txt2D: Point2(tu, tv));
   }
 
   /// Adds a quad to the given [shape]. The given [loc] is the center point of a block
   /// and the offset to the corners of the quad.
-  void _addQuad(ReducedShape shape, Point3 loc, Point3 off1, Point3 off2, Point3 off3,
-      Point3 off4, Vector3 norm, bool twoSided, double scalar) {
+  void _addQuad(ReducedShape shape, Point3 loc, Point3 off1, Point3 off2, Point3 off3, Point3 off4, Vector3 norm,
+      bool twoSided, double scalar) {
     final Vertex ver1 = this._getVertex(loc + off1 * scalar, norm, 0.0, 0.0);
     final Vertex ver2 = this._getVertex(loc + off2 * scalar, norm, 0.0, 1.0);
     final Vertex ver3 = this._getVertex(loc + off3 * scalar, norm, 1.0, 1.0);
@@ -2183,8 +2207,17 @@ class Shaper {
   /// The given [angle] is in radians.
   void _addQuadRotToShape(ReducedShape shape, Point3 loc, double angle, [bool twoSided = false]) {
     final c = math.cos(angle) * 0.5, s = math.sin(angle) * 0.5;
-    _addQuad(shape, loc, Point3(c, 0.0, -s), Point3(c, -0.5, -s), Point3(-c, -0.5, s),
-        Point3(-c, 0.0, s), Vector3(s, 0.0, c), twoSided, 1.0);
+    _addQuad(
+      shape,
+      loc,
+      Point3(c, 0.0, -s),
+      Point3(c, -0.5, -s),
+      Point3(-c, -0.5, s),
+      Point3(-c, 0.0, s),
+      Vector3(s, 0.0, c),
+      twoSided,
+      1.0,
+    );
   }
 
   /// Adds a plant to the shapes.
@@ -2199,16 +2232,8 @@ class Shaper {
   /// Adds a single fern leaf to the given [shape] at the given [angle] in radians.
   void _addFernLeaf(ReducedShape shape, Point3 loc, double angle) {
     final Matrix3 mat = Matrix3.rotateY(angle);
-    _addQuad(
-        shape,
-        loc,
-        mat.transPnt3(Point3(0.4, -0.1, -0.4)),
-        mat.transPnt3(Point3(0.0, -0.5, 0.0)),
-        mat.transPnt3(Point3(0.4, -0.1, 0.4)),
-        mat.transPnt3(Point3(0.8, 0.0, 0.0)),
-        Constants.topNorm,
-        true,
-        1.0);
+    _addQuad(shape, loc, mat.transPnt3(Point3(0.4, -0.1, -0.4)), mat.transPnt3(Point3(0.0, -0.5, 0.0)),
+        mat.transPnt3(Point3(0.4, -0.1, 0.4)), mat.transPnt3(Point3(0.8, 0.0, 0.0)), Constants.topNorm, true, 1.0);
   }
 
   /// Adds a fern to the shapes at the given [loc].
@@ -2232,10 +2257,10 @@ class Shaper {
     final List<Vertex> botcap = [];
     for (double d = 0.0; d <= 2.0; d += 0.25) {
       final Matrix3 mat = Matrix3.rotateY(PI * d);
-      side.add(this._getVertex(loc + mat.transPnt3(Point3(0.07, -0.1, 0.0)),
-          mat.transVec3(Constants.frontNorm), (d - 1.0).abs(), 0.0));
-      side.add(this._getVertex(loc + mat.transPnt3(Point3(0.1, -0.5, 0.0)), mat.transVec3(Constants.frontNorm),
-          (d - 1.0).abs(), 1.0));
+      side.add(this._getVertex(
+          loc + mat.transPnt3(Point3(0.07, -0.1, 0.0)), mat.transVec3(Constants.frontNorm), (d - 1.0).abs(), 0.0));
+      side.add(this._getVertex(
+          loc + mat.transPnt3(Point3(0.1, -0.5, 0.0)), mat.transVec3(Constants.frontNorm), (d - 1.0).abs(), 1.0));
       final Point3 topLoc = mat.transPnt3(Point3(0.1, -0.5, 0.0));
       final Point3 topTxt = mat.transPnt3(Point3(0.1, 0.0, 0.0));
       botcap.add(this._getVertex(loc + topLoc, Constants.bottomNorm, topTxt.x + 0.5, topTxt.z + 0.5));
@@ -2383,7 +2408,9 @@ class TestGenerator implements Generator {
 
   void _sphere() {
     final chunk = this._curChunk;
-    if (chunk == null) return;
+    if (chunk == null) {
+      return;
+    }
     final center = 8, size = 6, height = 17, size2 = size * size + 1;
     for (int x = -size; x <= size; x++) {
       for (int y = -size; y <= size; y++) {
@@ -2561,11 +2588,23 @@ class World {
     final int tx = x.floor();
     final int ty = y.floor();
     final int tz = z.floor();
-    int cx = (tx < 0) ? tx - Constants.chunkSideSize + 1 : tx;
-    int cz = (tz < 0) ? tz - Constants.chunkSideSize + 1 : tz;
+    int cx = () {
+      if (tx < 0) {
+        return tx - Constants.chunkSideSize + 1;
+      } else {
+        return tx;
+      }
+    }();
+    int cz = () {
+      if (tz < 0) {
+        return tz - Constants.chunkSideSize + 1;
+      } else {
+        return tz;
+      }
+    }();
     cx = (cx ~/ Constants.chunkSideSize) * Constants.chunkSideSize;
     cz = (cz ~/ Constants.chunkSideSize) * Constants.chunkSideSize;
-    final Chunk? chunk = this.findChunk(cx, cz);
+    final chunk = this.findChunk(cx, cz);
     if (chunk == null) return null;
     int bx = tx - cx;
     final int by = ty;
@@ -2597,7 +2636,14 @@ class World {
   /// Gets a chunk from the graveyard or creates a new one.
   /// This will prepare the chunk for the given [x] and [z] world location.
   Chunk prepareChunk(int x, int z) {
-    final Chunk chunk = (this._graveyard.isNotEmpty ? this._graveyard.removeLast() : null) ?? Chunk(this);
+    final chunk = (() {
+          if (this._graveyard.isNotEmpty) {
+            return this._graveyard.removeLast();
+          } else {
+            return null;
+          }
+        }()) ??
+        Chunk(this);
     chunk.prepare(x, z);
     this._chunks.add(chunk);
     return chunk;
@@ -2701,8 +2747,16 @@ class World {
       // ignore: parameter_assignments
       info = info.neighbor(inter.region);
     }
-    if (info == null) return null;
-    return NeighborBlockInfo(info, inter.region, ray, depth);
+    if (info == null) {
+      return null;
+    } else {
+      return NeighborBlockInfo(
+        info,
+        inter.region,
+        ray,
+        depth,
+      );
+    }
   }
 
   /// Gets the string for debug information to be printed to the console.

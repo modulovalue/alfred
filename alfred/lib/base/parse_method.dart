@@ -1,8 +1,8 @@
 import 'method.dart';
 
-Method? parseHttpMethod(
-  final String str,
-) {
+Method? parseHttpMethod({
+  required final String str,
+}) {
   if (str == MethodGet.getString) {
     return Methods.get;
   } else if (str == MethodPost.postString) {

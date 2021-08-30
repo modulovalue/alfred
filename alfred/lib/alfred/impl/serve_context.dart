@@ -22,16 +22,19 @@ class ServeContextImpl implements ServeContext {
   });
 
   @override
-  Future<Object?> get body async => (await HttpBodyHandlerImpl.processRequest(req)).body;
+  Future<Object?> get body async => (await processRequest(req)).body;
 
   @override
-  Map<String, String>? get arguments => getParams(route.route, req.uri.path);
+  Map<String, String>? get arguments => getParams(
+        route: route.path,
+        input: req.uri.path,
+      );
 }
 
-Map<String, String>? getParams(
-  final String route,
-  final String input,
-) {
+Map<String, String>? getParams({
+  required final String route,
+  required final String input,
+}) {
   final routeParts = route.split('/')..remove('');
   final inputParts = input.split('/')..remove('');
   if (inputParts.length != routeParts.length) {

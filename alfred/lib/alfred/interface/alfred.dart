@@ -8,19 +8,22 @@ import 'logging_delegate.dart';
 ///
 /// This is the core of the server application. Generally you would create one
 /// for each app.
-/// TODO support swapping out darts http stack for different ones (cronet).
-abstract class Alfred implements HttpRouteFactory {
+/// TODO decouple everything from dart:io.
+/// TODO support swapping out darts http stack with cronet,
+abstract class Alfred {
   /// List of routes.
   ///
   /// Generally you don't want to manipulate this array directly, instead add
   /// routes by calling the [get,post,put,delete] methods.
-  List<HttpRoute> get routes;
+  Iterable<HttpRoute> get routes;
 
   /// Call this function to fire off the server.
   Future<BuiltAlfred> build({
     final AlfredLoggingDelegate log,
     final ServerConfig config,
   });
+
+  HttpRouteFactory get router;
 }
 
 abstract class BuiltAlfred {
@@ -38,6 +41,8 @@ abstract class BuiltAlfred {
   });
 
   ServerConfig get args;
+
+  Alfred get alfred;
 }
 
 abstract class HttpServerArguments {
@@ -45,7 +50,7 @@ abstract class HttpServerArguments {
 
   int get port;
 
-  // TODO replace with [InternetAddress].
+  // TODO replace with [InternetAddress]?
   String get bindIp;
 
   bool get shared;

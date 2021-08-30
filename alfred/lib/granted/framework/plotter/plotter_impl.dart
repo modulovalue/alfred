@@ -10,8 +10,8 @@ import '../primitives/primitives.dart';
 import '../primitives/primitives_impl.dart';
 import '../render/interface.dart';
 
-/// TODO move all below into plotter_item and split them apart.
-/// TODO move readme doc into items.
+// TODO move all below into plotter_item and split them apart.
+// TODO move readme doc into items.
 Plotter makePlotter([
   final String label = "",
 ]) {
@@ -162,7 +162,9 @@ class Plotter extends Group {
     double scale = pow(10.0, log(prev) / ln10 - dw) as double;
     if (scale < _minZoom) {
       scale = _minZoom;
-    } else if (scale > _maxZoom) scale = _maxZoom;
+    } else if (scale > _maxZoom) {
+      scale = _maxZoom;
+    }
     final x = e.px;
     final y = e.py;
     final dx = (view.dx - x) * (scale / prev) + x;

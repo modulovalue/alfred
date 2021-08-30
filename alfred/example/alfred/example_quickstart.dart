@@ -5,10 +5,12 @@ import 'package:alfred/alfred/interface/http_route_factory.dart';
 Future<void> main() async {
   await helloAlfred(
     routes: [
-      const RouteGet(
+      Route.get(
         path: "/example",
-        middleware: ServeString('Hello world'),
-      )
+        middleware: const ServeString(
+          string: 'Hello world',
+        ),
+      ),
     ],
   );
 }

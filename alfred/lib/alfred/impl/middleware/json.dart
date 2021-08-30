@@ -7,13 +7,13 @@ import '../../interface/serve_context.dart';
 class ServeJson implements Middleware {
   final dynamic value;
 
-  const ServeJson.map(
-    final Map<String, Object?> this.value,
-  );
+  const ServeJson.map({
+    required final Map<String, Object?> map,
+  }) : value = map;
 
-  const ServeJson.list(
-    final List<dynamic> this.value,
-  );
+  const ServeJson.list({
+    required final List<dynamic> list,
+  }) : value = list;
 
   @override
   Future<dynamic> process(
@@ -28,13 +28,13 @@ class ServeJson implements Middleware {
 class ServeJsonBuilder implements Middleware {
   final Future<dynamic> Function(ServeContext c) value;
 
-  const ServeJsonBuilder.map(
-    final Future<Map<String, Object?>> Function(ServeContext c) this.value,
-  );
+  const ServeJsonBuilder.map({
+    required final Future<Map<String, Object?>> Function(ServeContext c) map,
+  }) : value = map;
 
-  const ServeJsonBuilder.list(
-    final Future<List<dynamic>> Function(ServeContext c) this.value,
-  );
+  const ServeJsonBuilder.list({
+    required final Future<List<dynamic>> Function(ServeContext c) list,
+  }) : value = list;
 
   @override
   Future<void> process(

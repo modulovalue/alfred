@@ -6,54 +6,58 @@ import 'package:alfred/bluffer/base/color.dart';
 import 'package:alfred/bluffer/base/decoration.dart';
 import 'package:alfred/bluffer/base/edge_insets.dart';
 import 'package:alfred/bluffer/base/text.dart';
-import 'package:alfred/bluffer/widgets/builder/builder.dart';
-import 'package:alfred/bluffer/widgets/click/click.dart';
-import 'package:alfred/bluffer/widgets/container/container.dart';
-import 'package:alfred/bluffer/widgets/flex/flex.dart';
-import 'package:alfred/bluffer/widgets/padding/padding.dart';
-import 'package:alfred/bluffer/widgets/sized_box/sized_box.dart';
-import 'package:alfred/bluffer/widgets/text/text.dart';
-import 'package:alfred/bluffer/widgets/theme/theme.dart';
+import 'package:alfred/bluffer/widgets/builder.dart';
+import 'package:alfred/bluffer/widgets/click.dart';
+import 'package:alfred/bluffer/widgets/container.dart';
+import 'package:alfred/bluffer/widgets/flex.dart';
+import 'package:alfred/bluffer/widgets/padding.dart';
+import 'package:alfred/bluffer/widgets/sized_box.dart';
+import 'package:alfred/bluffer/widgets/text.dart';
+import 'package:alfred/bluffer/widgets/theme.dart';
 import 'package:alfred/bluffer/widgets/widget/interface/widget.dart';
 
 Future<void> main() async {
   final app = alfredWithRoutes(
     routes: [
-      RouteGet(
-        path: "/yes",
-        middleware: ServeWidgetAppImpl(
-          title: "Yes",
-          onProcess: () => yes++,
-          child: thankYouWidget(),
-        ),
-      ),
-      RouteGet(
-        path: "/no",
-        middleware: ServeWidgetAppImpl(
-          title: "No",
-          onProcess: () => no++,
-          child: thankYouWidget(),
-        ),
-      ),
-      RouteGet(
-        path: "/",
-        middleware: ServeWidgetAppImpl(
-          title: "Vote",
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Builder(
-              builder: (final context) => Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text("Vote"),
-                  voteYesWidget(yes),
-                  voteNoWidget(no),
-                ],
+      Routes(
+        routes: [
+          Route.get(
+            path: "/yes",
+            middleware: ServeWidgetAppImpl(
+              title: "Yes",
+              onProcess: () => yes++,
+              child: thankYouWidget(),
+            ),
+          ),
+          Route.get(
+            path: "/no",
+            middleware: ServeWidgetAppImpl(
+              title: "No",
+              onProcess: () => no++,
+              child: thankYouWidget(),
+            ),
+          ),
+          Route.get(
+            path: "/",
+            middleware: ServeWidgetAppImpl(
+              title: "Vote",
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Builder(
+                  builder: (final context) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text("Vote"),
+                      voteYesWidget(yes),
+                      voteNoWidget(no),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        ],
+      )
     ],
   );
   await app.build();

@@ -1,8 +1,8 @@
 import 'dart:io';
 
-void openLocalhost(
-  final int port,
-) =>
+void openLocalhost([
+  final int port = 80,
+]) =>
     openAt(
       "http://localhost:" + port.toString(),
     );

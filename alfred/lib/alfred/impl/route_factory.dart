@@ -1,10 +1,8 @@
-import '../../base/method.dart';
+import '../../util/compose_path.dart';
 import '../interface/alfred.dart';
 import '../interface/http_route_factory.dart';
-import '../interface/middleware.dart';
-import 'route_factory_mixin.dart';
 
-class HttpRouteFactoryImpl with HttpRouteFactoryBoilerplateMixin {
+class HttpRouteFactoryImpl implements HttpRouteFactory {
   final Alfred alfred;
   final String basePath;
 
@@ -13,57 +11,42 @@ class HttpRouteFactoryImpl with HttpRouteFactoryBoilerplateMixin {
     required final this.basePath,
   });
 
-  static String _composePath(
-    final String first,
-    final String second,
-  ) {
-    if (first.endsWith('/') && second.startsWith('/')) {
-      return first + second.substring(1);
-    } else if (!first.endsWith('/') && !second.startsWith('/')) {
-      return first + '/' + second;
-    } else {
-      return first + second;
-    }
+  @override
+  void add({
+    required final Routed routes,
+  }) {
+    routes.match(
+      routes: (final _routes) {
+        for (final route in _routes.routes) {
+          alfred.router.add(
+            routes: Routes(
+              routes: [
+                HttpRouteImpl(
+                  method: route.method,
+                  path: composePath(
+                    first: basePath,
+                    second: route.path,
+                  ),
+                  middleware: route.middleware,
+                ),
+              ],
+            ),
+          );
+        }
+      },
+      at: (final _at) => at(path: _at.prefix).add(routes: _at.routes),
+    );
   }
 
   @override
-  HttpRouteFactory route(
-    final String path,
-  ) => //
+  HttpRouteFactory at({
+    required final String path,
+  }) =>
       HttpRouteFactoryImpl(
         alfred: alfred,
-        basePath: _composePath(basePath, path),
-      );
-
-  @override
-  void createRoute(
-    final String path,
-    final Middleware callback,
-    final BuiltinMethod method,
-  ) =>
-      alfred.routes.add(
-        HttpRouteImpl(
-          _composePath(basePath, path),
-          callback,
-          method,
+        basePath: composePath(
+          first: basePath,
+          second: path,
         ),
       );
-}
-
-class HttpRouteImpl implements HttpRoute {
-  @override
-  final String route;
-  @override
-  final Middleware callback;
-  @override
-  final BuiltinMethod method;
-
-  const HttpRouteImpl(
-    final this.route,
-    final this.callback,
-    final this.method,
-  );
-
-  @override
-  bool get usesWildcardMatcher => route.contains('*');
 }

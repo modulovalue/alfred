@@ -34,9 +34,9 @@ class QTEdgeHandlerNeighborIgnorerImpl implements QTEdgeHandler {
 }
 
 /// Handler for calling a given function pointer for each edge.
-class QTEdgeHandlerAnonymousImpl implements QTEdgeHandler {
+class QTEdgeHandlerAnonymousImpl<T extends Object?> implements QTEdgeHandler<T> {
   /// The handle to call for each edge.
-  final bool Function(QTEdgeNode value) _hndl;
+  final bool Function(QTEdgeNode<T> value) _hndl;
 
   /// Creates a new edge handler.
   const QTEdgeHandlerAnonymousImpl(
@@ -46,7 +46,7 @@ class QTEdgeHandlerAnonymousImpl implements QTEdgeHandler {
   /// Handles the given edge.
   @override
   bool handle(
-    final QTEdgeNode edge,
+    final QTEdgeNode<T> edge,
   ) =>
       _hndl(edge);
 }

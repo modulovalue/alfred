@@ -29,7 +29,7 @@ class BuildContextImpl implements BuildContext {
         .._inheritedWidgets[widget.runtimeType] = widget;
 
   @override
-  Key createDefaultKey() => KeyImpl('_w${lastKeyIndex++}');
+  Key createDefaultKey() => KeyImpl('_w' + (lastKeyIndex++).toString());
 
   @override
   T? dependOnInheritedWidgetOfExactType<T extends InheritedWidget>() {
@@ -38,7 +38,7 @@ class BuildContextImpl implements BuildContext {
       if (atT is T?) {
         return atT;
       } else {
-        assert(false, 'Invalid type, no inherited widget for $T found but found ${atT}');
+        assert(false, 'Invalid type, no inherited widget for $T found but found ' + atT.toString());
         return null;
       }
     } else {

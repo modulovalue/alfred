@@ -7,14 +7,18 @@ Future<void> main() async {
   await helloAlfred(
     routes: [
       // Provide any static assets
-      const RouteGet(
+      Route.get(
         path: '/frontend/*',
-        middleware: ServeDirectoryStringPathImpl('test/files/spa'),
+        middleware: const ServeDirectoryStringPathImpl(
+          path: 'test/files/spa',
+        ),
       ),
       // Let any other routes handle by client SPA
-      const RouteGet(
+      Route.get(
         path: '/frontend/*',
-        middleware: ServeFileStringPathImpl('test/files/spa/index.html'),
+        middleware: const ServeFileStringPathImpl(
+          path: 'test/files/spa/index.html',
+        ),
       ),
     ],
   );

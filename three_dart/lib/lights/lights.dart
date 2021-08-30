@@ -98,7 +98,9 @@ class LightCollection extends Collection<Light> {
       this._dirLights.add(light);
     } else if (light is Point) {
       this._pntLights.add(light);
-    } else if (light is Spot) this._spotLights.add(light);
+    } else if (light is Spot) {
+      this._spotLights.add(light);
+    }
   }
 
   /// Removes the light from the specific lists of lights.
@@ -109,7 +111,9 @@ class LightCollection extends Collection<Light> {
       this._dirLights.remove(light);
     } else if (light is Point) {
       this._pntLights.remove(light);
-    } else if (light is Spot) this._spotLights.remove(light);
+    } else if (light is Spot) {
+      this._spotLights.remove(light);
+    }
   }
 }
 

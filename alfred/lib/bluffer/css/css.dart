@@ -31,7 +31,7 @@ abstract class CssStyleDeclaration {
   String? get css_fontFamily; //
 }
 
-/// TODO remove this once all users have custom implementations.
+// TODO remove this once all users have custom implementations.
 class CssStyleDeclaration2Impl implements CssStyleDeclaration {
   @override
   final String? css_margin;

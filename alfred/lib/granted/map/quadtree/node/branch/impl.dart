@@ -68,15 +68,21 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
   /// Returns the node that should be the new root of the subtree that was
   /// defined by this node.
   @override
-  QTNode insertPoint(PointNode point) {
+  QTNode insertPoint(
+    final PointNode point,
+  ) {
     final quad = childQuad(point);
     final node = child(quad);
     if (node is QTNodeEmptyImpl) {
       final child = QTNodeEmptyImpl.instance.addPoint(childX(quad), childY(quad), width ~/ 2, point);
-      if (setChild(quad, child)) return reduce();
+      if (setChild(quad, child)) {
+        return reduce();
+      }
     } else {
       final child = (node as QTNodeBoundaryMixin).insertPoint(point);
-      if (setChild(quad, child)) return reduce();
+      if (setChild(quad, child)) {
+        return reduce();
+      }
     }
     return this;
   }
@@ -119,13 +125,21 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
     if (overlapsEdge(edge)) {
       IntersectionResult? result;
       result = _ne.findFirstIntersection(edge, hndl);
-      if (result != null) return result;
+      if (result != null) {
+        return result;
+      }
       result = _nw.findFirstIntersection(edge, hndl);
-      if (result != null) return result;
+      if (result != null) {
+        return result;
+      }
       result = _se.findFirstIntersection(edge, hndl);
-      if (result != null) return result;
+      if (result != null) {
+        return result;
+      }
       result = _sw.findFirstIntersection(edge, hndl);
-      if (result != null) return result;
+      if (result != null) {
+        return result;
+      }
     }
     return null;
   }
@@ -227,13 +241,17 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
       if (quad == Quadrant.NorthEast) {
         _ne.firstLeftEdge(args);
         // If no edges in the NW child could have a larger right value, skip.
-        if ((!args.found) || (args.rightValue <= (xmin + width / 2))) _nw.firstLeftEdge(args);
+        if ((!args.found) || (args.rightValue <= (xmin + width / 2))) {
+          _nw.firstLeftEdge(args);
+        }
       } else if (quad == Quadrant.NorthWest) {
         _nw.firstLeftEdge(args);
       } else if (quad == Quadrant.SouthEast) {
         _se.firstLeftEdge(args);
         // If no edges in the SW child could have a larger right value, skip.
-        if ((!args.found) || (args.rightValue <= (xmin + width / 2))) _sw.firstLeftEdge(args);
+        if ((!args.found) || (args.rightValue <= (xmin + width / 2))) {
+          _sw.firstLeftEdge(args);
+        }
       } else {
         // Quadrant.SouthWest
         _sw.firstLeftEdge(args);
@@ -245,7 +263,10 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
   /// Returns true if all the edges were processed,
   /// false if the handle stopped early.
   @override
-  bool foreachLeftEdge(QTPoint point, QTEdgeHandler hndl) {
+  bool foreachLeftEdge(
+    final QTPoint point,
+    final QTEdgeHandler hndl,
+  ) {
     bool result = true;
     if ((point.y <= ymax) && (point.y >= ymin)) {
       final quad = childQuad(point);
@@ -269,7 +290,9 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
   /// This doesn't check that the point is actually contained by the child indicated,
   /// only the child in the direction of the point.
   @override
-  Quadrant childQuad(QTPoint pnt) {
+  Quadrant childQuad(
+    final QTPoint pnt,
+  ) {
     final half = width ~/ 2;
     final south = pnt.y < (ymin + half);
     final west = pnt.x < (xmin + half);
@@ -290,7 +313,9 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
 
   /// Gets the quadrant of the given child node.
   @override
-  Quadrant childNodeQuad(QTNode node) {
+  Quadrant childNodeQuad(
+    final QTNode node,
+  ) {
     if (_ne == node) {
       return Quadrant.NorthEast;
     } else if (_nw == node) {
@@ -304,16 +329,24 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
 
   /// Gets the minimum x location of the child of the given quadrant.
   @override
-  int childX(Quadrant quad) {
-    if ((quad == Quadrant.NorthEast) || (quad == Quadrant.SouthEast)) return xmin + width ~/ 2;
+  int childX(
+    final Quadrant quad,
+  ) {
+    if ((quad == Quadrant.NorthEast) || (quad == Quadrant.SouthEast)) {
+      return xmin + width ~/ 2;
+    }
     // (quad == Quadrant.NorthWest) || (quad == Quadrant.SouthWest)
     return xmin;
   }
 
   /// Gets the minimum y location of the child of the given quadrant.
   @override
-  int childY(Quadrant quad) {
-    if ((quad == Quadrant.NorthEast) || (quad == Quadrant.NorthWest)) return ymin + width ~/ 2;
+  int childY(
+    final Quadrant quad,
+  ) {
+    if ((quad == Quadrant.NorthEast) || (quad == Quadrant.NorthWest)) {
+      return ymin + width ~/ 2;
+    }
     // (quad == Quadrant.SouthEast) || (quad == Quadrant.SouthWest)
     return ymin;
   }
@@ -321,9 +354,15 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
   /// Gets the child at a given quadrant.
   @override
   QTNode child(Quadrant childQuad) {
-    if (childQuad == Quadrant.NorthEast) return _ne;
-    if (childQuad == Quadrant.NorthWest) return _nw;
-    if (childQuad == Quadrant.SouthEast) return _se;
+    if (childQuad == Quadrant.NorthEast) {
+      return _ne;
+    }
+    if (childQuad == Quadrant.NorthWest) {
+      return _nw;
+    }
+    if (childQuad == Quadrant.SouthEast) {
+      return _se;
+    }
     // childQuad ==  Quadrant.SouthWest
     return _sw;
   }
@@ -331,21 +370,32 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
   /// This sets the child at a given quadrant.
   /// Returns true if the child was changed, false if there was not change.
   @override
-  bool setChild(Quadrant childQuad, QTNode node) {
+  bool setChild(
+    final Quadrant childQuad,
+    final QTNode node,
+  ) {
     // ignore: prefer_asserts_with_message
     assert(node != this);
     if (childQuad == Quadrant.NorthEast) {
-      if (_ne == node) return false;
+      if (_ne == node) {
+        return false;
+      }
       _ne = node;
     } else if (childQuad == Quadrant.NorthWest) {
-      if (_nw == node) return false;
+      if (_nw == node) {
+        return false;
+      }
       _nw = node;
     } else if (childQuad == Quadrant.SouthEast) {
-      if (_se == node) return false;
+      if (_se == node) {
+        return false;
+      }
       _se = node;
     } else {
       // childQuad == Quadrant.SouthWest
-      if (_sw == node) return false;
+      if (_sw == node) {
+        return false;
+      }
       _sw = node;
     }
     if (node is! QTNodeEmptyImpl) {
@@ -366,12 +416,16 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
         final node = child(quad);
         if (node is PointNode) {
           if ((boundary == null) || boundary.containsPoint(node)) {
-            if ((handle != null) && (!handle.handle(node))) continue;
+            if ((handle != null) && (!handle.handle(node))) {
+              continue;
+            }
             return node;
           }
         } else if (node is BranchNode) {
           final result = node.findFirstPoint(boundary, handle);
-          if (result != null) return result;
+          if (result != null) {
+            return result;
+          }
         }
       }
     }
@@ -390,12 +444,16 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
         final node = child(quad);
         if (node is PointNode) {
           if ((boundary == null) || boundary.containsPoint(node)) {
-            if ((handle != null) && (!handle.handle(node))) continue;
+            if ((handle != null) && (!handle.handle(node))) {
+              continue;
+            }
             return node;
           }
         } else if (node is BranchNode) {
           final result = node.findLastPoint(boundary, handle);
-          if (result != null) return result;
+          if (result != null) {
+            return result;
+          }
         }
       }
     }
@@ -431,7 +489,9 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
         }
       } else if (node is BranchNode) {
         final result = node.findFirstPoint(boundary, handle);
-        if (result != null) return result;
+        if (result != null) {
+          return result;
+        }
       }
     }
     final _parent = parent;
@@ -571,10 +631,18 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
   @override
   bool validate(StringBuffer sout, bool recursive) {
     bool result = true;
-    if (!_validateChild(sout, recursive, _ne, "NE", true, true)) result = false;
-    if (!_validateChild(sout, recursive, _nw, "NW", true, false)) result = false;
-    if (!_validateChild(sout, recursive, _sw, "SW", false, false)) result = false;
-    if (!_validateChild(sout, recursive, _se, "SE", false, true)) result = false;
+    if (!_validateChild(sout, recursive, _ne, "NE", true, true)) {
+      result = false;
+    }
+    if (!_validateChild(sout, recursive, _nw, "NW", true, false)) {
+      result = false;
+    }
+    if (!_validateChild(sout, recursive, _sw, "SW", false, false)) {
+      result = false;
+    }
+    if (!_validateChild(sout, recursive, _se, "SE", false, true)) {
+      result = false;
+    }
     return result;
   }
 
@@ -593,65 +661,68 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
       sout.write(name);
       sout.write(" child was null.\n");
       return false;
-    }
-    bool result = true;
-    if (child is! QTNodeEmptyImpl) {
-      final bnode = child as QTNodeBoundaryMixin;
-      if (bnode.parent != this) {
-        sout.write("Error in ");
-        sout.write(": The ");
-        sout.write(name);
-        sout.write(" child, ");
-        sout.write(", parent wasn't this node, it was ");
-        sout.write(".\n");
-        result = false;
-      }
-      if (width / 2 != bnode.width) {
-        sout.write("Error in ");
-        sout.write(": The ");
-        sout.write(name);
-        sout.write(" child, ");
-        sout.write(", was ");
-        sout.write(bnode.width);
-        sout.write(" wide, but should have been ");
-        sout.write(width / 2);
-        sout.write(".\n");
-        result = false;
-      }
-      final left = () {
-        if (east) {
-          return xmin + bnode.width;
-        } else {
-          return xmin;
+    } else {
+      bool result = true;
+      if (child is! QTNodeEmptyImpl) {
+        final bnode = child as QTNodeBoundaryMixin;
+        if (bnode.parent != this) {
+          sout.write("Error in ");
+          sout.write(": The ");
+          sout.write(name);
+          sout.write(" child, ");
+          sout.write(", parent wasn't this node, it was ");
+          sout.write(".\n");
+          result = false;
         }
-      }();
-      final top = () {
-        if (north) {
-          return ymin + bnode.width;
-        } else {
-          return ymin;
+        if (width / 2 != bnode.width) {
+          sout.write("Error in ");
+          sout.write(": The ");
+          sout.write(name);
+          sout.write(" child, ");
+          sout.write(", was ");
+          sout.write(bnode.width);
+          sout.write(" wide, but should have been ");
+          sout.write(width / 2);
+          sout.write(".\n");
+          result = false;
         }
-      }();
-      if ((left != bnode.xmin) || (top != bnode.ymin)) {
-        sout.write("Error in ");
-        sout.write(": The ");
-        sout.write(name);
-        sout.write(" child, ");
-        sout.write(", was at [");
-        sout.write(bnode.xmin);
-        sout.write(", ");
-        sout.write(bnode.ymin);
-        sout.write("], but should have been [");
-        sout.write(left);
-        sout.write(", ");
-        sout.write(top);
-        sout.write("].\n");
-        result = false;
+        final left = () {
+          if (east) {
+            return xmin + bnode.width;
+          } else {
+            return xmin;
+          }
+        }();
+        final top = () {
+          if (north) {
+            return ymin + bnode.width;
+          } else {
+            return ymin;
+          }
+        }();
+        if ((left != bnode.xmin) || (top != bnode.ymin)) {
+          sout.write("Error in ");
+          sout.write(": The ");
+          sout.write(name);
+          sout.write(" child, ");
+          sout.write(", was at [");
+          sout.write(bnode.xmin);
+          sout.write(", ");
+          sout.write(bnode.ymin);
+          sout.write("], but should have been [");
+          sout.write(left);
+          sout.write(", ");
+          sout.write(top);
+          sout.write("].\n");
+          result = false;
+        }
       }
+      if (recursive) {
+        if (!child.validate(sout, recursive)) {
+          result = false;
+        }
+      }
+      return result;
     }
-    if (recursive) {
-      if (!child.validate(sout, recursive)) result = false;
-    }
-    return result;
   }
 }

@@ -24,7 +24,6 @@ import 'package:alfred/granted/map/quadtree/point/ops/distance2.dart';
 import 'package:alfred/granted/map/quadtree/point/ops/equals.dart';
 import 'package:alfred/granted/map/quadtree/point/ops/intersect.dart';
 import 'package:alfred/granted/map/quadtree/quadtree/impl.dart';
-import 'package:intl/intl.dart';
 
 void main() {
   html.document
@@ -56,25 +55,6 @@ void main() {
 void addTests(
   final TestManager tests,
 ) {
-  tests.add("Conversions Test", (final args) {
-    final coords = QTFormatterImpl(
-      230.0,
-      15000.0,
-      0.0001,
-      0.01,
-      NumberFormat("#0.0000", "en_US"),
-      NumberFormat("#0.00", "en_US"),
-    );
-    final tree = QuadTree();
-    final pnt = tree.insertPoint(coords.toPoint(3.5555555555555, 3.55555555555));
-    final result = coords.toPointString(pnt);
-    const exp = "[3.5556, 3.56]";
-    if (result != exp) {
-      args.error("Failed: Coordinates expected to be " + exp + " but got " + result + ".\n\n");
-    } else {
-      args.info("Passed: $result\n");
-    }
-  });
   tests.add("Edge Intersect Test", (final args) {
     edgeIntersectTest(args, e(0, 0, 1, 1), e(0, 0, 1, 1), "Hit Same null None None");
     edgeIntersectTest(args, e(0, 0, 1, 1), e(1, 1, 0, 0), "Hit Opposite null None None");
@@ -518,7 +498,7 @@ void addTests(
     test.add([-2, 5, 2, 5, 0, 10], 1);
     final pnt = test._map.tree.findPoint(QTPointImpl(-2, 5));
     if (pnt != null) {
-      test._args.error("Point ${pnt.toString()} should have been removed");
+      test._args.error("Point " + pnt.toString() + " should have been removed");
     }
     test.showPlot();
   });
@@ -541,7 +521,7 @@ void addTests(
     final edge = test._map.tree.findNearestEdge(QTPointImpl(406, 221));
     final side = (edge!.data as EdgeSide?)!;
     if ((side.left != 3) || (side.right != 1)) {
-      test._args.error("Expected [3|1] but got $side");
+      test._args.error("Expected [3|1] but got " + side.toString());
     }
     test.showPlot();
   });
@@ -1292,7 +1272,9 @@ class TestBlock extends TestArgs {
         _started = false,
         _failed = false,
         _finished = false {
-    _man._elem.children..add(_title)..add(_body);
+    _man._elem.children
+      ..add(_title)
+      ..add(_body);
     _title.onClick.listen(_titleClicked);
     _update();
   }
@@ -1938,11 +1920,13 @@ void regionTest(
   );
   if (result != expRegion) {
     args.error(
-      "Failed: Unexpected result from region:\n" +
-          "   Boundary: $rect\n" +
-          "   Point:    $x, $y\n" +
-          "   Expected: $expRegion, $expRegion\n" +
-          "   Result:   $result, $result\n\n",
+      [
+        "Failed: Unexpected result from region:",
+        "   Boundary: " + rect.toString(),
+        "   Point:    " + x.toString() + ", " + y.toString(),
+        "   Expected: " + expRegion.toString() + ", " + expRegion.toString(),
+        "   Result:  z " + result.toString() + ", " + result.toString() + "\n",
+      ].join("\n"),
     );
     final plot = makePlotter();
     plot.addRects(
@@ -1971,154 +1955,15 @@ void regionTest(
     );
   } else {
     args.info(
-      "Passed: BoundaryRegion($rect, [$x, $y]) => $expRegion\n\n",
+      "Passed: BoundaryRegion(" +
+          rect.toString() +
+          ", [" +
+          x.toString() +
+          ", " +
+          y.toString() +
+          "]) => " +
+          expRegion.toString() +
+          "\n\n",
     );
   }
-}
-
-// TODO remove this.
-/// The coordinate converter is used for getting the desired coordinates.
-class QTFormatterImpl {
-  /// The maximum allowed coordinate value, 2^31-1.
-  static const int Maximum = 2147483647;
-
-  /// The minimum allowed coordinate value, -2^31.
-  static const int Minimum = -2147483648;
-
-  /// The default format for the coordinates.
-  static const String _defaultFormat = "#0.00";
-
-  /// The first component (X) of the center point of the coordinate system.
-  final double centerX;
-
-  /// The second component (Y) of the center point of the coordinate system.
-  final double centerY;
-
-  /// The precision of the first coordinate component, smallest X change.
-  final double smallestX;
-
-  /// The precision of the second coordinate component, smallest Y change.
-  final double smallestY;
-
-  /// The format for the first component (X).
-  final NumberFormat formatX;
-
-  /// The format for the second component (Y).
-  final NumberFormat formatY;
-
-  /// Creates a coordinate converter.
-  /// [centerX] is the first component (X) of the center point of the coordinate system.
-  /// [centerY] is the second component (Y) of the center point of the coordinate system.
-  /// [smallestX] is the precision of the first coordinate component, smallest X change.
-  /// [smallestY] is the precision of the second coordinate component, smallest Y change.
-  /// [formatX] is the format for the first component (X).
-  /// [formatY] is the format for the second component (Y).
-  QTFormatterImpl(
-    final this.centerX,
-    final this.centerY,
-    final this.smallestX,
-    final this.smallestY,
-    final this.formatX,
-    final this.formatY,
-  );
-
-  /// Creates a coordinate converter.
-  /// [smallest] is the precision of the coordinate components, smallest X and Y change.
-  static QTFormatterImpl Origin(
-    final double smallest, [
-    final String format = _defaultFormat,
-  ]) {
-    final numFmt = NumberFormat(format, "en_US");
-    return QTFormatterImpl(
-      0.0,
-      0.0,
-      smallest,
-      smallest,
-      numFmt,
-      numFmt,
-    );
-  }
-
-  /// Creates a coordinate converter.
-  /// [centerX] is the first component (X) of the center point of the coordinate system.
-  /// [centerY] is the second component (Y) of the center point of the coordinate system.
-  /// [smallest] is the precision of the coordinate components, smallest X and Y change.
-  static QTFormatterImpl Symmetric(
-    final double centerX,
-    final double centerY,
-    final double smallest, [
-    final String format = _defaultFormat,
-  ]) {
-    final numFmt = NumberFormat(format, "en_US");
-    return QTFormatterImpl(centerX, centerY, smallest, smallest, numFmt, numFmt);
-  }
-
-  /// Gets the minimum X component in the coordinate system that can be used.
-  double get minX => toX(Maximum);
-
-  /// Gets the minimum Y component in the coordinate system that can be used.
-  double get minY => toY(Minimum);
-
-  /// Gets the maximum X component in the coordinate system that can be used.
-  double get maxX => toX(Maximum);
-
-  /// Gets the maximum Y component in the coordinate system that can be used.
-  double get maxY => toY(Minimum);
-
-  /// Gets the quad-tree x component from the first coordinate component.
-  int fromX(double x) => ((x - centerX) / smallestX).round();
-
-  /// Gets the quad-tree y component from the second coordinate component.
-  int fromY(double y) => ((y - centerY) / smallestY).round();
-
-  /// Gets the change in the first component (width) from a width in the coordinate system.
-  int fromWidth(double width) => (width / smallestX).round();
-
-  /// Gets the change in the second component (height) from a height in the coordinate system.
-  int fromHeight(double height) => (height / smallestY).round();
-
-  /// Gets the first coordinate component from the given quad-tree x value.
-  double toX(int x) => x * smallestX + centerX;
-
-  /// Gets the second coordinate component from the given quad-tree y value.
-  double toY(int y) => y * smallestY + centerY;
-
-  /// Gets the width in the coordinate system from a change in the first component (width).
-  double toWidth(int width) => width * smallestX;
-
-  /// Gets the height in the coordinate system from a change in the second component (height).
-  double toHeight(int height) => height * smallestY;
-
-  /// Creates a point for the quad-tree from values in the coordinate system.
-  QTPointImpl toPoint(double x, double y) => QTPointImpl(fromX(x), fromY(y));
-
-  /// Creates an edge for the quad-tree from values in the coordinate system.
-  QTEdgeImpl toEdge(double x1, double y1, double x2, double y2) => QTEdgeImpl(
-        QTPointImpl(fromX(x1), fromY(y1)),
-        QTPointImpl(fromX(x2), fromY(y2)),
-        null,
-      );
-
-  /// Converts a x value to a string.
-  String toXString(int x) => formatX.format(toX(x));
-
-  /// Converts a y value to a string.
-  String toYString(int y) => formatY.format(toY(y));
-
-  /// Converts a width value to a string.
-  String toWidthString(int width) => formatX.format(toWidth(width));
-
-  /// Converts a height value to a string.
-  String toHeightString(int height) => formatY.format(toHeight(height));
-
-  /// Converts a point to a string.
-  String toPointString(QTPoint point) => "[" + toXString(point.x) + ", " + toYString(point.y) + "]";
-
-  /// Converts an edge to a string.
-  String toEdgeString(QTEdge edge) =>
-      "[${toXString(edge.x1)}, ${toYString(edge.y1)}, ${toXString(edge.x2)}, ${toYString(edge.y2)}]";
-
-  /// Converts a boundary to a string.
-  String toBoundaryString(QTBoundary boundary) =>
-      "[${toXString(boundary.xmin)}, ${toYString(boundary.ymin)}, ${toXString(boundary.xmax)}, ${toYString(boundary.ymax)}]";
 }

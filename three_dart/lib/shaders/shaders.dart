@@ -906,7 +906,9 @@ class MaterialLight extends Shader {
     }
     if (this._cfg.bumpy.hasTxt2D) {
       this._bump2D = this.uniforms.required("bumpTxt") as UniformSampler2D;
-    } else if (this._cfg.bumpy.hasTxtCube) this._bumpCube = this.uniforms.required("bumpTxt") as UniformSamplerCube;
+    } else if (this._cfg.bumpy.hasTxtCube) {
+      this._bumpCube = this.uniforms.required("bumpTxt") as UniformSamplerCube;
+    }
     if (this._cfg.environmental) {
       this._envSampler = this.uniforms.required("envSampler") as UniformSamplerCube;
       if (this._cfg.reflection.hasSolid) this._reflectClr = this.uniforms.required("reflectClr") as Uniform3f;
@@ -928,7 +930,9 @@ class MaterialLight extends Shader {
     if (this._cfg.alpha.hasSolid) this._alpha = this.uniforms.required("alpha") as Uniform1f;
     if (this._cfg.alpha.hasTxt2D) {
       this._alpha2D = this.uniforms.required("alphaTxt") as UniformSampler2D;
-    } else if (this._cfg.alpha.hasTxtCube) this._alphaCube = this.uniforms.required("alphaTxt") as UniformSamplerCube;
+    } else if (this._cfg.alpha.hasTxtCube) {
+      this._alphaCube = this.uniforms.required("alphaTxt") as UniformSamplerCube;
+    }
     if (this._cfg.lights) {
       if (this._cfg.barLights.isNotEmpty) {
         this._barLightCounts = {};
@@ -1780,7 +1784,9 @@ class _materialLightFS {
     if (srcType.hasSolid) buf.writeln("uniform vec3 ${name}Clr;");
     if (srcType.hasTxt2D) {
       buf.writeln("uniform sampler2D ${name}Txt;");
-    } else if (srcType.hasTxtCube) buf.writeln("uniform samplerCube ${name}Txt;");
+    } else if (srcType.hasTxtCube) {
+      buf.writeln("uniform samplerCube ${name}Txt;");
+    }
   }
 
   /// Writes the basics for a color source in a vertex fragment.
@@ -1801,7 +1807,9 @@ class _materialLightFS {
       }
     } else if (srcType.hasTxt2D) {
       buf.writeln("   ${name}Color = texture2D(${name}Txt, txt2D).rgb;");
-    } else if (srcType.hasTxtCube) buf.writeln("   ${name}Color = textureCube(${name}Txt, txtCube).rgb;");
+    } else if (srcType.hasTxtCube) {
+      buf.writeln("   ${name}Color = textureCube(${name}Txt, txtCube).rgb;");
+    }
     buf.writeln("}");
   }
 
@@ -1824,7 +1832,9 @@ class _materialLightFS {
       }
     } else if (cfg.emission.hasTxt2D) {
       buf.writeln("   return texture2D(emissionTxt, txt2D).rgb;");
-    } else if (cfg.emission.hasTxtCube) buf.writeln("   return textureCube(emissionTxt, txtCube).rgb;");
+    } else if (cfg.emission.hasTxtCube) {
+      buf.writeln("   return textureCube(emissionTxt, txtCube).rgb;");
+    }
     buf.writeln("}");
     buf.writeln("");
   }
@@ -1945,7 +1955,9 @@ class _materialLightFS {
       }
     } else if (cfg.reflection.hasTxt2D) {
       buf.writeln("   vec3 scalar = texture2D(reflectTxt, txt2D).rgb;");
-    } else if (cfg.reflection.hasTxtCube) buf.writeln("   vec3 scalar = textureCube(reflectTxt, txtCube).rgb;");
+    } else if (cfg.reflection.hasTxtCube) {
+      buf.writeln("   vec3 scalar = textureCube(reflectTxt, txtCube).rgb;");
+    }
 
     buf.writeln("   vec3 invRefl = vec3(invViewMat*vec4(refl, 0.0));");
     buf.writeln("   return scalar*textureCube(envSampler, invRefl).rgb;");
@@ -1974,7 +1986,9 @@ class _materialLightFS {
       }
     } else if (cfg.refraction.hasTxt2D) {
       buf.writeln("   vec3 scalar = texture2D(refractTxt, txt2D).rgb;");
-    } else if (cfg.refraction.hasTxtCube) buf.writeln("   vec3 scalar = textureCube(refractTxt, txtCube).rgb;");
+    } else if (cfg.refraction.hasTxtCube) {
+      buf.writeln("   vec3 scalar = textureCube(refractTxt, txtCube).rgb;");
+    }
 
     buf.writeln("   vec3 refr = mix(-refl, viewPos, refraction);");
     buf.writeln("   vec3 invRefr = vec3(invViewMat*vec4(refr, 0.0));");
@@ -2001,13 +2015,19 @@ class _materialLightFS {
       if (cfg.alpha.hasSolid) {
         if (cfg.alpha.hasTxt2D) {
           buf.writeln("   float a = alpha*texture2D(alphaTxt, txt2D).a;");
-        } else if (cfg.alpha.hasTxtCube) buf.writeln("   float a = alpha*textureCube(alphaTxt, txtCube).a;");
+        } else if (cfg.alpha.hasTxtCube) {
+          buf.writeln("   float a = alpha*textureCube(alphaTxt, txtCube).a;");
+        }
       } else if (cfg.alpha.hasTxt2D) {
         buf.writeln("   float a = texture2D(alphaTxt, txt2D).a;");
-      } else if (cfg.alpha.hasTxtCube) buf.writeln("   float a = textureCube(alphaTxt, txtCube).a;");
+      } else if (cfg.alpha.hasTxtCube) {
+        buf.writeln("   float a = textureCube(alphaTxt, txtCube).a;");
+      }
       buf.writeln("   if (a <= 0.000001) discard;");
       buf.writeln("   return a;");
-    } else if (cfg.alpha.hasSolid) buf.writeln("   return alpha;");
+    } else if (cfg.alpha.hasSolid) {
+      buf.writeln("   return alpha;");
+    }
 
     buf.writeln("}");
     buf.writeln("");
@@ -3120,7 +3140,9 @@ class Normal extends Shader {
     if (this._cfg.txtCube) this._txtCubeMat = this.uniforms.required("txtCubeMat") as UniformMat4;
     if (this._cfg.bumpy.hasTxt2D) {
       this._bump2D = this.uniforms.required("bumpTxt") as UniformSampler2D;
-    } else if (this._cfg.bumpy.hasTxtCube) this._bumpCube = this.uniforms.required("bumpTxt") as UniformSamplerCube;
+    } else if (this._cfg.bumpy.hasTxtCube) {
+      this._bumpCube = this.uniforms.required("bumpTxt") as UniformSamplerCube;
+    }
   }
 
   /// Checks for the shader in the shader cache in the given [state],
@@ -3279,7 +3301,9 @@ class NormalConfig {
 
     if (this.bumpy.hasTxt2D) {
       buf.writeln("uniform sampler2D bumpTxt;");
-    } else if (this.bumpy.hasTxtCube) buf.writeln("uniform samplerCube bumpTxt;");
+    } else if (this.bumpy.hasTxtCube) {
+      buf.writeln("uniform samplerCube bumpTxt;");
+    }
     buf.writeln("");
 
     buf.writeln("vec3 normal()");

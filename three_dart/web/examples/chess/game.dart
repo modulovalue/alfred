@@ -22,7 +22,7 @@ class Game {
   Game()
       : this._whiteTurn = true,
         this._condition = State.Normal,
-        this._state = State.initial(),
+        this._state = makeInitialState(),
         this._changed = null;
 
   /// Indicates if it is (true) white's turn or (false) black's turn.
@@ -117,6 +117,19 @@ class Game {
   }
 }
 
+/// Constructs a new board location with the index to the chess state data.
+Location locationFromIndex(
+  final int index,
+) {
+  if ((index < 0) || (index >= 64)) {
+    return const Location(0, 0);
+  } else {
+    final row = index ~/ 8 + 1;
+    final column = index % 8 + 1;
+    return Location(row, column);
+  }
+}
+
 /// Location is the chess board.
 class Location {
   /// This is the vertical offset to the horizontal strip of tiles.
@@ -133,17 +146,6 @@ class Location {
     final this.column,
   );
 
-  /// Constructs a new board location with the index to the chess state data.
-  factory Location.fromIndex(int index) {
-    if ((index < 0) || (index >= 64)) {
-      return const Location(0, 0);
-    } else {
-      final row = index ~/ 8 + 1;
-      final column = index % 8 + 1;
-      return Location(row, column);
-    }
-  }
-
   /// Gets a new location with the row and column offset with the given deltas.
   Location offset(int deltaRow, int deltaColumn) => Location(this.row + deltaRow, this.column + deltaColumn);
 
@@ -151,10 +153,22 @@ class Location {
   bool get onBoard => (this.row >= 1) && (this.row <= 8) && (this.column >= 1) && (this.column <= 8);
 
   /// Gets the index into the chess state data which stores the tile data for this location.
-  int get index => onBoard ? (this.row - 1) * 8 + (this.column - 1) : -1;
+  int get index {
+    if (onBoard) {
+      return (this.row - 1) * 8 + (this.column - 1);
+    } else {
+      return -1;
+    }
+  }
 
   /// Gets the formal notation for chess location.
-  String toNotation() => onBoard ? "${'abcdefgh'[column - 1]}${9 - row}" : "xx";
+  String toNotation() {
+    if (onBoard) {
+      return "${'abcdefgh'[column - 1]}${9 - row}";
+    } else {
+      return "xx";
+    }
+  }
 
   /// Gets the string for this location.
   @override
@@ -172,7 +186,6 @@ class Location {
 
   @override
   int get hashCode => row.hashCode ^ column.hashCode;
-
 }
 
 /// Defines a movement which can be performed on a chess board.
@@ -207,6 +220,92 @@ class Movement {
   }
 }
 
+/// Creates a new state which is set to the initial chess board state.
+State makeInitialState() {
+  //    1  2  3  4  5  6  7  8  <- Column
+  // 1 |R0|H0|B0|K0|Q0|B1|H1|R1| <- Black
+  // 2 |P0|P1|P2|P3|P4|P5|P6|P7| <- Black
+  // 3 |  |  |  |  |  |  |  |  |
+  // 4 |  |  |  |  |  |  |  |  |
+  // 5 |  |  |  |  |  |  |  |  |
+  // 6 |  |  |  |  |  |  |  |  |
+  // 7 |P0|P1|P2|P3|P4|P5|P6|P7| <- White
+  // 8 |R0|H0|B0|K0|Q0|B1|H1|R1| <- White
+  final State state = State();
+  state.setValue(const Location(1, 1), rookTileValue(false, 1));
+  state.setValue(const Location(1, 2), knightTileValue(false, 1));
+  state.setValue(const Location(1, 3), bishopTileValue(false, 1));
+  state.setValue(const Location(1, 4), kingTileValue(false));
+  state.setValue(const Location(1, 5), queenTileValue(false, 1));
+  state.setValue(const Location(1, 6), bishopTileValue(false, 2));
+  state.setValue(const Location(1, 7), knightTileValue(false, 2));
+  state.setValue(const Location(1, 8), rookTileValue(false, 2));
+  state.setValue(const Location(2, 1), pawnTileValue(false, 1));
+  state.setValue(const Location(2, 2), pawnTileValue(false, 2));
+  state.setValue(const Location(2, 3), pawnTileValue(false, 3));
+  state.setValue(const Location(2, 4), pawnTileValue(false, 4));
+  state.setValue(const Location(2, 5), pawnTileValue(false, 5));
+  state.setValue(const Location(2, 6), pawnTileValue(false, 6));
+  state.setValue(const Location(2, 7), pawnTileValue(false, 7));
+  state.setValue(const Location(2, 8), pawnTileValue(false, 8));
+  state.setValue(const Location(7, 1), pawnTileValue(true, 1));
+  state.setValue(const Location(7, 2), pawnTileValue(true, 2));
+  state.setValue(const Location(7, 3), pawnTileValue(true, 3));
+  state.setValue(const Location(7, 4), pawnTileValue(true, 4));
+  state.setValue(const Location(7, 5), pawnTileValue(true, 5));
+  state.setValue(const Location(7, 6), pawnTileValue(true, 6));
+  state.setValue(const Location(7, 7), pawnTileValue(true, 7));
+  state.setValue(const Location(7, 8), pawnTileValue(true, 8));
+  state.setValue(const Location(8, 1), rookTileValue(true, 1));
+  state.setValue(const Location(8, 2), knightTileValue(true, 1));
+  state.setValue(const Location(8, 3), bishopTileValue(true, 1));
+  state.setValue(const Location(8, 4), kingTileValue(true));
+  state.setValue(const Location(8, 5), queenTileValue(true, 1));
+  state.setValue(const Location(8, 6), bishopTileValue(true, 2));
+  state.setValue(const Location(8, 7), knightTileValue(true, 2));
+  state.setValue(const Location(8, 8), rookTileValue(true, 2));
+  return state;
+}
+
+/// This will load a state from a string representing the board.
+/// This string is the same as `toString(false)` of a state.
+/// This will return false if there aren't 128 color piece letter pairs.
+State parseState(
+  final List<String> data,
+) {
+  final state = State();
+  final used = <int, bool>{};
+  final grid = parseStringGrid(data);
+  if ((grid.rows != 8) || (grid.columns != 8)) throw Exception('Must provide an 8x8 board to parse a state.');
+  // Parse the cells of the given data into tile values.
+  for (int r = 0; r < 8; ++r) {
+    for (int c = 0; c < 8; ++c) {
+      final value = grid.getCell(r, c).trim();
+      final tile = parseTileValue(value);
+      if (!tile.empty) {
+        if (!tile.count.empty) used[tile.item.value] = true;
+        final index = Location(r + 1, c + 1).index;
+        state._data[index] = tile.value;
+      }
+    }
+  }
+  // Set any counts which haven't been set yet.
+  for (int i = 0; i < 64; ++i) {
+    final tile = TileValue(state._data[i]);
+    if ((!tile.empty) && tile.count.empty) {
+      for (int count = 1; count < 64; ++count) {
+        final check = tile | TileValue(count);
+        if (!(used[check.item.value] ?? false)) {
+          used[check.item.value] = true;
+          state._data[i] = check.value;
+          break;
+        }
+      }
+    }
+  }
+  return state;
+}
+
 /// This is a chess board at a given state.
 class State {
   static const int Normal = 0;
@@ -223,7 +322,7 @@ class State {
   /// Indicates the game condition has reached stalemate.
 
   /// The tile values for all of the tiles on a chess board.
-  List<int> _data;
+  final List<int> _data;
 
   /// The next state after this state or null if there is none.
   /// This next state is usually set to be used for redo and
@@ -240,94 +339,10 @@ class State {
         this.next = null,
         this.prev = null;
 
-  /// Creates a new state which is set to the initial chess board state.
-  factory State.initial() {
-    //    1  2  3  4  5  6  7  8  <- Column
-    // 1 |R0|H0|B0|K0|Q0|B1|H1|R1| <- Black
-    // 2 |P0|P1|P2|P3|P4|P5|P6|P7| <- Black
-    // 3 |  |  |  |  |  |  |  |  |
-    // 4 |  |  |  |  |  |  |  |  |
-    // 5 |  |  |  |  |  |  |  |  |
-    // 6 |  |  |  |  |  |  |  |  |
-    // 7 |P0|P1|P2|P3|P4|P5|P6|P7| <- White
-    // 8 |R0|H0|B0|K0|Q0|B1|H1|R1| <- White
-    final State state = State();
-    state.setValue(const Location(1, 1), TileValue.rook(false, 1));
-    state.setValue(const Location(1, 2), TileValue.knight(false, 1));
-    state.setValue(const Location(1, 3), TileValue.bishop(false, 1));
-    state.setValue(const Location(1, 4), TileValue.king(false));
-    state.setValue(const Location(1, 5), TileValue.queen(false, 1));
-    state.setValue(const Location(1, 6), TileValue.bishop(false, 2));
-    state.setValue(const Location(1, 7), TileValue.knight(false, 2));
-    state.setValue(const Location(1, 8), TileValue.rook(false, 2));
-    state.setValue(const Location(2, 1), TileValue.pawn(false, 1));
-    state.setValue(const Location(2, 2), TileValue.pawn(false, 2));
-    state.setValue(const Location(2, 3), TileValue.pawn(false, 3));
-    state.setValue(const Location(2, 4), TileValue.pawn(false, 4));
-    state.setValue(const Location(2, 5), TileValue.pawn(false, 5));
-    state.setValue(const Location(2, 6), TileValue.pawn(false, 6));
-    state.setValue(const Location(2, 7), TileValue.pawn(false, 7));
-    state.setValue(const Location(2, 8), TileValue.pawn(false, 8));
-    state.setValue(const Location(7, 1), TileValue.pawn(true, 1));
-    state.setValue(const Location(7, 2), TileValue.pawn(true, 2));
-    state.setValue(const Location(7, 3), TileValue.pawn(true, 3));
-    state.setValue(const Location(7, 4), TileValue.pawn(true, 4));
-    state.setValue(const Location(7, 5), TileValue.pawn(true, 5));
-    state.setValue(const Location(7, 6), TileValue.pawn(true, 6));
-    state.setValue(const Location(7, 7), TileValue.pawn(true, 7));
-    state.setValue(const Location(7, 8), TileValue.pawn(true, 8));
-    state.setValue(const Location(8, 1), TileValue.rook(true, 1));
-    state.setValue(const Location(8, 2), TileValue.knight(true, 1));
-    state.setValue(const Location(8, 3), TileValue.bishop(true, 1));
-    state.setValue(const Location(8, 4), TileValue.king(true));
-    state.setValue(const Location(8, 5), TileValue.queen(true, 1));
-    state.setValue(const Location(8, 6), TileValue.bishop(true, 2));
-    state.setValue(const Location(8, 7), TileValue.knight(true, 2));
-    state.setValue(const Location(8, 8), TileValue.rook(true, 2));
-    return state;
-  }
-
-  /// This will load a state from a string representing the board.
-  /// This string is the same as `toString(false)` of a state.
-  /// This will return false if there aren't 128 color piece letter pairs.
-  static State parse(List<String> data) {
-    final State state = State();
-    final Map<int, bool> used = <int, bool>{};
-    final StringGrid grid = StringGrid.parse(data);
-    if ((grid.rows != 8) || (grid.columns != 8)) throw Exception('Must provide an 8x8 board to parse a state.');
-    // Parse the cells of the given data into tile values.
-    for (int r = 0; r < 8; ++r) {
-      for (int c = 0; c < 8; ++c) {
-        final String value = grid.getCell(r, c).trim();
-        final TileValue tile = TileValue.parse(value);
-        if (!tile.empty) {
-          if (!tile.count.empty) used[tile.item.value] = true;
-          final int index = Location(r + 1, c + 1).index;
-          state._data[index] = tile.value;
-        }
-      }
-    }
-    // Set any counts which haven't been set yet.
-    for (int i = 0; i < 64; ++i) {
-      final TileValue tile = TileValue(state._data[i]);
-      if ((!tile.empty) && tile.count.empty) {
-        for (int count = 1; count < 64; ++count) {
-          final TileValue check = tile | TileValue(count);
-          if (!(used[check.item.value] ?? false)) {
-            used[check.item.value] = true;
-            state._data[i] = check.value;
-            break;
-          }
-        }
-      }
-    }
-    return state;
-  }
-
   /// This will copy the current state and return the copy.
   /// This will not modify previous or next states.
   State copy() {
-    final State state = State();
+    final state = State();
     for (int i = 0; i < 64; ++i) {
       state._data[i] = this._data[i];
     }
@@ -338,7 +353,7 @@ class State {
   /// This new copy will take the place of the next state in this state.
   /// The copy will have this state as it's previous state.
   State pushState() {
-    final State state = this.copy();
+    final state = this.copy();
     state.prev = this;
     this.next = state;
     return state;
@@ -349,13 +364,17 @@ class State {
 
   /// Gets the tile value at the given location.
   TileValue getValue(Location loc) {
-    if (!loc.onBoard) return TileValue.OOB;
+    if (!loc.onBoard) {
+      return TileValue.OOB;
+    }
     return this._dataAt(loc.index);
   }
 
   /// Sets the tile value to the given value at the given location.
   bool setValue(Location loc, TileValue value) {
-    if (!loc.onBoard) return false;
+    if (!loc.onBoard) {
+      return false;
+    }
     this._data[loc.index] = value.value;
     return true;
   }
@@ -363,10 +382,12 @@ class State {
   /// Finds the location of the given value on the board.
   /// The movement flag is ignored in the values.
   Location findItem(TileValue value) {
-    final TileValue item = value.item;
+    final item = value.item;
     for (int i = 0; i < this._data.length; ++i) {
-      final TileValue other = this._dataAt(i).item;
-      if (other == item) return Location.fromIndex(i);
+      final other = this._dataAt(i).item;
+      if (other == item) {
+        return locationFromIndex(i);
+      }
     }
     return const Location(0, 0);
   }
@@ -374,13 +395,17 @@ class State {
   /// Applies the given movement to the current state.
   void applyMovement(Movement move) {
     // Get both values before any piece has been moved.
-    final TileValue piece = this.getValue(move.source);
+    final piece = this.getValue(move.source);
     TileValue? other;
     final otherSource = move.otherSource;
-    if (otherSource != null) other = this.getValue(otherSource);
+    if (otherSource != null) {
+      other = this.getValue(otherSource);
+    }
     // Clear out both locations.
     this.setValue(move.source, TileValue.Empty);
-    if (other != null && otherSource != null) this.setValue(otherSource, TileValue.Empty);
+    if (other != null && otherSource != null) {
+      this.setValue(otherSource, TileValue.Empty);
+    }
     // Apply value to both locations.
     this.setValue(move.destination, piece | TileValue.Moved);
     final otherDestination = move.otherDestination;
@@ -391,7 +416,9 @@ class State {
   }
 
   /// Determines the board condition for the given color.
-  int condition(bool white) {
+  int condition(
+    final bool white,
+  ) {
     // TODO: Determine Stalemate
     if (this.isChecked(white)) {
       if (!hasAnyMovements(white)) {
@@ -403,73 +430,151 @@ class State {
   }
 
   /// Determines if the king of the given color could be taken by the opponent, putting it in check.
-  bool isChecked(bool white) {
-    final TileValue value = TileValue.king(white);
-    final Location loc = this.findItem(value);
-    if (!loc.onBoard) return false;
+  bool isChecked(
+    final bool white,
+  ) {
+    final value = kingTileValue(white);
+    final loc = this.findItem(value);
+    if (!loc.onBoard) {
+      return false;
+    }
     // Check for pawns
-    final int pawnSide = white ? -1 : 1;
-    if (this._hasValue(loc.offset(pawnSide, 1), !white, [TileValue.Pawn])) return true;
-    if (this._hasValue(loc.offset(pawnSide, -1), !white, [TileValue.Pawn])) return true;
+    final pawnSide = () {
+      if (white) {
+        return -1;
+      } else {
+        return 1;
+      }
+    }();
+    if (this._hasValue(loc.offset(pawnSide, 1), !white, [TileValue.Pawn])) {
+      return true;
+    }
+    if (this._hasValue(loc.offset(pawnSide, -1), !white, [TileValue.Pawn])) {
+      return true;
+    }
     // Check for knights
-    if (this._hasValue(loc.offset(2, 1), !white, [TileValue.Knight])) return true;
-    if (this._hasValue(loc.offset(2, -1), !white, [TileValue.Knight])) return true;
-    if (this._hasValue(loc.offset(1, 2), !white, [TileValue.Knight])) return true;
-    if (this._hasValue(loc.offset(-1, 2), !white, [TileValue.Knight])) return true;
-    if (this._hasValue(loc.offset(-2, 1), !white, [TileValue.Knight])) return true;
-    if (this._hasValue(loc.offset(-2, -1), !white, [TileValue.Knight])) return true;
-    if (this._hasValue(loc.offset(1, -2), !white, [TileValue.Knight])) return true;
-    if (this._hasValue(loc.offset(-1, -2), !white, [TileValue.Knight])) return true;
+    if (this._hasValue(loc.offset(2, 1), !white, [TileValue.Knight])) {
+      return true;
+    }
+    if (this._hasValue(loc.offset(2, -1), !white, [TileValue.Knight])) {
+      return true;
+    }
+    if (this._hasValue(loc.offset(1, 2), !white, [TileValue.Knight])) {
+      return true;
+    }
+    if (this._hasValue(loc.offset(-1, 2), !white, [TileValue.Knight])) {
+      return true;
+    }
+    if (this._hasValue(loc.offset(-2, 1), !white, [TileValue.Knight])) {
+      return true;
+    }
+    if (this._hasValue(loc.offset(-2, -1), !white, [TileValue.Knight])) {
+      return true;
+    }
+    if (this._hasValue(loc.offset(1, -2), !white, [TileValue.Knight])) {
+      return true;
+    }
+    if (this._hasValue(loc.offset(-1, -2), !white, [TileValue.Knight])) {
+      return true;
+    }
     // Check for queens, rooks, and bishop
     for (int i = 1; i < 8; ++i) {
       final Location checkLoc = loc.offset(0, i);
-      if (this._hasValue(checkLoc, !white, [TileValue.Rook, TileValue.Queen])) return true;
-      if (this._doneCheckingValues(checkLoc)) break;
+      if (this._hasValue(checkLoc, !white, [TileValue.Rook, TileValue.Queen])) {
+        return true;
+      }
+      if (this._doneCheckingValues(checkLoc)) {
+        break;
+      }
     }
     for (int i = 1; i < 8; ++i) {
       final Location checkLoc = loc.offset(0, -i);
-      if (this._hasValue(checkLoc, !white, [TileValue.Rook, TileValue.Queen])) return true;
-      if (this._doneCheckingValues(checkLoc)) break;
+      if (this._hasValue(checkLoc, !white, [TileValue.Rook, TileValue.Queen])) {
+        return true;
+      }
+      if (this._doneCheckingValues(checkLoc)) {
+        break;
+      }
     }
     for (int i = 1; i < 8; ++i) {
       final Location checkLoc = loc.offset(i, 0);
-      if (this._hasValue(checkLoc, !white, [TileValue.Rook, TileValue.Queen])) return true;
-      if (this._doneCheckingValues(checkLoc)) break;
+      if (this._hasValue(checkLoc, !white, [TileValue.Rook, TileValue.Queen])) {
+        return true;
+      }
+      if (this._doneCheckingValues(checkLoc)) {
+        break;
+      }
     }
     for (int i = 1; i < 8; ++i) {
       final Location checkLoc = loc.offset(-i, 0);
-      if (this._hasValue(checkLoc, !white, [TileValue.Rook, TileValue.Queen])) return true;
-      if (this._doneCheckingValues(checkLoc)) break;
+      if (this._hasValue(checkLoc, !white, [TileValue.Rook, TileValue.Queen])) {
+        return true;
+      }
+      if (this._doneCheckingValues(checkLoc)) {
+        break;
+      }
     }
     for (int i = 1; i < 8; ++i) {
       final Location checkLoc = loc.offset(i, i);
-      if (this._hasValue(checkLoc, !white, [TileValue.Bishop, TileValue.Queen])) return true;
-      if (this._doneCheckingValues(checkLoc)) break;
+      if (this._hasValue(checkLoc, !white, [TileValue.Bishop, TileValue.Queen])) {
+        return true;
+      }
+      if (this._doneCheckingValues(checkLoc)) {
+        break;
+      }
     }
     for (int i = 1; i < 8; ++i) {
       final Location checkLoc = loc.offset(i, -i);
-      if (this._hasValue(checkLoc, !white, [TileValue.Bishop, TileValue.Queen])) return true;
-      if (this._doneCheckingValues(checkLoc)) break;
+      if (this._hasValue(checkLoc, !white, [TileValue.Bishop, TileValue.Queen])) {
+        return true;
+      }
+      if (this._doneCheckingValues(checkLoc)) {
+        break;
+      }
     }
     for (int i = 1; i < 8; ++i) {
       final Location checkLoc = loc.offset(-i, i);
-      if (this._hasValue(checkLoc, !white, [TileValue.Bishop, TileValue.Queen])) return true;
-      if (this._doneCheckingValues(checkLoc)) break;
+      if (this._hasValue(checkLoc, !white, [TileValue.Bishop, TileValue.Queen])) {
+        return true;
+      }
+      if (this._doneCheckingValues(checkLoc)) {
+        break;
+      }
     }
     for (int i = 1; i < 8; ++i) {
       final Location checkLoc = loc.offset(-i, -i);
-      if (this._hasValue(checkLoc, !white, [TileValue.Bishop, TileValue.Queen])) return true;
-      if (this._doneCheckingValues(checkLoc)) break;
+      if (this._hasValue(checkLoc, !white, [TileValue.Bishop, TileValue.Queen])) {
+        return true;
+      }
+      if (this._doneCheckingValues(checkLoc)) {
+        break;
+      }
     }
     // Check for kings (to check that a king doesn't move into another kings space)
-    if (this._hasValue(loc.offset(1, 1), !white, [TileValue.King])) return true;
-    if (this._hasValue(loc.offset(1, 0), !white, [TileValue.King])) return true;
-    if (this._hasValue(loc.offset(1, -1), !white, [TileValue.King])) return true;
-    if (this._hasValue(loc.offset(0, -1), !white, [TileValue.King])) return true;
-    if (this._hasValue(loc.offset(-1, -1), !white, [TileValue.King])) return true;
-    if (this._hasValue(loc.offset(-1, 0), !white, [TileValue.King])) return true;
-    if (this._hasValue(loc.offset(-1, 1), !white, [TileValue.King])) return true;
-    if (this._hasValue(loc.offset(0, 1), !white, [TileValue.King])) return true;
+    if (this._hasValue(loc.offset(1, 1), !white, [TileValue.King])) {
+      return true;
+    }
+    if (this._hasValue(loc.offset(1, 0), !white, [TileValue.King])) {
+      return true;
+    }
+    if (this._hasValue(loc.offset(1, -1), !white, [TileValue.King])) {
+      return true;
+    }
+    if (this._hasValue(loc.offset(0, -1), !white, [TileValue.King])) {
+      return true;
+    }
+    if (this._hasValue(loc.offset(-1, -1), !white, [TileValue.King])) {
+      return true;
+    }
+    if (this._hasValue(loc.offset(-1, 0), !white, [TileValue.King])) {
+      return true;
+    }
+    if (this._hasValue(loc.offset(-1, 1), !white, [TileValue.King])) {
+      return true;
+    }
+    if (this._hasValue(loc.offset(0, 1), !white, [TileValue.King])) {
+      return true;
+    }
     return false;
   }
 
@@ -496,7 +601,9 @@ class State {
     movers ??= [];
     for (int i = 0; i < 64; ++i) {
       final TileValue value = this._dataAt(i);
-      if (!value.empty && value.white == white) this.getMovements(Location.fromIndex(i), movers);
+      if (!value.empty && value.white == white) {
+        this.getMovements(locationFromIndex(i), movers);
+      }
     }
     return movers;
   }
@@ -514,7 +621,9 @@ class State {
     for (int i = 0; i < 64; ++i) {
       final TileValue value = this._dataAt(i);
       if (!value.empty && value.white == white) {
-        if (this.hasMovements(Location.fromIndex(i))) return true;
+        if (this.hasMovements(locationFromIndex(i))) {
+          return true;
+        }
       }
     }
     return false;
@@ -531,40 +640,54 @@ class State {
 
   /// Determines if the given movement is a valid possible move on this board.
   bool isValidMovement(Movement? move) {
-    if (move == null) return false;
+    if (move == null) {
+      return false;
+    }
     bool movementFound = false;
     this.forEachMovements((Movement other) {
       if (movementFound) return;
       if ((other.source == move.source) &&
           (other.destination == move.destination) &&
           (other.otherSource == move.otherSource) &&
-          (other.otherDestination == move.otherDestination)) movementFound = true;
+          (other.otherDestination == move.otherDestination)) {
+        movementFound = true;
+      }
     }, move.source);
     return movementFound;
   }
 
   /// Calls back any possible movements via the given handler for the given location.
-  void forEachMovements(MovementCallback hndl, Location loc) {
-    if (!loc.onBoard) return;
-    final TileValue value = this.getValue(loc);
-    // Prevent any movements from being suggested which will put current player into check.
-    final MovementCallback filtered = (Movement move) {
-      final State testState = this.copy();
-      testState.applyMovement(move);
-      if (!testState.isChecked(value.white)) hndl(move);
-    };
-    final TileValue piece = value.piece;
-    if (piece == TileValue.Pawn) {
-      this._pawnMovement(filtered, loc);
-    } else if (piece == TileValue.Rook) {
-      this._rookMovement(filtered, loc);
-    } else if (piece == TileValue.Knight) {
-      this._knightMovement(filtered, loc);
-    } else if (piece == TileValue.Bishop) {
-      this._bishopMovement(filtered, loc);
-    } else if (piece == TileValue.Queen) {
-      this._queenMovement(filtered, loc);
-    } else if (piece == TileValue.King) this._kingMovement(filtered, loc);
+  void forEachMovements(
+    final MovementCallback hndl,
+    final Location loc,
+  ) {
+    if (!loc.onBoard) {
+      return;
+    } else {
+      final value = this.getValue(loc);
+      // Prevent any movements from being suggested which will put current player into check.
+      final filtered = (final Movement move) {
+        final testState = this.copy();
+        testState.applyMovement(move);
+        if (!testState.isChecked(value.white)) {
+          hndl(move);
+        }
+      };
+      final piece = value.piece;
+      if (piece == TileValue.Pawn) {
+        this._pawnMovement(filtered, loc);
+      } else if (piece == TileValue.Rook) {
+        this._rookMovement(filtered, loc);
+      } else if (piece == TileValue.Knight) {
+        this._knightMovement(filtered, loc);
+      } else if (piece == TileValue.Bishop) {
+        this._bishopMovement(filtered, loc);
+      } else if (piece == TileValue.Queen) {
+        this._queenMovement(filtered, loc);
+      } else if (piece == TileValue.King) {
+        this._kingMovement(filtered, loc);
+      }
+    }
   }
 
   /// Checks if the given movement is possible for move or take.
@@ -574,7 +697,9 @@ class State {
   /// Returns false if this was a movement, true if off board or a non empty tile.
   bool _movement(MovementCallback hndl, Location source, int deltaRow, int deltaColumn) {
     final Location dest = source.offset(deltaRow, deltaColumn);
-    if (!dest.onBoard) return true;
+    if (!dest.onBoard) {
+      return true;
+    }
     final TileValue srcValue = this.getValue(source);
     final TileValue destValue = this.getValue(dest);
     if (destValue.empty) {
@@ -615,7 +740,13 @@ class State {
     final TileValue value = this.getValue(loc);
     final bool white = value.white;
     final bool moved = value.moved;
-    final int dir = white ? -1 : 1;
+    final int dir = () {
+      if (white) {
+        return -1;
+      } else {
+        return 1;
+      }
+    }();
     // Check forward movement for vacancies
     Location dest = loc.offset(dir, 0);
     TileValue otherVal = this.getValue(dest);
@@ -646,7 +777,15 @@ class State {
     }
     // Check for en passent condition
     final prev = this.prev;
-    if ((prev != null) && (loc.row == (white ? 4 : 5))) {
+    if ((prev != null) &&
+        (loc.row ==
+            (() {
+              if (white) {
+                return 4;
+              } else {
+                return 5;
+              }
+            }()))) {
       dest = loc.offset(dir, -1);
       if (dest.onBoard && this.getValue(dest).empty) {
         final Location oppLoc = loc.offset(0, -1);
@@ -693,11 +832,23 @@ class State {
     this._movementPath(hndl, loc, -1, 0);
     // Check for castle condition
     if (!moved) {
-      final Location kingLoc = Location(white ? 8 : 1, 4);
+      final Location kingLoc = Location((){
+        if (white) {
+          return 8;
+        } else {
+          return 1;
+        }
+      }(), 4);
       final TileValue kingVal = this.getValue(kingLoc);
       if ((kingVal.piece == TileValue.King) && !kingVal.moved) {
         bool allEmpty = true;
-        final int dir = (loc.column > kingLoc.column) ? -1 : 1;
+        final dir = (){
+          if (loc.column > kingLoc.column) {
+            return -1;
+          } else {
+            return 1;
+          }
+        }();
         for (int c = loc.column + dir; c != kingLoc.column; c += dir) {
           if (!this.getValue(Location(loc.row, c)).empty) {
             allEmpty = false;
@@ -788,7 +939,13 @@ class State {
         final TileValue rookVal = this.getValue(rookLoc);
         if ((rookVal.piece == TileValue.Rook) && !rookVal.moved) {
           bool allEmpty = true;
-          final int dir = (loc.column > rookLoc.column) ? -1 : 1;
+          final dir = (){
+            if (loc.column > rookLoc.column) {
+              return -1;
+            } else {
+              return 1;
+            }
+          }();
           for (int i = loc.column + dir; i != rookLoc.column; i += dir) {
             if (!this.getValue(Location(loc.row, i)).empty) {
               allEmpty = false;
@@ -832,6 +989,28 @@ class State {
   }
 }
 
+/// Parses a set of strings which represents a grid.
+/// The columns in each given row are separated by a pipe character.
+StringGrid parseStringGrid(
+  final List<String> rows,
+) {
+  final List<List<String>> cells = [];
+  int maxColumns = 0;
+  for (int r = 0; r < rows.length; ++r) {
+    final List<String> columns = rows[r].split('|');
+    if (columns.length > maxColumns) maxColumns = columns.length;
+    cells.add(columns);
+  }
+  final StringGrid grid = StringGrid(rows.length, maxColumns);
+  for (int r = 0; r < cells.length; ++r) {
+    final List<String> columns = cells[r];
+    for (int c = 0; c < columns.length; ++c) {
+      grid.setCell(r, c, columns[c]);
+    }
+  }
+  return grid;
+}
+
 /// A tool for building an evenly spaced multi-line string output
 /// which is human readable for debugging and unit-testing.
 class StringGrid {
@@ -842,65 +1021,63 @@ class StringGrid {
   final int columns;
 
   /// The content for each cell of the grid stored by column then row.
-  List<String> _content;
+  final List<String> _content;
 
   /// A flag to indicate if the row and column numbers should be shown.
   bool showLabels;
 
   /// Constructs a new empty string grid tool.
-  StringGrid([this.rows = 8, this.columns = 8])
-      : this._content = List.filled(rows * columns, ''),
+  StringGrid([
+    final this.rows = 8,
+    final this.columns = 8,
+  ])  : this._content = List.filled(
+          rows * columns,
+          '',
+        ),
         this.showLabels = false;
 
-  /// Parses a set of strings which represents a grid.
-  /// The columns in each given row are separated by a pipe character.
-  factory StringGrid.parse(List<String> rows) {
-    final List<List<String>> cells = [];
-    int maxColumns = 0;
-    for (int r = 0; r < rows.length; ++r) {
-      final List<String> columns = rows[r].split('|');
-      if (columns.length > maxColumns) maxColumns = columns.length;
-      cells.add(columns);
-    }
-    final StringGrid grid = StringGrid(rows.length, maxColumns);
-    for (int r = 0; r < cells.length; ++r) {
-      final List<String> columns = cells[r];
-      for (int c = 0; c < columns.length; ++c) {
-        grid.setCell(r, c, columns[c]);
-      }
-    }
-    return grid;
-  }
-
   /// Gets the index into the grid data, or -1 if out of bounds.
-  int _index(int row, int column) {
+  int _index(
+    final int row,
+    final int column,
+  ) {
     final int index = row * this.rows + column;
-    if ((index < 0) || (index >= this.rows * this.columns)) return -1;
+    if ((index < 0) || (index >= this.rows * this.columns)) {
+      return -1;
+    }
     return index;
   }
 
   /// Sets the cell value in the grid at the given row and column.
   void setCell(int row, int column, String value) {
     final int index = this._index(row, column);
-    if (index < 0) return;
+    if (index < 0) {
+      return;
+    }
     this._content[index] = value;
   }
 
   /// Gets the value of the grid cell at the given row and column.
   String getCell(int row, int column) {
     final int index = this._index(row, column);
-    if (index < 0) return '';
+    if (index < 0) {
+      return '';
+    }
     return this._content[index];
   }
 
   /// Determines the maximum width of all the cells.
   int _maxContentWidth() {
     final int count = this._content.length;
-    if (count <= 0) return 0;
+    if (count <= 0) {
+      return 0;
+    }
     int maxWidth = (this._content[0]).length;
     for (int i = 1; i < count; ++i) {
       final int width = (this._content[i]).length;
-      if (width > maxWidth) maxWidth = width;
+      if (width > maxWidth) {
+        maxWidth = width;
+      }
     }
     return maxWidth;
   }
@@ -936,6 +1113,96 @@ class StringGrid {
     return rows.join('\n');
   }
 }
+
+/// Constructs a value from a given color letter.
+/// 'W' for a white value, 'B' for a black value, otherwise empty.
+TileValue colorFromLetterTileValue(String value) {
+  switch (value) {
+    case 'W':
+      return TileValue.White;
+    case 'B':
+      return TileValue.Black;
+    default:
+      return TileValue.Empty;
+  }
+}
+
+/// Constructs a value from a given piece kind letter.
+/// 'P' for a pawn value, 'R' for a rook value, 'H' for a knight value,
+/// 'B' for a bishop value, 'Q' for a queen value, 'K' for a king value,
+/// otherwise empty.
+TileValue pieceFromLetterTileValue(String value) {
+  switch (value) {
+    case 'P':
+      return TileValue.Pawn;
+    case 'R':
+      return TileValue.Rook;
+    case 'H':
+      return TileValue.Knight;
+    case 'B':
+      return TileValue.Bishop;
+    case 'Q':
+      return TileValue.Queen;
+    case 'K':
+      return TileValue.King;
+    default:
+      return TileValue.Empty;
+  }
+}
+
+/// Constructs a tile value from the given string.
+/// If it starts with a plus sign, then the piece has moved. If there are piece values, it will
+/// be two characters, the first is the color and the second is the piece kind.
+/// An optional since digit number may be added to set the piece's count.
+TileValue parseTileValue(String str) {
+  if (str.isEmpty) {
+    return TileValue.Empty;
+  }
+  TileValue value = TileValue.Empty;
+  if (str[0] == '+') {
+    value |= TileValue.Moved;
+    // ignore: parameter_assignments
+    str = str.substring(1);
+  }
+  if (str.length < 2) {
+    return TileValue.Empty;
+  }
+  value |= colorFromLetterTileValue(str[0]) | pieceFromLetterTileValue(str[1]);
+  if (str.length > 2) {
+    value |= TileValue(int.parse(str[2])).count;
+  }
+  return value;
+}
+
+/// Constructs a non-moved piece with the given conditions.
+TileValue _pieceTileValue(TileValue piece, bool white, int count) {
+  return piece |
+      (() {
+        if (white) {
+          return TileValue.White;
+        } else {
+          return TileValue.Black;
+        }
+      }()) |
+      (TileValue(count) & TileValue.Count);
+}
+
+TileValue pawnTileValue(bool white, int count) => _pieceTileValue(TileValue.Pawn, white, count);
+
+/// Constructs a pawn value.
+TileValue rookTileValue(bool white, int count) => _pieceTileValue(TileValue.Rook, white, count);
+
+/// Constructs a rook value.
+TileValue knightTileValue(bool white, int count) => _pieceTileValue(TileValue.Knight, white, count);
+
+/// Constructs a knight value.
+TileValue bishopTileValue(bool white, int count) => _pieceTileValue(TileValue.Bishop, white, count);
+
+/// Constructs a bishop value.
+TileValue queenTileValue(bool white, [int count = 1]) => _pieceTileValue(TileValue.Queen, white, count);
+
+/// Constructs a queen value.
+TileValue kingTileValue(bool white) => _pieceTileValue(TileValue.King, white, 1);
 
 /// This is the value stored in a chess board location.
 /// This may or no may contain information about a piece.
@@ -994,80 +1261,6 @@ class TileValue {
   /// Constructs a new tile value.
   TileValue(this.value);
 
-  /// Constructs a value from a given color letter.
-  /// 'W' for a white value, 'B' for a black value, otherwise empty.
-  factory TileValue.colorFromLetter(String value) {
-    switch (value) {
-      case 'W':
-        return White;
-      case 'B':
-        return Black;
-      default:
-        return Empty;
-    }
-  }
-
-  /// Constructs a value from a given piece kind letter.
-  /// 'P' for a pawn value, 'R' for a rook value, 'H' for a knight value,
-  /// 'B' for a bishop value, 'Q' for a queen value, 'K' for a king value,
-  /// otherwise empty.
-  factory TileValue.pieceFromLetter(String value) {
-    switch (value) {
-      case 'P':
-        return Pawn;
-      case 'R':
-        return Rook;
-      case 'H':
-        return Knight;
-      case 'B':
-        return Bishop;
-      case 'Q':
-        return Queen;
-      case 'K':
-        return King;
-      default:
-        return Empty;
-    }
-  }
-
-  /// Constructs a tile value from the given string.
-  /// If it starts with a plus sign, then the piece has moved. If there are piece values, it will
-  /// be two characters, the first is the color and the second is the piece kind.
-  /// An optional since digit number may be added to set the piece's count.
-  factory TileValue.parse(String str) {
-    if (str.isEmpty) return Empty;
-    TileValue value = Empty;
-    if (str[0] == '+') {
-      value |= Moved;
-      str = str.substring(1);
-    }
-    if (str.length < 2) return Empty;
-    value |= TileValue.colorFromLetter(str[0]) | TileValue.pieceFromLetter(str[1]);
-    if (str.length > 2) value |= TileValue(int.parse(str[2])).count;
-    return value;
-  }
-
-  /// Constructs a non-moved piece with the given conditions.
-  factory TileValue._piece(TileValue piece, bool white, int count) =>
-      piece | (white ? White : Black) | (TileValue(count) & Count);
-
-  factory TileValue.pawn(bool white, int count) => TileValue._piece(Pawn, white, count);
-
-  /// Constructs a pawn value.
-  factory TileValue.rook(bool white, int count) => TileValue._piece(Rook, white, count);
-
-  /// Constructs a rook value.
-  factory TileValue.knight(bool white, int count) => TileValue._piece(Knight, white, count);
-
-  /// Constructs a knight value.
-  factory TileValue.bishop(bool white, int count) => TileValue._piece(Bishop, white, count);
-
-  /// Constructs a bishop value.
-  factory TileValue.queen(bool white, [int count = 1]) => TileValue._piece(Queen, white, count);
-
-  /// Constructs a queen value.
-  factory TileValue.king(bool white) => TileValue._piece(King, white, 1);
-
   /// Constructs a king value.
 
   /// Creates a new tile value with is the OR of the two raw values.
@@ -1120,27 +1313,46 @@ class TileValue {
   /// Indicates if these two tile values are equal.
   @override
   bool operator ==(Object other) {
-    if (other is! TileValue) return false;
-    return this.value == other.value;
+    if (other is! TileValue) {
+      return false;
+    } else {
+      return this.value == other.value;
+    }
   }
 
   /// Gets the letter for the given color.
   String get colorLetter {
     final TileValue color = this.color;
-    if (color == Black) return 'B';
-    if (color == White) return 'W';
+    if (color == Black) {
+      return 'B';
+    }
+    if (color == White) {
+      return 'W';
+    }
     return ' ';
   }
 
   /// Gets the letter for the piece kind.
   String get pieceLetter {
     final TileValue piece = this.piece;
-    if (piece == Pawn) return 'P';
-    if (piece == Rook) return 'R';
-    if (piece == Knight) return 'H';
-    if (piece == Bishop) return 'B';
-    if (piece == Queen) return 'Q';
-    if (piece == King) return 'K';
+    if (piece == Pawn) {
+      return 'P';
+    }
+    if (piece == Rook) {
+      return 'R';
+    }
+    if (piece == Knight) {
+      return 'H';
+    }
+    if (piece == Bishop) {
+      return 'B';
+    }
+    if (piece == Queen) {
+      return 'Q';
+    }
+    if (piece == King) {
+      return 'K';
+    }
     return ' ';
   }
 
@@ -1154,12 +1366,24 @@ class TileValue {
   /// Gets the long name of this piece kind.
   String get pieceName {
     final TileValue piece = this.piece;
-    if (piece == Pawn) return 'Pawn';
-    if (piece == Rook) return 'Rook';
-    if (piece == Knight) return 'Knight';
-    if (piece == Bishop) return 'Bishop';
-    if (piece == Queen) return 'Queen';
-    if (piece == King) return 'King';
+    if (piece == Pawn) {
+      return 'Pawn';
+    }
+    if (piece == Rook) {
+      return 'Rook';
+    }
+    if (piece == Knight) {
+      return 'Knight';
+    }
+    if (piece == Bishop) {
+      return 'Bishop';
+    }
+    if (piece == Queen) {
+      return 'Queen';
+    }
+    if (piece == King) {
+      return 'King';
+    }
     return 'Empty';
   }
 
@@ -1174,7 +1398,13 @@ class TileValue {
     } else {
       String result = '';
       if (showMoved) {
-        result += this.moved ? '+' : ' ';
+        result += (){
+          if (this.moved) {
+            return '+';
+          } else {
+            return ' ';
+          }
+        }();
       }
       result += this.colorLetter;
       result += this.pieceLetter;

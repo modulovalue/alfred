@@ -1075,7 +1075,9 @@ class _Runner {
           buf.write('<${item.rule.term?.name ?? ''}>');
         } else if (item is _parsetree.TokenNode) {
           buf.write('[${item.token.name}]');
-        } else if (item is _parsetree.TriggerNode) buf.write('{${item.trigger}}');
+        } else if (item is _parsetree.TriggerNode) {
+          buf.write('{${item.trigger}}');
+        }
       }
     }
     return buf.toString();

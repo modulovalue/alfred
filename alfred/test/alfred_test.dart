@@ -6,6 +6,7 @@ import 'package:alfred/alfred/impl/logging/log_type.dart';
 import 'package:alfred/alfred/impl/logging/mixin.dart';
 import 'package:alfred/alfred/impl/logging/print.dart';
 import 'package:alfred/alfred/impl/middleware/bytes.dart';
+import 'package:alfred/alfred/impl/middleware/bytes_stream.dart';
 import 'package:alfred/alfred/impl/middleware/closing.dart';
 import 'package:alfred/alfred/impl/middleware/cors.dart';
 import 'package:alfred/alfred/impl/middleware/io_dir.dart';
@@ -34,82 +35,109 @@ void main() {
   });
   test('it should return a string correctly', () async {
     await runTest(fn: (final app, final built, final port) async {
-      app.addRoutes(
-        [
-          const RouteGet(
-            path: '/test',
-            middleware: ServeString('test string'),
-          ),
-        ],
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/test',
+              middleware: const ServeString(
+                string: 'test string',
+              ),
+            ),
+          ],
+        ),
       );
-      final response = await http.get(Uri.parse('http://localhost:$port/test'));
+      final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(response.body, 'test string');
     });
   });
   test('it should return json', () async {
     await runTest(fn: (final app, final built, final port) async {
-      app.addRoutes(
-        [
-          const RouteGet(
-            path: '/test',
-            middleware: ServeJson.map({'test': true}),
-          )
-        ],
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/test',
+              middleware: const ServeJson.map(
+                map: {
+                  'test': true,
+                },
+              ),
+            ),
+          ],
+        ),
       );
-      final response = await http.get(Uri.parse('http://localhost:$port/test'));
+      final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(response.headers['content-type'], 'application/json; charset=utf-8');
       expect(response.body, '{"test":true}');
     });
   });
   test('it should return an image', () async {
     await runTest(fn: (final app, final built, final port) async {
-      app.addRoutes(
-        [
-          const RouteGet(
-            path: '/test',
-            middleware: ServeFileStringPathImpl('test/files/image.jpg'),
-          ),
-        ],
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/test',
+              middleware: const ServeFileStringPathImpl(
+                path: 'test/files/image.jpg',
+              ),
+            ),
+          ],
+        ),
       );
-      final response = await http.get(Uri.parse('http://localhost:$port/test'));
+      final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(response.headers['content-type'], 'image/jpeg');
     });
   });
   test('it should return a pdf', () async {
     await runTest(fn: (final app, final built, final port) async {
-      app.addRoutes(
-        [
-          const RouteGet(
-            path: '/test',
-            middleware: ServeFileStringPathImpl('test/files/dummy.pdf'),
-          ),
-        ],
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/test',
+              middleware: const ServeFileStringPathImpl(
+                path: 'test/files/dummy.pdf',
+              ),
+            ),
+          ],
+        ),
       );
-      final response = await http.get(Uri.parse('http://localhost:$port/test'));
+      final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(response.headers['content-type'], 'application/pdf');
     });
   });
   test('routing should, you know, work', () async {
     await runTest(fn: (final app, final built, final port) async {
-      app.addRoutes(
-        [
-          const RouteGet(
-            path: '/test',
-            middleware: ServeString('test_route'),
-          ),
-          const RouteGet(
-            path: '/testRoute',
-            middleware: ServeString('test_route_route'),
-          ),
-          const RouteGet(
-            path: '/a',
-            middleware: ServeString('a_route'),
-          ),
-        ],
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/test',
+              middleware: const ServeString(
+                string: 'test_route',
+              ),
+            ),
+            Route.get(
+              path: '/testRoute',
+              middleware: const ServeString(
+                string: 'test_route_route',
+              ),
+            ),
+            Route.get(
+              path: '/a',
+              middleware: const ServeString(
+                string: 'a_route',
+              ),
+            ),
+          ],
+        ),
       );
-      expect((await http.get(Uri.parse('http://localhost:$port/test'))).body, 'test_route');
-      expect((await http.get(Uri.parse('http://localhost:$port/testRoute'))).body, 'test_route_route');
-      expect((await http.get(Uri.parse('http://localhost:$port/a'))).body, 'a_route');
+      expect((await http.get(Uri.parse('http://localhost:' + port.toString() + '/test'))).body, 'test_route');
+      expect(
+          (await http.get(Uri.parse('http://localhost:' + port.toString() + '/testRoute'))).body, 'test_route_route');
+      expect((await http.get(Uri.parse('http://localhost:' + port.toString() + '/a'))).body, 'a_route');
     });
   });
   test('error handling', () async {
@@ -117,24 +145,31 @@ void main() {
       await built.close();
       app = makeSimpleAlfred(
         onInternalError: (dynamic e) => MiddlewareBuilder(
-          (c) {
+          process: (final c) {
             c.res.statusCode = 500;
-            return const ServeJson.map({'message': 'error not handled'}).process(c);
+            return const ServeJson.map(
+              map: {
+                'message': 'error not handled',
+              },
+            ).process(c);
           },
         ),
       );
       await buildAlfred(alfred: app, port: port);
-      app.addRoutes(
-        [
-          RouteGet(
-            path: '/throwserror',
-            middleware: MiddlewareBuilder(
-              (_) => throw Exception('generic exception'),
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/throwserror',
+              middleware: MiddlewareBuilder(
+                process: (final _) => throw Exception('generic exception'),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
-      expect((await http.get(Uri.parse('http://localhost:$port/throwserror'))).body, '{"message":"error not handled"}');
+      expect((await http.get(Uri.parse('http://localhost:' + port.toString() + '/throwserror'))).body,
+          '{"message":"error not handled"}');
     });
   });
   test('error default handling', () async {
@@ -142,15 +177,19 @@ void main() {
       await built.close();
       app = makeSimpleAlfred();
       await buildAlfred(alfred: app, port: port);
-      app.addRoutes(
-        [
-          RouteGet(
-            path: '/throwserror',
-            middleware: MiddlewareBuilder((_) => throw Exception('generic exception')),
-          ),
-        ],
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/throwserror',
+              middleware: MiddlewareBuilder(
+                process: (final _) => throw Exception('generic exception'),
+              ),
+            ),
+          ],
+        ),
       );
-      final response = await http.get(Uri.parse('http://localhost:$port/throwserror'));
+      final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/throwserror'));
       expect(response.body, 'Exception: generic exception');
     });
   });
@@ -159,14 +198,18 @@ void main() {
       await built.close();
       app = makeSimpleAlfred(
         onNotFound: MiddlewareBuilder(
-          (final c) async {
+          process: (final c) async {
             c.res.statusCode = 404;
-            return const ServeJson.map({'message': 'not found'}).process(c);
+            return const ServeJson.map(
+              map: {
+                'message': 'not found',
+              },
+            ).process(c);
           },
         ),
       );
       await buildAlfred(alfred: app, port: port);
-      final response = await http.get(Uri.parse('http://localhost:$port/notfound'));
+      final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/notfound'));
       expect(response.body, '{"message":"not found"}');
       expect(response.statusCode, 404);
     });
@@ -176,47 +219,51 @@ void main() {
       await built.close();
       app = makeSimpleAlfred();
       await buildAlfred(alfred: app, port: port);
-      final response = await http.get(Uri.parse('http://localhost:$port/notfound'));
+      final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/notfound'));
       expect(response.body, '404 not found');
       expect(response.statusCode, 404);
     });
   });
   test('not found with middleware', () async {
     await runTest(fn: (final app, final built, final port) async {
-      app.addRoutes(
-        [
-          const RouteAll(
-            path: '*',
-            middleware: CorsMiddleware(),
-          ),
-          const RouteGet(
-            path: 'resource2',
-            middleware: ClosingMiddleware(),
-          ),
-        ],
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.all(
+              path: '*',
+              middleware: const CorsMiddleware(),
+            ),
+            Route.get(
+              path: 'resource2',
+              middleware: const ClosingMiddleware(),
+            ),
+          ],
+        ),
       );
-      final r1 = await http.get(Uri.parse('http://localhost:$port/resource1'));
+      final r1 = await http.get(Uri.parse('http://localhost:' + port.toString() + '/resource1'));
       expect(r1.body, '404 not found');
       expect(r1.statusCode, 404);
-      final r2 = await http.get(Uri.parse('http://localhost:$port/resource2'));
+      final r2 = await http.get(Uri.parse('http://localhost:' + port.toString() + '/resource2'));
       expect(r2.body, '');
       expect(r2.statusCode, 200);
     });
   });
   test('not found with directory type handler', () async {
     await runTest(fn: (final app, final built, final port) async {
-      app.addRoutes(
-        [
-          const RouteGet(
-            path: '/files/*',
-            middleware: ServeDirectoryStringPathImpl(
-              'test/files',
-              AlfredLoggingDelegatePrintImpl(),
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/files/*',
+              middleware: const ServeDirectoryStringPathImpl(
+                path: 'test/files',
+                log: AlfredLoggingDelegatePrintImpl(),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
-      final r = await http.get(Uri.parse('http://localhost:$port/files/no-file.zip'));
+      final r = await http.get(Uri.parse('http://localhost:' + port.toString() + '/files/no-file.zip'));
       expect(r.body, '404 not found');
       expect(r.statusCode, 404);
     });
@@ -224,108 +271,145 @@ void main() {
   test('not found with file type handler', () async {
     await runTest(
       fn: (app, built, port) async {
-        app.addRoutes(
-          [
-            const RouteGet(
-              path: '/index.html',
-              middleware: ServeFileStringPathImpl('does-not.exists'),
-            ),
-          ],
+        app.router.add(
+          routes: Routes(
+            routes: [
+              Route.get(
+                path: '/index.html',
+                middleware: const ServeFileStringPathImpl(
+                  path: 'does-not.exists',
+                ),
+              ),
+            ],
+          ),
         );
-        final r = await http.get(Uri.parse('http://localhost:$port/index.html'));
+        final r = await http.get(Uri.parse('http://localhost:' + port.toString() + '/index.html'));
         expect(r.body, 'Custom404Message');
         expect(r.statusCode, 404);
       },
-      notFound: MiddlewareBuilder((c) {
-        c.res.statusCode = HttpStatus.notFound;
-        return const ServeString('Custom404Message').process(c);
-      }),
+      notFound: MiddlewareBuilder(
+        process: (final c) {
+          c.res.statusCode = HttpStatus.notFound;
+          return const ServeString(
+            string: 'Custom404Message',
+          ).process(c);
+        },
+      ),
     );
   });
   test('it handles a post request', () async {
-    await runTest(fn: (app, built, port) async {
-      app.addRoutes([
-        const RoutePut(
-          path: '/test',
-          middleware: ServeString('test string'),
+    await runTest(fn: (final app, final built, final port) async {
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.put(
+              path: '/test',
+              middleware: const ServeString(
+                string: 'test string',
+              ),
+            ),
+          ],
         ),
-      ]);
-      final response = await http.post(Uri.parse('http://localhost:$port/test'));
+      );
+      // TODO gives a 404 not found?
+      print(port);
+      final response = await http.post(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(response.body, 'test string');
     });
   });
   test('it handles a put request', () async {
     await runTest(fn: (app, built, port) async {
-      app.addRoutes(
-        [
-          const RoutePut(
-            path: '/test',
-            middleware: ServeString('test string'),
-          ),
-        ],
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.put(
+              path: '/test',
+              middleware: const ServeString(
+                string: 'test string',
+              ),
+            ),
+          ],
+        ),
       );
-      final response = await http.put(Uri.parse('http://localhost:$port/test'));
+      final response = await http.put(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(response.body, 'test string');
     });
   });
   test('it handles a delete request', () async {
     await runTest(fn: (app, built, port) async {
-      app.addRoutes(
-        [
-          const RoutePut(
-            path: '/test',
-            middleware: ServeString('test string'),
-          ),
-        ],
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.put(
+              path: '/test',
+              middleware: const ServeString(
+                string: 'test string',
+              ),
+            ),
+          ],
+        ),
       );
-      final response = await http.delete(Uri.parse('http://localhost:$port/test'));
+      // TODO gives a 404 not found
+      final response = await http.delete(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(response.body, 'test string');
     });
   });
   test('it handles an options request', () async {
     await runTest(fn: (app, built, port) async {
-      app.addRoutes(
-        [
-          const RoutePut(
-            path: '/test',
-            middleware: ServeString('test string'),
-          ),
-        ],
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.put(
+              path: '/test',
+              middleware: const ServeString(
+                string: 'test string',
+              ),
+            ),
+          ],
+        ),
       );
-      // TODO: Need to find a way to send an options request. The HTTP library doesn't
-      /// seem to support it.
+      // TODO: Need to find a way to send an options request. The HTTP library doesn't seem to support it.
       // final response = await http.head(Uri.parse("http://localhost:$port/test"));
       // expect(response.body, "test string");
     });
   });
   test('it handles a patch request', () async {
     await runTest(fn: (app, built, port) async {
-      app.addRoutes(
-        [
-          const RoutePut(
-            path: '/test',
-            middleware: ServeString('test string'),
-          ),
-        ],
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.put(
+              path: '/test',
+              middleware: const ServeString(
+                string: 'test string',
+              ),
+            ),
+          ],
+        ),
       );
-      final response = await http.patch(Uri.parse('http://localhost:$port/test'));
+      // TODO gives a 404 not found.
+      final response = await http.patch(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(response.body, 'test string');
     });
   });
   test('it handles a route that hits all methods', () async {
     await runTest(fn: (app, built, port) async {
-      app.addRoutes(
-        [
-          const RouteAll(
-            path: '/test',
-            middleware: ServeString('test all'),
-          ),
-        ],
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.all(
+              path: '/test',
+              middleware: const ServeString(
+                string: 'test all',
+              ),
+            ),
+          ],
+        ),
       );
-      final responseGet = await http.get(Uri.parse('http://localhost:$port/test'));
-      final responsePost = await http.post(Uri.parse('http://localhost:$port/test'));
-      final responsePut = await http.put(Uri.parse('http://localhost:$port/test'));
-      final responseDelete = await http.delete(Uri.parse('http://localhost:$port/test'));
+      final responseGet = await http.get(Uri.parse('http://localhost:' + port.toString() + '/test'));
+      final responsePost = await http.post(Uri.parse('http://localhost:' + port.toString() + '/test'));
+      final responsePut = await http.put(Uri.parse('http://localhost:' + port.toString() + '/test'));
+      final responseDelete = await http.delete(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(responseGet.body, 'test all');
       expect(responsePost.body, 'test all');
       expect(responsePut.body, 'test all');
@@ -334,86 +418,104 @@ void main() {
   });
   test('it closes out a request if you fail to', () async {
     await runTest(fn: (app, built, port) async {
-      app.addRoutes(
-        [
-          const RouteGet(
-            path: '/test',
-            middleware: NonClosingMiddleware(),
-          ),
-        ],
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/test',
+              middleware: const NonClosingMiddleware(),
+            ),
+          ],
+        ),
       );
-      final response = await http.get(Uri.parse('http://localhost:$port/test'));
+      final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(response.body, '');
     });
   });
   test('it throws and handles an exception', () async {
     await runTest(fn: (app, built, port) async {
-      app.addRoutes(
-        [
-          RouteGet(
-            path: '/test',
-            middleware: MiddlewareBuilder(
-              (_) async => throw const _AlfredExceptionImpl(360, 'exception'),
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/test',
+              middleware: MiddlewareBuilder(
+                process: (final _) async => throw const _AlfredExceptionImpl(360, 'exception'),
+              ),
             ),
-          )
-        ],
+          ],
+        ),
       );
-      final response = await http.get(Uri.parse('http://localhost:$port/test'));
+      // TODO does not return exception
+      final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(response.body, 'exception');
       expect(response.statusCode, 360);
     });
   });
   test('it handles a List<int>', () async {
     await runTest(fn: (app, built, port) async {
-      app.addRoutes(
-        [
-          const RouteGet(
-            path: '/test',
-            middleware: BytesMiddleware(<int>[1, 2, 3, 4, 5]),
-          )
-        ],
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/test',
+              middleware: const BytesMiddleware(
+                bytes: <int>[1, 2, 3, 4, 5],
+              ),
+            ),
+          ],
+        ),
       );
-      final response = await http.get(Uri.parse('http://localhost:$port/test'));
+      final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(response.body, '\x01\x02\x03\x04\x05');
       expect(response.headers['content-type'], 'application/octet-stream');
     });
   });
   test('it handles a Stream<List<int>>', () async {
     await runTest(fn: (app, built, port) async {
-      app.addRoutes(
-        [
-          RouteGet(
-            path: '/test',
-            middleware: StreamOfBytesMiddleware(Stream.fromIterable([
-              [1, 2, 3, 4, 5]
-            ])),
-          )
-        ],
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/test',
+              middleware: StreamOfBytesMiddleware(
+                bytes: Stream.fromIterable(
+                  [
+                    [1, 2, 3, 4, 5]
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       );
-      final response = await http.get(Uri.parse('http://localhost:$port/test'));
+      final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(response.body, '\x01\x02\x03\x04\x05');
       expect(response.headers['content-type'], 'application/octet-stream');
     });
   });
   test('it parses a body', () async {
     await runTest(fn: (app, built, port) async {
-      app.addRoutes(
-        [
-          RoutePut(
-            path: '/test',
-            middleware: MiddlewareBuilder(
-              (final context) async {
-                final body = await context.body;
-                expect(body is Map, true);
-                expect(context.req.headers.contentType!.mimeType, 'application/json');
-                context.res.write('test result');
-              },
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.put(
+              path: '/test',
+              middleware: MiddlewareBuilder(
+                process: (final context) async {
+                  final body = await context.body;
+                  expect(body is Map, true);
+                  expect(context.req.headers.contentType!.mimeType, 'application/json');
+                  context.res.write('test result');
+                },
+              ),
             ),
-          )
-        ],
+          ],
+        ),
       );
+      // TODO return a 404.
       final response = await http.post(
-        Uri.parse('http://localhost:$port/test'),
+        Uri.parse('http://localhost:' + port.toString() + '/test'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'test': true}),
       );
@@ -422,80 +524,100 @@ void main() {
   });
   test('it serves a file for download', () async {
     await runTest(fn: (app, built, port) async {
-      app.addRoutes(
-        [
-          const RouteGet(
-            path: '/test',
-            middleware: ServeDownload(
-              filename: 'testfile.jpg',
-              child: ServeFileStringPathImpl('./test/files/image.jpg'),
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/test',
+              middleware: const ServeDownload(
+                filename: 'testfile.jpg',
+                child: ServeFileStringPathImpl(
+                  path: './test/files/image.jpg',
+                ),
+              ),
             ),
-          )
-        ],
+          ],
+        ),
       );
-      final response = await http.get(Uri.parse('http://localhost:$port/test'));
+      final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(response.headers['content-type'], 'image/jpeg');
       expect(response.headers['content-disposition'], 'attachment; filename=testfile.jpg');
     });
   });
   test('it serves a pdf, setting the extension from the filename', () async {
     await runTest(fn: (app, built, port) async {
-      app.addRoutes(
-        [
-          const RouteGet(
-            path: '/test',
-            middleware: ServeFileStringPathImpl('./test/files/dummy.pdf'),
-          ),
-        ],
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/test',
+              middleware: const ServeFileStringPathImpl(
+                path: './test/files/dummy.pdf',
+              ),
+            ),
+          ],
+        ),
       );
-      final response = await http.get(Uri.parse('http://localhost:$port/test'));
+      final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(response.headers['content-type'], 'application/pdf');
       expect(response.headers['content-disposition'], null);
     });
   });
   test('it uses the json helper correctly', () async {
     await runTest(fn: (app, built, port) async {
-      app.addRoutes(
-        [
-          const RouteGet(
-            path: '/test',
-            middleware: ServeJson.map({'success': true}),
-          )
-        ],
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/test',
+              middleware: const ServeJson.map(
+                map: {
+                  'success': true,
+                },
+              ),
+            ),
+          ],
+        ),
       );
-      final response = await http.get(Uri.parse('http://localhost:$port/test'));
+      final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(response.body, '{"success":true}');
     });
   });
   test('it uses the send helper correctly', () async {
     await runTest(fn: (app, built, port) async {
-      app.addRoutes(
-        [
-          const RouteGet(
-            path: '/test',
-            middleware: ServeString('stuff'),
-          ),
-        ],
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/test',
+              middleware: const ServeString(
+                string: 'stuff',
+              ),
+            ),
+          ],
+        ),
       );
-      final response = await http.get(Uri.parse('http://localhost:$port/test'));
+      final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(response.body, 'stuff');
     });
   });
   test('it serves static files', () async {
     await runTest(fn: (app, built, port) async {
       const log = AlfredLoggingDelegatePrintImpl();
-      app.addRoutes(
-        [
-          const RouteGet(
-            path: '/files/*',
-            middleware: ServeDirectoryStringPathImpl(
-              'test/files',
-              log,
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/files/*',
+              middleware: const ServeDirectoryStringPathImpl(
+                path: 'test/files',
+                log: log,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
-      final response = await http.get(Uri.parse('http://localhost:$port/files/dummy.pdf'));
+      final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/files/dummy.pdf'));
       expect(response.statusCode, 200);
       expect(response.headers['content-type'], 'application/pdf');
     });
@@ -503,18 +625,20 @@ void main() {
   test('it serves static files although directories do not match', () async {
     await runTest(fn: (app, built, port) async {
       const log = AlfredLoggingDelegatePrintImpl();
-      app.addRoutes(
-        [
-          const RouteGet(
-            path: '/my/directory/*',
-            middleware: ServeDirectoryStringPathImpl(
-              'test/files',
-              log,
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/my/directory/*',
+              middleware: const ServeDirectoryStringPathImpl(
+                path: 'test/files',
+                log: log,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
-      final response = await http.get(Uri.parse('http://localhost:$port/my/directory/dummy.pdf'));
+      final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/my/directory/dummy.pdf'));
       expect(response.statusCode, 200);
       expect(response.headers['content-type'], 'application/pdf');
     });
@@ -522,55 +646,61 @@ void main() {
   test('it serves static files with basic filtering', () async {
     await runTest(fn: (app, built, port) async {
       const log = AlfredLoggingDelegatePrintImpl();
-      app.addRoutes(
-        [
-          const RouteGet(
-            path: '/my/directory/*.pdf',
-            middleware: ServeDirectoryStringPathImpl(
-              'test/files',
-              log,
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/my/directory/*.pdf',
+              middleware: const ServeDirectoryStringPathImpl(
+                path: 'test/files',
+                log: log,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
-      final r1 = await http.get(Uri.parse('http://localhost:$port/my/directory/dummy.pdf'));
+      final r1 = await http.get(Uri.parse('http://localhost:' + port.toString() + '/my/directory/dummy.pdf'));
       expect(r1.statusCode, 200);
       expect(r1.headers['content-type'], 'application/pdf');
-      final r2 = await http.get(Uri.parse('http://localhost:$port/my/directory/image.jpg'));
+      final r2 = await http.get(Uri.parse('http://localhost:' + port.toString() + '/my/directory/image.jpg'));
       expect(r2.statusCode, 404);
     });
   });
   test('it serves SPA projects', () async {
     await runTest(fn: (app, built, port) async {
       const log = AlfredLoggingDelegatePrintImpl();
-      app.addRoutes(
-        [
-          const RouteGet(
-            path: '/spa/*',
-            middleware: ServeDirectoryStringPathImpl(
-              'test/files/spa',
-              log,
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/spa/*',
+              middleware: const ServeDirectoryStringPathImpl(
+                path: 'test/files/spa',
+                log: log,
+              ),
             ),
-          ),
-          const RouteGet(
-            path: '/spa/*',
-            middleware: ServeFileStringPathImpl('test/files/spa/index.html'),
-          ),
-        ],
+            Route.get(
+              path: '/spa/*',
+              middleware: const ServeFileStringPathImpl(
+                path: 'test/files/spa/index.html',
+              ),
+            ),
+          ],
+        ),
       );
-      final r1 = await http.get(Uri.parse('http://localhost:$port/spa'));
+      final r1 = await http.get(Uri.parse('http://localhost:' + port.toString() + '/spa'));
       expect(r1.statusCode, 200);
       expect(r1.headers['content-type'], 'text/html');
       expect(r1.body.contains('I am a SPA Application'), true);
-      final r2 = await http.get(Uri.parse('http://localhost:$port/spa/'));
+      final r2 = await http.get(Uri.parse('http://localhost:' + port.toString() + '/spa/'));
       expect(r2.statusCode, 200);
       expect(r2.headers['content-type'], 'text/html');
       expect(r2.body.contains('I am a SPA Application'), true);
-      final r3 = await http.get(Uri.parse('http://localhost:$port/spa/index.html'));
+      final r3 = await http.get(Uri.parse('http://localhost:' + port.toString() + '/spa/index.html'));
       expect(r3.statusCode, 200);
       expect(r3.headers['content-type'], 'text/html');
       expect(r3.body.contains('I am a SPA Application'), true);
-      final r4 = await http.get(Uri.parse('http://localhost:$port/spa/assets/some.txt'));
+      final r4 = await http.get(Uri.parse('http://localhost:' + port.toString() + '/spa/assets/some.txt'));
       expect(r4.statusCode, 200);
       expect(r4.headers['content-type'], 'text/plain');
       expect(r4.body.contains('This is some txt'), true);
@@ -578,66 +708,80 @@ void main() {
   });
   test('it does not crash when File not exists', () async {
     await runTest(fn: (app, built, port) async {
-      app.addRoutes(
-        [
-          const RouteGet(
-            path: 'error',
-            middleware: ServeFileStringPathImpl('does-not-exists'),
-          ),
-          const RouteGet(
-            path: 'works',
-            middleware: ServeString('works!'),
-          ),
-        ],
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: 'error',
+              middleware: const ServeFileStringPathImpl(
+                path: 'does-not-exists',
+              ),
+            ),
+            Route.get(
+              path: 'works',
+              middleware: const ServeString(
+                string: 'works!',
+              ),
+            ),
+          ],
+        ),
       );
-      await http.get(Uri.parse('http://localhost:$port/error'));
-      final request = await http.get(Uri.parse('http://localhost:$port/works'));
+      await http.get(Uri.parse('http://localhost:' + port.toString() + '/error'));
+      final request = await http.get(Uri.parse('http://localhost:' + port.toString() + '/works'));
       expect(request.statusCode, 200);
     });
   });
   test('it routes correctly for a / url', () async {
-    await runTest(fn: (app, built, port) async {
-      app.addRoutes(
-        [
-          const RouteGet(
-            path: '/',
-            middleware: ServeString('working'),
-          ),
-        ],
+    await runTest(fn: (final app, final built, final port) async {
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/',
+              middleware: const ServeString(
+                string: 'working',
+              ),
+            ),
+          ],
+        ),
       );
-      final response = await http.get(Uri.parse('http://localhost:$port/'));
+      final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/'));
       expect(response.body, 'working');
     });
   });
   test('it handles params', () async {
     await runTest(fn: (app, built, port) async {
-      app.addRoutes(
-        [
-          RouteGet(
-            path: '/test/:id',
-            middleware: MiddlewareBuilder(
-              (context) async {
-                context.res.write(context.arguments!['id']);
-              },
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.get(
+              path: '/test/:id',
+              middleware: MiddlewareBuilder(
+                process: (final context) async {
+                  context.res.write(context.arguments!['id']);
+                },
+              ),
             ),
-          )
-        ],
+          ],
+        ),
       );
-      final response = await http.get(Uri.parse('http://localhost:$port/test/15'));
+      final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/test/15'));
       expect(response.body, '15');
     });
   });
   test('it should implement cors correctly', () async {
     await runTest(fn: (app, built, port) async {
-      app.addRoutes(
-        [
-          const RouteAll(
-            path: '*',
-            middleware: CorsMiddleware(origin: 'test-origin'),
-          ),
-        ],
+      app.router.add(
+        routes: Routes(
+          routes: [
+            Route.all(
+              path: '*',
+              middleware: const CorsMiddleware(origin: 'test-origin'),
+            ),
+          ],
+        ),
       );
-      final response = await http.get(Uri.parse('http://localhost:$port/test'));
+      final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(response.headers.containsKey('access-control-allow-origin'), true);
       expect(response.headers['access-control-allow-origin'], 'test-origin');
       expect(response.headers.containsKey('access-control-allow-headers'), true);
@@ -656,16 +800,21 @@ void main() {
     final logs = <String>[];
     await runTest(
       fn: (final app, final built, final port) async {
-        app.addRoutes(
-          [
-            const RouteGet(
-              path: '/resource',
-              middleware: ServeString('response'),
-            ),
-          ],
+        app.router.add(
+          routes: Routes(
+            routes: [
+              Route.get(
+                path: '/resource',
+                middleware: const ServeString(
+                  string: 'response',
+                ),
+              ),
+            ],
+          ),
         );
-        await http.get(Uri.parse('http://localhost:$port/resource'));
-        bool inLog(String part) => logs.isNotEmpty && logs.where((log) => log.contains(part)).isNotEmpty;
+        // TODO doesn't log.
+        await http.get(Uri.parse('http://localhost:' + port.toString() + '/resource'));
+        bool inLog(final String part) => logs.isNotEmpty && logs.where((final log) => log.contains(part)).isNotEmpty;
         print(logs.join("\n"));
         expect(inLog('info GET - /resource'), true);
         expect(inLog('debug Match route: /resource'), true);
@@ -685,24 +834,25 @@ class TestLogger with AlfredLoggingDelegateGeneralizingMixin {
   );
 
   @override
-  void log(
-    final dynamic Function() messageFn,
-    final LogType type,
-  ) =>
-      add(type.description + ' ${messageFn()}');
+  void log({
+    required final dynamic Function() messageFn,
+    required final LogType type,
+  }) =>
+      add(type.description + ' ' + messageFn().toString());
 
   @override
-  LogType get logLevel => LogType.info;
+  LogType get logLevel => const LogTypeInfo();
 }
 
-/// Throw these exceptions to bubble up an error from sub functions and have them
-/// handled automatically for the client
+/// Throw these exceptions to bubble up an
+/// error from sub functions and have them
+/// handled automatically for the client.
 class _AlfredExceptionImpl implements AlfredResponseException {
-  /// The response to send to the client
+  /// The response to send to the client.
   @override
   final Object? response;
 
-  /// The statusCode to send to the client
+  /// The statusCode to send to the client.
   @override
   final int statusCode;
 

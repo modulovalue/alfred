@@ -13,13 +13,17 @@ void main() {
     test('it correctly handles a websocket error', () async {
       await runTest(fn: (alfred, built, port) async {
         final ws = WebSocketSessionTest2Impl();
-        alfred.addRoutes(
-          [
-            RouteGet(
-              path: '/ws',
-              middleware: WebSocketValueMiddleware(ws),
-            ),
-          ],
+        alfred.router.add(
+          routes: Routes(
+            routes: [
+              Route.get(
+                path: '/ws',
+                middleware: ServeWebSocket(
+                  webSocketSession: ws,
+                ),
+              ),
+            ],
+          ),
         );
         final channel = IOWebSocketChannel.connect('ws://localhost:$port/ws');
         await Future<void>.delayed(const Duration(milliseconds: 500));
@@ -31,13 +35,17 @@ void main() {
     test('it can handle websockets', () async {
       await runTest(fn: (alfred, built, port) async {
         final ws = WebSocketSessionTest1Impl();
-        alfred.addRoutes(
-          [
-            RouteGet(
-              path: '/ws',
-              middleware: WebSocketValueMiddleware(ws),
-            ),
-          ],
+        alfred.router.add(
+          routes: Routes(
+            routes: [
+              Route.get(
+                path: '/ws',
+                middleware: ServeWebSocket(
+                  webSocketSession: ws,
+                ),
+              ),
+            ],
+          ),
         );
         final channel = IOWebSocketChannel.connect('ws://localhost:$port/ws');
         channel.sink.add('hi');

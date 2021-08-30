@@ -3,36 +3,76 @@ import 'dart:io';
 import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
 
-class WebSocketFunctionMiddleware implements Middleware {
-  final WebSocketSession Function() websocketSessionFactory;
+class ServeWebSocketFactory implements Middleware {
+  final WebSocketSession Function() webSocketSessionFactory;
 
-  const WebSocketFunctionMiddleware(
-    final this.websocketSessionFactory,
-  );
+  const ServeWebSocketFactory({
+    required final this.webSocketSessionFactory,
+  });
 
   @override
   Future<void> process(
     final ServeContext c,
   ) async {
     final websocket = await WebSocketTransformer.upgrade(c.req);
-    websocketSessionFactory().start(websocket);
+    webSocketSessionFactory().start(websocket);
   }
 }
 
-class WebSocketValueMiddleware implements Middleware {
-  final WebSocketSession websocketSession;
+class ServeWebSocket implements Middleware {
+  final WebSocketSession webSocketSession;
 
-  const WebSocketValueMiddleware(
-    final this.websocketSession,
-  );
+  const ServeWebSocket({
+    required final this.webSocketSession,
+  });
 
   @override
   Future<void> process(
     final ServeContext c,
   ) async {
     final websocket = await WebSocketTransformer.upgrade(c.req);
-    websocketSession.start(websocket);
+    webSocketSession.start(websocket);
   }
+}
+
+class WebSocketSessionAnonymousImpl with WebSocketSessionStartMixin {
+  final void Function(WebSocket webSocket)? open;
+  final void Function(WebSocket webSocket, dynamic data)? message;
+  final void Function(WebSocket webSocket, dynamic error)? error;
+  final void Function(WebSocket webSocket)? close;
+
+  WebSocketSessionAnonymousImpl({
+    final this.open,
+    final this.message,
+    final this.error,
+    final this.close,
+  });
+
+  @override
+  void onOpen(
+    final WebSocket webSocket,
+  ) =>
+      open?.call(webSocket);
+
+  @override
+  void onMessage(
+    final WebSocket webSocket,
+    final dynamic data,
+  ) =>
+      message?.call(webSocket, data);
+
+  @override
+  void onError(
+    final WebSocket webSocket,
+    final dynamic err,
+  ) =>
+      error?.call(webSocket, err);
+
+  @override
+  void onClose(
+    final WebSocket webSocket,
+  ) =>
+      close?.call(webSocket);
 }
 
 /// Convenience wrapper around Dart IO WebSocket implementation.
@@ -69,11 +109,11 @@ mixin WebSocketSessionStartMixin implements WebSocketSession {
       );
       // ignore: avoid_catches_without_on_clauses
     } catch (e) {
-      print('WebSocket Error: $e');
+      print('WebSocket Error: ' + e.toString());
       try {
         socket.close();
-        // ignore: empty_catches, avoid_catches_without_on_clauses
-      } catch (e) {}
+        // ignore: empty_catches
+      } on Object catch (_) {}
     }
   }
 }
@@ -95,12 +135,12 @@ abstract class WebSocketSession {
     final dynamic data,
   );
 
-  void onClose(
-    final WebSocket webSocket,
-  );
-
   void onError(
     final WebSocket webSocket,
     final dynamic error,
+  );
+
+  void onClose(
+    final WebSocket webSocket,
   );
 }

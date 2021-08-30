@@ -10,9 +10,9 @@ abstract class ServeFile implements Middleware {}
 class ServeFileIoFileImpl implements ServeFile {
   final File file;
 
-  const ServeFileIoFileImpl(
-    final this.file,
-  );
+  const ServeFileIoFileImpl({
+    required final this.file,
+  });
 
   @override
   Future<void> process(
@@ -24,9 +24,9 @@ class ServeFileIoFileImpl implements ServeFile {
 class ServeFileStringPathImpl implements ServeFile {
   final String path;
 
-  const ServeFileStringPathImpl(
-    final this.path,
-  );
+  const ServeFileStringPathImpl({
+    required final this.path,
+  });
 
   @override
   Future<void> process(
@@ -40,15 +40,30 @@ Future<void> _serveFile(
   final ServeContext c,
 ) async {
   if (file.existsSync()) {
-    c.res.headers.contentType = fileContentType(file);
+    final contentType = fileContentType(
+      filePath: file.path,
+    );
+    final detectedContentType = () {
+      if (contentType == null) {
+        return null;
+      } else {
+        return ContentType(
+          contentType.primaryType,
+          contentType.subType,
+        );
+      }
+    }();
     final c_ = c.res.headers.contentType;
     if (c_ == null || c_.mimeType == 'text/plain') {
-      c.res.headers.contentType = fileContentType(file);
+      c.res.headers.contentType = detectedContentType;
     }
     await c.res.addStream(file.openRead());
     return c.res.close();
   } else {
-    throw AlfredFileNotFoundExceptionImpl(c, file);
+    throw AlfredFileNotFoundExceptionImpl(
+      c: c,
+      file: file,
+    );
   }
 }
 
@@ -56,10 +71,10 @@ class AlfredFileNotFoundExceptionImpl implements AlfredNotFoundException {
   final File file;
   final ServeContext c;
 
-  const AlfredFileNotFoundExceptionImpl(
-    final this.c,
-    final this.file,
-  );
+  const AlfredFileNotFoundExceptionImpl({
+    required final this.c,
+    required final this.file,
+  });
 
   @override
   String toString() => 'AlfredFileNotFoundExceptionImpl{file: $file}';

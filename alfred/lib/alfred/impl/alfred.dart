@@ -13,28 +13,49 @@ import 'logging/print.dart';
 import 'middleware/default_404.dart';
 import 'middleware/default_500.dart';
 import 'route_factory.dart';
-import 'route_factory_mixin.dart';
 import 'serve_context.dart';
 
 Future<BuiltAlfred> helloAlfred({
-  required final Iterable<Route> routes,
+  required final Iterable<HttpRoute> routes,
   final int? port,
-}) =>
-    buildAlfred(
-      alfred: alfredWithRoutes(
+}) {
+  final _alfred = alfredWithRoutes(
+    routes: [
+      Routes(
         routes: routes,
       ),
-      port: port,
-    );
-
-AlfredImpl alfredWithRoutes({
-  required final Iterable<Route> routes,
-}) {
-  final alfred = makeSimpleAlfred();
-  alfred.addRoutes(routes);
-  return alfred;
+    ],
+  );
+  return buildAlfred(
+    alfred: _alfred,
+    port: port,
+  );
 }
 
+Future<BuiltAlfred> helloAlfred2({
+  required final Iterable<Routed> routes,
+  final int? port,
+}) {
+  final _alfred = alfredWithRoutes(
+    routes: routes,
+  );
+  return buildAlfred(
+    alfred: _alfred,
+    port: port,
+  );
+}
+
+AlfredImpl alfredWithRoutes({
+  required final Iterable<Routed> routes,
+}) {
+  final alfred = makeSimpleAlfred();
+  for (final route in routes) {
+    alfred.add(
+      routes: route,
+    );
+  }
+  return alfred;
+}
 
 AlfredImpl makeSimpleAlfred({
   final Middleware? onNotFound,
@@ -43,10 +64,14 @@ AlfredImpl makeSimpleAlfred({
     AlfredImpl.raw(
       routes: <HttpRoute>[],
       onNotFound: onNotFound ?? const NotFound404Middleware(),
-      onInternalError: onInternalError ?? InternalError500Middleware.make,
+      onInternalError: onInternalError ??
+              (final a) =>
+              InternalError500Middleware(
+                error: a,
+              ),
     );
 
-class AlfredImpl with HttpRouteFactoryBoilerplateMixin implements Alfred {
+class AlfredImpl implements Alfred, HttpRouteFactory {
   @override
   final List<HttpRoute> routes;
 
@@ -61,19 +86,24 @@ class AlfredImpl with HttpRouteFactoryBoilerplateMixin implements Alfred {
   });
 
   @override
+  HttpRouteFactory get router => this;
+
+  @override
   Future<BuiltAlfredImpl> build({
     final AlfredLoggingDelegate log = const AlfredLoggingDelegatePrintImpl(),
     final ServerConfig config = const ServerConfigDefault(),
   }) async =>
-      BuiltAlfredImpl.make(
+      makeAlfredImpl(
         config: config,
         log: log,
-        requestHandler: (
-          final HttpRequest request,
-        ) async {
+        alfred: this,
+        requestHandler: (final HttpRequest request,) async {
           // Variable to track the close of the response.
           var isDone = false;
-          log.onIncomingRequest(request.method, request.uri);
+          log.onIncomingRequest(
+            method: request.method,
+            uri: request.uri,
+          );
           final c = ServeContextImpl(
             alfred: this,
             req: request,
@@ -83,7 +113,7 @@ class AlfredImpl with HttpRouteFactoryBoilerplateMixin implements Alfred {
           // the list of routes (ie the middleware returned)
           unawaited(
             request.response.done.then(
-              (final dynamic _) {
+                  (final dynamic _) {
                 isDone = true;
                 log.onResponseSent();
               },
@@ -91,9 +121,9 @@ class AlfredImpl with HttpRouteFactoryBoilerplateMixin implements Alfred {
           );
           // Work out all the routes we need to process
           final matchedRoutes = matchRoute(
-            request.uri.toString(),
-            routes,
-            parseHttpMethod(request.method) ?? Methods.get,
+            input: request.uri.toString(),
+            options: routes,
+            method: parseHttpMethod(str: request.method) ?? Methods.get,
           );
           try {
             if (matchedRoutes.isEmpty) {
@@ -107,7 +137,9 @@ class AlfredImpl with HttpRouteFactoryBoilerplateMixin implements Alfred {
               for (final route in matchedRoutes) {
                 c.route = route;
                 if (!isDone) {
-                  log.onMatchingRoute(route.route);
+                  log.onMatchingRoute(
+                    route: route.path,
+                  );
                   nonWildcardRouteMatch = !route.usesWildcardMatcher || nonWildcardRouteMatch;
                   // If the request has already completed, exit early, otherwise process
                   // the primary route callback.
@@ -116,7 +148,7 @@ class AlfredImpl with HttpRouteFactoryBoilerplateMixin implements Alfred {
                     break;
                   } else {
                     log.onExecuteRouteCallbackFunction();
-                    await route.callback.process(c);
+                    await route.middleware.process(c);
                   }
                 } else {
                   break;
@@ -146,7 +178,10 @@ class AlfredImpl with HttpRouteFactoryBoilerplateMixin implements Alfred {
             await c.res.close();
             // ignore: avoid_catches_without_on_clauses
           } catch (e, s) {
-            log.onIncomingRequestException(e, s);
+            log.onIncomingRequestException(
+              e: e,
+              s: s,
+            );
             await onInternalError(e).process(c);
             await request.response.close();
           }
@@ -154,27 +189,22 @@ class AlfredImpl with HttpRouteFactoryBoilerplateMixin implements Alfred {
       );
 
   @override
-  HttpRouteFactoryImpl route(
-    final String path,
-  ) =>
+  HttpRouteFactoryImpl at({
+    required final String path,
+  }) =>
       HttpRouteFactoryImpl(
         alfred: this,
         basePath: path,
       );
 
   @override
-  void createRoute(
-    final String path,
-    final Middleware callback,
-    final BuiltinMethod method,
-  ) {
-    final route = HttpRouteImpl(
-      path,
-      callback,
-      method,
-    );
-    routes.add(route);
-  }
+  void add({
+    required final Routed routes,
+  }) =>
+      routes.match(
+        routes: (final a) => this.routes.addAll(a.routes),
+        at: (final a) => at(path: a.prefix).add(routes: a.routes),
+      );
 }
 
 Future<BuiltAlfred> buildAlfred({
@@ -185,20 +215,24 @@ Future<BuiltAlfred> buildAlfred({
     return alfred.build();
   } else {
     return alfred.build(
-      config: ServerConfigDefaultWithPort(port),
+      config: ServerConfigDefaultWithPort(
+        port: port,
+      ),
     );
   }
 }
 
-List<HttpRoute> matchRoute(
-  final String input,
-  final List<HttpRoute> options,
-  final Method method,
-) {
+List<HttpRoute> matchRoute({
+  required final String input,
+  required final List<HttpRoute> options,
+  required final Method method,
+}) {
   final output = <HttpRoute>[];
   final inputUri = Uri.parse(input);
   final inputPath = inputUri.path;
-  final normalizedInputPath = _normalizePath(inputPath);
+  final normalizedInputPath = _normalizePath(
+    self: inputPath,
+  );
   for (final option in options) {
     // Check if http method matches.
     if (option.method == method || option.method == Methods.all) {
@@ -207,7 +241,9 @@ List<HttpRoute> matchRoute(
           '^',
           ...() sync* {
             // Split route path into segments.
-            final segments = Uri.parse(_normalizePath(option.route)).pathSegments;
+            final segments = Uri
+                .parse(_normalizePath(self: option.path))
+                .pathSegments;
             for (final segment in segments) {
               if (segment == '*' && segment != segments.first && segment == segments.last) {
                 // Generously match path if last segment is wildcard (*)
@@ -218,11 +254,11 @@ List<HttpRoute> matchRoute(
                 yield '/';
               }
               yield segment
-                  // Escape period character.
+              // Escape period character.
                   .replaceAll('.', r'\.')
-                  // Parameter (':something') to anything but slash.
+              // Parameter (':something') to anything but slash.
                   .replaceAll(RegExp(':.+'), '[^/]+?')
-                  // Wildcard ('*') to anything.
+              // Wildcard ('*') to anything.
                   .replaceAll('*', '.*?');
             }
           }(),
@@ -238,13 +274,17 @@ List<HttpRoute> matchRoute(
 }
 
 /// Trims all slashes at the start and end.
-String _normalizePath(
-  final String self,
-) {
+String _normalizePath({
+  required final String self,
+}) {
   if (self.startsWith('/')) {
-    return _normalizePath(self.substring('/'.length));
+    return _normalizePath(
+      self: self.substring('/'.length),
+    );
   } else if (self.endsWith('/')) {
-    return _normalizePath(self.substring(0, self.length - '/'.length));
+    return _normalizePath(
+      self: self.substring(0, self.length - '/'.length),
+    );
   } else {
     return self;
   }

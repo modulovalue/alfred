@@ -83,7 +83,9 @@ class QuadTree {
 
   /// Finds a point node from this node for the given point.
   PointNode? findPoint(QTPoint point) {
-    if (!rootBoundary.containsPoint(point)) return null;
+    if (!rootBoundary.containsPoint(point)) {
+      return null;
+    }
     QTNode node = _root;
     for (;;) {
       if (node is PointNode) {
@@ -106,7 +108,9 @@ class QuadTree {
   /// Returns this is the smallest non-empty node containing the given point.
   /// If no non-empty node could be found from this node then null is returned.
   QTNodeBoundary? nodeContaining(QTPoint point) {
-    if (!rootBoundary.containsPoint(point)) return null;
+    if (!rootBoundary.containsPoint(point)) {
+      return null;
+    }
     QTNode node = _root;
     for (;;) {
       if (node is BranchNode) {
@@ -128,9 +132,13 @@ class QuadTree {
   /// Set [undirected] to true if the opposite edge may also be returned, false if not.
   QTEdge? findEdge(QTEdge edge, bool undirected) {
     final node = findPoint(edge.start);
-    if (node == null) return null;
+    if (node == null) {
+      return null;
+    }
     var result = node.findEdgeTo(edge.end);
-    if ((result == null) && undirected) result = node.findEdgeFrom(edge.end);
+    if ((result == null) && undirected) {
+      result = node.findEdgeFrom(edge.end);
+    }
     return result;
   }
 
@@ -282,7 +290,9 @@ class QuadTree {
     while (!stack.isEmpty) {
       final node = stack.pop;
       if (node is PointNode) {
-        if ((boundary == null) || boundary.containsPoint(node)) return node;
+        if ((boundary == null) || boundary.containsPoint(node)) {
+          return node;
+        }
       } else if (node is BranchNode) {
         if ((boundary == null) || boundary.overlapsBoundary(node)) {
           _pushChildren(
@@ -305,7 +315,9 @@ class QuadTree {
     while (!stack.isEmpty) {
       final node = stack.pop;
       if (node is PointNode) {
-        if ((boundary == null) || boundary.containsPoint(node)) return node;
+        if ((boundary == null) || boundary.containsPoint(node)) {
+          return node;
+        }
       } else if (node is BranchNode) {
         if ((boundary == null) || boundary.overlapsBoundary(node)) {
           _pushReverseChildren(
@@ -350,7 +362,9 @@ class QuadTree {
       if (node is PointNode) {
         final dist2 = pointDistance2(queryPoint, node);
         if (dist2 < cutoffDist2) {
-          if (!handle.handle(node)) return false;
+          if (!handle.handle(node)) {
+            return false;
+          }
         }
       } else if (node is BranchNode) {
         final width = node.width;
@@ -383,7 +397,9 @@ class QuadTree {
       if (node is PointNode) {
         final dist2 = qtEdgeDistance2(queryEdge, node);
         if (dist2 < cutoffDist2) {
-          if (!handle.handle(node)) return false;
+          if (!handle.handle(node)) {
+            return false;
+          }
         }
       } else if (node is BranchNode) {
         final width = node.width;
@@ -415,7 +431,9 @@ class QuadTree {
       if (node is PointNode) {
         final pnt = pointOnEdge(queryEdge, node);
         if (pnt.onEdge) {
-          if (!handle.handle(node)) return false;
+          if (!handle.handle(node)) {
+            return false;
+          }
         }
       } else if (node is BranchNode) {
         final width = node.width;
@@ -449,23 +467,31 @@ class QuadTree {
       if (node is PointNode) {
         for (final edge in node.startEdges) {
           if (qtEdgeDistance2(edge, queryPoint) <= cutoffDist2) {
-            if (!handler.handle(edge)) return false;
+            if (!handler.handle(edge)) {
+              return false;
+            }
           }
         }
         for (final edge in node.endEdges) {
           if (qtEdgeDistance2(edge, queryPoint) <= cutoffDist2) {
-            if (!handler.handle(edge)) return false;
+            if (!handler.handle(edge)) {
+              return false;
+            }
           }
         }
         for (final edge in node.passEdges) {
           if (qtEdgeDistance2(edge, queryPoint) <= cutoffDist2) {
-            if (!handler.handle(edge)) return false;
+            if (!handler.handle(edge)) {
+              return false;
+            }
           }
         }
       } else if (node is PassNode) {
         for (final edge in node.passEdges) {
           if (qtEdgeDistance2(edge, queryPoint) <= cutoffDist2) {
-            if (!handler.handle(edge)) return false;
+            if (!handler.handle(edge)) {
+              return false;
+            }
           }
         }
       } else if (node is BranchNode) {
@@ -525,7 +551,9 @@ class QuadTree {
         for (final edge in node.passEdges) {
           final pnt = pointOnEdge(edge, queryPoint);
           if (pnt.onEdge) {
-            if (!handler.handle(edge)) return false;
+            if (!handler.handle(edge)) {
+              return false;
+            }
           }
         }
       } else if (node is BranchNode) {
@@ -601,7 +629,9 @@ class QuadTree {
       endNew = pair.existed;
     }
     // Check for degenerate edges.
-    if (startNode == endNode) return const InsertEdgeResult(null, false);
+    if (startNode == endNode) {
+      return const InsertEdgeResult(null, false);
+    }
     // If both points already existed check if edge exists.
     if (!(startNew || endNew)) {
       final edge = startNode.findEdgeTo(endNode);
@@ -1004,7 +1034,9 @@ class QuadTree {
         }
       } else if (node is BranchNode) {
         // The order of the child node calls is important to make this fast.
-        if (value > node.xmin) stack.pushAll([node.se, node.ne, node.sw, node.nw]);
+        if (value > node.xmin) {
+          stack.pushAll([node.se, node.ne, node.sw, node.nw]);
+        }
       }
     }
     return value;
@@ -1120,11 +1152,17 @@ class NearestEdgeArgs {
   void _checkEdge(
     final QTEdgeNode? edge,
   ) {
-    if (edge == null) return;
-    if (edge == _resultEdge) return;
+    if (edge == null) {
+      return;
+    }
+    if (edge == _resultEdge) {
+      return;
+    }
     final __handle = _handle;
     if (__handle != null) {
-      if (!__handle.handle(edge)) return;
+      if (!__handle.handle(edge)) {
+        return;
+      }
     }
     // Determine how the point is relative to the edge.
     final result = pointOnEdge(edge, _queryPoint);

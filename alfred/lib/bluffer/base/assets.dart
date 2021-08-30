@@ -1,23 +1,21 @@
-import 'dart:io';
-
 abstract class Assets {
-  Directory get local;
+  String get local;
 }
 
 class AssetsImpl implements Assets {
   @override
-  final Directory local;
+  final String local;
 
-  const AssetsImpl(
-    final this.local,
-  );
+  const AssetsImpl({
+    required final this.local,
+  });
 }
 
 class AssetsDefaultImpl implements Assets {
-  static final Directory dir = Directory('assets');
-
-  @override
-  Directory get local => dir;
+  static const String dir = 'assets';
 
   const AssetsDefaultImpl();
+
+  @override
+  String get local => dir;
 }
