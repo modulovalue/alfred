@@ -141,7 +141,7 @@ class PolygonClipper {
           _insertEdge(QTEdgeImpl(point, edge.end, null));
         } else {
           // Insert the edge.
-          final node = _tree.insertEdge(edge);
+          final node = _tree.insertEdge(edge, null);
           node!.data = false;
         }
       }
@@ -181,7 +181,10 @@ class PolygonClipper {
       }
       // Push the adjusted lines to the tree.
       for (final edge in finalEdges) {
-        final node = _tree.insertEdge(edge)!;
+        final node = _tree.insertEdge(
+          edge,
+          null,
+        )!;
         node.data = edge.data;
       }
       return result.point;

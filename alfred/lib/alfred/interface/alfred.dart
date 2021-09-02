@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'http_route_factory.dart';
 import 'logging_delegate.dart';
@@ -17,20 +16,23 @@ abstract class Alfred {
   /// routes by calling the [get,post,put,delete] methods.
   Iterable<HttpRoute> get routes;
 
+  /// Methods to add new routes.
+  HttpRouteFactory get router;
+
   /// Call this function to fire off the server.
   Future<BuiltAlfred> build({
     final AlfredLoggingDelegate log,
     final ServerConfig config,
   });
-
-  HttpRouteFactory get router;
 }
 
 abstract class BuiltAlfred {
-  /// HttpServer instance from the dart:io library
-  ///
-  /// If there is anything the app can't do, you can do it through here.
-  HttpServer get server;
+  /// The server settings that were used to configure
+  /// this build.
+  ServerConfig get args;
+
+  /// The Alfred configuration that lead to this build.
+  Alfred get alfred;
 
   /// Close the server and clean up any resources.
   ///
@@ -39,13 +41,15 @@ abstract class BuiltAlfred {
   Future<dynamic> close({
     final bool force,
   });
-
-  ServerConfig get args;
-
-  Alfred get alfred;
 }
 
-abstract class HttpServerArguments {
+abstract class ServerConfig {
+  /// The number of requests doing work at any one
+  /// time. If the amount of unprocessed incoming
+  /// requests exceed this number, the requests will
+  /// be queued.
+  int get simultaneousProcessing;
+
   Duration get idleTimeout;
 
   int get port;
@@ -54,14 +58,6 @@ abstract class HttpServerArguments {
   String get bindIp;
 
   bool get shared;
-}
-
-abstract class ServerConfig implements HttpServerArguments {
-  /// The number of requests doing work at any one
-  /// time. If the amount of unprocessed incoming
-  /// requests exceed this number, the requests will
-  /// be queued.
-  int get simultaneousProcessing;
 }
 
 /// A base exception for this package.

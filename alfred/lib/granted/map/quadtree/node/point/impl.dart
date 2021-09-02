@@ -199,7 +199,7 @@ class PointNodeImpl with QTNodeBoundaryMixin implements PointNode {
   @override
   IntersectionResult? findFirstIntersection(
     final QTEdge edge,
-    final QTEdgeHandler? hndl,
+    final QTEdgeHandler<Object?>? hndl,
   ) {
     if (overlapsEdge(edge)) {
       IntersectionResult? result;
@@ -217,7 +217,7 @@ class PointNodeImpl with QTNodeBoundaryMixin implements PointNode {
   @override
   bool findAllIntersections(
     final QTEdge edge,
-    final QTEdgeHandler? hndl,
+    final QTEdgeHandler<Object?>? hndl,
     final IntersectionSet intersections,
   ) {
     bool result = false;
@@ -248,7 +248,7 @@ class PointNodeImpl with QTNodeBoundaryMixin implements PointNode {
   /// exists even partially in the region are collected.
   @override
   bool foreachEdge(
-    final QTEdgeHandler handle, [
+    final QTEdgeHandler<Object?> handle, [
     final QTBoundary? bounds,
     final bool exclusive = false,
   ]) {
@@ -322,7 +322,7 @@ class PointNodeImpl with QTNodeBoundaryMixin implements PointNode {
   @override
   bool foreachLeftEdge(
     final QTPoint point,
-    final QTEdgeHandler handle,
+    final QTEdgeHandler<Object?> handle,
   ) {
     if (!foreachLeftEdge2(_startEdges, point, handle)) {
       return false;

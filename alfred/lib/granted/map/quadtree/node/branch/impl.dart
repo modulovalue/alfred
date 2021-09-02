@@ -120,7 +120,7 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
   @override
   IntersectionResult? findFirstIntersection(
     final QTEdge edge,
-    final QTEdgeHandler? hndl,
+    final QTEdgeHandler<Object?>? hndl,
   ) {
     if (overlapsEdge(edge)) {
       IntersectionResult? result;
@@ -148,15 +148,23 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
   @override
   bool findAllIntersections(
     final QTEdge edge,
-    final QTEdgeHandler? hndl,
+    final QTEdgeHandler<Object?>? hndl,
     final IntersectionSet intersections,
   ) {
     bool result = false;
     if (overlapsEdge(edge)) {
-      if (_ne.findAllIntersections(edge, hndl, intersections)) result = true;
-      if (_nw.findAllIntersections(edge, hndl, intersections)) result = true;
-      if (_se.findAllIntersections(edge, hndl, intersections)) result = true;
-      if (_sw.findAllIntersections(edge, hndl, intersections)) result = true;
+      if (_ne.findAllIntersections(edge, hndl, intersections)) {
+        result = true;
+      }
+      if (_nw.findAllIntersections(edge, hndl, intersections)) {
+        result = true;
+      }
+      if (_se.findAllIntersections(edge, hndl, intersections)) {
+        result = true;
+      }
+      if (_sw.findAllIntersections(edge, hndl, intersections)) {
+        result = true;
+      }
     }
     return result;
   }
@@ -192,7 +200,7 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
   /// exists even partially in the region are collected.
   /// Returns true if all edges in the boundary were run, false if stopped.
   @override
-  bool foreachEdge(QTEdgeHandler handle, [QTBoundary? bounds, bool exclusive = false]) {
+  bool foreachEdge(QTEdgeHandler<Object?> handle, [QTBoundary? bounds, bool exclusive = false]) {
     if ((bounds == null) || overlapsBoundary(bounds)) {
       return _ne.foreachEdge(handle, bounds, exclusive) &&
           _nw.foreachEdge(handle, bounds, exclusive) &&
@@ -265,7 +273,7 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
   @override
   bool foreachLeftEdge(
     final QTPoint point,
-    final QTEdgeHandler hndl,
+    final QTEdgeHandler<Object?> hndl,
   ) {
     bool result = true;
     if ((point.y <= ymax) && (point.y >= ymin)) {

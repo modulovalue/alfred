@@ -1,7 +1,4 @@
-import 'dart:html';
-
 import '../framework/mouse/mouse_handle_impl.dart';
-import '../framework/plot/impl/html/svg.dart';
 import '../framework/plotter/plotter_impl.dart';
 import 'quadtree/boundary/impl.dart';
 import 'quadtree/boundary/interface.dart';
@@ -16,38 +13,6 @@ import 'quadtree/node/node/interface.dart';
 import 'quadtree/node/point/interface.dart';
 import 'quadtree/point/interface.dart';
 import 'quadtree/quadtree/impl.dart';
-
-/// Shows a quad-tree in a plot panel.
-PlotHtmlSvg plotSvgShowPlotPanel(
-  final QuadTree tree,
-  final DivElement div, {
-  final bool showPassNodes = true,
-  final bool showPointNodes = true,
-  final bool showEmptyNodes = false,
-  final bool showBranchNodes = false,
-  final bool showEdges = true,
-  final bool showPoints = true,
-  final bool showBoundary = true,
-  final bool showRootBoundary = true,
-}) {
-  final plot = QuadTreePlotter();
-  plot.addTree(tree)
-    ..showPassNodes = showPassNodes
-    ..showPointNodes = showPointNodes
-    ..showEmptyNodes = showEmptyNodes
-    ..showBranchNodes = showBranchNodes
-    ..showEdges = showEdges
-    ..showPoints = showPoints
-    ..showBoundary = showBoundary
-    ..showRootBoundary = showRootBoundary;
-  plot.plotter
-    ..updateBounds()
-    ..focusOnData();
-  return PlotHtmlSvg(
-    div,
-    plot.plotter,
-  );
-}
 
 /// A plotter customized to work with quad-trees.
 class QuadTreePlotter {
@@ -417,7 +382,7 @@ class _QuadTreePlotterNodeHandler extends QTNodeHandler {
 }
 
 /// Handler for collecting all the edges from the quadtree for plotting.
-class _QuadTreePlotterEdgeHandler extends QTEdgeHandler {
+class _QuadTreePlotterEdgeHandler extends QTEdgeHandler<Object?> {
   final QuadTreeGroup _plot;
   final Lines _edges;
 

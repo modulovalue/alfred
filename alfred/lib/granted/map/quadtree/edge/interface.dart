@@ -1,6 +1,7 @@
 import '../point/interface.dart';
 
 /// The interface for geometry and quad-tree edges.
+// TODO remove bound.
 abstract class QTEdge<T extends Object?> {
   /// Gets the x component of the start point of the edge.
   int get x1;

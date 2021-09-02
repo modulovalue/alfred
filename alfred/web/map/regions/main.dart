@@ -1,4 +1,4 @@
-import 'dart:html' as html;
+import 'dart:html';
 
 import 'package:alfred/granted/framework/events/events.dart';
 import 'package:alfred/granted/framework/events/events_impl.dart';
@@ -8,34 +8,36 @@ import 'package:alfred/granted/framework/plot/impl/html/svg.dart';
 import 'package:alfred/granted/framework/plotter/plotter_impl.dart';
 import 'package:alfred/granted/framework/plotter_item/plotter_item.dart';
 import 'package:alfred/granted/framework/plotter_item/plotter_item_impl.dart';
-import 'package:alfred/granted/framework/primitives/primitives.dart';
 import 'package:alfred/granted/framework/primitives/primitives_impl.dart';
 import 'package:alfred/granted/map/maps/regions.dart';
-import 'package:alfred/granted/map/plotter.dart' as qt_plot;
+import 'package:alfred/granted/map/plotter.dart';
 import 'package:alfred/granted/map/quadtree/point/impl.dart';
 
 void main() {
-  html.document.title = "Points & Lines";
-  final body = html.document.body!;
-  final menu = html.DivElement();
+  document.title = "Points & Lines";
+  final body = document.body!;
+  final menu = DivElement();
   menu.className = "menu";
   body.append(menu);
-  final plotElem = html.DivElement();
+  final plotElem = DivElement();
   plotElem.className = "plot_target";
   body.append(plotElem);
-  final plot = qt_plot.QuadTreePlotter();
+  final plot = QuadTreePlotter();
   final svgPlot = PlotHtmlSvg(plotElem, plot.plotter);
   final dvr = Driver(svgPlot, plot);
   addMenuView(menu, dvr);
   addMenuTools(menu, dvr);
 }
 
-void addMenuView(html.DivElement menu, Driver dvr) {
-  final dropDown = html.DivElement()..className = "dropdown";
+void addMenuView(
+  final DivElement menu,
+  final Driver dvr,
+) {
+  final dropDown = DivElement()..className = "dropdown";
   menu.append(dropDown);
-  final text = html.DivElement()..text = "View";
+  final text = DivElement()..text = "View";
   dropDown.append(text);
-  final items = html.DivElement()..className = "dropdown-content";
+  final items = DivElement()..className = "dropdown-content";
   dropDown.append(items);
   addMenuItem(items, "Center View", dvr.centerView);
   addMenuItem(items, "Points", dvr.points);
@@ -48,12 +50,15 @@ void addMenuView(html.DivElement menu, Driver dvr) {
   addMenuItem(items, "Root Boundary", dvr.rootBoundary);
 }
 
-void addMenuTools(html.DivElement menu, Driver dvr) {
-  final dropDown = html.DivElement()..className = "dropdown";
+void addMenuTools(
+  final DivElement menu,
+  final Driver dvr,
+) {
+  final dropDown = DivElement()..className = "dropdown";
   menu.append(dropDown);
-  final text = html.DivElement()..text = "Tools";
+  final text = DivElement()..text = "Tools";
   dropDown.append(text);
-  final items = html.DivElement()..className = "dropdown-content";
+  final items = DivElement()..className = "dropdown-content";
   dropDown.append(items);
   addMenuItem(items, "Pan View", dvr.panView);
   addMenuItem(items, "Add Polygon 1", dvr.addPolygon1);
@@ -67,8 +72,12 @@ void addMenuTools(html.DivElement menu, Driver dvr) {
   addMenuItem(items, "Clear All", dvr.clearAll);
 }
 
-void addMenuItem(html.DivElement dropDownItems, String text, BoolValue value) {
-  final item = html.DivElement()
+void addMenuItem(
+  final DivElement dropDownItems,
+  final String text,
+  final BoolValue value,
+) {
+  final item = DivElement()
     ..text = text
     ..className = (() {
       if (value.value) {
@@ -94,15 +103,12 @@ void addMenuItem(html.DivElement dropDownItems, String text, BoolValue value) {
   dropDownItems.append(item);
 }
 
-/// The signature for handling changes to the boolean value.
-typedef OnBoolValueChange = void Function(bool newValue);
-
 /// Boolean value handler for keeping track of changes in the UI and driver.
 /// Kind of like a mini-store variable.
 class BoolValue {
   final bool _toggle;
   bool _value;
-  final List<OnBoolValueChange> _changed;
+  final List<void Function(bool newValue)> _changed;
 
   /// Creates a new boolean value.
   /// [toggle] indicates if the value will changed to true when value is false
@@ -110,7 +116,7 @@ class BoolValue {
   BoolValue(bool toggle, [bool value = false])
       : _toggle = toggle,
         _value = value,
-        _changed = <OnBoolValueChange>[];
+        _changed = <void Function(bool newValue)>[];
 
   /// Handles the value being clicked on.
   void onClick() {
@@ -135,16 +141,21 @@ class BoolValue {
   bool get value => _value;
 
   /// Gets the list of listeners who are watching for changes to this value.
-  List<OnBoolValueChange> get onChange => _changed;
+  List<void Function(bool newValue)> get onChange => _changed;
 }
 
-enum Tool { None, PanView, AddPolygon, CheckRegion }
+enum Tool {
+  None,
+  PanView,
+  AddPolygon,
+  CheckRegion,
+}
 
 class Driver {
   final PlotHtmlSvg _svgPlot;
-  final qt_plot.QuadTreePlotter _plot;
+  final QuadTreePlotter _plot;
   late Regions _regions;
-  late qt_plot.QuadTreeGroup _plotItem;
+  late QuadTreeGroup _plotItem;
 
   late BoolValue _centerView;
   late BoolValue _points;
@@ -173,7 +184,7 @@ class Driver {
   late PolygonAdder _polygonAdderTool;
   late RegionChecker _regionCheckTool;
 
-  Driver(this._svgPlot, this._plot) {
+  Driver(final this._svgPlot, final this._plot,) {
     _regions = Regions();
     _plotItem = _plot.addTree(_regions.tree);
     _selectedTool = Tool.None;
@@ -409,8 +420,8 @@ class Driver {
 class PolygonAdder implements PlotterMouseHandle {
   final PlotterMouseButtonState _addPointState;
   final PlotterMouseButtonState _finishRegionState;
-  final qt_plot.QuadTreePlotter _plot;
-  final qt_plot.QuadTreeGroup _plotItem;
+  final QuadTreePlotter _plot;
+  final QuadTreeGroup _plotItem;
   final Regions _regions;
   bool _enabled;
   int regionId;
@@ -538,7 +549,7 @@ class PolygonAdder implements PlotterMouseHandle {
 }
 
 /// The colors to draw for different regions
-List<Color> regionColors = [
+final _regionColors = [
   ColorImpl(0.0, 0.0, 0.0),
   ColorImpl(0.0, 0.0, 1.0),
   ColorImpl(0.0, 1.0, 1.0),
@@ -550,8 +561,8 @@ List<Color> regionColors = [
 
 /// A mouse handler for adding lines.
 class RegionChecker implements PlotterMouseHandle {
-  final qt_plot.QuadTreePlotter _plot;
-  final qt_plot.QuadTreeGroup _plotItem; // ignore: unused_field
+  final QuadTreePlotter _plot;
+  final QuadTreeGroup _plotItem; // ignore: unused_field
   final Regions _regions;
   bool _enabled;
   final Lines _lines;
@@ -575,21 +586,26 @@ class RegionChecker implements PlotterMouseHandle {
   /// Indicates of the point adder tool is enabled or not.
   bool get enabled => _enabled;
 
-  set enabled(bool value) {
+  set enabled(
+    final bool value,
+  ) {
     _enabled = value;
     _points.clear();
     _lines.clear();
   }
 
   /// Translates the mouse location into the tree space based on the view.
-  List<double> _transMouse(PlotterMouseEvent e) {
+  List<double> _transMouse(
+    final PlotterMouseEvent e,
+  ) {
     final trans = e.projection.mul(_plot.plotter.view);
     return [trans.untransformX(e.x), trans.untransformY(e.window.ymax - e.y)];
   }
 
-  /// handles mouse down.
   @override
-  void mouseDown(PlotterMouseEvent e) {
+  void mouseDown(
+    final PlotterMouseEvent e,
+  ) {
     if (_enabled) {
       final loc = _transMouse(e);
       final x = loc[0].round();
@@ -600,9 +616,10 @@ class RegionChecker implements PlotterMouseHandle {
     }
   }
 
-  /// handles mouse moved.
   @override
-  void mouseMove(PlotterMouseEvent e) {
+  void mouseMove(
+    final PlotterMouseEvent e,
+  ) {
     if (_enabled) {
       final loc = _transMouse(e);
       final x = loc[0].round();
@@ -610,7 +627,7 @@ class RegionChecker implements PlotterMouseHandle {
       final pnt = QTPointImpl(x, y);
       _points.clear();
       final region = _regions.getRegion(pnt);
-      _pointColor.color = regionColors[region];
+      _pointColor.color = _regionColors[region];
       _points.add([x.toDouble(), y.toDouble()]);
       _lines.clear();
       final edge = _regions.tree.firstLeftEdge(pnt);
@@ -623,7 +640,8 @@ class RegionChecker implements PlotterMouseHandle {
     }
   }
 
-  /// handles mouse up.
   @override
-  void mouseUp(PlotterMouseEvent e) {}
+  void mouseUp(
+    final PlotterMouseEvent e,
+  ) {}
 }

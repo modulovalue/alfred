@@ -2,6 +2,7 @@ import '../../base/method.dart';
 import 'middleware.dart';
 
 abstract class HttpRouteFactory {
+  /// Adds a [Routed] route.
   void add({
     required final Routed routes,
   });

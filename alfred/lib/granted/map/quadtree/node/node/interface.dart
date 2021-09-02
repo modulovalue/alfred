@@ -22,7 +22,7 @@ abstract class QTNode {
   /// inside the region are collected, otherwise any edge which
   /// exists even partially in the region are collected.
   bool foreachEdge(
-    final QTEdgeHandler handle, [
+    final QTEdgeHandler<Object?> handle, [
     final QTBoundary? bounds,
     final bool exclusive = false,
   ]);
@@ -52,7 +52,7 @@ abstract class QTNode {
   /// Returns true if all the edges were processed, false if the handle stopped early.
   bool foreachLeftEdge(
     final QTPoint query,
-    final QTEdgeHandler hndl,
+    final QTEdgeHandler<Object?> hndl,
   );
 
   /// This handles the first found intersecting edge.
@@ -61,7 +61,7 @@ abstract class QTNode {
   /// Returns the first found intersection.
   IntersectionResult? findFirstIntersection(
     final QTEdge edge,
-    final QTEdgeHandler? hndl,
+    final QTEdgeHandler<Object?>? hndl,
   );
 
   /// This handles all the intersections.
@@ -71,7 +71,7 @@ abstract class QTNode {
   /// Returns true if a new intersection was found.
   bool findAllIntersections(
     final QTEdge edge,
-    final QTEdgeHandler? hndl,
+    final QTEdgeHandler<Object?>? hndl,
     final IntersectionSet intersections,
   );
 

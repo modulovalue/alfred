@@ -3,22 +3,6 @@ import 'dart:io';
 import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
 
-class ServeWebSocketFactory implements Middleware {
-  final WebSocketSession Function() webSocketSessionFactory;
-
-  const ServeWebSocketFactory({
-    required final this.webSocketSessionFactory,
-  });
-
-  @override
-  Future<void> process(
-    final ServeContext c,
-  ) async {
-    final websocket = await WebSocketTransformer.upgrade(c.req);
-    webSocketSessionFactory().start(websocket);
-  }
-}
-
 class ServeWebSocket implements Middleware {
   final WebSocketSession webSocketSession;
 
@@ -32,6 +16,22 @@ class ServeWebSocket implements Middleware {
   ) async {
     final websocket = await WebSocketTransformer.upgrade(c.req);
     webSocketSession.start(websocket);
+  }
+}
+
+class ServeWebSocketFactory implements Middleware {
+  final Future<WebSocketSession> Function(ServeContext) webSocketSessionFactory;
+
+  const ServeWebSocketFactory({
+    required final this.webSocketSessionFactory,
+  });
+
+  @override
+  Future<void> process(
+    final ServeContext c,
+  ) async {
+    final websocket = await WebSocketTransformer.upgrade(c.req);
+    (await webSocketSessionFactory(c)).start(websocket);
   }
 }
 

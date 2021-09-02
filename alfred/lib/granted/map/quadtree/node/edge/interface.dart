@@ -7,6 +7,7 @@ import '../point/interface.dart';
 /// The edge node is a connection in the quad-tree
 /// between two point nodes. It represents a two
 /// dimensional directed line segment.
+// TODO remove bound.
 abstract class QTEdgeNode<T extends Object?> implements QTEdge<T> {
   /// Gets the start point node for the edge.
   PointNode get startNode;
@@ -64,12 +65,12 @@ abstract class QTEdgeNode<T extends Object?> implements QTEdge<T> {
 
   /// Determines the next neighbor edge on a properly wound polygon.
   QTEdgeNode? nextBorder([
-    final QTEdgeHandler? matcher,
+    final QTEdgeHandler<Object?>? matcher,
   ]);
 
   /// Determines the previous neighbor edge on a properly wound polygon.
   QTEdge? previousBorder([
-    final QTEdgeHandler? matcher,
+    final QTEdgeHandler<Object?>? matcher,
   ]);
 
   /// Validates this node and all children nodes.

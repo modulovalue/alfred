@@ -31,7 +31,10 @@ void main() {
   addMenuTools(menu, dvr);
 }
 
-void addMenuView(html.DivElement menu, Driver dvr) {
+void addMenuView(
+  final html.DivElement menu,
+  final Driver dvr,
+) {
   final dropDown = html.DivElement()..className = "dropdown";
   menu.append(dropDown);
   final text = html.DivElement()..text = "View";
@@ -49,7 +52,10 @@ void addMenuView(html.DivElement menu, Driver dvr) {
   addMenuItem(items, "Root Boundary", dvr.rootBoundary);
 }
 
-void addMenuTools(html.DivElement menu, Driver dvr) {
+void addMenuTools(
+  final html.DivElement menu,
+  final Driver dvr,
+) {
   final dropDown = html.DivElement()..className = "dropdown";
   menu.append(dropDown);
   final text = html.DivElement()..text = "Tools";
@@ -67,7 +73,11 @@ void addMenuTools(html.DivElement menu, Driver dvr) {
   addMenuItem(items, "Clear All", dvr.clearAll);
 }
 
-void addMenuItem(html.DivElement dropDownItems, String text, BoolValue value) {
+void addMenuItem(
+  final html.DivElement dropDownItems,
+  final String text,
+  final BoolValue value,
+) {
   final item = html.DivElement()
     ..text = text
     ..className = (() {
@@ -77,10 +87,10 @@ void addMenuItem(html.DivElement dropDownItems, String text, BoolValue value) {
         return "dropdown-item-inactive";
       }
     }())
-    ..onClick.listen((_) {
+    ..onClick.listen((final _) {
       value.onClick();
     });
-  value.onChange.add((bool value) {
+  value.onChange.add((final bool value) {
     item.className = () {
       if (value) {
         return "dropdown-item-active";
@@ -97,7 +107,9 @@ void addMenuItem(html.DivElement dropDownItems, String text, BoolValue value) {
 class BoolValue {
   final bool _toggle;
   bool _value;
-  final List<void Function(bool newValue)> _changed;
+
+  /// Gets the list of listeners who are watching for changes to this value.
+  final List<void Function(bool newValue)> onChange;
 
   /// Creates a new boolean value.
   /// [toggle] indicates if the value will changed to true when value is false
@@ -107,7 +119,7 @@ class BoolValue {
     final bool value = false,
   ])  : _toggle = toggle,
         _value = value,
-        _changed = <void Function(bool newValue)>[];
+        onChange = <void Function(bool newValue)>[];
 
   /// Handles the value being clicked on.
   void onClick() {
@@ -124,7 +136,7 @@ class BoolValue {
   ) {
     if (_value != value) {
       _value = value;
-      for (final hndl in _changed) {
+      for (final hndl in onChange) {
         hndl(_value);
       }
     }
@@ -132,9 +144,6 @@ class BoolValue {
 
   /// Gets the currently set value.
   bool get value => _value;
-
-  /// Gets the list of listeners who are watching for changes to this value.
-  List<void Function(bool newValue)> get onChange => _changed;
 }
 
 enum Tool {
@@ -214,7 +223,7 @@ class Driver {
         shiftKey: true,
       ),
     );
-    const PlotterMouseButtonState leftMsButton = PlotterMouseButtonStateImpl(
+    const leftMsButton = PlotterMouseButtonStateImpl(
       button: 0,
     );
     _panViewTool = makeMousePan(_plot.plotter.view, _plot.plotter.setViewOffset, leftMsButton);
@@ -492,7 +501,15 @@ class LineAdder implements PlotterMouseHandle {
   ) {
     if (_mouseDown) {
       final loc = _transMouse(e);
-      _tempLine.set(0, [_startX, _startY, loc[0].roundToDouble(), loc[1].roundToDouble()]);
+      _tempLine.set(
+        0,
+        [
+          _startX,
+          _startY,
+          loc[0].roundToDouble(),
+          loc[1].roundToDouble(),
+        ],
+      );
       e.redraw = true;
     }
   }
@@ -514,6 +531,7 @@ class LineAdder implements PlotterMouseHandle {
       );
       _tree.insertEdge(
         QTEdgeImpl(pnt1, pnt2, null),
+        null,
       );
       _mouseDown = false;
       _tempLine.clear();
@@ -536,11 +554,11 @@ class LineRemover implements PlotterMouseHandle {
 
   /// Creates a new mouse handler for removing lines.
   LineRemover(
-    this._tree,
-    this._plot,
-    this._plotItem,
-    this._state,
-    this._trimTree,
+    final this._tree,
+    final this._plot,
+    final this._plotItem,
+    final this._state,
+    final this._trimTree,
   )   : enabled = true,
         _mouseDown = false,
         _tempLine = _plot.plotter.addLines([])
@@ -549,7 +567,9 @@ class LineRemover implements PlotterMouseHandle {
           ..addColor(1.0, 0.0, 0.0);
 
   /// Finds the nearest edge for a point under the mouse.
-  QTEdgeNode? _findEdge(PlotterMouseEvent e) {
+  QTEdgeNode? _findEdge(
+    final PlotterMouseEvent e,
+  ) {
     final trans = e.projection.mul(_plot.plotter.view);
     final x = trans.untransformX(e.x).round();
     final y = trans.untransformY(e.window.ymax - e.y).round();
@@ -558,7 +578,9 @@ class LineRemover implements PlotterMouseHandle {
 
   /// handles mouse down.
   @override
-  void mouseDown(PlotterMouseEvent e) {
+  void mouseDown(
+    final PlotterMouseEvent e,
+  ) {
     if (enabled && e.state.equals(_state)) {
       _mouseDown = true;
       final edge = _findEdge(e);
@@ -571,7 +593,9 @@ class LineRemover implements PlotterMouseHandle {
 
   /// handles mouse moved.
   @override
-  void mouseMove(PlotterMouseEvent e) {
+  void mouseMove(
+    final PlotterMouseEvent e,
+  ) {
     if (_mouseDown) {
       _tempLine.clear();
       final edge = _findEdge(e);
@@ -621,14 +645,18 @@ class PointAdder implements PlotterMouseHandle {
           ..addColor(1.0, 0.0, 0.0);
 
   /// Translates the mouse location into the tree space based on the view.
-  List<double> _transMouse(PlotterMouseEvent e) {
+  List<double> _transMouse(
+    final PlotterMouseEvent e,
+  ) {
     final trans = e.projection.mul(_plot.plotter.view);
     return [trans.untransformX(e.x), trans.untransformY(e.window.ymax - e.y)];
   }
 
   /// handles mouse down.
   @override
-  void mouseDown(PlotterMouseEvent e) {
+  void mouseDown(
+    final PlotterMouseEvent e,
+  ) {
     if (enabled && e.state.equals(_state)) {
       _mouseDown = true;
       final loc = _transMouse(e);
@@ -639,7 +667,9 @@ class PointAdder implements PlotterMouseHandle {
 
   /// handles mouse moved.
   @override
-  void mouseMove(PlotterMouseEvent e) {
+  void mouseMove(
+    final PlotterMouseEvent e,
+  ) {
     if (_mouseDown) {
       final loc = _transMouse(e);
       _tempPoint.set(0, [loc[0].roundToDouble(), loc[1].roundToDouble()]);
@@ -649,7 +679,9 @@ class PointAdder implements PlotterMouseHandle {
 
   /// handles mouse up.
   @override
-  void mouseUp(PlotterMouseEvent e) {
+  void mouseUp(
+    final PlotterMouseEvent e,
+  ) {
     if (_mouseDown) {
       final loc = _transMouse(e);
       final msx = loc[0].round();
@@ -702,7 +734,9 @@ class PointRemover implements PlotterMouseHandle {
 
   /// handles mouse down.
   @override
-  void mouseDown(PlotterMouseEvent e) {
+  void mouseDown(
+    final PlotterMouseEvent e,
+  ) {
     if (enabled && e.state.equals(_state)) {
       _mouseDown = true;
       final node = _findNearPoint(e);
@@ -717,7 +751,9 @@ class PointRemover implements PlotterMouseHandle {
 
   /// handles mouse moved.
   @override
-  void mouseMove(PlotterMouseEvent e) {
+  void mouseMove(
+    final PlotterMouseEvent e,
+  ) {
     if (_mouseDown) {
       _tempPoint.clear();
       final node = _findNearPoint(e);
@@ -732,7 +768,9 @@ class PointRemover implements PlotterMouseHandle {
 
   /// handles mouse up.
   @override
-  void mouseUp(PlotterMouseEvent e) {
+  void mouseUp(
+    final PlotterMouseEvent e,
+  ) {
     if (_mouseDown) {
       final node = _findNearPoint(e);
       final _node = node;

@@ -104,7 +104,7 @@ class Regions {
     // Create a tree which contains the input so it can be queried.
     final newRegion = QuadTree();
     for (int i = 0; i < count; ++i) {
-      newRegion.insertEdge(nodes.edge(i));
+      newRegion.insertEdge(nodes.edge(i), null);
     }
     _removeContainedPoints(newRegion);
     _removeContainedEdges(newRegion);
@@ -130,7 +130,7 @@ class Regions {
         } else {
           final outterRangeId = _getSide(start, end);
           if (outterRangeId != regionId) {
-            final e = tree.insertEdge(edge);
+            final e = tree.insertEdge(edge, null);
             e!.data = EdgeSide(regionId, outterRangeId);
           }
         }
@@ -269,7 +269,7 @@ class Regions {
       }
       // Push the adjusted lines to the tree.
       for (final edge in finalEdges) {
-        final node = tree.insertEdge(edge)!;
+        final node = tree.insertEdge(edge, null)!;
         node.data = EdgeSide.copy((edge.data as EdgeSide?)!);
       }
       return result.point;

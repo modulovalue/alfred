@@ -258,7 +258,11 @@ class QuadTree {
   /// [cutoffDist2] is the maximum distance squared edges may be
   /// away from the given point to be an eligible result.
   /// [handler] is the matcher to filter eligible edges, if null all edges are accepted.
-  QTEdgeNode? findNearestEdge(QTPoint point, {double cutoffDist2 = double.maxFinite, QTEdgeHandler? handler}) {
+  QTEdgeNode? findNearestEdge(
+    final QTPoint point, {
+    final double cutoffDist2 = double.maxFinite,
+    final QTEdgeHandler<Object?>? handler,
+  }) {
     final args = NearestEdgeArgs(point, cutoffDist2, handler);
     args.run(_root);
     return args.result();
@@ -269,7 +273,7 @@ class QuadTree {
   /// [handle] is the matcher to filter eligible edges. If null all edges are accepted.
   QTEdgeNode? firstLeftEdge(
     final QTPoint point, {
-    final QTEdgeHandler? handle,
+    final QTEdgeHandler<Object?>? handle,
   }) {
     final args = FirstLeftEdgeArgsImpl(point, handle);
     _root.firstLeftEdge(args);
@@ -279,7 +283,7 @@ class QuadTree {
   /// Handle all the edges to the left of the given point.
   /// [point] is the point to find the left edges from.
   /// [handle] is the handle to process all the edges with.
-  bool foreachLeftEdge(QTPoint point, QTEdgeHandler handle) => _root.foreachLeftEdge(point, handle);
+  bool foreachLeftEdge(QTPoint point, QTEdgeHandler<Object?> handle) => _root.foreachLeftEdge(point, handle);
 
   /// Gets the first point in the tree.
   /// [boundary] is the boundary of the tree to get the point from, or null for whole tree.
@@ -341,7 +345,7 @@ class QuadTree {
   /// inside the region are collected, otherwise any edge which
   /// exists even partially in the region are collected.
   /// Returns true if all edges in the boundary were run, false if stopped.
-  bool foreachEdge(QTEdgeHandler handle, [QTBoundary? bounds, bool exclusive = false]) =>
+  bool foreachEdge(QTEdgeHandler<Object?> handle, [QTBoundary? bounds, bool exclusive = false]) =>
       _root.foreachEdge(handle, bounds, exclusive);
 
   /// Handles each node in the boundary.
@@ -459,7 +463,11 @@ class QuadTree {
   /// [cutoffDist2] is the maximum distance for near edges.
   /// Returns true if all edges handled,
   /// false if the handled returned false and stopped early.
-  bool forNearEdges(QTEdgeHandler handler, QTPoint queryPoint, double cutoffDist2) {
+  bool forNearEdges(
+    final QTEdgeHandler<Object?> handler,
+    final QTPoint queryPoint,
+    final double cutoffDist2,
+  ) {
     final stack = _NodeStack<QTNode>();
     stack.push(_root);
     while (!stack.isEmpty) {
@@ -517,7 +525,10 @@ class QuadTree {
   /// [queryPoint] is the point to find the close edges to.
   /// Returns true if all edges handled,
   /// false if the handled returned false and stopped early.
-  bool forCloseEdges(QTEdgeHandler handler, QTPoint queryPoint) {
+  bool forCloseEdges(
+    final QTEdgeHandler<Object?> handler,
+    final QTPoint queryPoint,
+  ) {
     final stack = _NodeStack<QTNode>();
     stack.push(_root);
     while (!stack.isEmpty) {
@@ -580,7 +591,10 @@ class QuadTree {
   /// [edge] is the edge to find intersections with.
   /// [hndl] is the edge handle to filter possible intersecting edges.
   /// Returns the first found intersection.
-  IntersectionResult? findFirstIntersection(QTEdge edge, QTEdgeHandler? hndl) =>
+  IntersectionResult? findFirstIntersection(
+    final QTEdge edge,
+    final QTEdgeHandler<Object?>? hndl,
+  ) =>
       _root.findFirstIntersection(edge, hndl);
 
   /// This handles all the intersections.
@@ -588,7 +602,11 @@ class QuadTree {
   /// [hndl] is the handler to match valid edges with.
   /// [intersections] is the set of intersections to add to.
   /// Returns true if a new intersection was found.
-  bool findAllIntersections(QTEdge edge, QTEdgeHandler? hndl, IntersectionSet intersections) {
+  bool findAllIntersections(
+    final QTEdge edge,
+    final QTEdgeHandler<Object?>? hndl,
+    final IntersectionSet intersections,
+  ) {
     if (_edgeCount <= 0) {
       return false;
     } else {
@@ -599,14 +617,19 @@ class QuadTree {
   /// This inserts an edge or finds an existing edge in the quad-tree.
   /// [edge] is the edge to insert into the tree.
   /// Returns the edge in the tree.
-  QTEdge? insertEdge(QTEdge edge) => tryInsertEdge(edge)?.edge;
+  QTEdge<T>? insertEdge<T>(
+    final QTEdge<T> edge,
+    final T data,
+  ) =>
+      tryInsertEdge(edge, data)?.edge;
 
   /// This inserts an edge or finds an existing edge in the quad-tree.
   /// [edge] is the edge to insert into the tree.
   /// Returns a pair containing the edge in the tree, and true if the edge is
   /// new or false if the edge already existed in the tree.
-  InsertEdgeResult? tryInsertEdge(
-    final QTEdge edge,
+  InsertEdgeResult<T>? tryInsertEdge<T>(
+    final QTEdge<T> edge,
+    final T initData,
   ) {
     PointNode? startNode;
     PointNode? endNode;
@@ -636,7 +659,7 @@ class QuadTree {
     if (!(startNew || endNew)) {
       final edge = startNode.findEdgeTo(endNode);
       if (edge != null) {
-        return InsertEdgeResult(edge, false);
+        return InsertEdgeResult(edge as QTEdgeNode<T>, false);
       }
     }
     // Insert new edge.
@@ -652,7 +675,7 @@ class QuadTree {
       assert(ancestor != null);
       return null;
     }
-    final newEdge = QTEdgeNodeImpl(startNode, endNode, null);
+    final newEdge = QTEdgeNodeImpl<T>(startNode, endNode, initData);
     final replacement = ancestor.insertEdge(newEdge);
     _reduceBranch(ancestor, replacement);
     _edgeCount++;
@@ -911,7 +934,9 @@ class QuadTree {
   }
 
   /// Expands the tree's boundary to include the given point.
-  void _expandBoundingBox(final QTPoint point,) {
+  void _expandBoundingBox(
+    final QTPoint point,
+  ) {
     if (_pointCount <= 1) {
       _boundary = QTBoundaryImpl.make(point.x, point.y, point.x, point.y);
     } else {
@@ -949,16 +974,20 @@ class QuadTree {
       _boundary = QTBoundaryImpl.make(0, 0, 0, 0);
     } else {
       if (_boundary.xmax <= point.x) {
-        _boundary = QTBoundaryImpl.make(_boundary.xmin, _boundary.ymin, _determineEastSide(_boundary.xmin), _boundary.ymax);
+        _boundary =
+            QTBoundaryImpl.make(_boundary.xmin, _boundary.ymin, _determineEastSide(_boundary.xmin), _boundary.ymax);
       }
       if (_boundary.xmin >= point.x) {
-        _boundary = QTBoundaryImpl.make(_determineWestSide(_boundary.xmax), _boundary.ymin, _boundary.xmax, _boundary.ymax);
+        _boundary =
+            QTBoundaryImpl.make(_determineWestSide(_boundary.xmax), _boundary.ymin, _boundary.xmax, _boundary.ymax);
       }
       if (_boundary.ymax <= point.y) {
-        _boundary = QTBoundaryImpl.make(_boundary.xmin, _boundary.ymin, _boundary.xmax, _determineNorthSide(_boundary.ymin));
+        _boundary =
+            QTBoundaryImpl.make(_boundary.xmin, _boundary.ymin, _boundary.xmax, _determineNorthSide(_boundary.ymin));
       }
       if (_boundary.ymin >= point.y) {
-        _boundary = QTBoundaryImpl.make(_boundary.xmax, _boundary.ymax, _boundary.xmin, _determineSouthSide(_boundary.ymax));
+        _boundary =
+            QTBoundaryImpl.make(_boundary.xmax, _boundary.ymax, _boundary.xmin, _determineSouthSide(_boundary.ymax));
       }
     }
   }
@@ -1044,9 +1073,9 @@ class QuadTree {
 }
 
 /// The result from a edge insertion into the tree.
-class InsertEdgeResult {
+class InsertEdgeResult<T> {
   /// The inserted edge.
-  final QTEdge? edge;
+  final QTEdge<T>? edge;
 
   /// True if the edge existed, false if the edge is new.
   final bool existed;
@@ -1080,7 +1109,7 @@ class NearestEdgeArgs {
   final QTPoint _queryPoint;
 
   /// The line matcher to filter lines with.
-  final QTEdgeHandler? _handle;
+  final QTEdgeHandler<Object?>? _handle;
 
   /// The maximum allowable distance squared to the result.
   double _cutoffDist2;

@@ -65,8 +65,7 @@ AlfredImpl makeSimpleAlfred({
       routes: <HttpRoute>[],
       onNotFound: onNotFound ?? const NotFound404Middleware(),
       onInternalError: onInternalError ??
-              (final a) =>
-              InternalError500Middleware(
+          (final a) => InternalError500Middleware(
                 error: a,
               ),
     );
@@ -97,7 +96,9 @@ class AlfredImpl implements Alfred, HttpRouteFactory {
         config: config,
         log: log,
         alfred: this,
-        requestHandler: (final HttpRequest request,) async {
+        requestHandler: (
+          final HttpRequest request,
+        ) async {
           // Variable to track the close of the response.
           var isDone = false;
           log.onIncomingRequest(
@@ -113,7 +114,7 @@ class AlfredImpl implements Alfred, HttpRouteFactory {
           // the list of routes (ie the middleware returned)
           unawaited(
             request.response.done.then(
-                  (final dynamic _) {
+              (final dynamic _) {
                 isDone = true;
                 log.onResponseSent();
               },
@@ -168,16 +169,20 @@ class AlfredImpl implements Alfred, HttpRouteFactory {
                 await request.response.close();
               }
             }
-          } on AlfredResponseException catch (e) {
-            // The user threw a 'handle HTTP' Exception
-            request.response.statusCode = e.statusCode;
-            await request.response.close();
-            // ignore: avoid_catching_errors
-          } on AlfredNotFoundException catch (_) {
-            await onNotFound.process(c);
-            await c.res.close();
-            // ignore: avoid_catches_without_on_clauses
-          } catch (e, s) {
+          } on AlfredException catch (e) {
+            await e.match(
+              response: (final e) async {
+                // The user threw a 'handle HTTP' Exception
+                request.response.statusCode = e.statusCode;
+                await request.response.close();
+              },
+              notFound: (final e) async {
+                await onNotFound.process(c);
+                await c.res.close();
+                // ignore: avoid_catches_without_on_clauses
+              },
+            );
+          } on Object catch (e, s) {
             log.onIncomingRequestException(
               e: e,
               s: s,
@@ -241,9 +246,7 @@ List<HttpRoute> matchRoute({
           '^',
           ...() sync* {
             // Split route path into segments.
-            final segments = Uri
-                .parse(_normalizePath(self: option.path))
-                .pathSegments;
+            final segments = Uri.parse(_normalizePath(self: option.path)).pathSegments;
             for (final segment in segments) {
               if (segment == '*' && segment != segments.first && segment == segments.last) {
                 // Generously match path if last segment is wildcard (*)
@@ -254,11 +257,11 @@ List<HttpRoute> matchRoute({
                 yield '/';
               }
               yield segment
-              // Escape period character.
+                  // Escape period character.
                   .replaceAll('.', r'\.')
-              // Parameter (':something') to anything but slash.
+                  // Parameter (':something') to anything but slash.
                   .replaceAll(RegExp(':.+'), '[^/]+?')
-              // Wildcard ('*') to anything.
+                  // Wildcard ('*') to anything.
                   .replaceAll('*', '.*?');
             }
           }(),

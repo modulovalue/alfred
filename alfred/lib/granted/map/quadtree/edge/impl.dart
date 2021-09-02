@@ -6,6 +6,7 @@ import '../point/ops/dot.dart';
 import 'interface.dart';
 
 /// An edge represents a directed line segment between two integer points.
+// TODO remove bound.
 class QTEdgeImpl<T extends Object?> implements QTEdge<T> {
   /// The start point of the edge.
   final QTPoint _start;

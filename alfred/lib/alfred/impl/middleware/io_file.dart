@@ -77,7 +77,7 @@ class AlfredFileNotFoundExceptionImpl implements AlfredNotFoundException {
   });
 
   @override
-  String toString() => 'AlfredFileNotFoundExceptionImpl{file: $file}';
+  String toString() => 'AlfredFileNotFoundExceptionImpl{file: ' + file.toString() + '}';
 
   @override
   Z match<Z>({

@@ -9,6 +9,7 @@ import 'interface.dart';
 /// The edge node is a connection in the quad-tree
 /// between two point nodes. It represents a two
 /// dimensional directed line segment.
+// TODO remove bound.
 class QTEdgeNodeImpl<T extends Object?> implements QTEdgeNode<T> {
   @override
   final PointNode startNode;
@@ -31,7 +32,11 @@ class QTEdgeNodeImpl<T extends Object?> implements QTEdgeNode<T> {
         assert(startNode != endNode);
 
   @override
-  QTEdgeImpl get edge => QTEdgeImpl(startNode, endNode, null,);
+  QTEdgeImpl get edge => QTEdgeImpl(
+        startNode,
+        endNode,
+        null,
+      );
 
   @override
   QTPoint point(
@@ -123,7 +128,7 @@ class QTEdgeNodeImpl<T extends Object?> implements QTEdgeNode<T> {
   /// Determines the next neighbor edge on a properly wound polygon.
   @override
   QTEdgeNode? nextBorder([
-    final QTEdgeHandler? matcher,
+    final QTEdgeHandler<Object?>? matcher,
   ]) {
     final border = QTEdgeHandlerBorderNeighborImpl(
       this,
@@ -140,7 +145,7 @@ class QTEdgeNodeImpl<T extends Object?> implements QTEdgeNode<T> {
   /// Determines the previous neighbor edge on a properly wound polygon.
   @override
   QTEdge? previousBorder([
-    final QTEdgeHandler? matcher,
+    final QTEdgeHandler<Object?>? matcher,
   ]) {
     final border = QTEdgeHandlerBorderNeighborImpl.Points(
       endNode,

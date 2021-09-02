@@ -15,7 +15,13 @@ Future<BuiltAlfredImpl> makeAlfredImpl({
   final requestQueue = Queue(
     parallel: config.simultaneousProcessing,
   );
-  final server = await _buildHttpServer(config);
+  final server = await HttpServer.bind(
+    config.bindIp,
+    config.port,
+    shared: config.shared,
+  )
+    ..idleTimeout = config.idleTimeout
+    ..autoCompress = true;
   // ignore: cancel_subscriptions, unused_local_variable
   final serverSubscription = server.listen(
     (final request) => requestQueue.add(
@@ -34,7 +40,6 @@ Future<BuiltAlfredImpl> makeAlfredImpl({
 }
 
 class BuiltAlfredImpl implements BuiltAlfred {
-  @override
   final HttpServer server;
   final Queue requestQueue;
   bool closed = false;
@@ -64,17 +69,6 @@ class BuiltAlfredImpl implements BuiltAlfred {
     }
   }
 }
-
-Future<HttpServer> _buildHttpServer(
-  final HttpServerArguments args,
-) async =>
-    await HttpServer.bind(
-      args.bindIp,
-      args.port,
-      shared: args.shared,
-    )
-      ..idleTimeout = args.idleTimeout
-      ..autoCompress = true;
 
 class ServerConfigImpl implements ServerConfig {
   @override

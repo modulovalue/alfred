@@ -67,7 +67,7 @@ class QTNodeEmptyImpl implements QTNode {
   /// exists even partially in the region are collected.
   @override
   bool foreachEdge(
-    final QTEdgeHandler handle, [
+    final QTEdgeHandler<Object?> handle, [
     final QTBoundary? bounds,
     final bool exclusive = false,
   ]) =>
@@ -99,7 +99,7 @@ class QTNodeEmptyImpl implements QTNode {
   @override
   bool foreachLeftEdge(
     final QTPoint pnt,
-    final QTEdgeHandler hndl,
+    final QTEdgeHandler<Object?> hndl,
   ) =>
       true;
 
@@ -107,7 +107,7 @@ class QTNodeEmptyImpl implements QTNode {
   @override
   Null findFirstIntersection(
     final QTEdge edge,
-    final QTEdgeHandler? hndl,
+    final QTEdgeHandler<Object?>? hndl,
   ) =>
       null;
 
@@ -115,7 +115,7 @@ class QTNodeEmptyImpl implements QTNode {
   @override
   bool findAllIntersections(
     final QTEdge edge,
-    final QTEdgeHandler? hndl,
+    final QTEdgeHandler<Object?>? hndl,
     final IntersectionSet intersections,
   ) =>
       false;

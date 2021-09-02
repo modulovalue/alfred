@@ -40,7 +40,9 @@ class PassNode with QTNodeBoundaryMixin {
   /// Adds a point to this node.
   /// Returns the node that should be the new root of the subtree
   @override
-  QTNode insertPoint(PointNode point) {
+  QTNode insertPoint(
+    final PointNode point,
+  ) {
     point.setLocation(xmin, ymin, width);
     point.passEdges.addAll(_passEdges);
     return point;
@@ -52,7 +54,10 @@ class PassNode with QTNodeBoundaryMixin {
   /// Return the node that should be the new root of the subtree that was
   /// defined by this node.
   @override
-  QTNode removeEdge(QTEdgeNode edge, bool trimTree) {
+  QTNode removeEdge(
+    final QTEdgeNode edge,
+    final bool trimTree,
+  ) {
     if (_passEdges.remove(edge)) {
       // If this node no longer has any edges replace this node with an
       // empty node.
@@ -67,7 +72,7 @@ class PassNode with QTNodeBoundaryMixin {
   @override
   IntersectionResult? findFirstIntersection(
     final QTEdge edge,
-    final QTEdgeHandler? hndl,
+    final QTEdgeHandler<Object?>? hndl,
   ) {
     if (overlapsEdge(edge)) {
       return findFirstIntersection2(_passEdges, edge, hndl);
@@ -80,7 +85,7 @@ class PassNode with QTNodeBoundaryMixin {
   @override
   bool findAllIntersections(
     final QTEdge edge,
-    final QTEdgeHandler? hndl,
+    final QTEdgeHandler<Object?>? hndl,
     final IntersectionSet intersections,
   ) {
     if (overlapsEdge(edge)) {
@@ -92,14 +97,22 @@ class PassNode with QTNodeBoundaryMixin {
 
   /// Handles each point node reachable from this node in the boundary.
   @override
-  bool foreachPoint(QTPointHandler handle, [QTBoundary? bounds]) => true;
+  bool foreachPoint(
+    final QTPointHandler handle, [
+    final QTBoundary? bounds,
+  ]) =>
+      true;
 
   /// Handles each edge node reachable from this node in the boundary.
   /// [exclusive] indicates that only edge which have both end points
   /// inside the region are collected, otherwise any edge which
   /// exists even partially in the region are collected.
   @override
-  bool foreachEdge(QTEdgeHandler handle, [QTBoundary? bounds, bool exclusive = false]) {
+  bool foreachEdge(
+    final QTEdgeHandler<Object?> handle, [
+    final QTBoundary? bounds,
+    final bool exclusive = false,
+  ]) {
     if (!exclusive) {
       if ((bounds == null) || overlapsBoundary(bounds)) {
         for (final edge in _passEdges) {
@@ -114,7 +127,10 @@ class PassNode with QTNodeBoundaryMixin {
 
   /// Handles each node reachable from this node in the boundary.
   @override
-  bool foreachNode(QTNodeHandler handle, [QTBoundary? bounds]) {
+  bool foreachNode(
+    final QTNodeHandler handle, [
+    final QTBoundary? bounds,
+  ]) {
     if (bounds != null) {
       return overlapsBoundary(bounds) && handle.handle(this);
     } else {
@@ -143,7 +159,7 @@ class PassNode with QTNodeBoundaryMixin {
   @override
   bool foreachLeftEdge(
     final QTPoint point,
-    final QTEdgeHandler handle,
+    final QTEdgeHandler<Object?> handle,
   ) =>
       foreachLeftEdge2(_passEdges, point, handle);
 

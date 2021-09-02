@@ -11,7 +11,7 @@ class FirstLeftEdgeArgsImpl implements FirstLeftEdgeArgs {
   final QTPoint _queryPoint;
 
   /// The edge matcher to filter edges with.
-  final QTEdgeHandler? _handle;
+  final QTEdgeHandler<Object?>? _handle;
 
   /// The current right most value.
   double _rightValue;

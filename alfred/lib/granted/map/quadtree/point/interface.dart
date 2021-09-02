@@ -1,5 +1,6 @@
 /// The interface for both the geometric point and point node.
-abstract class QTPoint {
+// TODO remove bound.
+abstract class QTPoint<T extends Object?> {
   /// Gets the first integer coordinate component.
   int get x;
 
@@ -7,5 +8,5 @@ abstract class QTPoint {
   int get y;
 
   /// Any additional data that this point should contain.
-  abstract Object? data;
+  abstract T data;
 }

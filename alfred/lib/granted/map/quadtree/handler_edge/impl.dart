@@ -9,7 +9,7 @@ import '../quadtree/impl.dart';
 import 'interface.dart';
 
 /// An edge handler to ignore a neighboring edge to the given edge.
-class QTEdgeHandlerNeighborIgnorerImpl implements QTEdgeHandler {
+class QTEdgeHandlerNeighborIgnorerImpl implements QTEdgeHandler<Object?> {
   /// The edge to ignore and ignore the neighbors of.
   final QTEdge _edge;
 
@@ -34,7 +34,7 @@ class QTEdgeHandlerNeighborIgnorerImpl implements QTEdgeHandler {
 }
 
 /// Handler for calling a given function pointer for each edge.
-class QTEdgeHandlerAnonymousImpl<T extends Object?> implements QTEdgeHandler<T> {
+class QTEdgeHandlerAnonymousImpl<T> implements QTEdgeHandler<T> {
   /// The handle to call for each edge.
   final bool Function(QTEdgeNode<T> value) _hndl;
 
@@ -52,12 +52,12 @@ class QTEdgeHandlerAnonymousImpl<T extends Object?> implements QTEdgeHandler<T> 
 }
 
 /// This is an edge handler which collects the edges into a set.
-class QTEdgeHandlerEdgeCollectorImpl implements QTEdgeHandler {
+class QTEdgeHandlerEdgeCollectorImpl implements QTEdgeHandler<Object?> {
   /// The set to add new edges into.
   final Set<QTEdge> _set;
 
   /// The matcher to filter the collected edges with.
-  final QTEdgeHandler? filter;
+  final QTEdgeHandler<Object?>? filter;
 
   /// Create a new edge collector.
   QTEdgeHandlerEdgeCollectorImpl({
@@ -93,7 +93,7 @@ class QTEdgeHandlerEdgeCollectorImpl implements QTEdgeHandler {
 /// An edge handler for determining a border neighbor.
 /// The border neighbor is the most clockwise (or counter-clockwise) line sharing a point
 /// with an edge. This will flow a border if the shapes is wound properly.
-class QTEdgeHandlerBorderNeighborImpl implements QTEdgeHandler {
+class QTEdgeHandlerBorderNeighborImpl implements QTEdgeHandler<Object?> {
   /// The query edge to get the neighbor of.
   final QTEdge _query;
 
@@ -101,7 +101,7 @@ class QTEdgeHandlerBorderNeighborImpl implements QTEdgeHandler {
   final bool _ccw;
 
   /// The matcher to filter possible neighbors.
-  final QTEdgeHandler? _matcher;
+  final QTEdgeHandler<Object?>? _matcher;
 
   /// The current result neighbor edge.
   QTEdgeNode? _result;
@@ -151,7 +151,7 @@ class QTEdgeHandlerBorderNeighborImpl implements QTEdgeHandler {
     final QTPoint origin,
     final QTPoint query, [
     final bool ccw = true,
-    final QTEdgeHandler? matcher,
+    final QTEdgeHandler<Object?>? matcher,
   ]) : this(
           QTEdgeImpl(origin, query, null),
           ccw,
@@ -336,7 +336,7 @@ class QTEdgeHandlerBorderNeighborImpl implements QTEdgeHandler {
 }
 
 /// An edge handler which can be used to accumulate a shapes area.
-class QTEdgeHandlerAreaAccumulatorImpl implements QTEdgeHandler {
+class QTEdgeHandlerAreaAccumulatorImpl implements QTEdgeHandler<Object?> {
   /// The currently accumulated area.
   double _area;
 
@@ -373,7 +373,7 @@ class QTEdgeHandlerAreaAccumulatorImpl implements QTEdgeHandler {
 }
 
 /// Collect all edges inside the polygon.
-class QTEdgeHandlerEdgeRemoverImpl implements QTEdgeHandler {
+class QTEdgeHandlerEdgeRemoverImpl implements QTEdgeHandler<Object?> {
   final QuadTree _region;
   final Set<QTEdgeNode> remove;
 

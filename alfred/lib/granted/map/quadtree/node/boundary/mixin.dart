@@ -49,7 +49,9 @@ mixin QTNodeBoundaryMixin implements QTNodeBoundary {
   }
 
   @override
-  QTNodeBoundary? commonAncestor(QTNodeBoundary other) {
+  QTNodeBoundary? commonAncestor(
+    final QTNodeBoundary other,
+  ) {
     int depth1 = depth;
     int depth2 = other.depth;
     QTNodeBoundary? parent1 = parent;
@@ -72,8 +74,12 @@ mixin QTNodeBoundaryMixin implements QTNodeBoundary {
     }
     // Keep going up tree until the parents are the same.
     while (parent1 != parent2) {
-      if (parent1 == null) return null;
-      if (parent2 == null) return null;
+      if (parent1 == null) {
+        return null;
+      }
+      if (parent2 == null) {
+        return null;
+      }
       parent1 = parent1.parent;
       parent2 = parent2.parent;
     }
@@ -82,10 +88,19 @@ mixin QTNodeBoundaryMixin implements QTNodeBoundary {
   }
 
   @override
-  QTBoundaryImpl get boundary => QTBoundaryImpl.make(_xmin, _ymin, xmax, ymax);
+  QTBoundaryImpl get boundary => QTBoundaryImpl.make(
+        _xmin,
+        _ymin,
+        xmax,
+        ymax,
+      );
 
   @override
-  void setLocation(int xmin, int ymin, int size) {
+  void setLocation(
+    final int xmin,
+    final int ymin,
+    final int size,
+  ) {
     // ignore: prefer_asserts_with_message
     assert(size > 0);
     _xmin = xmin;
@@ -119,43 +134,67 @@ mixin QTNodeBoundaryMixin implements QTNodeBoundary {
 
   /// Gets the boundary region the given point was in.
   @override
-  BoundaryRegion region(QTPoint point) => boundary.region(point);
+  BoundaryRegion region(
+    final QTPoint point,
+  ) =>
+      boundary.region(point);
 
   /// Checks if the given point is completely contained within this boundary.
   /// Returns true if the point is fully contained, false otherwise.
   @override
-  bool containsPoint(QTPoint point) => boundary.containsPoint(point);
+  bool containsPoint(
+    final QTPoint point,
+  ) =>
+      boundary.containsPoint(point);
 
   /// Checks if the given edge is completely contained within this boundary.
   /// Returns true if the edge is fully contained, false otherwise.
   @override
-  bool containsEdge(QTEdge edge) => boundary.containsEdge(edge);
+  bool containsEdge(
+    final QTEdge edge,
+  ) =>
+      boundary.containsEdge(edge);
 
   /// Checks if the given boundary is completely contains by this boundary.
   /// Returns true if the boundary is fully contained, false otherwise.
   @override
-  bool containsBoundary(QTBoundary boundary) => boundary.containsBoundary(boundary);
+  bool containsBoundary(
+    final QTBoundary boundary,
+  ) =>
+      boundary.containsBoundary(boundary);
 
   /// Checks if the given edge overlaps this boundary.
   /// Returns true if the edge is overlaps, false otherwise.
   @override
-  bool overlapsEdge(QTEdge edge) => boundary.overlapsEdge(edge);
+  bool overlapsEdge(
+    final QTEdge edge,
+  ) =>
+      boundary.overlapsEdge(edge);
 
   /// Checks if the given boundary overlaps this boundary.
   /// Returns true if the given boundary overlaps this boundary,
   /// false otherwise.
   @override
-  bool overlapsBoundary(QTBoundary boundary) => boundary.overlapsBoundary(boundary);
+  bool overlapsBoundary(
+    final QTBoundary boundary,
+  ) =>
+      boundary.overlapsBoundary(boundary);
 
   /// Gets the distance squared from this boundary to the given point.
   /// Returns the distance squared from this boundary to the given point.
   @override
-  double distance2(QTPoint point) => boundary.distance2(point);
+  double distance2(
+    final QTPoint point,
+  ) =>
+      boundary.distance2(point);
 
   /// This gets the first edge to the left of the given point.
   /// The [args] are an argument class used to store all the arguments and
   /// results for running this methods.
-  void firstLineLeft(Set<QTEdgeNode> edgeSet, FirstLeftEdgeArgs args) {
+  void firstLineLeft(
+    final Set<QTEdgeNode> edgeSet,
+    final FirstLeftEdgeArgs args,
+  ) {
     // ignore: prefer_foreach
     for (final edge in edgeSet) {
       args.update(edge);
@@ -163,7 +202,11 @@ mixin QTNodeBoundaryMixin implements QTNodeBoundary {
   }
 
   /// This handles all the edges in the given set to the left of the given point.
-  bool foreachLeftEdge2(Set<QTEdgeNode> edgeSet, QTPoint point, QTEdgeHandler handle) {
+  bool foreachLeftEdge2(
+    final Set<QTEdgeNode> edgeSet,
+    final QTPoint point,
+    final QTEdgeHandler<Object?> handle,
+  ) {
     for (final edge in edgeSet) {
       if (edge.y1 > point.y) {
         if (edge.y2 > point.y) {
@@ -192,7 +235,7 @@ mixin QTNodeBoundaryMixin implements QTNodeBoundary {
   IntersectionResult? findFirstIntersection2(
     final Set<QTEdgeNode> edgeSet,
     final QTEdge edge,
-    final QTEdgeHandler? hndl,
+    final QTEdgeHandler<Object?>? hndl,
   ) {
     for (final other in edgeSet) {
       if ((hndl == null) || hndl.handle(other)) {
@@ -207,10 +250,10 @@ mixin QTNodeBoundaryMixin implements QTNodeBoundary {
 
   /// This handles all the intersections in the given edge set.
   bool findAllIntersections2(
-    Set<QTEdgeNode> edgeSet,
-    QTEdge edge,
-    QTEdgeHandler? hndl,
-    IntersectionSet intersections,
+    final Set<QTEdgeNode> edgeSet,
+    final QTEdge edge,
+    final QTEdgeHandler<Object?>? hndl,
+    final IntersectionSet intersections,
   ) {
     bool result = false;
     for (final other in edgeSet) {
