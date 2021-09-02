@@ -1,4 +1,5 @@
 import 'dart:async';
+// TODO centralize this dependency
 import 'dart:io';
 
 /// A handler for processing and collecting HTTP message data in to an

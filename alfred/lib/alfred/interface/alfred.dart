@@ -63,17 +63,8 @@ abstract class ServerConfig {
 /// A base exception for this package.
 abstract class AlfredException implements Exception {
   Z match<Z>({
-    required final Z Function(AlfredResponseException) response,
     required final Z Function(AlfredNotFoundException) notFound,
   });
-}
-
-abstract class AlfredResponseException implements AlfredException {
-  /// The response to send to the client
-  Object? get response;
-
-  /// The statusCode to send to the client
-  int get statusCode;
 }
 
 /// Error used by middleware, utils or type handler to elevate

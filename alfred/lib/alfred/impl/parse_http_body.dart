@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+// TODO centralize this dependency
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -26,8 +27,7 @@ Future<HttpRequestBody<dynamic>> processRequest(
       request,
       body,
     );
-    // ignore: avoid_catches_without_on_clauses
-  } catch (e) {
+  } on Object catch (e) {
     // Try to send BAD_REQUEST response.
     request.response.statusCode = HttpStatus.badRequest;
     await request.response.close();
@@ -84,8 +84,7 @@ class HttpBodyHandlerImpl extends StreamTransformerBase<HttpRequest, HttpRequest
               defaultEncoding: defaultEncoding,
             );
             sink.add(body);
-            // ignore: avoid_catches_without_on_clauses
-          } catch (e, st) {
+          } on Object catch (e, st) {
             sink.addError(e, st);
           } finally {
             pending--;

@@ -1,3 +1,4 @@
+// TODO centralize this dependency
 import 'dart:io';
 
 import '../../interface/middleware.dart';
@@ -99,19 +100,18 @@ mixin WebSocketSessionStartMixin implements WebSocketSession {
                 "Unknown data type emitted by socket. " + data.runtimeType.toString(),
               );
             }
-            // ignore: avoid_catches_without_on_clauses
-          } catch (e) {
+          } on Object catch (e) {
             onError(socket, e);
           }
         },
         onDone: () => onClose(socket),
         onError: (dynamic error) => onError(socket, error),
       );
-      // ignore: avoid_catches_without_on_clauses
-    } catch (e) {
+    } on Object catch (e) {
       print('WebSocket Error: ' + e.toString());
       try {
         socket.close();
+        // TODO handle properly.
         // ignore: empty_catches
       } on Object catch (_) {}
     }

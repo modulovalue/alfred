@@ -19,7 +19,6 @@ class InternalError500Middleware implements Middleware {
       c.res.statusCode = 500;
       c.res.write(error.toString());
       await c.res.close();
-      // ignore: avoid_catches_without_on_clauses
-    } catch (_) {}
+    } on Object catch (_) {}
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+// TODO centralize this dependency
 import 'dart:io';
 
 import '../../base/method.dart';
@@ -171,15 +172,9 @@ class AlfredImpl implements Alfred, HttpRouteFactory {
             }
           } on AlfredException catch (e) {
             await e.match(
-              response: (final e) async {
-                // The user threw a 'handle HTTP' Exception
-                request.response.statusCode = e.statusCode;
-                await request.response.close();
-              },
               notFound: (final e) async {
                 await onNotFound.process(c);
                 await c.res.close();
-                // ignore: avoid_catches_without_on_clauses
               },
             );
           } on Object catch (e, s) {

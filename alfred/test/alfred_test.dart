@@ -15,10 +15,10 @@ import 'package:alfred/alfred/impl/middleware/io_file.dart';
 import 'package:alfred/alfred/impl/middleware/json.dart';
 import 'package:alfred/alfred/impl/middleware/middleware.dart';
 import 'package:alfred/alfred/impl/middleware/string.dart';
-import 'package:alfred/alfred/interface/alfred.dart';
 import 'package:alfred/alfred/interface/http_route_factory.dart';
 import 'package:alfred/alfred/interface/middleware.dart';
 import 'package:alfred/alfred/interface/serve_context.dart';
+import 'package:alfred/base/method.dart';
 import 'package:http/http.dart' as http;
 import 'package:test/test.dart';
 
@@ -134,10 +134,18 @@ void main() {
           ],
         ),
       );
-      expect((await http.get(Uri.parse('http://localhost:' + port.toString() + '/test'))).body, 'test_route');
       expect(
-          (await http.get(Uri.parse('http://localhost:' + port.toString() + '/testRoute'))).body, 'test_route_route');
-      expect((await http.get(Uri.parse('http://localhost:' + port.toString() + '/a'))).body, 'a_route');
+        (await http.get(Uri.parse('http://localhost:' + port.toString() + '/test'))).body,
+        'test_route',
+      );
+      expect(
+        (await http.get(Uri.parse('http://localhost:' + port.toString() + '/testRoute'))).body,
+        'test_route_route',
+      );
+      expect(
+        (await http.get(Uri.parse('http://localhost:' + port.toString() + '/a'))).body,
+        'a_route',
+      );
     });
   });
   test('error handling', () async {
@@ -302,7 +310,7 @@ void main() {
       app.router.add(
         routes: Routes(
           routes: [
-            Route.put(
+            Route.post(
               path: '/test',
               middleware: const ServeString(
                 string: 'test string',
@@ -311,7 +319,6 @@ void main() {
           ],
         ),
       );
-      // TODO gives a 404 not found?
       print(port);
       final response = await http.post(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(response.body, 'test string');
@@ -340,7 +347,7 @@ void main() {
       app.router.add(
         routes: Routes(
           routes: [
-            Route.put(
+            Route.delete(
               path: '/test',
               middleware: const ServeString(
                 string: 'test string',
@@ -349,7 +356,6 @@ void main() {
           ],
         ),
       );
-      // TODO gives a 404 not found
       final response = await http.delete(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(response.body, 'test string');
     });
@@ -359,7 +365,7 @@ void main() {
       app.router.add(
         routes: Routes(
           routes: [
-            Route.put(
+            Route.options(
               path: '/test',
               middleware: const ServeString(
                 string: 'test string',
@@ -368,17 +374,25 @@ void main() {
           ],
         ),
       );
-      // TODO: Need to find a way to send an options request. The HTTP library doesn't seem to support it.
-      // final response = await http.head(Uri.parse("http://localhost:$port/test"));
-      // expect(response.body, "test string");
+      final response = await http.Response.fromStream(
+        await http.Client().send(
+          http.Request(
+            MethodOptions.optionsString,
+            Uri.parse(
+              "http://localhost:" + port.toString() + "/test",
+            ),
+          ),
+        ),
+      );
+      expect(response.body, "test string");
     });
   });
   test('it handles a patch request', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       app.router.add(
         routes: Routes(
           routes: [
-            Route.put(
+            Route.patch(
               path: '/test',
               middleware: const ServeString(
                 string: 'test string',
@@ -387,7 +401,6 @@ void main() {
           ],
         ),
       );
-      // TODO gives a 404 not found.
       final response = await http.patch(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(response.body, 'test string');
     });
@@ -430,26 +443,6 @@ void main() {
       );
       final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/test'));
       expect(response.body, '');
-    });
-  });
-  test('it throws and handles an exception', () async {
-    await runTest(fn: (app, built, port) async {
-      app.router.add(
-        routes: Routes(
-          routes: [
-            Route.get(
-              path: '/test',
-              middleware: MiddlewareBuilder(
-                process: (final _) async => throw const _AlfredExceptionImpl(360, 'exception'),
-              ),
-            ),
-          ],
-        ),
-      );
-      // TODO does not return exception
-      final response = await http.get(Uri.parse('http://localhost:' + port.toString() + '/test'));
-      expect(response.body, 'exception');
-      expect(response.statusCode, 360);
     });
   });
   test('it handles a List<int>', () async {
@@ -495,11 +488,11 @@ void main() {
     });
   });
   test('it parses a body', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       app.router.add(
         routes: Routes(
           routes: [
-            Route.put(
+            Route.post(
               path: '/test',
               middleware: MiddlewareBuilder(
                 process: (final context) async {
@@ -513,7 +506,6 @@ void main() {
           ],
         ),
       );
-      // TODO return a 404.
       final response = await http.post(
         Uri.parse('http://localhost:' + port.toString() + '/test'),
         headers: {'Content-Type': 'application/json'},
@@ -788,14 +780,6 @@ void main() {
       expect(response.headers.containsKey('access-control-allow-methods'), true);
     });
   });
-  // test("it should throw an appropriate error when a return type isn't found", () async {
-  //   await runTest(fn: (app, built, port) async {
-  //     app.get('/test', ValueMiddleware(_UnknownType()));
-  //     final response = await http.get(Uri.parse('http://localhost:$port/test'));
-  //     expect(response.statusCode, 500);
-  //     expect(response.body.contains('_UnknownType'), true);
-  //   });
-  // });
   test('it should log out request information', () async {
     final logs = <String>[];
     await runTest(
@@ -812,13 +796,15 @@ void main() {
             ],
           ),
         );
-        // TODO doesn't log.
         await http.get(Uri.parse('http://localhost:' + port.toString() + '/resource'));
-        bool inLog(final String part) => logs.isNotEmpty && logs.where((final log) => log.contains(part)).isNotEmpty;
+        bool inLog(
+          final String part,
+        ) =>
+            logs.where((final log) => log.contains(part)).isNotEmpty;
         print(logs.join("\n"));
         expect(inLog('info GET - /resource'), true);
         expect(inLog('debug Match route: /resource'), true);
-        expect(inLog('debug Apply middleware'), true);
+        expect(inLog('debug Execute route callback function'), true);
         expect(inLog('debug Response sent to client'), true);
       },
       LOG: TestLogger(logs.add),
@@ -842,31 +828,6 @@ class TestLogger with AlfredLoggingDelegateGeneralizingMixin {
 
   @override
   LogType get logLevel => const LogTypeInfo();
-}
-
-/// Throw these exceptions to bubble up an
-/// error from sub functions and have them
-/// handled automatically for the client.
-class _AlfredExceptionImpl implements AlfredResponseException {
-  /// The response to send to the client.
-  @override
-  final Object? response;
-
-  /// The statusCode to send to the client.
-  @override
-  final int statusCode;
-
-  const _AlfredExceptionImpl(
-    final this.statusCode,
-    final this.response,
-  );
-
-  @override
-  Z match<Z>({
-    required final Z Function(AlfredResponseException p1) response,
-    required final Z Function(AlfredNotFoundException p1) notFound,
-  }) =>
-      response(this);
 }
 
 class NonClosingMiddleware implements Middleware {

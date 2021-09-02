@@ -1,3 +1,4 @@
+// TODO centralize this dependency
 import 'dart:io';
 
 import '../../../base/mime.dart';
@@ -81,7 +82,6 @@ class AlfredFileNotFoundExceptionImpl implements AlfredNotFoundException {
 
   @override
   Z match<Z>({
-    required final Z Function(AlfredResponseException p1) response,
     required final Z Function(AlfredNotFoundException p1) notFound,
   }) =>
       notFound(this);

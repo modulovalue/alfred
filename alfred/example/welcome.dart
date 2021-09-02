@@ -13,7 +13,6 @@ import 'package:alfred/alfred/impl/middleware/middleware.dart';
 import 'package:alfred/alfred/impl/middleware/string.dart';
 import 'package:alfred/alfred/impl/middleware/websocket.dart';
 import 'package:alfred/alfred/impl/middleware/widget.dart';
-import 'package:alfred/alfred/interface/alfred.dart';
 import 'package:alfred/alfred/interface/http_route_factory.dart';
 import 'package:alfred/alfred/interface/middleware.dart';
 import 'package:alfred/alfred/interface/serve_context.dart';
@@ -25,7 +24,7 @@ import 'package:alfred/bluffer/widgets/sized_box.dart';
 import 'package:alfred/bluffer/widgets/text.dart';
 
 // TODO split examples back into separate files.
-// TODO move all examples into a new package.
+// TODO move all examples into a new package?
 Future<void> main() async {
   final session = MyWebSocketSession();
   final app = makeSimpleAlfred(
@@ -233,35 +232,13 @@ class ExampleAuthorizationMiddleware implements Middleware {
   ) async {
     if (context.req.headers.value('Authorization') != 'apikey') {
       print("Failure");
-      throw const _AlfredExceptionImpl(401, {'message': 'authentication failed.'});
+      context.res.statusCode = 401;
+      context.res.write('authentication failed.');
+      await context.res.close();
     } else {
       print("success");
     }
   }
-}
-
-/// Throw these exceptions to bubble up an error from sub functions and have them
-/// handled automatically for the client
-class _AlfredExceptionImpl implements AlfredResponseException {
-  /// The response to send to the client
-  @override
-  final Object? response;
-
-  /// The statusCode to send to the client
-  @override
-  final int statusCode;
-
-  const _AlfredExceptionImpl(
-    final this.statusCode,
-    final this.response,
-  );
-
-  @override
-  Z match<Z>({
-    required final Z Function(AlfredResponseException p1) response,
-    required final Z Function(AlfredNotFoundException p1) notFound,
-  }) =>
-      response(this);
 }
 
 HttpRoute webSocketServerRoute({
