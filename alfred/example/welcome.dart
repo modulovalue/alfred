@@ -16,6 +16,7 @@ import 'package:alfred/alfred/impl/middleware/widget.dart';
 import 'package:alfred/alfred/interface/http_route_factory.dart';
 import 'package:alfred/alfred/interface/middleware.dart';
 import 'package:alfred/alfred/interface/serve_context.dart';
+import 'package:alfred/base/http_status_code.dart';
 import 'package:alfred/bluffer/base/edge_insets.dart';
 import 'package:alfred/bluffer/widgets/builder.dart';
 import 'package:alfred/bluffer/widgets/flex.dart';
@@ -30,7 +31,7 @@ Future<void> main() async {
   final app = makeSimpleAlfred(
     onInternalError: (final e) => MiddlewareBuilder(
       process: (final c) {
-        c.res.statusCode = 500;
+        c.res.setStatusCode(httpStatusInternalServerError500);
         return const ServeJson.map(
           map: {
             'message': 'error not handled',
@@ -40,11 +41,9 @@ Future<void> main() async {
     ),
     onNotFound: MiddlewareBuilder(
       process: (final c) {
-        c.res.statusCode = 404;
+        c.res.setStatusCode(httpStatusNotFound404);
         return const ServeJson.map(
-          map: {
-            'message': 'not found',
-          },
+          map: {'message': 'not found'},
         ).process(c);
       },
     ),
@@ -92,7 +91,7 @@ Future<void> main() async {
           middleware: MiddlewareBuilder(
             process: (final c) async {
               // Perform action
-              c.res.headers.add(
+              c.res.setHeaderString(
                 'x-custom-header',
                 "Alfred isn't bad",
               );
@@ -232,8 +231,8 @@ class ExampleAuthorizationMiddleware implements Middleware {
   ) async {
     if (context.req.headers.value('Authorization') != 'apikey') {
       print("Failure");
-      context.res.statusCode = 401;
-      context.res.write('authentication failed.');
+      context.res.setStatusCode(httpStatusUnauthorized401);
+      context.res.writeString('authentication failed.');
       await context.res.close();
     } else {
       print("success");
@@ -307,31 +306,52 @@ HttpRoute webSocketClientRoute({
       ),
     );
 
-class MyWebSocketSession with WebSocketSessionStartMixin {
+class MyWebSocketSession with WebSocketSessionStartMixin implements InitiatedWebSocketSession {
   final List<WebSocket> users = [];
 
   MyWebSocketSession();
 
   @override
-  void onClose(WebSocket ws) {
+  void onClose(
+    final WebSocket ws,
+  ) {
     users.remove(ws);
-    users.forEach((final user) => user.add('A user has left.'));
+    users.forEach(
+      (final user) => user.add('A user has left.'),
+    );
   }
 
   @override
-  void onError(WebSocket ws, dynamic error) {
+  void onError(
+    final WebSocket ws,
+    final dynamic error,
+  ) {
     // Do nothing. this is an example.
   }
 
   @override
-  void onMessage(WebSocket ws, dynamic data) {
-    users.forEach((user) => user.add(data));
+  void onMessage(
+    final WebSocket ws,
+    dynamic data,
+  ) {
+    users.forEach(
+      (final user) => user.add(data),
+    );
   }
 
   @override
-  void onOpen(WebSocket ws) {
+  InitiatedWebSocketSession onOpen(
+    final WebSocket ws,
+  ) {
     users.add(ws);
-    users.where((user) => user != ws).forEach((user) => user.add('A new user joined the chat.'));
+    users
+        .where(
+          (final user) => user != ws,
+        )
+        .forEach(
+          (final user) => user.add('A new user joined the chat.'),
+        );
+    return this;
   }
 }
 
@@ -340,7 +360,7 @@ List<HttpRoute> resourceBlocking() => [
         path: '/resource*',
         middleware: MiddlewareBuilder(
           process: (final c) async {
-            c.res.statusCode = 401;
+            c.res.setStatusCode(httpStatusUnauthorized401);
             await c.res.close();
           },
         ),

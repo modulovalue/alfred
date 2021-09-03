@@ -1,6 +1,9 @@
 // TODO inline this dependency.
 import 'package:mime_type/mime_type.dart' as _m;
 
+import '../alfred/impl/content_type.dart';
+import '../alfred/interface/parse_http_body.dart';
+
 /// Get the contentType header from the given file.
 AlfredContentType? fileContentType({
   required final String filePath,
@@ -9,20 +12,13 @@ AlfredContentType? fileContentType({
   final mimeType = _m.mime(filePath);
   if (mimeType != null) {
     final split = mimeType.split('/');
-    return AlfredContentType(split[0], split[1]);
+    return AlfredContentTypeImpl(
+      primaryType: split[0],
+      subType: split[1],
+    );
   } else {
     return null;
   }
-}
-
-class AlfredContentType {
-  final String primaryType;
-  final String subType;
-
-  const AlfredContentType(
-    final this.primaryType,
-    final this.subType,
-  );
 }
 
 String? mimeFromExtension({

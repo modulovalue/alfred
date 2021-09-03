@@ -44,21 +44,11 @@ Future<void> _serveFile(
     final contentType = fileContentType(
       filePath: file.path,
     );
-    final detectedContentType = () {
-      if (contentType == null) {
-        return null;
-      } else {
-        return ContentType(
-          contentType.primaryType,
-          contentType.subType,
-        );
-      }
-    }();
-    final c_ = c.res.headers.contentType;
-    if (c_ == null || c_.mimeType == 'text/plain') {
-      c.res.headers.contentType = detectedContentType;
+    final c_ = c.res.mimeType;
+    if (c_ == null || c_ == 'text/plain') {
+      c.res.setContentType(contentType);
     }
-    await c.res.addStream(file.openRead());
+    await c.res.writeByteStream(file.openRead());
     return c.res.close();
   } else {
     throw AlfredFileNotFoundExceptionImpl(

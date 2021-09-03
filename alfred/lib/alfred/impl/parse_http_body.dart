@@ -1,12 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
+
 // TODO centralize this dependency
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:mime/mime.dart' as m;
 
+import '../../base/header.dart';
+import '../../base/http_status_code.dart';
 import '../interface/parse_http_body.dart';
+import '../interface/serve_context.dart';
+import 'content_type.dart';
 
 /// Process and parse an incoming [HttpRequest].
 ///
@@ -14,12 +19,13 @@ import '../interface/parse_http_body.dart';
 ///
 /// See [new HttpBodyHandler] for more info on [defaultEncoding].
 Future<HttpRequestBody<dynamic>> processRequest(
-  final HttpRequest request, {
+  final AlfredRequest request,
+  final AlfredResponse response, {
   final Encoding defaultEncoding = utf8,
 }) async {
   try {
     final body = await _process(
-      stream: request,
+      stream: request.stream,
       headers: request.headers,
       defaultEncoding: defaultEncoding,
     );
@@ -27,10 +33,10 @@ Future<HttpRequestBody<dynamic>> processRequest(
       request,
       body,
     );
-  } on Object catch (e) {
+  } on Object catch (_) {
     // Try to send BAD_REQUEST response.
-    request.response.statusCode = HttpStatus.badRequest;
-    await request.response.close();
+    response.setStatusCode(httpStatusBadRequest400);
+    await response.close();
     rethrow;
   }
 }
@@ -53,9 +59,12 @@ Future<HttpClientResponseBody<dynamic>> processResponse(
   );
 }
 
-class HttpBodyHandlerImpl extends StreamTransformerBase<HttpRequest, HttpRequestBody<dynamic>>
-    implements HttpBodyHandler {
+class HttpBodyHandlerImpl extends StreamTransformerBase<AlfredRequest, HttpRequestBody<dynamic>>
+    implements HttpBodyHandler<dynamic> {
   final Encoding defaultEncoding;
+
+  @override
+  StreamTransformerBase<AlfredRequest, HttpRequestBody<dynamic>> get handler => this;
 
   /// Create a new [HttpBodyHandler] to be used with a [Stream]<[HttpRequest]>,
   /// e.g. a [HttpServer].
@@ -70,17 +79,18 @@ class HttpBodyHandlerImpl extends StreamTransformerBase<HttpRequest, HttpRequest
 
   @override
   Stream<HttpRequestBody<dynamic>> bind(
-    final Stream<HttpRequest> stream,
+    final Stream<AlfredRequest> stream,
   ) {
     var pending = 0;
     var closed = false;
     return stream.transform(
       StreamTransformer.fromHandlers(
-        handleData: (final request, final sink) async {
+        handleData: (final AlfredRequest request, final sink) async {
           pending++;
           try {
             final body = await processRequest(
               request,
+              request.response,
               defaultEncoding: defaultEncoding,
             );
             sink.add(body);
@@ -121,50 +131,40 @@ class HttpClientResponseBodyImpl<T> implements HttpClientResponseBody<T> {
   @override
   final HttpClientResponse response;
 
+  @override
   final HttpBody<T> httpBody;
 
   const HttpClientResponseBodyImpl({
     required final this.response,
     required final this.httpBody,
   });
-
-  @override
-  T get body => httpBody.body;
-
-  @override
-  String get type => httpBody.type;
 }
 
 class HttpRequestBodyImpl<T> implements HttpRequestBody<T> {
   @override
-  final HttpRequest request;
-  final HttpBody<T> _body;
+  final AlfredRequest request;
+  @override
+  final HttpBody<T> httpBody;
 
   const HttpRequestBodyImpl._(
     final this.request,
-    final this._body,
+    final this.httpBody,
   );
-
-  @override
-  T get body => _body.body;
-
-  @override
-  String get type => _body.type;
 }
 
 class HttpBodyFileUploadImpl<T> implements HttpBodyFileUpload<T> {
   @override
   final String filename;
   @override
-  final ContentType? contentType;
+  final AlfredContentType? contentType;
   @override
   final T content;
 
-  const HttpBodyFileUploadImpl._(
-    final this.contentType,
-    final this.filename,
-    final this.content,
-  );
+  const HttpBodyFileUploadImpl._({
+    required final this.contentType,
+    required final this.filename,
+    required final this.content,
+  });
 }
 
 Future<HttpBody<Object?>> _process({
@@ -213,34 +213,54 @@ Future<HttpBody<Object?>> _process({
             part,
             defaultEncoding: defaultEncoding,
           );
-          dynamic data;
-          if (multipart.isText) {
-            final buffer = await multipart.fold<StringBuffer>(
-              StringBuffer(),
-              (final b, final dynamic s) => b..write(s),
-            );
-            data = buffer.toString();
-          } else {
-            final buffer = await multipart.fold<BytesBuilder>(
-              BytesBuilder(),
-              (final b, final dynamic d) {
-                if (d is List<int>) {
-                  return b..add(d);
+          Future<dynamic> make() async {
+            if (multipart.isText) {
+              final buffer = StringBuffer();
+              // ignore: prefer_foreach
+              await for (final dynamic val in multipart) {
+                buffer.write(val);
+              }
+              return buffer.toString();
+            } else {
+              final builder = BytesBuilder();
+              await for (final val in multipart) {
+                if (val is List<int>) {
+                  return builder.add(val);
                 } else {
                   throw Exception("Expected d to be a list of integers.");
                 }
-              },
-            );
-            data = buffer.takeBytes();
+              }
+              return builder.takeBytes();
+            }
           }
+
+          final dynamic dataFirst = await make();
           final filename = multipart.contentDisposition.parameters['filename'];
           if (filename != null) {
-            data = HttpBodyFileUploadImpl<dynamic>._(multipart.contentType, filename, data);
+            final _contentType = multipart.contentType;
+            return <dynamic>[
+              multipart.contentDisposition.parameters['name'],
+              HttpBodyFileUploadImpl<dynamic>._(
+                contentType: () {
+                  if (_contentType != null) {
+                    return AlfredContentTypeImpl(
+                      primaryType: _contentType.primaryType,
+                      subType: _contentType.subType,
+                    );
+                  } else {
+                    return null;
+                  }
+                }(),
+                filename: filename,
+                content: dataFirst,
+              ),
+            ];
+          } else {
+            return <dynamic>[
+              multipart.contentDisposition.parameters['name'],
+              dataFirst,
+            ];
           }
-          return <dynamic>[
-            multipart.contentDisposition.parameters['name'],
-            data,
-          ];
         },
       ).toList();
       final parts = await Future.wait<List<dynamic>>(values);
@@ -410,7 +430,7 @@ HttpMultipartFormData parseHttpMultipartFormData(
   HeaderValue? disposition;
   for (final key in multipart.headers.keys) {
     switch (key) {
-      case 'content-type':
+      case httpHeaderContentType:
         contentType = ContentType.parse(
           multipart.headers[key]!,
         );

@@ -1,6 +1,3 @@
-// TODO centralize this dependency
-import 'dart:io';
-
 import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
 
@@ -15,13 +12,13 @@ class StreamOfBytesMiddleware implements Middleware {
   Future<void> process(
     final ServeContext c,
   ) async {
-    final headerContentType = c.res.headers.contentType;
+    final headerContentType = c.res.mimeType;
     if (headerContentType == null) {
-      c.res.headers.contentType = ContentType.binary;
-    } else if (headerContentType.value == 'text/plain') {
-      c.res.headers.contentType = ContentType.binary;
+      c.res.setContentTypeBinary();
+    } else if (headerContentType == 'text/plain') {
+      c.res.setContentTypeBinary();
     }
-    await c.res.addStream(bytes);
+    await c.res.writeByteStream(bytes);
     await c.res.close();
   }
 }

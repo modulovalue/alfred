@@ -6,7 +6,7 @@ class AlfredLoggingDelegatePrintImpl with AlfredLoggingDelegateGeneralizingMixin
   final LogType logLevel;
 
   const AlfredLoggingDelegatePrintImpl([
-    this.logLevel = const LogTypeDebug(),
+    final this.logLevel = const LogTypeDebug(),
   ]);
 
   @override

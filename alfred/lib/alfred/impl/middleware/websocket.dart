@@ -15,8 +15,9 @@ class ServeWebSocket implements Middleware {
   Future<void> process(
     final ServeContext c,
   ) async {
-    final websocket = await WebSocketTransformer.upgrade(c.req);
-    webSocketSession.start(websocket);
+    webSocketSession.start(
+      await c.req.upgradeToWebsocket(),
+    );
   }
 }
 
@@ -31,29 +32,86 @@ class ServeWebSocketFactory implements Middleware {
   Future<void> process(
     final ServeContext c,
   ) async {
-    final websocket = await WebSocketTransformer.upgrade(c.req);
-    (await webSocketSessionFactory(c)).start(websocket);
+    (await webSocketSessionFactory(c)).start(
+      await c.req.upgradeToWebsocket(),
+    );
   }
 }
 
 class WebSocketSessionAnonymousImpl with WebSocketSessionStartMixin {
-  final void Function(WebSocket webSocket)? open;
+  final InitiatedWebSocketSession Function(WebSocket webSocket) open;
+
+  WebSocketSessionAnonymousImpl({
+    required final this.open,
+  });
+
+  @override
+  InitiatedWebSocketSession onOpen(
+    final WebSocket webSocket,
+  ) =>
+      open.call(webSocket);
+}
+
+/// Convenience wrapper around Dart IO WebSocket implementation.
+mixin WebSocketSessionStartMixin implements WebSocketSession {
+  @override
+  void start(
+    final WebSocket webSocket,
+  ) {
+    final socket = webSocket;
+    try {
+      final delegate = onOpen(socket);
+      socket.listen(
+        (final dynamic data) {
+          try {
+            if (data is String) {
+              delegate.onMessage(socket, data);
+            } else if (data is List<int>) {
+              delegate.onMessage(socket, data);
+            } else {
+              throw Exception(
+                "Unknown data type emitted by socket. " + data.runtimeType.toString(),
+              );
+            }
+          } on Object catch (e) {
+            delegate.onError(socket, e);
+          }
+        },
+        onDone: () => delegate.onClose(socket),
+        onError: (dynamic error) => delegate.onError(socket, error),
+      );
+    } on Object catch (e) {
+      print('WebSocket Error: ' + e.toString());
+      try {
+        socket.close();
+        // TODO handle properly.
+        // ignore: empty_catches
+      } on Object catch (_) {}
+    }
+  }
+}
+
+/// Convenience wrapper around Dart IO WebSocket implementation
+abstract class WebSocketSession {
+  InitiatedWebSocketSession onOpen(
+    final WebSocket webSocket,
+  );
+
+  void start(
+    final WebSocket webSocket,
+  );
+}
+
+class InitiatedWebSocketSessionAnonymousImpl implements InitiatedWebSocketSession {
   final void Function(WebSocket webSocket, dynamic data)? message;
   final void Function(WebSocket webSocket, dynamic error)? error;
   final void Function(WebSocket webSocket)? close;
 
-  WebSocketSessionAnonymousImpl({
-    final this.open,
+  const InitiatedWebSocketSessionAnonymousImpl({
     final this.message,
     final this.error,
     final this.close,
   });
-
-  @override
-  void onOpen(
-    final WebSocket webSocket,
-  ) =>
-      open?.call(webSocket);
 
   @override
   void onMessage(
@@ -76,60 +134,7 @@ class WebSocketSessionAnonymousImpl with WebSocketSessionStartMixin {
       close?.call(webSocket);
 }
 
-/// Convenience wrapper around Dart IO WebSocket implementation.
-mixin WebSocketSessionStartMixin implements WebSocketSession {
-  @override
-  late WebSocket socket;
-
-  @override
-  void start(
-    final WebSocket webSocket,
-  ) {
-    socket = webSocket;
-    try {
-      onOpen(socket);
-      socket.listen(
-        (final dynamic data) {
-          try {
-            if (data is String) {
-              onMessage(socket, data);
-            } else if (data is List<int>) {
-              onMessage(socket, data);
-            } else {
-              throw Exception(
-                "Unknown data type emitted by socket. " + data.runtimeType.toString(),
-              );
-            }
-          } on Object catch (e) {
-            onError(socket, e);
-          }
-        },
-        onDone: () => onClose(socket),
-        onError: (dynamic error) => onError(socket, error),
-      );
-    } on Object catch (e) {
-      print('WebSocket Error: ' + e.toString());
-      try {
-        socket.close();
-        // TODO handle properly.
-        // ignore: empty_catches
-      } on Object catch (_) {}
-    }
-  }
-}
-
-/// Convenience wrapper around Dart IO WebSocket implementation
-abstract class WebSocketSession {
-  WebSocket get socket;
-
-  void start(
-    final WebSocket webSocket,
-  );
-
-  void onOpen(
-    final WebSocket webSocket,
-  );
-
+abstract class InitiatedWebSocketSession {
   void onMessage(
     final WebSocket webSocket,
     final dynamic data,

@@ -14,7 +14,7 @@ class ServeString implements Middleware {
   Future<void> process(
     final ServeContext c,
   ) async {
-    c.res.write(string);
+    c.res.writeString(string);
     await c.res.close();
   }
 }

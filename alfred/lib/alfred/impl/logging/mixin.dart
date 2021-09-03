@@ -2,7 +2,7 @@ import '../../interface/alfred.dart';
 import '../../interface/logging_delegate.dart';
 import 'log_type.dart';
 
-/// Maps from notifications about certain event to a log method.
+/// Maps from notifications about certain events to a log method.
 mixin AlfredLoggingDelegateGeneralizingMixin implements AlfredLoggingDelegate {
   LogType get logLevel;
 

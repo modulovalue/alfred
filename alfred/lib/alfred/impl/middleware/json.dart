@@ -1,6 +1,4 @@
 import 'dart:convert';
-// TODO centralize this dependency
-import 'dart:io';
 
 import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
@@ -20,8 +18,8 @@ class ServeJson implements Middleware {
   Future<dynamic> process(
     final ServeContext c,
   ) {
-    c.res.headers.contentType = ContentType.json;
-    c.res.write(jsonEncode(value));
+    c.res.setContentTypeJson();
+    c.res.writeString(jsonEncode(value));
     return c.res.close();
   }
 }
@@ -41,8 +39,8 @@ class ServeJsonBuilder implements Middleware {
   Future<void> process(
     final ServeContext c,
   ) async {
-    c.res.headers.contentType = ContentType.json;
-    c.res.write(jsonEncode(await value(c)));
+    c.res.setContentTypeJson();
+    c.res.writeString(jsonEncode(await value(c)));
     return c.res.close();
   }
 }

@@ -35,13 +35,13 @@ class CorsMiddleware implements Middleware {
     final ServeContext c,
   ) async {
     // TODO extract and centralise header key.
-    c.res.headers.set('Access-Control-Allow-Origin', origin);
+    c.res.setHeaderString('Access-Control-Allow-Origin', origin);
     // TODO extract and centralise header key.
-    c.res.headers.set('Access-Control-Allow-Methods', methods);
+    c.res.setHeaderString('Access-Control-Allow-Methods', methods);
     // TODO extract and centralise header key.
-    c.res.headers.set('Access-Control-Allow-Headers', headers);
+    c.res.setHeaderString('Access-Control-Allow-Headers', headers);
     // TODO extract and centralise header key.
-    c.res.headers.set('Access-Control-Max-Age', age);
+    c.res.setHeaderInteger('Access-Control-Max-Age', age);
     if (Methods.options.isMethod(c.req.method)) {
       await c.res.close();
     }

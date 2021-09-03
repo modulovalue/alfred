@@ -11,7 +11,7 @@ import 'common.dart';
 void main() {
   group("websocket", () {
     test('it correctly handles a websocket error', () async {
-      await runTest(fn: (alfred, built, port) async {
+      await runTest(fn: (final alfred, final built, final port) async {
         final ws = WebSocketSessionTest2Impl();
         alfred.router.add(
           routes: Routes(
@@ -25,7 +25,7 @@ void main() {
             ],
           ),
         );
-        final channel = IOWebSocketChannel.connect('ws://localhost:$port/ws');
+        final channel = IOWebSocketChannel.connect('ws://localhost:' + port.toString() + '/ws');
         await Future<void>.delayed(const Duration(milliseconds: 500));
         channel.sink.add('test');
         await Future<void>.delayed(const Duration(milliseconds: 500));
@@ -33,7 +33,7 @@ void main() {
       });
     });
     test('it can handle websockets', () async {
-      await runTest(fn: (alfred, built, port) async {
+      await runTest(fn: (final alfred, final built, final port) async {
         final ws = WebSocketSessionTest1Impl();
         alfred.router.add(
           routes: Routes(
@@ -47,7 +47,7 @@ void main() {
             ],
           ),
         );
-        final channel = IOWebSocketChannel.connect('ws://localhost:$port/ws');
+        final channel = IOWebSocketChannel.connect('ws://localhost:' + port.toString() + '/ws');
         channel.sink.add('hi');
         final dynamic response = await channel.stream.first;
         if (response is String) {
@@ -66,10 +66,17 @@ void main() {
   });
 }
 
-class WebSocketSessionTest2Impl with WebSocketSessionStartMixin {
+class WebSocketSessionTest2Impl with WebSocketSessionStartMixin implements InitiatedWebSocketSession {
   int error = 0;
 
   WebSocketSessionTest2Impl();
+
+  @override
+  InitiatedWebSocketSession onOpen(
+    final WebSocket _,
+  ) {
+    return this;
+  }
 
   @override
   void onClose(
@@ -94,16 +101,9 @@ class WebSocketSessionTest2Impl with WebSocketSessionStartMixin {
   ) {
     this.error++;
   }
-
-  @override
-  void onOpen(
-    final WebSocket _,
-  ) {
-    // Do nothing.
-  }
 }
 
-class WebSocketSessionTest1Impl with WebSocketSessionStartMixin {
+class WebSocketSessionTest1Impl with WebSocketSessionStartMixin implements InitiatedWebSocketSession {
   bool opened = false;
 
   bool closed = false;
@@ -113,14 +113,22 @@ class WebSocketSessionTest1Impl with WebSocketSessionStartMixin {
   WebSocketSessionTest1Impl();
 
   @override
-  void onClose(
+  InitiatedWebSocketSession onOpen(
     final WebSocket _,
+  ) {
+    opened = true;
+    return this;
+  }
+
+  @override
+  void onClose(
+    final WebSocket socket,
   ) =>
       closed = true;
 
   @override
   void onError(
-    final WebSocket _,
+    final WebSocket socket,
     final dynamic error,
   ) {
     // Do nothing.
@@ -128,7 +136,7 @@ class WebSocketSessionTest1Impl with WebSocketSessionStartMixin {
 
   @override
   void onMessage(
-    final WebSocket _,
+    final WebSocket socket,
     final dynamic data,
   ) {
     if (data is String) {
@@ -138,10 +146,4 @@ class WebSocketSessionTest1Impl with WebSocketSessionStartMixin {
       throw Exception("Expected a String " + data.toString());
     }
   }
-
-  @override
-  void onOpen(
-    final WebSocket _,
-  ) =>
-      opened = true;
 }

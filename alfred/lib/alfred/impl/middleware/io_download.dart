@@ -15,8 +15,11 @@ class ServeDownload implements Middleware {
   Future<void> process(
     final ServeContext c,
   ) async {
-    // TODO extract and centralise header.
-    c.res.headers.add('Content-Disposition', 'attachment; filename=$filename');
+    // TODO extract and centralise headers.
+    c.res.setHeaderString(
+      'Content-Disposition',
+      'attachment; filename=' + filename,
+    );
     await child.process(c);
   }
 }

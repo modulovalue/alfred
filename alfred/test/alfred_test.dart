@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:alfred/alfred/impl/alfred.dart';
 import 'package:alfred/alfred/impl/logging/log_type.dart';
@@ -18,6 +17,7 @@ import 'package:alfred/alfred/impl/middleware/string.dart';
 import 'package:alfred/alfred/interface/http_route_factory.dart';
 import 'package:alfred/alfred/interface/middleware.dart';
 import 'package:alfred/alfred/interface/serve_context.dart';
+import 'package:alfred/base/http_status_code.dart';
 import 'package:alfred/base/method.dart';
 import 'package:http/http.dart' as http;
 import 'package:test/test.dart';
@@ -154,7 +154,7 @@ void main() {
       app = makeSimpleAlfred(
         onInternalError: (dynamic e) => MiddlewareBuilder(
           process: (final c) {
-            c.res.statusCode = 500;
+            c.res.setStatusCode(httpStatusInternalServerError500);
             return const ServeJson.map(
               map: {
                 'message': 'error not handled',
@@ -207,7 +207,7 @@ void main() {
       app = makeSimpleAlfred(
         onNotFound: MiddlewareBuilder(
           process: (final c) async {
-            c.res.statusCode = 404;
+            c.res.setStatusCode(httpStatusNotFound404);
             return const ServeJson.map(
               map: {
                 'message': 'not found',
@@ -297,7 +297,7 @@ void main() {
       },
       notFound: MiddlewareBuilder(
         process: (final c) {
-          c.res.statusCode = HttpStatus.notFound;
+          c.res.setStatusCode(httpStatusNotFound404);
           return const ServeString(
             string: 'Custom404Message',
           ).process(c);
@@ -498,8 +498,8 @@ void main() {
                 process: (final context) async {
                   final body = await context.body;
                   expect(body is Map, true);
-                  expect(context.req.headers.contentType!.mimeType, 'application/json');
-                  context.res.write('test result');
+                  expect(context.req.mimeType, 'application/json');
+                  context.res.writeString('test result');
                 },
               ),
             ),
@@ -750,7 +750,7 @@ void main() {
               path: '/test/:id',
               middleware: MiddlewareBuilder(
                 process: (final context) async {
-                  context.res.write(context.arguments!['id']);
+                  context.res.writeString(context.arguments!['id']!);
                 },
               ),
             ),

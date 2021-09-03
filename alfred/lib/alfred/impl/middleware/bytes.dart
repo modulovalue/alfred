@@ -1,6 +1,4 @@
 import 'dart:async';
-// TODO centralize this dependency
-import 'dart:io';
 
 import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
@@ -16,13 +14,13 @@ class BytesMiddleware implements Middleware {
   Future<void> process(
     final ServeContext c,
   ) async {
-    final contentType = c.res.headers.contentType;
+    final contentType = c.res.mimeType;
     if (contentType == null) {
-      c.res.headers.contentType = ContentType.binary;
-    } else if (contentType.value == 'text/plain') {
-      c.res.headers.contentType = ContentType.binary;
+      c.res.setContentTypeBinary();
+    } else if (contentType == 'text/plain') {
+      c.res.setContentTypeBinary();
     }
-    c.res.add(bytes);
+    c.res.writeBytes(bytes);
     await c.res.close();
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../../../base/http_status_code.dart';
 import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
 
@@ -16,8 +17,8 @@ class InternalError500Middleware implements Middleware {
     final ServeContext c,
   ) async {
     try {
-      c.res.statusCode = 500;
-      c.res.write(error.toString());
+      c.res.setStatusCode(httpStatusInternalServerError500);
+      c.res.writeString(error.toString());
       await c.res.close();
     } on Object catch (_) {}
   }

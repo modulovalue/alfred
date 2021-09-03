@@ -14,12 +14,14 @@ abstract class HttpRouteFactory {
   });
 }
 
-abstract class HttpRoute {
+abstract class HttpRouteDirections {
   String get path;
 
-  Middleware get middleware;
-
   BuiltinMethod get method;
+}
+
+abstract class HttpRoute implements HttpRouteDirections{
+  Middleware get middleware;
 
   /// Returns `true` if route can match multiple
   /// routes due to usage of wildcards (`*`).
@@ -187,7 +189,7 @@ class HttpRouteImpl with HttpRouteMixin {
   });
 }
 
-mixin HttpRouteMixin implements HttpRoute {
+mixin HttpRouteMixin implements HttpRoute, HttpRouteDirections{
   @override
   bool get usesWildcardMatcher => path.contains('*');
 }

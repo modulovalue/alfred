@@ -1,6 +1,3 @@
-// TODO centralize this dependency
-import 'dart:io';
-
 import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
 
@@ -15,8 +12,8 @@ class ServeHtml implements Middleware {
   Future<void> process(
     final ServeContext c,
   ) async {
-    c.res.headers.contentType = ContentType.html;
-    c.res.write(html);
+    c.res.setContentTypeHtml();
+    c.res.writeString(html);
     await c.res.close();
   }
 }
@@ -32,8 +29,8 @@ class ServeHtmlBuilder implements Middleware {
   Future<void> process(
     final ServeContext c,
   ) async {
-    c.res.headers.contentType = ContentType.html;
-    c.res.write(builder(c));
+    c.res.setContentTypeHtml();
+    c.res.writeString(builder(c));
     await c.res.close();
   }
 }

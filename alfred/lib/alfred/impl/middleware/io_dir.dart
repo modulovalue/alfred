@@ -1,4 +1,5 @@
 import 'dart:async';
+
 // TODO centralize this dependency
 import 'dart:io';
 import 'dart:math';
@@ -88,21 +89,11 @@ Future<void> _serveDirectory({
       final contentType = fileContentType(
         filePath: match.path,
       );
-      final detectedContentType = () {
-        if (contentType == null) {
-          return null;
-        } else {
-          return ContentType(
-            contentType.primaryType,
-            contentType.subType,
-          );
-        }
-      }();
-      final c_ = c.res.headers.contentType;
-      if (c_ == null || c_.mimeType == 'text/plain') {
-        c.res.headers.contentType = detectedContentType;
+      final c_ = c.res.mimeType;
+      if (c_ == null || c_ == 'text/plain') {
+        c.res.setContentType(contentType);
       }
-      await c.res.addStream(match.openRead());
+      await c.res.writeByteStream(match.openRead());
       await c.res.close();
       // ignore: avoid_catching_errors
     } on StateError {

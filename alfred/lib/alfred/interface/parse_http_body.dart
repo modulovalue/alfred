@@ -1,6 +1,6 @@
 import 'dart:async';
-// TODO centralize this dependency
-import 'dart:io';
+
+import 'serve_context.dart';
 
 /// A handler for processing and collecting HTTP message data in to an
 /// [HttpBody].
@@ -64,7 +64,7 @@ import 'dart:io';
 /// uninterpreted binary data. The resulting body will be of type
 /// `List<int>`.
 ///
-/// To use with the [HttpServer] for request messages, [HttpBodyHandler] can be
+/// To use with the HttpServer for request messages, [HttpBodyHandler] can be
 /// used as either a [StreamTransformer] or as a per-request handler (see
 /// processRequest).
 ///
@@ -76,7 +76,7 @@ import 'dart:io';
 ///     });
 /// ```
 ///
-/// To use with the [HttpClient] for response messages, [HttpBodyHandler] can be
+/// To use with the HttpClient for response messages, [HttpBodyHandler] can be
 /// used as a per-request handler (see processResponse).
 ///
 /// ```dart
@@ -85,10 +85,12 @@ import 'dart:io';
 /// var response = await request.close();
 /// var body = HttpBodyHandler.processResponse(response);
 /// ```
-abstract class HttpBodyHandler implements StreamTransformerBase<HttpRequest, HttpRequestBody<dynamic>> {}
+abstract class HttpBodyHandler<T> {
+  StreamTransformer<AlfredRequest, HttpRequestBody<T>> get handler;
+}
 
-/// A HTTP content body produced by [HttpBodyHandler] for either [HttpRequest]
-/// or [HttpClientResponse].
+/// A HTTP content body produced by [HttpBodyHandler] for either HttpRequest
+/// or HttpClientResponse.
 abstract class HttpBody<T> {
   /// A high-level type value, that reflects how the body was parsed, e.g.
   /// "text", "binary" and "json".
@@ -98,23 +100,27 @@ abstract class HttpBody<T> {
   T get body;
 }
 
-/// The body of a [HttpClientResponse].
+/// The body of a HttpClientResponse.
 ///
 /// Headers can be read through the original [response].
-abstract class HttpClientResponseBody<T> implements HttpBody<T> {
+abstract class HttpClientResponseBody<T> {
   /// The wrapped response.
-  HttpClientResponse get response;
+  Stream<List<int>> get response;
+
+  HttpBody<T> get httpBody;
 }
 
-/// The body of a [HttpRequest].
+/// The body of a HttpRequest.
 ///
 /// Headers can be read, and a response can be sent, through [request].
-abstract class HttpRequestBody<T> implements HttpBody<T> {
+abstract class HttpRequestBody<T> {
   /// The wrapped request.
   ///
-  /// Note that the [HttpRequest] is already drained, so the
+  /// Note that the HttpRequest is already drained, so the
   /// `Stream` methods cannot be used.
-  HttpRequest get request;
+  AlfredRequest get request;
+
+  HttpBody<T> get httpBody;
 }
 
 /// A wrapper around a file upload.
@@ -122,13 +128,19 @@ abstract class HttpBodyFileUpload<T> {
   /// The filename of the uploaded file.
   String get filename;
 
-  /// The [ContentType] of the uploaded file.
+  /// The [AlfredContentType] of the uploaded file.
   ///
   /// For `text/*` and `application/json` the [content] field will a String.
-  ContentType? get contentType;
+  AlfredContentType? get contentType;
 
   /// The content of the file.
   ///
   /// Either a [String] or a [List<int>].
   T get content;
+}
+
+abstract class AlfredContentType {
+  String get primaryType;
+
+  String get subType;
 }

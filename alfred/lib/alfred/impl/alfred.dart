@@ -1,4 +1,5 @@
 import 'dart:async';
+
 // TODO centralize this dependency
 import 'dart:io';
 
@@ -106,10 +107,17 @@ class AlfredImpl implements Alfred, HttpRouteFactory {
             method: request.method,
             uri: request.uri,
           );
+
+          final res = AlfredResponseImpl(
+            res: request.response,
+          );
           final c = ServeContextImpl(
             alfred: this,
-            req: request,
-            res: request.response,
+            req: AlfredRequestImpl(
+              req: request,
+              response: res,
+            ),
+            res: res,
           );
           // We track if the response has been resolved in order to exit out early
           // the list of routes (ie the middleware returned)
@@ -122,7 +130,7 @@ class AlfredImpl implements Alfred, HttpRouteFactory {
             ),
           );
           // Work out all the routes we need to process
-          final matchedRoutes = matchRoute(
+          final matchedRoutes = matchRoute<HttpRoute>(
             input: request.uri.toString(),
             options: routes,
             method: parseHttpMethod(str: request.method) ?? Methods.get,
@@ -131,7 +139,7 @@ class AlfredImpl implements Alfred, HttpRouteFactory {
             if (matchedRoutes.isEmpty) {
               log.onNoMatchingRouteFound();
               await onNotFound.process(c);
-              await c.res.close();
+              await c.res.res.close();
             } else {
               // Tracks if one route is using a wildcard.
               var nonWildcardRouteMatch = false;
@@ -164,7 +172,7 @@ class AlfredImpl implements Alfred, HttpRouteFactory {
                 if (request.response.contentLength == -1) {
                   if (nonWildcardRouteMatch == false) {
                     await onNotFound.process(c);
-                    await c.res.close();
+                    await c.res.res.close();
                   }
                 }
                 await request.response.close();
@@ -174,7 +182,7 @@ class AlfredImpl implements Alfred, HttpRouteFactory {
             await e.match(
               notFound: (final e) async {
                 await onNotFound.process(c);
-                await c.res.close();
+                await c.res.res.close();
               },
             );
           } on Object catch (e, s) {
@@ -222,12 +230,12 @@ Future<BuiltAlfred> buildAlfred({
   }
 }
 
-List<HttpRoute> matchRoute({
+List<T> matchRoute<T extends HttpRouteDirections>({
   required final String input,
-  required final List<HttpRoute> options,
+  required final List<T> options,
   required final Method method,
 }) {
-  final output = <HttpRoute>[];
+  final output = <T>[];
   final inputUri = Uri.parse(input);
   final inputPath = inputUri.path;
   final normalizedInputPath = _normalizePath(
