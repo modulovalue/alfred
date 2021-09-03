@@ -1,6 +1,6 @@
 import 'package:alfred/alfred/impl/alfred.dart';
+import 'package:alfred/alfred/impl/get_params.dart';
 import 'package:alfred/alfred/impl/middleware/closing.dart';
-import 'package:alfred/alfred/impl/serve_context.dart';
 import 'package:alfred/alfred/interface/http_route_factory.dart';
 import 'package:alfred/base/method.dart';
 import 'package:test/test.dart';
@@ -8,32 +8,32 @@ import 'package:test/test.dart';
 void main() {
   test('it should match routes correctly', () {
     const testRoutes = [
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '/a/:id/go',
         middleware: ClosingMiddleware(),
         method: Methods.get,
       ),
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '/a',
         middleware: ClosingMiddleware(),
         method: Methods.get,
       ),
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '/b/a/:input/another',
         middleware: ClosingMiddleware(),
         method: Methods.get,
       ),
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '/b/a/:input',
         middleware: ClosingMiddleware(),
         method: Methods.get,
       ),
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '/b/B/:input',
         middleware: ClosingMiddleware(),
         method: Methods.get,
       ),
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '/[a-z]/yep',
         middleware: ClosingMiddleware(),
         method: Methods.get,
@@ -50,17 +50,17 @@ void main() {
   });
   test('it should match wildcards', () {
     const testRoutes = [
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '*',
         middleware: ClosingMiddleware(),
         method: Methods.get,
       ),
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '/a',
         middleware: ClosingMiddleware(),
         method: Methods.get,
       ),
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '/b',
         middleware: ClosingMiddleware(),
         method: Methods.get,
@@ -70,7 +70,7 @@ void main() {
   });
   test('it should generously match wildcards for sub-paths', () {
     const testRoutes = [
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: 'path/*',
         middleware: ClosingMiddleware(),
         method: Methods.get,
@@ -82,17 +82,17 @@ void main() {
   });
   test('it should respect the route method', () {
     const testRoutes = [
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '*',
         middleware: ClosingMiddleware(),
         method: Methods.post,
       ),
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '/a',
         middleware: ClosingMiddleware(),
         method: Methods.get,
       ),
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '/b',
         middleware: ClosingMiddleware(),
         method: Methods.get,
@@ -114,12 +114,12 @@ void main() {
   });
   test('it should correctly match routes that have a partial match', () {
     const testRoutes = [
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '/image',
         middleware: ClosingMiddleware(),
         method: Methods.get,
       ),
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '/imageSource',
         middleware: ClosingMiddleware(),
         method: Methods.get,
@@ -146,7 +146,7 @@ void main() {
   });
   test('it should ignore a trailing slash', () {
     const testRoutes = [
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '/b/',
         middleware: ClosingMiddleware(),
         method: Methods.get,
@@ -156,7 +156,7 @@ void main() {
   });
   test('it should ignore a trailing slash in reverse', () {
     const testRoutes = [
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '/b',
         middleware: ClosingMiddleware(),
         method: Methods.get,
@@ -169,12 +169,12 @@ void main() {
   });
   test('it should hit a wildcard route halfway through the uri', () {
     const testRoutes = [
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '/route/*',
         middleware: ClosingMiddleware(),
         method: Methods.get,
       ),
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '/route/route2',
         middleware: ClosingMiddleware(),
         method: Methods.get,
@@ -187,17 +187,17 @@ void main() {
   });
   test('it should hit a wildcard route halfway through the uri - sibling', () {
     const testRoutes = [
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '/route*',
         middleware: ClosingMiddleware(),
         method: Methods.get,
       ),
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '/route',
         middleware: ClosingMiddleware(),
         method: Methods.get,
       ),
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '/route/test',
         middleware: ClosingMiddleware(),
         method: Methods.get,
@@ -214,12 +214,12 @@ void main() {
   });
   test('it should match wildcards in the middle', () {
     const testRoutes = [
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '/a/*/b',
         middleware: ClosingMiddleware(),
         method: Methods.get,
       ),
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '/a/*/*/b',
         middleware: ClosingMiddleware(),
         method: Methods.get,
@@ -231,7 +231,7 @@ void main() {
   });
   test('it should match wildcards at the beginning', () {
     const testRoutes = [
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '*.jpg',
         middleware: ClosingMiddleware(),
         method: Methods.get,
@@ -243,17 +243,17 @@ void main() {
   });
   test('it should match regex expressions within segments', () {
     const testRoutes = [
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '[a-z]+/[0-9]+',
         middleware: ClosingMiddleware(),
         method: Methods.get,
       ),
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '[a-z]{5}',
         middleware: ClosingMiddleware(),
         method: Methods.get,
       ),
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: '(a|b)/c',
         middleware: ClosingMiddleware(),
         method: Methods.get,
@@ -274,7 +274,7 @@ void main() {
 
 List<String> match(
   final String input,
-  final List<HttpRoute> routes,
+  final List<AlfredHttpRoute> routes,
 ) {
   final matchedRoute = matchRoute(
     input: input,

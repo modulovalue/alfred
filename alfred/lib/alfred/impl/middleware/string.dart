@@ -3,7 +3,7 @@ import '../../interface/serve_context.dart';
 
 /// Middleware that doesn't depend on requests and
 /// responses and just returns a value.
-class ServeString implements Middleware {
+class ServeString implements AlfredMiddleware {
   final String string;
 
   const ServeString({

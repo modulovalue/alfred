@@ -3,7 +3,7 @@ import 'dart:async';
 import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
 
-class MiddlewareBuilder implements Middleware {
+class MiddlewareBuilder implements AlfredMiddleware {
   final Future<void> Function(ServeContext c) process_;
 
   const MiddlewareBuilder({

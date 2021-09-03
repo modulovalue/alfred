@@ -6,9 +6,9 @@ import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
 import 'html.dart';
 
-abstract class ServeWidget implements Middleware {}
+abstract class ServeWidget implements AlfredMiddleware {}
 
-class ServeWidgetBuilder implements Middleware {
+class ServeWidgetBuilder implements AlfredMiddleware {
   final Widget Function(ServeContext c, BuildContext context) builder;
 
   const ServeWidgetBuilder({

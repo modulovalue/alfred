@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/alfred/impl/middleware/io_dir.dart';
 import 'package:alfred/alfred/impl/middleware/json.dart';
+import 'package:alfred/alfred/impl_io/middleware/io_dir.dart';
 import 'package:alfred/alfred/interface/http_route_factory.dart';
 import 'package:alfred/alfred/interface/parse_http_body.dart';
 
@@ -11,13 +11,13 @@ Future<void> main() async {
   // Example of handling a multipart/form-data file upload.
   await helloAlfred(
     routes: [
-      Route.get(
+      AlfredRoute.get(
         path: '/files/*',
         middleware: ServeDirectoryIoDirectoryImpl(
           directory: _uploadDirectory,
         ),
       ),
-      Route.post(
+      AlfredRoute.post(
         path: '/upload',
         middleware: ServeJsonBuilder.map(
           map: (final context) async {
@@ -31,7 +31,7 @@ Future<void> main() async {
               }
               // Get the uploaded file content
               final dynamic uploadedFile = body['file'];
-              if (uploadedFile is HttpBodyFileUpload) {
+              if (uploadedFile is AlfredHttpBodyFileUpload) {
                 final dynamic _content = uploadedFile.content;
                 if (_content is List<int>) {
                   final fileBytes = _content;

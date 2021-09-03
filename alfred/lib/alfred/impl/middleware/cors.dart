@@ -8,7 +8,7 @@ import '../../interface/serve_context.dart';
 ///
 /// Has some sensible defaults. You probably
 /// want to change the origin.
-class CorsMiddleware implements Middleware {
+class CorsMiddleware implements AlfredMiddleware {
   static const String defaultMethods = MethodPost.postString +
       ', ' +
       MethodGet.getString +

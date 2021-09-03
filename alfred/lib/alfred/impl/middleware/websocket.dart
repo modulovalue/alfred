@@ -1,10 +1,7 @@
-// TODO centralize this dependency
-import 'dart:io';
-
 import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
 
-class ServeWebSocket implements Middleware {
+class ServeWebSocket implements AlfredMiddleware {
   final WebSocketSession webSocketSession;
 
   const ServeWebSocket({
@@ -21,7 +18,7 @@ class ServeWebSocket implements Middleware {
   }
 }
 
-class ServeWebSocketFactory implements Middleware {
+class ServeWebSocketFactory implements AlfredMiddleware {
   final Future<WebSocketSession> Function(ServeContext) webSocketSessionFactory;
 
   const ServeWebSocketFactory({
@@ -39,7 +36,7 @@ class ServeWebSocketFactory implements Middleware {
 }
 
 class WebSocketSessionAnonymousImpl with WebSocketSessionStartMixin {
-  final InitiatedWebSocketSession Function(WebSocket webSocket) open;
+  final InitiatedWebSocketSession Function(AlfredWebSocket webSocket) open;
 
   WebSocketSessionAnonymousImpl({
     required final this.open,
@@ -47,7 +44,7 @@ class WebSocketSessionAnonymousImpl with WebSocketSessionStartMixin {
 
   @override
   InitiatedWebSocketSession onOpen(
-    final WebSocket webSocket,
+    final AlfredWebSocket webSocket,
   ) =>
       open.call(webSocket);
 }
@@ -56,18 +53,18 @@ class WebSocketSessionAnonymousImpl with WebSocketSessionStartMixin {
 mixin WebSocketSessionStartMixin implements WebSocketSession {
   @override
   void start(
-    final WebSocket webSocket,
+    final AlfredWebSocket webSocket,
   ) {
     final socket = webSocket;
     try {
       final delegate = onOpen(socket);
       socket.listen(
-        (final dynamic data) {
+        onData: (final dynamic data) {
           try {
             if (data is String) {
-              delegate.onMessage(socket, data);
+              delegate.onMessageString(socket, data);
             } else if (data is List<int>) {
-              delegate.onMessage(socket, data);
+              delegate.onMessageBytes(socket, data);
             } else {
               throw Exception(
                 "Unknown data type emitted by socket. " + data.runtimeType.toString(),
@@ -79,11 +76,15 @@ mixin WebSocketSessionStartMixin implements WebSocketSession {
         },
         onDone: () => delegate.onClose(socket),
         onError: (dynamic error) => delegate.onError(socket, error),
+        cancelOnError: true,
       );
     } on Object catch (e) {
       print('WebSocket Error: ' + e.toString());
       try {
-        socket.close();
+        socket.close(
+          code: null,
+          reason: null,
+        );
         // TODO handle properly.
         // ignore: empty_catches
       } on Object catch (_) {}
@@ -94,58 +95,72 @@ mixin WebSocketSessionStartMixin implements WebSocketSession {
 /// Convenience wrapper around Dart IO WebSocket implementation
 abstract class WebSocketSession {
   InitiatedWebSocketSession onOpen(
-    final WebSocket webSocket,
+    final AlfredWebSocket webSocket,
   );
 
   void start(
-    final WebSocket webSocket,
+    final AlfredWebSocket webSocket,
   );
 }
 
 class InitiatedWebSocketSessionAnonymousImpl implements InitiatedWebSocketSession {
-  final void Function(WebSocket webSocket, dynamic data)? message;
-  final void Function(WebSocket webSocket, dynamic error)? error;
-  final void Function(WebSocket webSocket)? close;
+  final void Function(AlfredWebSocket webSocket, String data)? messageString;
+  final void Function(AlfredWebSocket webSocket, List<int> data)? messageBytes;
+  final void Function(AlfredWebSocket webSocket, dynamic error)? error;
+  final void Function(AlfredWebSocket webSocket)? close;
 
   const InitiatedWebSocketSessionAnonymousImpl({
-    final this.message,
+    final this.messageString,
+    final this.messageBytes,
     final this.error,
     final this.close,
   });
 
   @override
-  void onMessage(
-    final WebSocket webSocket,
-    final dynamic data,
+  void onMessageString(
+    final AlfredWebSocket webSocket,
+    final String data,
   ) =>
-      message?.call(webSocket, data);
+      messageString?.call(webSocket, data);
+
+  @override
+  void onMessageBytes(
+    final AlfredWebSocket webSocket,
+    final List<int> bytes,
+  ) =>
+      messageBytes?.call(webSocket, bytes);
 
   @override
   void onError(
-    final WebSocket webSocket,
+    final AlfredWebSocket webSocket,
     final dynamic err,
   ) =>
       error?.call(webSocket, err);
 
   @override
   void onClose(
-    final WebSocket webSocket,
+    final AlfredWebSocket webSocket,
   ) =>
       close?.call(webSocket);
 }
 
 abstract class InitiatedWebSocketSession {
-  void onMessage(
-    final WebSocket webSocket,
-    final dynamic data,
+  void onMessageString(
+    final AlfredWebSocket webSocket,
+    final String data,
+  );
+
+  void onMessageBytes(
+    final AlfredWebSocket webSocket,
+    final List<int> data,
   );
 
   void onError(
-    final WebSocket webSocket,
+    final AlfredWebSocket webSocket,
     final dynamic error,
   );
 
   void onClose(
-    final WebSocket webSocket,
+    final AlfredWebSocket webSocket,
   );
 }

@@ -8,12 +8,12 @@ import 'package:alfred/alfred/impl/middleware/bytes.dart';
 import 'package:alfred/alfred/impl/middleware/bytes_stream.dart';
 import 'package:alfred/alfred/impl/middleware/closing.dart';
 import 'package:alfred/alfred/impl/middleware/cors.dart';
-import 'package:alfred/alfred/impl/middleware/io_dir.dart';
-import 'package:alfred/alfred/impl/middleware/io_download.dart';
-import 'package:alfred/alfred/impl/middleware/io_file.dart';
 import 'package:alfred/alfred/impl/middleware/json.dart';
 import 'package:alfred/alfred/impl/middleware/middleware.dart';
 import 'package:alfred/alfred/impl/middleware/string.dart';
+import 'package:alfred/alfred/impl_io/middleware/io_dir.dart';
+import 'package:alfred/alfred/impl_io/middleware/io_download.dart';
+import 'package:alfred/alfred/impl_io/middleware/io_file.dart';
 import 'package:alfred/alfred/interface/http_route_factory.dart';
 import 'package:alfred/alfred/interface/middleware.dart';
 import 'package:alfred/alfred/interface/serve_context.dart';
@@ -36,9 +36,9 @@ void main() {
   test('it should return a string correctly', () async {
     await runTest(fn: (final app, final built, final port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: '/test',
               middleware: const ServeString(
                 string: 'test string',
@@ -54,9 +54,9 @@ void main() {
   test('it should return json', () async {
     await runTest(fn: (final app, final built, final port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: '/test',
               middleware: const ServeJson.map(
                 map: {
@@ -75,9 +75,9 @@ void main() {
   test('it should return an image', () async {
     await runTest(fn: (final app, final built, final port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: '/test',
               middleware: const ServeFileStringPathImpl(
                 path: 'test/files/image.jpg',
@@ -93,9 +93,9 @@ void main() {
   test('it should return a pdf', () async {
     await runTest(fn: (final app, final built, final port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: '/test',
               middleware: const ServeFileStringPathImpl(
                 path: 'test/files/dummy.pdf',
@@ -111,21 +111,21 @@ void main() {
   test('routing should, you know, work', () async {
     await runTest(fn: (final app, final built, final port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: '/test',
               middleware: const ServeString(
                 string: 'test_route',
               ),
             ),
-            Route.get(
+            AlfredRoute.get(
               path: '/testRoute',
               middleware: const ServeString(
                 string: 'test_route_route',
               ),
             ),
-            Route.get(
+            AlfredRoute.get(
               path: '/a',
               middleware: const ServeString(
                 string: 'a_route',
@@ -165,9 +165,9 @@ void main() {
       );
       await buildAlfred(alfred: app, port: port);
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: '/throwserror',
               middleware: MiddlewareBuilder(
                 process: (final _) => throw Exception('generic exception'),
@@ -186,9 +186,9 @@ void main() {
       app = makeSimpleAlfred();
       await buildAlfred(alfred: app, port: port);
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: '/throwserror',
               middleware: MiddlewareBuilder(
                 process: (final _) => throw Exception('generic exception'),
@@ -235,13 +235,13 @@ void main() {
   test('not found with middleware', () async {
     await runTest(fn: (final app, final built, final port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.all(
+            AlfredRoute.all(
               path: '*',
               middleware: const CorsMiddleware(),
             ),
-            Route.get(
+            AlfredRoute.get(
               path: 'resource2',
               middleware: const ClosingMiddleware(),
             ),
@@ -259,9 +259,9 @@ void main() {
   test('not found with directory type handler', () async {
     await runTest(fn: (final app, final built, final port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: '/files/*',
               middleware: const ServeDirectoryStringPathImpl(
                 path: 'test/files',
@@ -280,9 +280,9 @@ void main() {
     await runTest(
       fn: (app, built, port) async {
         app.router.add(
-          routes: Routes(
+          routes: AlfredRoutes(
             routes: [
-              Route.get(
+              AlfredRoute.get(
                 path: '/index.html',
                 middleware: const ServeFileStringPathImpl(
                   path: 'does-not.exists',
@@ -308,9 +308,9 @@ void main() {
   test('it handles a post request', () async {
     await runTest(fn: (final app, final built, final port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.post(
+            AlfredRoute.post(
               path: '/test',
               middleware: const ServeString(
                 string: 'test string',
@@ -327,9 +327,9 @@ void main() {
   test('it handles a put request', () async {
     await runTest(fn: (app, built, port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.put(
+            AlfredRoute.put(
               path: '/test',
               middleware: const ServeString(
                 string: 'test string',
@@ -345,9 +345,9 @@ void main() {
   test('it handles a delete request', () async {
     await runTest(fn: (app, built, port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.delete(
+            AlfredRoute.delete(
               path: '/test',
               middleware: const ServeString(
                 string: 'test string',
@@ -363,9 +363,9 @@ void main() {
   test('it handles an options request', () async {
     await runTest(fn: (app, built, port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.options(
+            AlfredRoute.options(
               path: '/test',
               middleware: const ServeString(
                 string: 'test string',
@@ -390,9 +390,9 @@ void main() {
   test('it handles a patch request', () async {
     await runTest(fn: (final app, final built, final port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.patch(
+            AlfredRoute.patch(
               path: '/test',
               middleware: const ServeString(
                 string: 'test string',
@@ -408,9 +408,9 @@ void main() {
   test('it handles a route that hits all methods', () async {
     await runTest(fn: (app, built, port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.all(
+            AlfredRoute.all(
               path: '/test',
               middleware: const ServeString(
                 string: 'test all',
@@ -432,9 +432,9 @@ void main() {
   test('it closes out a request if you fail to', () async {
     await runTest(fn: (app, built, port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: '/test',
               middleware: const NonClosingMiddleware(),
             ),
@@ -448,9 +448,9 @@ void main() {
   test('it handles a List<int>', () async {
     await runTest(fn: (app, built, port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: '/test',
               middleware: const BytesMiddleware(
                 bytes: <int>[1, 2, 3, 4, 5],
@@ -467,9 +467,9 @@ void main() {
   test('it handles a Stream<List<int>>', () async {
     await runTest(fn: (app, built, port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: '/test',
               middleware: StreamOfBytesMiddleware(
                 bytes: Stream.fromIterable(
@@ -490,9 +490,9 @@ void main() {
   test('it parses a body', () async {
     await runTest(fn: (final app, final built, final port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.post(
+            AlfredRoute.post(
               path: '/test',
               middleware: MiddlewareBuilder(
                 process: (final context) async {
@@ -517,9 +517,9 @@ void main() {
   test('it serves a file for download', () async {
     await runTest(fn: (app, built, port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: '/test',
               middleware: const ServeDownload(
                 filename: 'testfile.jpg',
@@ -539,9 +539,9 @@ void main() {
   test('it serves a pdf, setting the extension from the filename', () async {
     await runTest(fn: (app, built, port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: '/test',
               middleware: const ServeFileStringPathImpl(
                 path: './test/files/dummy.pdf',
@@ -558,9 +558,9 @@ void main() {
   test('it uses the json helper correctly', () async {
     await runTest(fn: (app, built, port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: '/test',
               middleware: const ServeJson.map(
                 map: {
@@ -578,9 +578,9 @@ void main() {
   test('it uses the send helper correctly', () async {
     await runTest(fn: (app, built, port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: '/test',
               middleware: const ServeString(
                 string: 'stuff',
@@ -597,9 +597,9 @@ void main() {
     await runTest(fn: (app, built, port) async {
       const log = AlfredLoggingDelegatePrintImpl();
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: '/files/*',
               middleware: const ServeDirectoryStringPathImpl(
                 path: 'test/files',
@@ -618,9 +618,9 @@ void main() {
     await runTest(fn: (app, built, port) async {
       const log = AlfredLoggingDelegatePrintImpl();
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: '/my/directory/*',
               middleware: const ServeDirectoryStringPathImpl(
                 path: 'test/files',
@@ -639,9 +639,9 @@ void main() {
     await runTest(fn: (app, built, port) async {
       const log = AlfredLoggingDelegatePrintImpl();
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: '/my/directory/*.pdf',
               middleware: const ServeDirectoryStringPathImpl(
                 path: 'test/files',
@@ -662,16 +662,16 @@ void main() {
     await runTest(fn: (app, built, port) async {
       const log = AlfredLoggingDelegatePrintImpl();
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: '/spa/*',
               middleware: const ServeDirectoryStringPathImpl(
                 path: 'test/files/spa',
                 log: log,
               ),
             ),
-            Route.get(
+            AlfredRoute.get(
               path: '/spa/*',
               middleware: const ServeFileStringPathImpl(
                 path: 'test/files/spa/index.html',
@@ -701,15 +701,15 @@ void main() {
   test('it does not crash when File not exists', () async {
     await runTest(fn: (app, built, port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: 'error',
               middleware: const ServeFileStringPathImpl(
                 path: 'does-not-exists',
               ),
             ),
-            Route.get(
+            AlfredRoute.get(
               path: 'works',
               middleware: const ServeString(
                 string: 'works!',
@@ -726,9 +726,9 @@ void main() {
   test('it routes correctly for a / url', () async {
     await runTest(fn: (final app, final built, final port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: '/',
               middleware: const ServeString(
                 string: 'working',
@@ -744,9 +744,9 @@ void main() {
   test('it handles params', () async {
     await runTest(fn: (app, built, port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: '/test/:id',
               middleware: MiddlewareBuilder(
                 process: (final context) async {
@@ -764,9 +764,9 @@ void main() {
   test('it should implement cors correctly', () async {
     await runTest(fn: (app, built, port) async {
       app.router.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.all(
+            AlfredRoute.all(
               path: '*',
               middleware: const CorsMiddleware(origin: 'test-origin'),
             ),
@@ -785,9 +785,9 @@ void main() {
     await runTest(
       fn: (final app, final built, final port) async {
         app.router.add(
-          routes: Routes(
+          routes: AlfredRoutes(
             routes: [
-              Route.get(
+              AlfredRoute.get(
                 path: '/resource',
                 middleware: const ServeString(
                   string: 'response',
@@ -830,7 +830,7 @@ class TestLogger with AlfredLoggingDelegateGeneralizingMixin {
   LogType get logLevel => const LogTypeInfo();
 }
 
-class NonClosingMiddleware implements Middleware {
+class NonClosingMiddleware implements AlfredMiddleware {
   const NonClosingMiddleware();
 
   @override

@@ -2,7 +2,7 @@ import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
 import 'io_file.dart';
 
-class ServeDownload implements Middleware {
+class ServeDownload implements AlfredMiddleware {
   final String filename;
   final ServeFile child;
 

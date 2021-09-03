@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:alfred/alfred/impl/middleware/websocket.dart';
 import 'package:alfred/alfred/interface/http_route_factory.dart';
+import 'package:alfred/alfred/interface/serve_context.dart';
 import 'package:test/test.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -14,9 +14,9 @@ void main() {
       await runTest(fn: (final alfred, final built, final port) async {
         final ws = WebSocketSessionTest2Impl();
         alfred.router.add(
-          routes: Routes(
+          routes: AlfredRoutes(
             routes: [
-              Route.get(
+              AlfredRoute.get(
                 path: '/ws',
                 middleware: ServeWebSocket(
                   webSocketSession: ws,
@@ -36,9 +36,9 @@ void main() {
       await runTest(fn: (final alfred, final built, final port) async {
         final ws = WebSocketSessionTest1Impl();
         alfred.router.add(
-          routes: Routes(
+          routes: AlfredRoutes(
             routes: [
-              Route.get(
+              AlfredRoute.get(
                 path: '/ws',
                 middleware: ServeWebSocket(
                   webSocketSession: ws,
@@ -73,34 +73,40 @@ class WebSocketSessionTest2Impl with WebSocketSessionStartMixin implements Initi
 
   @override
   InitiatedWebSocketSession onOpen(
-    final WebSocket _,
+    final AlfredWebSocket _,
   ) {
     return this;
   }
 
   @override
   void onClose(
-    final WebSocket _,
+    final AlfredWebSocket _,
   ) {
     // Do nothing.
   }
 
   @override
-  void onMessage(
-    final WebSocket _,
-    final Object? data,
+  void onMessageString(
+    final AlfredWebSocket _,
+    final String data,
   ) {
-    // ignore: only_throw_errors
-    throw "Test";
+    throw Exception("Test");
+  }
+
+  @override
+  void onMessageBytes(
+    final AlfredWebSocket _,
+    final List<int> data,
+  ) {
+    throw Exception("Test");
   }
 
   @override
   void onError(
-    final WebSocket _,
+    final AlfredWebSocket _,
     final dynamic error,
-  ) {
-    this.error++;
-  }
+  ) =>
+      this.error++;
 }
 
 class WebSocketSessionTest1Impl with WebSocketSessionStartMixin implements InitiatedWebSocketSession {
@@ -114,7 +120,7 @@ class WebSocketSessionTest1Impl with WebSocketSessionStartMixin implements Initi
 
   @override
   InitiatedWebSocketSession onOpen(
-    final WebSocket _,
+    final AlfredWebSocket _,
   ) {
     opened = true;
     return this;
@@ -122,28 +128,32 @@ class WebSocketSessionTest1Impl with WebSocketSessionStartMixin implements Initi
 
   @override
   void onClose(
-    final WebSocket socket,
+    final AlfredWebSocket socket,
   ) =>
       closed = true;
 
   @override
   void onError(
-    final WebSocket socket,
+    final AlfredWebSocket socket,
     final dynamic error,
   ) {
     // Do nothing.
   }
 
   @override
-  void onMessage(
-    final WebSocket socket,
-    final dynamic data,
+  void onMessageString(
+    final AlfredWebSocket socket,
+    final String data,
   ) {
-    if (data is String) {
-      message = data;
-      socket.add('echo ' + data);
-    } else {
-      throw Exception("Expected a String " + data.toString());
-    }
+    message = data;
+    socket.addString('echo ' + data);
+  }
+
+  @override
+  void onMessageBytes(
+    final AlfredWebSocket socket,
+    final List<int> data,
+  ) {
+    throw Exception("Expected a String " + data.toString());
   }
 }

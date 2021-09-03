@@ -9,16 +9,17 @@ import 'package:mime/mime.dart' as m;
 
 import '../../base/header.dart';
 import '../../base/http_status_code.dart';
+import '../impl_io/content_type.dart';
+import '../impl_io/headers.dart';
 import '../interface/parse_http_body.dart';
 import '../interface/serve_context.dart';
-import 'content_type.dart';
 
 /// Process and parse an incoming [HttpRequest].
 ///
-/// The returned [HttpRequestBody] contains a `response` field for accessing the [HttpResponse].
+/// The returned [AlfredHttpRequestBody] contains a `response` field for accessing the [HttpResponse].
 ///
-/// See [new HttpBodyHandler] for more info on [defaultEncoding].
-Future<HttpRequestBody<dynamic>> processRequest(
+/// See [AlfredHttpBodyHandler] for more info on [defaultEncoding].
+Future<AlfredHttpRequestBody<dynamic>> processRequest(
   final AlfredRequest request,
   final AlfredResponse response, {
   final Encoding defaultEncoding = utf8,
@@ -43,14 +44,16 @@ Future<HttpRequestBody<dynamic>> processRequest(
 
 /// Process and parse an incoming [HttpClientResponse].
 ///
-/// See [new HttpBodyHandler] for more info on [defaultEncoding].
-Future<HttpClientResponseBody<dynamic>> processResponse(
+/// See [AlfredHttpBodyHandler] for more info on [defaultEncoding].
+Future<AlfredHttpClientResponseBody<dynamic>> processResponse(
   final HttpClientResponse response, {
   final Encoding defaultEncoding = utf8,
 }) async {
   final body = await _process(
     stream: response,
-    headers: response.headers,
+    headers: AlfredHttpHeadersImpl(
+      headers: response.headers,
+    ),
     defaultEncoding: defaultEncoding,
   );
   return HttpClientResponseBodyImpl<dynamic>(
@@ -59,14 +62,14 @@ Future<HttpClientResponseBody<dynamic>> processResponse(
   );
 }
 
-class HttpBodyHandlerImpl extends StreamTransformerBase<AlfredRequest, HttpRequestBody<dynamic>>
-    implements HttpBodyHandler<dynamic> {
+class HttpBodyHandlerImpl extends StreamTransformerBase<AlfredRequest, AlfredHttpRequestBody<dynamic>>
+    implements AlfredHttpBodyHandler<dynamic> {
   final Encoding defaultEncoding;
 
   @override
-  StreamTransformerBase<AlfredRequest, HttpRequestBody<dynamic>> get handler => this;
+  StreamTransformerBase<AlfredRequest, AlfredHttpRequestBody<dynamic>> get handler => this;
 
-  /// Create a new [HttpBodyHandler] to be used with a [Stream]<[HttpRequest]>,
+  /// Create a new [AlfredHttpBodyHandler] to be used with a [Stream]<[HttpRequest]>,
   /// e.g. a [HttpServer].
   ///
   /// If the page is served using different encoding than UTF-8, set
@@ -78,7 +81,7 @@ class HttpBodyHandlerImpl extends StreamTransformerBase<AlfredRequest, HttpReque
   );
 
   @override
-  Stream<HttpRequestBody<dynamic>> bind(
+  Stream<AlfredHttpRequestBody<dynamic>> bind(
     final Stream<AlfredRequest> stream,
   ) {
     var pending = 0;
@@ -114,7 +117,7 @@ class HttpBodyHandlerImpl extends StreamTransformerBase<AlfredRequest, HttpReque
   }
 }
 
-class HttpBodyImpl<T> implements HttpBody<T> {
+class HttpBodyImpl<T> implements AlfredHttpBody<T> {
   @override
   final String type;
 
@@ -127,12 +130,12 @@ class HttpBodyImpl<T> implements HttpBody<T> {
   });
 }
 
-class HttpClientResponseBodyImpl<T> implements HttpClientResponseBody<T> {
+class HttpClientResponseBodyImpl<T> implements AlfredHttpClientResponseBody<T> {
   @override
   final HttpClientResponse response;
 
   @override
-  final HttpBody<T> httpBody;
+  final AlfredHttpBody<T> httpBody;
 
   const HttpClientResponseBodyImpl({
     required final this.response,
@@ -140,11 +143,11 @@ class HttpClientResponseBodyImpl<T> implements HttpClientResponseBody<T> {
   });
 }
 
-class HttpRequestBodyImpl<T> implements HttpRequestBody<T> {
+class HttpRequestBodyImpl<T> implements AlfredHttpRequestBody<T> {
   @override
   final AlfredRequest request;
   @override
-  final HttpBody<T> httpBody;
+  final AlfredHttpBody<T> httpBody;
 
   const HttpRequestBodyImpl._(
     final this.request,
@@ -152,7 +155,7 @@ class HttpRequestBodyImpl<T> implements HttpRequestBody<T> {
   );
 }
 
-class HttpBodyFileUploadImpl<T> implements HttpBodyFileUpload<T> {
+class HttpBodyFileUploadImpl<T> implements AlfredHttpBodyFileUpload<T> {
   @override
   final String filename;
   @override
@@ -167,12 +170,12 @@ class HttpBodyFileUploadImpl<T> implements HttpBodyFileUpload<T> {
   });
 }
 
-Future<HttpBody<Object?>> _process({
+Future<AlfredHttpBody<Object?>> _process({
   required final Stream<List<int>> stream,
-  required final HttpHeaders headers,
+  required final AlfredHttpHeaders headers,
   required final Encoding defaultEncoding,
 }) async {
-  Future<HttpBody<Uint8List>> asBinary() async {
+  Future<AlfredHttpBody<Uint8List>> asBinary() async {
     final builder = await stream.fold<BytesBuilder>(
       BytesBuilder(),
       (final builder, final data) => builder..add(data),
@@ -183,11 +186,11 @@ Future<HttpBody<Object?>> _process({
     );
   }
 
-  if (headers.contentType == null) {
+  final contentType = headers.contentType;
+  if (contentType == null) {
     return asBinary();
   } else {
-    final contentType = headers.contentType!;
-    Future<HttpBody<String>> asText(
+    Future<AlfredHttpBody<String>> asText(
       final Encoding defaultEncoding,
     ) async {
       Encoding? encoding;
@@ -206,8 +209,8 @@ Future<HttpBody<Object?>> _process({
       );
     }
 
-    Future<HttpBody<Map<String, dynamic>>> asFormData() async {
-      final values = await m.MimeMultipartTransformer(contentType.parameters['boundary']!).bind(stream).map(
+    Future<AlfredHttpBody<Map<String, dynamic>>> asFormData() async {
+      final values = await m.MimeMultipartTransformer(contentType.getParameter('boundary')!).bind(stream).map(
         (final part) async {
           final multipart = parseHttpMultipartFormData(
             part,
@@ -243,9 +246,8 @@ Future<HttpBody<Object?>> _process({
               HttpBodyFileUploadImpl<dynamic>._(
                 contentType: () {
                   if (_contentType != null) {
-                    return AlfredContentTypeImpl(
-                      primaryType: _contentType.primaryType,
-                      subType: _contentType.subType,
+                    return AlfredContentTypeFromContentTypeImpl(
+                      contentType: _contentType,
                     );
                   } else {
                     return null;

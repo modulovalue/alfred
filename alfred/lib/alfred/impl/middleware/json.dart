@@ -3,7 +3,7 @@ import 'dart:convert';
 import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
 
-class ServeJson implements Middleware {
+class ServeJson implements AlfredMiddleware {
   final dynamic value;
 
   const ServeJson.map({
@@ -24,7 +24,7 @@ class ServeJson implements Middleware {
   }
 }
 
-class ServeJsonBuilder implements Middleware {
+class ServeJsonBuilder implements AlfredMiddleware {
   final Future<dynamic> Function(ServeContext c) value;
 
   const ServeJsonBuilder.map({

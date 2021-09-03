@@ -1,195 +1,195 @@
 import '../../base/method.dart';
 import 'middleware.dart';
 
-abstract class HttpRouteFactory {
-  /// Adds a [Routed] route.
+abstract class AlfredHttpRouteFactory {
+  /// Adds a [AlfredRouted] route.
   void add({
-    required final Routed routes,
+    required final AlfredRouted routes,
   });
 
   /// As a common base for specifying further
   /// routes.
-  HttpRouteFactory at({
+  AlfredHttpRouteFactory at({
     required final String path,
   });
 }
 
-abstract class HttpRouteDirections {
+abstract class AlfredHttpRouteDirections {
   String get path;
 
   BuiltinMethod get method;
 }
 
-abstract class HttpRoute implements HttpRouteDirections{
-  Middleware get middleware;
+abstract class AlfredHttpRoute implements AlfredHttpRouteDirections{
+  AlfredMiddleware get middleware;
 
   /// Returns `true` if route can match multiple
   /// routes due to usage of wildcards (`*`).
   bool get usesWildcardMatcher;
 }
 
-abstract class Routed {
+abstract class AlfredRouted {
   Z match<Z>({
-    required final Z Function(Routes) routes,
-    required final Z Function(RoutesAt) at,
+    required final Z Function(AlfredRoutes) routes,
+    required final Z Function(AlfredRoutesAt) at,
   });
 }
 
-class Routes implements Routed {
-  final Iterable<HttpRoute> routes;
+class AlfredRoutes implements AlfredRouted {
+  final Iterable<AlfredHttpRoute> routes;
 
-  const Routes({
+  const AlfredRoutes({
     required final this.routes,
   });
 
   @override
   Z match<Z>({
-    required final Z Function(Routes p1) routes,
-    required final Z Function(RoutesAt p1) at,
+    required final Z Function(AlfredRoutes p1) routes,
+    required final Z Function(AlfredRoutesAt p1) at,
   }) =>
       routes(this);
 }
 
-class RoutesAt implements Routed {
+class AlfredRoutesAt implements AlfredRouted {
   final String prefix;
-  final Routed routes;
+  final AlfredRouted routes;
 
-  const RoutesAt({
+  const AlfredRoutesAt({
     required final this.prefix,
     required final this.routes,
   });
 
   @override
   Z match<Z>({
-    required final Z Function(Routes p1) routes,
-    required final Z Function(RoutesAt p1) at,
+    required final Z Function(AlfredRoutes p1) routes,
+    required final Z Function(AlfredRoutesAt p1) at,
   }) =>
       at(this);
 }
 
 // TODO move back into separate subclasses.
-const Route = RoutesMaker();
+const AlfredRoute = AlfredRoutesMaker();
 
-class RoutesMaker {
-  const RoutesMaker();
+class AlfredRoutesMaker {
+  const AlfredRoutesMaker();
 
-  HttpRouteImpl post({
+  AlfredHttpRouteImpl post({
     required final String path,
-    required final Middleware middleware,
+    required final AlfredMiddleware middleware,
   }) =>
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: path,
         middleware: middleware,
         method: Methods.post,
       );
 
-  HttpRouteImpl get({
+  AlfredHttpRouteImpl get({
     required final String path,
-    required final Middleware middleware,
+    required final AlfredMiddleware middleware,
   }) =>
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: path,
         middleware: middleware,
         method: Methods.get,
       );
 
-  HttpRouteImpl put({
+  AlfredHttpRouteImpl put({
     required final String path,
-    required final Middleware middleware,
+    required final AlfredMiddleware middleware,
   }) =>
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: path,
         middleware: middleware,
         method: Methods.put,
       );
 
-  HttpRouteImpl delete({
+  AlfredHttpRouteImpl delete({
     required final String path,
-    required final Middleware middleware,
+    required final AlfredMiddleware middleware,
   }) =>
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: path,
         middleware: middleware,
         method: Methods.delete,
       );
 
-  HttpRouteImpl options({
+  AlfredHttpRouteImpl options({
     required final String path,
-    required final Middleware middleware,
+    required final AlfredMiddleware middleware,
   }) =>
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: path,
         middleware: middleware,
         method: Methods.options,
       );
 
-  HttpRouteImpl patch({
+  AlfredHttpRouteImpl patch({
     required final String path,
-    required final Middleware middleware,
+    required final AlfredMiddleware middleware,
   }) =>
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: path,
         middleware: middleware,
         method: Methods.patch,
       );
 
-  HttpRouteImpl all({
+  AlfredHttpRouteImpl all({
     required final String path,
-    required final Middleware middleware,
+    required final AlfredMiddleware middleware,
   }) =>
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: path,
         middleware: middleware,
         method: Methods.all,
       );
 
-  HttpRouteImpl head({
+  AlfredHttpRouteImpl head({
     required final String path,
-    required final Middleware middleware,
+    required final AlfredMiddleware middleware,
   }) =>
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: path,
         middleware: middleware,
         method: Methods.head,
       );
 
-  HttpRouteImpl connect({
+  AlfredHttpRouteImpl connect({
     required final String path,
-    required final Middleware middleware,
+    required final AlfredMiddleware middleware,
   }) =>
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: path,
         middleware: middleware,
         method: Methods.connect,
       );
 
-  HttpRouteImpl trace({
+  AlfredHttpRouteImpl trace({
     required final String path,
-    required final Middleware middleware,
+    required final AlfredMiddleware middleware,
   }) =>
-      HttpRouteImpl(
+      AlfredHttpRouteImpl(
         path: path,
         middleware: middleware,
         method: Methods.trace,
       );
 }
 
-class HttpRouteImpl with HttpRouteMixin {
+class AlfredHttpRouteImpl with AlfredHttpRouteMixin {
   @override
   final String path;
   @override
   final BuiltinMethod method;
   @override
-  final Middleware middleware;
+  final AlfredMiddleware middleware;
 
-  const HttpRouteImpl({
+  const AlfredHttpRouteImpl({
     required final this.path,
     required final this.method,
     required final this.middleware,
   });
 }
 
-mixin HttpRouteMixin implements HttpRoute, HttpRouteDirections{
+mixin AlfredHttpRouteMixin implements AlfredHttpRoute, AlfredHttpRouteDirections{
   @override
   bool get usesWildcardMatcher => path.contains('*');
 }

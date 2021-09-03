@@ -19,9 +19,9 @@ import 'package:alfred/bluffer/widgets/widget/interface/widget.dart';
 Future<void> main() async {
   final app = alfredWithRoutes(
     routes: [
-      Routes(
+      AlfredRoutes(
         routes: [
-          Route.get(
+          AlfredRoute.get(
             path: "/yes",
             middleware: ServeWidgetAppImpl(
               title: "Yes",
@@ -29,7 +29,7 @@ Future<void> main() async {
               child: thankYouWidget(),
             ),
           ),
-          Route.get(
+          AlfredRoute.get(
             path: "/no",
             middleware: ServeWidgetAppImpl(
               title: "No",
@@ -37,7 +37,7 @@ Future<void> main() async {
               child: thankYouWidget(),
             ),
           ),
-          Route.get(
+          AlfredRoute.get(
             path: "/",
             middleware: ServeWidgetAppImpl(
               title: "Vote",

@@ -1,16 +1,14 @@
 import 'dart:async';
-
-// TODO centralize this dependency
 import 'dart:io';
 import 'dart:math';
 
 import '../../../base/mime.dart';
+import '../../impl/logging/print.dart';
 import '../../interface/logging_delegate.dart';
 import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
-import '../logging/print.dart';
 
-class ServeDirectoryIoDirectoryImpl implements Middleware {
+class ServeDirectoryIoDirectoryImpl implements AlfredMiddleware {
   final Directory directory;
 
   // TODO too capable
@@ -32,7 +30,7 @@ class ServeDirectoryIoDirectoryImpl implements Middleware {
       );
 }
 
-class ServeDirectoryStringPathImpl implements Middleware {
+class ServeDirectoryStringPathImpl implements AlfredMiddleware {
   final String path;
 
   // TODO too capable.

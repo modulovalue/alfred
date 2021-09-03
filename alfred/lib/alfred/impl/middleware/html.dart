@@ -1,7 +1,7 @@
 import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
 
-class ServeHtml implements Middleware {
+class ServeHtml implements AlfredMiddleware {
   final String html;
 
   const ServeHtml({
@@ -18,7 +18,7 @@ class ServeHtml implements Middleware {
   }
 }
 
-class ServeHtmlBuilder implements Middleware {
+class ServeHtmlBuilder implements AlfredMiddleware {
   final String Function(ServeContext context) builder;
 
   const ServeHtmlBuilder({

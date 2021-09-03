@@ -1,18 +1,16 @@
-import 'dart:io';
-
 import 'package:alfred/alfred/impl/alfred.dart';
 import 'package:alfred/alfred/impl/logging/print.dart';
 import 'package:alfred/alfred/impl/middleware/closing.dart';
 import 'package:alfred/alfred/impl/middleware/cors.dart';
 import 'package:alfred/alfred/impl/middleware/html.dart';
-import 'package:alfred/alfred/impl/middleware/io_dir.dart';
-import 'package:alfred/alfred/impl/middleware/io_download.dart';
-import 'package:alfred/alfred/impl/middleware/io_file.dart';
 import 'package:alfred/alfred/impl/middleware/json.dart';
 import 'package:alfred/alfred/impl/middleware/middleware.dart';
 import 'package:alfred/alfred/impl/middleware/string.dart';
 import 'package:alfred/alfred/impl/middleware/websocket.dart';
 import 'package:alfred/alfred/impl/middleware/widget.dart';
+import 'package:alfred/alfred/impl_io/middleware/io_dir.dart';
+import 'package:alfred/alfred/impl_io/middleware/io_download.dart';
+import 'package:alfred/alfred/impl_io/middleware/io_file.dart';
 import 'package:alfred/alfred/interface/http_route_factory.dart';
 import 'package:alfred/alfred/interface/middleware.dart';
 import 'package:alfred/alfred/interface/serve_context.dart';
@@ -49,10 +47,10 @@ Future<void> main() async {
     ),
   );
   app.add(
-    routes: Routes(
+    routes: AlfredRoutes(
       routes: [
         // Bluffer.
-        Route.get(
+        AlfredRoute.get(
           path: "/",
           middleware: ServeWidgetAppImpl(
             title: "Title",
@@ -81,12 +79,12 @@ Future<void> main() async {
           ),
         ),
         // CORS.
-        Route.all(
+        AlfredRoute.all(
           path: '*',
           middleware: const CorsMiddleware(),
         ),
         // Custom header.
-        Route.all(
+        AlfredRoute.all(
           path: '*',
           middleware: MiddlewareBuilder(
             process: (final c) async {
@@ -103,14 +101,14 @@ Future<void> main() async {
         // A wildcard'ed route blocks others from being hit.
         ...resourceBlocking(),
         // String.
-        Route.get(
+        AlfredRoute.get(
           path: '/text',
           middleware: const ServeString(
             string: 'Text response',
           ),
         ),
         // Json.
-        Route.get(
+        AlfredRoute.get(
           path: '/json',
           middleware: const ServeJson.map(
             map: {
@@ -119,28 +117,28 @@ Future<void> main() async {
           ),
         ),
         // File.
-        Route.get(
+        AlfredRoute.get(
           path: '/file',
           middleware: const ServeFileStringPathImpl(
             path: 'test/files/image.jpg',
           ),
         ),
         // Directory
-        Route.get(
+        AlfredRoute.get(
           path: '/files/*',
           middleware: const ServeDirectoryStringPathImpl(
             path: 'test/files',
           ),
         ),
         // Html.
-        Route.get(
+        AlfredRoute.get(
           path: '/html',
           middleware: const ServeHtml(
             html: '<html><body><h1>Test HTML</h1></body></html>',
           ),
         ),
         // Download.
-        Route.get(
+        AlfredRoute.get(
           path: '/image/download',
           middleware: const ServeDownload(
             filename: 'image.jpg',
@@ -150,7 +148,7 @@ Future<void> main() async {
           ),
         ),
         // Arguments.
-        Route.all(
+        AlfredRoute.all(
           path: '/example/:id/:name',
           middleware: MiddlewareBuilder(
             process: (final context) async {
@@ -162,7 +160,7 @@ Future<void> main() async {
           ),
         ),
         // Querystring.
-        Route.post(
+        AlfredRoute.post(
           path: '/route',
           middleware: MiddlewareBuilder(
             process: (final c) async {
@@ -175,7 +173,7 @@ Future<void> main() async {
           ),
         ),
         // Redirect.
-        Route.get(
+        AlfredRoute.get(
           path: '/redirect',
           middleware: MiddlewareBuilder(
             process: (final c) {
@@ -185,7 +183,7 @@ Future<void> main() async {
           ),
         ),
         // Throw error.
-        Route.get(
+        AlfredRoute.get(
           path: '/throwserror',
           middleware: MiddlewareBuilder(
             process: (final _) => throw Exception('generic exception'),
@@ -193,12 +191,12 @@ Future<void> main() async {
         ),
         // Custom middleware.
         // TODO error is not caught.
-        Route.get(
+        AlfredRoute.get(
           path: '/authorize',
           middleware: const ExampleAuthorizationMiddleware(),
         ),
         // Post body parsing.
-        Route.post(
+        AlfredRoute.post(
           path: '/post-route',
           middleware: MiddlewareBuilder(
             process: (final context) async {
@@ -222,14 +220,14 @@ Future<void> main() async {
   await app.build(log: log);
 }
 
-class ExampleAuthorizationMiddleware implements Middleware {
+class ExampleAuthorizationMiddleware implements AlfredMiddleware {
   const ExampleAuthorizationMiddleware();
 
   @override
   Future<dynamic> process(
     final ServeContext context,
   ) async {
-    if (context.req.headers.value('Authorization') != 'apikey') {
+    if (context.req.headers.getValue('Authorization') != 'apikey') {
       print("Failure");
       context.res.setStatusCode(httpStatusUnauthorized401);
       context.res.writeString('authentication failed.');
@@ -240,10 +238,10 @@ class ExampleAuthorizationMiddleware implements Middleware {
   }
 }
 
-HttpRoute webSocketServerRoute({
+AlfredHttpRoute webSocketServerRoute({
   required final WebSocketSession session,
 }) =>
-    Route.get(
+    AlfredRoute.get(
       path: '/ws',
       middleware: ServeWebSocket(
         webSocketSession: session,
@@ -251,10 +249,10 @@ HttpRoute webSocketServerRoute({
     );
 
 /// TODO it would be great if the javascript portion could come from a dart file that was dart2js'ed.
-HttpRoute webSocketClientRoute({
+AlfredHttpRoute webSocketClientRoute({
   required final String path,
 }) =>
-    Route.get(
+    AlfredRoute.get(
       path: path,
       middleware: const ServeHtml(
         html: r"""<!DOCTYPE html>
@@ -307,41 +305,51 @@ HttpRoute webSocketClientRoute({
     );
 
 class MyWebSocketSession with WebSocketSessionStartMixin implements InitiatedWebSocketSession {
-  final List<WebSocket> users = [];
+  final List<AlfredWebSocket> users = [];
 
   MyWebSocketSession();
 
   @override
   void onClose(
-    final WebSocket ws,
+    final AlfredWebSocket ws,
   ) {
     users.remove(ws);
     users.forEach(
-      (final user) => user.add('A user has left.'),
+      (final user) => user.addString('A user has left.'),
     );
   }
 
   @override
   void onError(
-    final WebSocket ws,
+    final AlfredWebSocket ws,
     final dynamic error,
   ) {
     // Do nothing. this is an example.
   }
 
   @override
-  void onMessage(
-    final WebSocket ws,
-    dynamic data,
+  void onMessageString(
+    final AlfredWebSocket ws,
+    final String data,
   ) {
     users.forEach(
-      (final user) => user.add(data),
+      (final user) => user.addString(data),
+    );
+  }
+
+  @override
+  void onMessageBytes(
+    final AlfredWebSocket ws,
+    final List<int> data,
+  ) {
+    users.forEach(
+      (final user) => user.addBytes(data),
     );
   }
 
   @override
   InitiatedWebSocketSession onOpen(
-    final WebSocket ws,
+    final AlfredWebSocket ws,
   ) {
     users.add(ws);
     users
@@ -349,14 +357,14 @@ class MyWebSocketSession with WebSocketSessionStartMixin implements InitiatedWeb
           (final user) => user != ws,
         )
         .forEach(
-          (final user) => user.add('A new user joined the chat.'),
+          (final user) => user.addString('A new user joined the chat.'),
         );
     return this;
   }
 }
 
-List<HttpRoute> resourceBlocking() => [
-      Route.all(
+List<AlfredHttpRoute> resourceBlocking() => [
+      AlfredRoute.all(
         path: '/resource*',
         middleware: MiddlewareBuilder(
           process: (final c) async {
@@ -365,17 +373,17 @@ List<HttpRoute> resourceBlocking() => [
           },
         ),
       ),
-      Route.get(
+      AlfredRoute.get(
         path: '/resource',
         middleware: const ClosingMiddleware(),
       ),
       // Will not be hit
-      Route.post(
+      AlfredRoute.post(
         path: '/resource',
         middleware: const ClosingMiddleware(),
       ),
       // Will not be hit
-      Route.post(
+      AlfredRoute.post(
         path: '/resource/1',
         middleware: const ClosingMiddleware(),
       ),

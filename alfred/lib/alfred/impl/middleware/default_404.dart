@@ -2,7 +2,7 @@ import '../../../base/http_status_code.dart';
 import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
 
-class NotFound404Middleware implements Middleware {
+class NotFound404Middleware implements AlfredMiddleware {
   const NotFound404Middleware();
 
   @override

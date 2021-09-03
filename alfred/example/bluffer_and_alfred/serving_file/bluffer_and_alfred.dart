@@ -1,6 +1,6 @@
 import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/alfred/impl/middleware/io_file.dart';
 import 'package:alfred/alfred/impl/middleware/widget.dart';
+import 'package:alfred/alfred/impl_io/middleware/io_file.dart';
 import 'package:alfred/alfred/interface/http_route_factory.dart';
 import 'package:alfred/bluffer/base/app.dart';
 import 'package:alfred/bluffer/base/border_radius.dart';
@@ -21,15 +21,15 @@ Future<void> main() async {
   const dartLogoRelativePath = "/dartlogo.svg";
   final app = makeSimpleAlfred()
     ..add(
-      routes: Routes(
+      routes: AlfredRoutes(
         routes: [
-          Route.get(
+          AlfredRoute.get(
             path: dartLogoRelativePath,
             middleware: const ServeFileStringPathImpl(
               path: "../../bluffer/example/assets/images/logo_dart_192px.svg",
             ),
           ),
-          Route.get(
+          AlfredRoute.get(
             path: "/",
             middleware: ServeWidgetBuilder(
               builder: (final c, final context) => AppWidget(

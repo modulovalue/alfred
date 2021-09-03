@@ -1,4 +1,3 @@
-// TODO centralize this dependency
 import 'dart:io';
 
 import '../../../base/mime.dart';
@@ -6,7 +5,7 @@ import '../../interface/alfred.dart';
 import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
 
-abstract class ServeFile implements Middleware {}
+abstract class ServeFile implements AlfredMiddleware {}
 
 class ServeFileIoFileImpl implements ServeFile {
   final File file;

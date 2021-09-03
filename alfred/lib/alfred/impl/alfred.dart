@@ -6,24 +6,27 @@ import 'dart:io';
 import '../../base/method.dart';
 import '../../base/parse_method.dart';
 import '../../base/unawaited.dart';
+import '../impl_io/request.dart';
+import '../impl_io/response.dart';
+import '../impl_io/serve_context.dart';
 import '../interface/alfred.dart';
 import '../interface/http_route_factory.dart';
 import '../interface/logging_delegate.dart';
 import '../interface/middleware.dart';
 import 'built_alfred.dart';
+import 'config.dart';
 import 'logging/print.dart';
 import 'middleware/default_404.dart';
 import 'middleware/default_500.dart';
 import 'route_factory.dart';
-import 'serve_context.dart';
 
 Future<BuiltAlfred> helloAlfred({
-  required final Iterable<HttpRoute> routes,
+  required final Iterable<AlfredHttpRoute> routes,
   final int? port,
 }) {
   final _alfred = alfredWithRoutes(
     routes: [
-      Routes(
+      AlfredRoutes(
         routes: routes,
       ),
     ],
@@ -35,7 +38,7 @@ Future<BuiltAlfred> helloAlfred({
 }
 
 Future<BuiltAlfred> helloAlfred2({
-  required final Iterable<Routed> routes,
+  required final Iterable<AlfredRouted> routes,
   final int? port,
 }) {
   final _alfred = alfredWithRoutes(
@@ -48,7 +51,7 @@ Future<BuiltAlfred> helloAlfred2({
 }
 
 AlfredImpl alfredWithRoutes({
-  required final Iterable<Routed> routes,
+  required final Iterable<AlfredRouted> routes,
 }) {
   final alfred = makeSimpleAlfred();
   for (final route in routes) {
@@ -60,11 +63,11 @@ AlfredImpl alfredWithRoutes({
 }
 
 AlfredImpl makeSimpleAlfred({
-  final Middleware? onNotFound,
-  final Middleware Function(Object error)? onInternalError,
+  final AlfredMiddleware? onNotFound,
+  final AlfredMiddleware Function(Object error)? onInternalError,
 }) =>
     AlfredImpl.raw(
-      routes: <HttpRoute>[],
+      routes: <AlfredHttpRoute>[],
       onNotFound: onNotFound ?? const NotFound404Middleware(),
       onInternalError: onInternalError ??
           (final a) => InternalError500Middleware(
@@ -72,13 +75,13 @@ AlfredImpl makeSimpleAlfred({
               ),
     );
 
-class AlfredImpl implements Alfred, HttpRouteFactory {
+class AlfredImpl implements Alfred, AlfredHttpRouteFactory {
   @override
-  final List<HttpRoute> routes;
+  final List<AlfredHttpRoute> routes;
 
-  final Middleware onNotFound;
+  final AlfredMiddleware onNotFound;
 
-  final Middleware Function(Object error) onInternalError;
+  final AlfredMiddleware Function(Object error) onInternalError;
 
   AlfredImpl.raw({
     required final this.routes,
@@ -87,10 +90,10 @@ class AlfredImpl implements Alfred, HttpRouteFactory {
   });
 
   @override
-  HttpRouteFactory get router => this;
+  AlfredHttpRouteFactory get router => this;
 
   @override
-  Future<BuiltAlfredImpl> build({
+  Future<BuiltAlfredIOImpl> build({
     final AlfredLoggingDelegate log = const AlfredLoggingDelegatePrintImpl(),
     final ServerConfig config = const ServerConfigDefault(),
   }) async =>
@@ -98,9 +101,7 @@ class AlfredImpl implements Alfred, HttpRouteFactory {
         config: config,
         log: log,
         alfred: this,
-        requestHandler: (
-          final HttpRequest request,
-        ) async {
+        requestHandler: (final HttpRequest request) async {
           // Variable to track the close of the response.
           var isDone = false;
           log.onIncomingRequest(
@@ -111,7 +112,7 @@ class AlfredImpl implements Alfred, HttpRouteFactory {
           final res = AlfredResponseImpl(
             res: request.response,
           );
-          final c = ServeContextImpl(
+          final c = ServeContextIOImpl(
             alfred: this,
             req: AlfredRequestImpl(
               req: request,
@@ -130,7 +131,7 @@ class AlfredImpl implements Alfred, HttpRouteFactory {
             ),
           );
           // Work out all the routes we need to process
-          final matchedRoutes = matchRoute<HttpRoute>(
+          final matchedRoutes = matchRoute<AlfredHttpRoute>(
             input: request.uri.toString(),
             options: routes,
             method: parseHttpMethod(str: request.method) ?? Methods.get,
@@ -207,7 +208,7 @@ class AlfredImpl implements Alfred, HttpRouteFactory {
 
   @override
   void add({
-    required final Routed routes,
+    required final AlfredRouted routes,
   }) =>
       routes.match(
         routes: (final a) => this.routes.addAll(a.routes),
@@ -230,7 +231,7 @@ Future<BuiltAlfred> buildAlfred({
   }
 }
 
-List<T> matchRoute<T extends HttpRouteDirections>({
+List<T> matchRoute<T extends AlfredHttpRouteDirections>({
   required final String input,
   required final List<T> options,
   required final Method method,

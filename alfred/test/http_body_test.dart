@@ -5,7 +5,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:alfred/alfred/impl/parse_http_body.dart';
-import 'package:alfred/alfred/impl/serve_context.dart';
+import 'package:alfred/alfred/impl_io/request.dart';
+import 'package:alfred/alfred/impl_io/response.dart';
 import 'package:alfred/alfred/interface/parse_http_body.dart';
 import 'package:alfred/alfred/interface/serve_context.dart';
 import 'package:test/test.dart';
@@ -131,7 +132,7 @@ void main() {
                   final dynamic found = body.httpBody.body[key];
                   // ignore: avoid_dynamic_calls
                   final dynamic expected = expectedBody[key];
-                  if (found is HttpBodyFileUpload) {
+                  if (found is AlfredHttpBodyFileUpload) {
                     // ignore: avoid_dynamic_calls
                     expect(
                       found.contentType!.primaryType + "/" + found.contentType!.subType,

@@ -5,7 +5,7 @@ import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
 
 /// Responds with a generic 5000 internal error.
-class InternalError500Middleware implements Middleware {
+class InternalError500Middleware implements AlfredMiddleware {
   final Object error;
 
   const InternalError500Middleware({

@@ -2,7 +2,7 @@
 import 'package:mime_type/mime_type.dart' as _m;
 
 import '../alfred/impl/content_type.dart';
-import '../alfred/interface/parse_http_body.dart';
+import '../alfred/interface/serve_context.dart';
 
 /// Get the contentType header from the given file.
 AlfredContentType? fileContentType({
@@ -13,8 +13,11 @@ AlfredContentType? fileContentType({
   if (mimeType != null) {
     final split = mimeType.split('/');
     return AlfredContentTypeImpl(
+      mimeType: mimeType,
       primaryType: split[0],
       subType: split[1],
+      charset: null,
+      getParam: (final _) => null,
     );
   } else {
     return null;

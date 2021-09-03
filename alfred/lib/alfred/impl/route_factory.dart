@@ -2,7 +2,7 @@ import '../../util/compose_path.dart';
 import '../interface/alfred.dart';
 import '../interface/http_route_factory.dart';
 
-class HttpRouteFactoryImpl implements HttpRouteFactory {
+class HttpRouteFactoryImpl implements AlfredHttpRouteFactory {
   final Alfred alfred;
   final String basePath;
 
@@ -13,15 +13,15 @@ class HttpRouteFactoryImpl implements HttpRouteFactory {
 
   @override
   void add({
-    required final Routed routes,
+    required final AlfredRouted routes,
   }) {
     routes.match(
       routes: (final _routes) {
         for (final route in _routes.routes) {
           alfred.router.add(
-            routes: Routes(
+            routes: AlfredRoutes(
               routes: [
-                HttpRouteImpl(
+                AlfredHttpRouteImpl(
                   method: route.method,
                   path: composePath(
                     first: basePath,
@@ -39,7 +39,7 @@ class HttpRouteFactoryImpl implements HttpRouteFactory {
   }
 
   @override
-  HttpRouteFactory at({
+  AlfredHttpRouteFactory at({
     required final String path,
   }) =>
       HttpRouteFactoryImpl(

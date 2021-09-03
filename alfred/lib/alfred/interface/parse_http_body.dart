@@ -3,7 +3,7 @@ import 'dart:async';
 import 'serve_context.dart';
 
 /// A handler for processing and collecting HTTP message data in to an
-/// [HttpBody].
+/// [AlfredHttpBody].
 ///
 /// The content body is parsed, depending on the `Content-Type` header field.
 /// When the full body is read and parsed the body content is made available.
@@ -38,7 +38,7 @@ import 'serve_context.dart';
 /// For content type `multipart/form-data` the body is parsed into
 /// it's different fields. The resulting body is a `Map<String,
 /// dynamic>`, where the value is a [String] for normal fields and a
-/// [HttpBodyFileUpload] instance for file upload fields. If the same
+/// [AlfredHttpBodyFileUpload] instance for file upload fields. If the same
 /// name is present several times, then the last value seen for this
 /// name will be in the resulting map.
 ///
@@ -53,18 +53,18 @@ import 'serve_context.dart';
 /// type of the web page containing the form. Using a content type of
 /// `text/html; charset=utf-8` for the page and setting
 /// `accept-charset` on the HTML form to `utf-8` is recommended as the
-/// default for [HttpBodyHandler] is UTF-8. It is important to get
+/// default for [AlfredHttpBodyHandler] is UTF-8. It is important to get
 /// these encoding values right, as the actual `multipart/form-data`
 /// HTTP request sent by the browser does _not_ contain any
 /// information on the encoding. If something else than UTF-8 is used
-/// `defaultEncoding` needs to be set in the [HttpBodyHandler]
+/// `defaultEncoding` needs to be set in the [AlfredHttpBodyHandler]
 /// constructor and calls to processRequest and processResponse.
 ///
 /// For all other content types the body will be treated as
 /// uninterpreted binary data. The resulting body will be of type
 /// `List<int>`.
 ///
-/// To use with the HttpServer for request messages, [HttpBodyHandler] can be
+/// To use with the HttpServer for request messages, [AlfredHttpBodyHandler] can be
 /// used as either a [StreamTransformer] or as a per-request handler (see
 /// processRequest).
 ///
@@ -76,7 +76,7 @@ import 'serve_context.dart';
 ///     });
 /// ```
 ///
-/// To use with the HttpClient for response messages, [HttpBodyHandler] can be
+/// To use with the HttpClient for response messages, [AlfredHttpBodyHandler] can be
 /// used as a per-request handler (see processResponse).
 ///
 /// ```dart
@@ -85,13 +85,13 @@ import 'serve_context.dart';
 /// var response = await request.close();
 /// var body = HttpBodyHandler.processResponse(response);
 /// ```
-abstract class HttpBodyHandler<T> {
-  StreamTransformer<AlfredRequest, HttpRequestBody<T>> get handler;
+abstract class AlfredHttpBodyHandler<T> {
+  StreamTransformer<AlfredRequest, AlfredHttpRequestBody<T>> get handler;
 }
 
-/// A HTTP content body produced by [HttpBodyHandler] for either HttpRequest
+/// A HTTP content body produced by [AlfredHttpBodyHandler] for either HttpRequest
 /// or HttpClientResponse.
-abstract class HttpBody<T> {
+abstract class AlfredHttpBody<T> {
   /// A high-level type value, that reflects how the body was parsed, e.g.
   /// "text", "binary" and "json".
   String get type;
@@ -103,28 +103,28 @@ abstract class HttpBody<T> {
 /// The body of a HttpClientResponse.
 ///
 /// Headers can be read through the original [response].
-abstract class HttpClientResponseBody<T> {
+abstract class AlfredHttpClientResponseBody<T> {
   /// The wrapped response.
   Stream<List<int>> get response;
 
-  HttpBody<T> get httpBody;
+  AlfredHttpBody<T> get httpBody;
 }
 
 /// The body of a HttpRequest.
 ///
 /// Headers can be read, and a response can be sent, through [request].
-abstract class HttpRequestBody<T> {
+abstract class AlfredHttpRequestBody<T> {
   /// The wrapped request.
   ///
   /// Note that the HttpRequest is already drained, so the
   /// `Stream` methods cannot be used.
   AlfredRequest get request;
 
-  HttpBody<T> get httpBody;
+  AlfredHttpBody<T> get httpBody;
 }
 
 /// A wrapper around a file upload.
-abstract class HttpBodyFileUpload<T> {
+abstract class AlfredHttpBodyFileUpload<T> {
   /// The filename of the uploaded file.
   String get filename;
 
@@ -137,10 +137,4 @@ abstract class HttpBodyFileUpload<T> {
   ///
   /// Either a [String] or a [List<int>].
   T get content;
-}
-
-abstract class AlfredContentType {
-  String get primaryType;
-
-  String get subType;
 }

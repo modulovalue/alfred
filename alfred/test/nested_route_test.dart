@@ -11,45 +11,45 @@ void main() {
         path: 'path',
       );
       path.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: 'a',
               middleware: const ClosingMiddleware(),
             ),
-            Route.post(
+            AlfredRoute.post(
               path: 'b',
               middleware: const ClosingMiddleware(),
             ),
-            Route.put(
+            AlfredRoute.put(
               path: 'c',
               middleware: const ClosingMiddleware(),
             ),
-            Route.patch(
+            AlfredRoute.patch(
               path: 'd',
               middleware: const ClosingMiddleware(),
             ),
-            Route.delete(
+            AlfredRoute.delete(
               path: 'e',
               middleware: const ClosingMiddleware(),
             ),
-            Route.options(
+            AlfredRoute.options(
               path: 'f',
               middleware: const ClosingMiddleware(),
             ),
-            Route.all(
+            AlfredRoute.all(
               path: 'g',
               middleware: const ClosingMiddleware(),
             ),
-            Route.trace(
+            AlfredRoute.trace(
               path: 'h',
               middleware: const ClosingMiddleware(),
             ),
-            Route.head(
+            AlfredRoute.head(
               path: 'i',
               middleware: const ClosingMiddleware(),
             ),
-            Route.connect(
+            AlfredRoute.connect(
               path: 'j',
               middleware: const ClosingMiddleware(),
             ),
@@ -77,9 +77,9 @@ void main() {
           .at(path: 'first/and')
           .at(path: 'second/and')
           .add(
-            routes: Routes(
+            routes: AlfredRoutes(
               routes: [
-                Route.get(path: 'third', middleware: const ClosingMiddleware()),
+                AlfredRoute.get(path: 'third', middleware: const ClosingMiddleware()),
               ],
             ),
           );
@@ -89,30 +89,30 @@ void main() {
   test('it can handle slashes when composing', () async {
     await runTest(fn: (final app, final built, final port) async {
       app.router.at(path: 'first/').add(
-            routes: Routes(
+            routes: AlfredRoutes(
               routes: [
-                Route.get(path: '/second', middleware: const ClosingMiddleware()),
+                AlfredRoute.get(path: '/second', middleware: const ClosingMiddleware()),
               ],
             ),
           );
       app.router.at(path: 'first').add(
-            routes: Routes(
+            routes: AlfredRoutes(
               routes: [
-                Route.get(path: '/second', middleware: const ClosingMiddleware()),
+                AlfredRoute.get(path: '/second', middleware: const ClosingMiddleware()),
               ],
             ),
           );
       app.router.at(path: 'first/').add(
-            routes: Routes(
+            routes: AlfredRoutes(
               routes: [
-                Route.get(path: 'second', middleware: const ClosingMiddleware()),
+                AlfredRoute.get(path: 'second', middleware: const ClosingMiddleware()),
               ],
             ),
           );
       app.router.at(path: 'first').add(
-            routes: Routes(
+            routes: AlfredRoutes(
               routes: [
-                Route.get(path: 'second', middleware: const ClosingMiddleware()),
+                AlfredRoute.get(path: 'second', middleware: const ClosingMiddleware()),
               ],
             ),
           );
@@ -128,9 +128,9 @@ void main() {
         path: 'first',
       );
       first.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: 'a',
               middleware: const ClosingMiddleware(),
             ),
@@ -138,9 +138,9 @@ void main() {
         ),
       );
       first.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: 'b',
               middleware: const ClosingMiddleware(),
             ),
@@ -149,9 +149,9 @@ void main() {
       );
       final second = first.at(path: 'second');
       second.add(
-        routes: Routes(
+        routes: AlfredRoutes(
           routes: [
-            Route.get(
+            AlfredRoute.get(
               path: 'c',
               middleware: const ClosingMiddleware(),
             ),

@@ -1,8 +1,7 @@
-import 'dart:io';
+import 'dart:async';
 
 import 'alfred.dart';
 import 'http_route_factory.dart';
-import 'parse_http_body.dart';
 
 abstract class ServeContext {
   AlfredRequest get req;
@@ -18,12 +17,11 @@ abstract class ServeContext {
   Map<String, String>? get arguments;
 
   /// Will not be available in 404 responses.
-  HttpRoute get route;
+  AlfredHttpRoute get route;
 }
 
 abstract class AlfredRequest {
-  // TODO don't depend on io, have an alfred websocket wrapper.
-  Future<WebSocket> upgradeToWebsocket();
+  Future<AlfredWebSocket> upgradeToWebsocket();
 
   Stream<List<int>> get stream;
 
@@ -33,10 +31,57 @@ abstract class AlfredRequest {
 
   String get method;
 
-  // TODO io independent wrapper.
-  HttpHeaders get headers;
+  AlfredHttpHeaders get headers;
 
   String? get mimeType;
+}
+
+abstract class AlfredHttpHeaders {
+  String? get contentTypeMimeType;
+
+  AlfredContentType? get contentType;
+
+  String? get host;
+
+  String? getValue(
+    final String key,
+  );
+}
+
+abstract class AlfredContentType {
+  String get primaryType;
+
+  String get subType;
+
+  String? get charset;
+
+  String get mimeType;
+
+  String? getParameter(
+    final String key,
+  );
+}
+
+abstract class AlfredWebSocket {
+  StreamSubscription<dynamic> listen({
+    required final void Function(dynamic event)? onData,
+    required final Function? onError,
+    required void Function()? onDone,
+    required final bool? cancelOnError,
+  });
+
+  void addString(
+    final String string,
+  );
+
+  void addBytes(
+    final List<int> bytes,
+  );
+
+  Future<void> close({
+    required final int? code,
+    required final String? reason,
+  });
 }
 
 abstract class AlfredResponse {

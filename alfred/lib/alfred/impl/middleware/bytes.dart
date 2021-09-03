@@ -3,7 +3,7 @@ import 'dart:async';
 import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
 
-class BytesMiddleware implements Middleware {
+class BytesMiddleware implements AlfredMiddleware {
   final List<int> bytes;
 
   const BytesMiddleware({

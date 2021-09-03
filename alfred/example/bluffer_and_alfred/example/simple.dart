@@ -9,7 +9,7 @@ import 'package:alfred/util/open.dart';
 Future<void> main() async {
   final built = await helloAlfred(
     routes: [
-      Route.get(
+      AlfredRoute.get(
         path: "/",
         middleware: const ServeWidgetAppImpl(
           title: "My title!",

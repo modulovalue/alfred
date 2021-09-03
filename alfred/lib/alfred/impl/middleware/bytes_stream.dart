@@ -1,7 +1,7 @@
 import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
 
-class StreamOfBytesMiddleware implements Middleware {
+class StreamOfBytesMiddleware implements AlfredMiddleware {
   final Stream<List<int>> bytes;
 
   const StreamOfBytesMiddleware({
