@@ -20,13 +20,9 @@ void main() {
       "There are no mapped reflections, this is actually transparent."
     ])
     ..addPar(["«[Back to Tests|../]"]);
-
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
-
   final three_dart.Entity obj = three_dart.Entity()..shape = cube();
-
   final FrontTarget target = FrontTarget()..clearColor = false;
-
   final TextureCube environment = td.textureLoader.loadCubeFromPath("../resources/maskonaive", ext: ".jpg");
   final Texture2D color = td.textureLoader.load2DFromFile("../resources/AlphaWeave.png");
   final MaterialLight tech = MaterialLight()
@@ -36,28 +32,22 @@ void main() {
     ..ambient.texture2D = color
     ..diffuse.texture2D = color
     ..alpha.texture2D = color;
-
   final Group mover = Group()
     ..add(UserRotator(input: td.userInput))
     ..add(UserRoller(input: td.userInput, ctrl: true))
     ..add(UserZoom(input: td.userInput))
     ..add(Constant.translate(0.0, 0.0, 5.0));
-
   final Perspective camera = Perspective(mover: mover);
-
   final CoverPass skybox = CoverPass.skybox(environment)
     ..target = target
     ..camera = camera;
-
   final EntityPass pass = EntityPass()
     ..camera = camera
     ..technique = tech
     ..target = target
     ..children.add(obj);
-
   td.scene = Compound(passes: [skybox, pass]);
-
-  td.postrender.once((_) {
+  td.postrender.once((final _) {
     page
       ..addCode("Vertex Shader", "glsl", 0, tech.vertexSourceCode.split("\n"))
       ..addCode("Fragment Shader", "glsl", 0, tech.fragmentSourceCode.split("\n"));

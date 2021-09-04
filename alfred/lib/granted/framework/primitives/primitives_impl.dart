@@ -72,10 +72,18 @@ class BoundsImpl implements Bounds {
       _xmin = _xmax = x;
       _ymin = _ymax = y;
     } else {
-      if (_xmin > x) _xmin = x;
-      if (_ymin > y) _ymin = y;
-      if (_xmax < x) _xmax = x;
-      if (_ymax < y) _ymax = y;
+      if (_xmin > x) {
+        _xmin = x;
+      }
+      if (_ymin > y) {
+        _ymin = y;
+      }
+      if (_xmax < x) {
+        _xmax = x;
+      }
+      if (_ymax < y) {
+        _ymax = y;
+      }
     }
   }
 
@@ -92,10 +100,18 @@ class BoundsImpl implements Bounds {
       _ymax = bounds.ymax;
     } else {
       if (!bounds.isEmpty) {
-        if (_xmin > bounds.xmin) _xmin = bounds.xmin;
-        if (_ymin > bounds.ymin) _ymin = bounds.ymin;
-        if (_xmax < bounds.xmax) _xmax = bounds.xmax;
-        if (_ymax < bounds.ymax) _ymax = bounds.ymax;
+        if (_xmin > bounds.xmin) {
+          _xmin = bounds.xmin;
+        }
+        if (_ymin > bounds.ymin) {
+          _ymin = bounds.ymin;
+        }
+        if (_xmax < bounds.xmax) {
+          _xmax = bounds.xmax;
+        }
+        if (_ymax < bounds.ymax) {
+          _ymax = bounds.ymax;
+        }
       }
     }
   }

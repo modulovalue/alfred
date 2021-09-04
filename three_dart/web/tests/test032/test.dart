@@ -20,27 +20,24 @@ void main() {
     ])
     ..addControlBoxes(["controls", "shapes", "scalars"])
     ..addPar(["«[Back to Tests|../]"]);
-
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
-
   bool showMtrl = true;
   final three_dart.Entity obj = three_dart.Entity()
     ..mover = (Group()
       ..add(UserRotator(input: td.userInput, invertY: true))
       ..add(UserRoller(input: td.userInput, ctrl: true))
       ..add(UserZoom(input: td.userInput)));
-
   final Inspection tech = Inspection()..vectorScale = 0.4;
-
   td.scene = EntityPass()
     ..technique = tech
     ..children.add(obj)
     ..camera?.mover = Constant.translate(0.0, 0.0, 5.0);
-
   common.CheckGroup("controls")
     ..add("Material", (bool show) {
       showMtrl = show;
-      if (obj.children.length > 1) obj.children[0].enabled = showMtrl;
+      if (obj.children.length > 1) {
+        obj.children[0].enabled = showMtrl;
+      }
     }, true)
     ..add("Filled", (bool show) {
       tech.showFilled = show;
@@ -90,7 +87,6 @@ void main() {
     ..add("AABB", (bool show) {
       tech.showAABB = show;
     });
-
   three_dart.Entity copyEntity(three_dart.Entity entity) {
     final three_dart.Entity copy = three_dart.Entity();
     copy.shape = entity.shape;
@@ -99,7 +95,6 @@ void main() {
     });
     return copy;
   }
-
   Future<void> setEntity(String objFile) async {
     final three_dart.Entity entity = await ObjType.fromFile(objFile, td.textureLoader);
     entity.resizeCenter(3.5);
@@ -110,13 +105,11 @@ void main() {
     other.technique = tech;
     obj.children.add(other);
   }
-
   common.RadioGroup("shapes")
     ..add("Cube", () => setEntity("../resources/Cube.obj"), true)
     ..add("Low Poly Tree", () => setEntity("../resources/tree/tree.obj"))
     ..add("Low Poly Wolf", () => setEntity("../resources/Wolf.obj"))
     ..add("Plant", () => setEntity("../resources/plant/plant.obj"));
-
   common.RadioGroup("scalars")
     ..add("0.01", () {
       tech.vectorScale = 0.01;
@@ -151,6 +144,5 @@ void main() {
     ..add("1.0", () {
       tech.vectorScale = 1.0;
     });
-
   common.showFPS(td);
 }

@@ -1,5 +1,5 @@
 /// See https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
-/// TODO add title and description.
+/// TODO add title.
 /// TODO add description.
 
 // Informative

@@ -523,7 +523,9 @@ class RectangleGroup with PlotterItemMixin, BasicCoordsMixin {
     for (int i = count - 1; i >= 0; --i) {
       b.expand(_x[i], _y[i]);
     }
-    if (!b.isEmpty) b.expand(b.xmax + width, b.ymax + height);
+    if (!b.isEmpty) {
+      b.expand(b.xmax + width, b.ymax + height);
+    }
     return trans.transform(b);
   }
 }
@@ -639,7 +641,9 @@ class Grid with PlotterItemMixin {
     final Bounds view,
   ) {
     final y = (offset - view.ymin) * window.height / view.height;
-    if ((y > 0.0) && (y < window.height)) group.add(y);
+    if ((y > 0.0) && (y < window.height)) {
+      group.add(y);
+    }
   }
 
   /// The recursive method used to get a horizontal grid line and children grid lines.
@@ -681,7 +685,9 @@ class Grid with PlotterItemMixin {
     final Bounds view,
   ) {
     final x = (offset - view.xmin) * window.width / view.width;
-    if ((x > 0.0) && (x < window.width)) group.add(x);
+    if ((x > 0.0) && (x < window.width)) {
+      group.add(x);
+    }
   }
 
   /// The recursive method used to get a vertical grid line and children grid lines.
@@ -701,7 +707,9 @@ class Grid with PlotterItemMixin {
     final double maxOffset,
     final int rmdPow,
   ) {
-    if (rmdPow <= 0) return;
+    if (rmdPow <= 0) {
+      return;
+    }
     final lowPow = pow / 10.0;
     double offset = minOffset;
     final group = groups[rmdPow - 1];

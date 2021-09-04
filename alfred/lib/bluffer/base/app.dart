@@ -299,21 +299,29 @@ String mediaClassForMediaSize(
     "The given size " + size.toString() + " was not in " + all.toString(),
   );
   return [
-    '@media all and ${'(min-width: ${Breakpoint.defaultBreakpointSize(size)}px)'}${() {
-      if (index + 1 >= all.length) {
-        return "";
-      } else {
-        return " and (max-width: ${Breakpoint.defaultBreakpointSize(all[index + 1]) - 1}px)";
-      }
-    }()} {',
-    for (final current in all) //
-      '  .size${current.index} { display: ${() {
-        if (size == current) {
-          return "block";
-        } else {
-          return "none";
-        }
-      }()}; }',
+    '@media all and (min-width: ' +
+        Breakpoint.defaultBreakpointSize(size).toString() +
+        'px)' +
+        () {
+          if (index + 1 >= all.length) {
+            return "";
+          } else {
+            return " and (max-width: " + (Breakpoint.defaultBreakpointSize(all[index + 1]) - 1).toString() + "px)";
+          }
+        }() +
+        ' {',
+    for (final current in all)
+      '  .size' +
+          current.index.toString() +
+          ' { display: ' +
+          () {
+            if (size == current) {
+              return "block";
+            } else {
+              return "none";
+            }
+          }() +
+          '; }',
     '} \n',
   ].join("\n");
 }

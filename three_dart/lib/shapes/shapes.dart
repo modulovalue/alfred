@@ -99,7 +99,6 @@ Shape line({VertexType? type}) {
       txtCube: Vector3(-1.0, -1.0, 0.0).normal(),
       clr: Colors.red,
       bending: Point4(1.0, 2.0, 4.0, 6.0));
-
   final Vertex ver2 = shape.vertices.addNew(
       type: type,
       loc: Point3(1.0, 0.0, 0.0),
@@ -107,7 +106,6 @@ Shape line({VertexType? type}) {
       txtCube: Vector3(1.0, -1.0, 0.0).normal(),
       clr: Colors.blue,
       bending: Point4(0.0, 3.0, 4.0, 6.0));
-
   shape.lines.add(ver1, ver2);
   return shape;
 }
@@ -123,7 +121,6 @@ Shape square(
       txtCube: Vector3(-1.0, -1.0, 1.0).normal(),
       clr: Colors.red,
       bending: Point4(1.0, 2.0, 4.0, 6.0));
-
   final Vertex ver2 = shape.vertices.addNew(
       type: type,
       loc: Point3(width * 0.5, -height * 0.5, zOffset),
@@ -131,7 +128,6 @@ Shape square(
       txtCube: Vector3(1.0, -1.0, 1.0).normal(),
       clr: Colors.blue,
       bending: Point4(0.0, 3.0, 4.0, 6.0));
-
   final Vertex ver3 = shape.vertices.addNew(
       type: type,
       loc: Point3(width * 0.5, height * 0.5, zOffset),
@@ -139,7 +135,6 @@ Shape square(
       txtCube: Vector3(1.0, 1.0, 1.0).normal(),
       clr: Colors.green,
       bending: Point4(0.0, 2.0, 5.0, 6.0));
-
   final Vertex ver4 = shape.vertices.addNew(
       type: type,
       loc: Point3(-width * 0.5, height * 0.5, zOffset),
@@ -147,7 +142,6 @@ Shape square(
       txtCube: Vector3(-1.0, 1.0, 1.0).normal(),
       clr: Colors.yellow,
       bending: Point4(0.0, 2.0, 4.0, 7.0));
-
   if (frameOnly) {
     shape.lines.addLoop([ver1, ver2, ver3, ver4]);
   } else {
@@ -349,41 +343,34 @@ Shape isosphere([int iterations = 3]) {
   final Vertex ver1 = _isosphereAdd(shape, Vector3(1.0, t, 0.0));
   final Vertex ver2 = _isosphereAdd(shape, Vector3(-1.0, -t, 0.0));
   final Vertex ver3 = _isosphereAdd(shape, Vector3(1.0, -t, 0.0));
-
   final Vertex ver4 = _isosphereAdd(shape, Vector3(0.0, -1.0, -t));
   final Vertex ver5 = _isosphereAdd(shape, Vector3(0.0, 1.0, -t));
   final Vertex ver6 = _isosphereAdd(shape, Vector3(0.0, -1.0, t));
   final Vertex ver7 = _isosphereAdd(shape, Vector3(0.0, 1.0, t));
-
   final Vertex ver8 = _isosphereAdd(shape, Vector3(t, 0.0, 1.0));
   final Vertex ver9 = _isosphereAdd(shape, Vector3(t, 0.0, -1.0));
   final Vertex ver10 = _isosphereAdd(shape, Vector3(-t, 0.0, 1.0));
   final Vertex ver11 = _isosphereAdd(shape, Vector3(-t, 0.0, -1.0));
-
   _isoSphereDiv(shape, ver0, ver11, ver5, iterations);
   _isoSphereDiv(shape, ver0, ver5, ver1, iterations);
   _isoSphereDiv(shape, ver0, ver1, ver7, iterations);
   _isoSphereDiv(shape, ver0, ver7, ver10, iterations);
   _isoSphereDiv(shape, ver0, ver10, ver11, iterations);
-
   _isoSphereDiv(shape, ver1, ver5, ver9, iterations);
   _isoSphereDiv(shape, ver5, ver11, ver4, iterations);
   _isoSphereDiv(shape, ver11, ver10, ver2, iterations);
   _isoSphereDiv(shape, ver10, ver7, ver6, iterations);
   _isoSphereDiv(shape, ver7, ver1, ver8, iterations);
-
   _isoSphereDiv(shape, ver3, ver9, ver4, iterations);
   _isoSphereDiv(shape, ver3, ver4, ver2, iterations);
   _isoSphereDiv(shape, ver3, ver2, ver6, iterations);
   _isoSphereDiv(shape, ver3, ver6, ver8, iterations);
   _isoSphereDiv(shape, ver3, ver8, ver9, iterations);
-
   _isoSphereDiv(shape, ver4, ver9, ver5, iterations);
   _isoSphereDiv(shape, ver2, ver4, ver11, iterations);
   _isoSphereDiv(shape, ver6, ver2, ver10, iterations);
   _isoSphereDiv(shape, ver8, ver6, ver7, iterations);
   _isoSphereDiv(shape, ver9, ver8, ver1, iterations);
-
   shape.joinSeams();
   return shape;
 }
@@ -680,8 +667,9 @@ class Face {
     final Point3? loc1 = this._ver1?.location;
     final Point3? loc2 = this._ver2?.location;
     final Point3? loc3 = this._ver3?.location;
-    if ((loc1 == null) || (loc2 == null) || (loc3 == null)) return null;
-
+    if ((loc1 == null) || (loc2 == null) || (loc3 == null)) {
+      return null;
+    }
     final Vector3 vec1 = Vector3.fromPoint3(loc2 - loc1).normal();
     final Vector3 vec2 = Vector3.fromPoint3(loc3 - loc1).normal();
     return vec1.cross(vec2).normal();
@@ -691,11 +679,15 @@ class Face {
   /// This uses the locations of the vertices to determine the normal
   /// of the plane this face lays on.
   bool calculateNormal() {
-    if (this._norm != null) return true;
+    if (this._norm != null) {
+      return true;
+    }
     Vector3? norm = this._averageNormal();
     if (norm == null) {
       norm = this._calcNormal();
-      if (norm == null) return false;
+      if (norm == null) {
+        return false;
+      }
     }
     this._norm = norm;
     this._ver1?.shape?.onFaceModified(this);
@@ -722,13 +714,15 @@ class Face {
     final Point3? loc1 = this._ver1?.location;
     final Point3? loc2 = this._ver2?.location;
     final Point3? loc3 = this._ver3?.location;
-    if ((loc1 == null) || (loc2 == null) || (loc3 == null)) return null;
-
+    if ((loc1 == null) || (loc2 == null) || (loc3 == null)) {
+      return null;
+    }
     final Point2? txt1 = this._ver1?.texture2D;
     final Point2? txt2 = this._ver2?.texture2D;
     final Point2? txt3 = this._ver3?.texture2D;
-    if ((txt1 == null) || (txt2 == null) || (txt3 == null)) return null;
-
+    if ((txt1 == null) || (txt2 == null) || (txt3 == null)) {
+      return null;
+    }
     Vector3 binm;
     final double du = txt2.y - txt3.y;
     if (Comparer.equals(du, 0.0)) {
@@ -741,7 +735,6 @@ class Face {
       final double u4 = (txt3.x - txt2.x) * r + txt2.x - txt1.x;
       if (u4 < 0.0) binm = -binm;
     }
-
     var norm = this._norm;
     if (norm != null) {
       norm = norm.normal();
@@ -755,11 +748,15 @@ class Face {
   /// This requires the normal and texture location.
   /// See Shapes/README.md for more information.
   bool calculateBinormal() {
-    if (this._binm != null) return true;
+    if (this._binm != null) {
+      return true;
+    }
     Vector3? binm = this._averageBinormal();
     if (binm == null) {
       binm = this._calcBinormal();
-      if (binm == null) return false;
+      if (binm == null) {
+        return false;
+      }
     }
     this._binm = binm;
     this._ver1?.shape?.onFaceModified(this);
@@ -781,7 +778,9 @@ class Face {
   /// Replaces the given old vertex with the given new vertex if this face contains
   /// the given old vertex. It returns the number of vertices which were replaced.
   int replaceVertex(Vertex? oldVer, Vertex? newVer) {
-    if (this.disposed) throw Exception("May not replace a face's vertex when the point has been disposed.");
+    if (this.disposed) {
+      throw Exception("May not replace a face's vertex when the point has been disposed.");
+    }
     int result = 0;
     if (this._ver1 == oldVer) {
       this._checkReplaceVertex(oldVer, newVer);
@@ -801,7 +800,9 @@ class Face {
       this._setVertex3(newVer);
       ++result;
     }
-    if (result > 0) this._ver1?.shape?.onFaceModified(this);
+    if (result > 0) {
+      this._ver1?.shape?.onFaceModified(this);
+    }
     return result;
   }
 
@@ -812,18 +813,28 @@ class Face {
     this._ver2 = this._ver3;
     this._ver3 = ver;
     final norm = this._norm;
-    if (norm != null) this._norm = -norm;
+    if (norm != null) {
+      this._norm = -norm;
+    }
     final binm = this._binm;
-    if (binm != null) this._binm = -binm;
+    if (binm != null) {
+      this._binm = -binm;
+    }
     this._ver1?.shape?.onFaceModified(this);
   }
 
   /// Indicates if the face is collapsed meaning two or
   /// more of its vertices are the same.
   bool get collapsed {
-    if (this._ver1 == this._ver2) return true;
-    if (this._ver2 == this._ver3) return true;
-    if (this._ver3 == this._ver1) return true;
+    if (this._ver1 == this._ver2) {
+      return true;
+    }
+    if (this._ver2 == this._ver3) {
+      return true;
+    }
+    if (this._ver3 == this._ver1) {
+      return true;
+    }
     return false;
   }
 
@@ -1422,8 +1433,9 @@ class ReducedShape implements ShapeBuilder {
   /// and the vertex [type] required for technique.
   @override
   BufferStore build(BufferBuilder builder, VertexType type) {
-    if (type != this._type) throw Exception("Shape was reduced to ${this._type} so can not build for $type.");
-
+    if (type != this._type) {
+      throw Exception("Shape was reduced to ${this._type} so can not build for $type.");
+    }
     final int byteStride = this._stride * typed.Float32List.bytesPerElement;
     int offset = 0;
     this._attrs = List<BufferAttr>.generate(this._typeCount, (int i) {
@@ -1433,25 +1445,20 @@ class ReducedShape implements ShapeBuilder {
       offset += size;
       return attr;
     });
-
     final Buffer vertexBuf = builder.fromDoubleList(webgl.WebGL.ARRAY_BUFFER, this._vertices);
     final BufferStore store = BufferStore(vertexBuf, this._attrs, this._type);
-
     if (this._points.isNotEmpty) {
       final Buffer indexBuf = builder.fromIntList(webgl.WebGL.ELEMENT_ARRAY_BUFFER, this._points);
       store.indexObjects.add(IndexObject(webgl.WebGL.POINTS, this._points.length, indexBuf));
     }
-
     if (this._lines.isNotEmpty) {
       final Buffer indexBuf = builder.fromIntList(webgl.WebGL.ELEMENT_ARRAY_BUFFER, this._lines);
       store.indexObjects.add(IndexObject(webgl.WebGL.LINES, this._lines.length, indexBuf));
     }
-
     if (this._faces.isNotEmpty) {
       final Buffer indexBuf = builder.fromIntList(webgl.WebGL.ELEMENT_ARRAY_BUFFER, this._faces);
       store.indexObjects.add(IndexObject(webgl.WebGL.TRIANGLES, this._faces.length, indexBuf));
     }
-
     return store;
   }
 }
@@ -1497,24 +1504,20 @@ class Shape implements ShapeBuilder {
   void merge(Shape other) {
     this._changed?.suspend();
     other.vertices._updateIndices();
-
     final int offset = this.vertices.length;
     for (final Vertex vertex in other.vertices._vertices) {
       this.vertices.add(vertex.copy());
     }
-
     this.vertices._updateIndices();
     for (final Point point in other.points._points) {
       final Vertex ver = this.vertices[(point.vertex?.index ?? 0) + offset];
       this.points.add(ver);
     }
-
     for (final Line line in other.lines._lines) {
       final Vertex ver1 = this.vertices[(line.vertex1?.index ?? 0) + offset];
       final Vertex ver2 = this.vertices[(line.vertex2?.index ?? 0) + offset];
       this.lines.add(ver1, ver2);
     }
-
     for (final Face face in other.faces._faces) {
       final Vertex ver1 = this.vertices[(face.vertex1?.index ?? 0) + offset];
       final Vertex ver2 = this.vertices[(face.vertex2?.index ?? 0) + offset];
@@ -3707,7 +3710,6 @@ class VertexJoiner extends VertexMerger {
     Vector3? avgTxtCube;
     int divWeight = 0;
     double avgWeight = 0.0;
-
     for (final Vertex ver in vertices) {
       final Point3? loc = ver.location;
       if (loc != null) {
@@ -3718,7 +3720,6 @@ class VertexJoiner extends VertexMerger {
         }
         divLoc++;
       }
-
       final Vector3? norm = ver.normal;
       if (norm != null) {
         if (avgNorm == null) {
@@ -3727,7 +3728,6 @@ class VertexJoiner extends VertexMerger {
           avgNorm += norm;
         }
       }
-
       final Vector3? binm = ver.binormal;
       if (binm != null) {
         if (avgBinm == null) {
@@ -3736,7 +3736,6 @@ class VertexJoiner extends VertexMerger {
           avgBinm += binm;
         }
       }
-
       final Point2? txt2D = ver.texture2D;
       if (txt2D != null) {
         if (avgTxt2D == null) {
@@ -3746,7 +3745,6 @@ class VertexJoiner extends VertexMerger {
         }
         divTxt2D++;
       }
-
       final Vector3? txtCube = ver.textureCube;
       if (txtCube != null) {
         if (avgTxtCube == null) {
@@ -3756,7 +3754,6 @@ class VertexJoiner extends VertexMerger {
         }
         divTxtCube++;
       }
-
       final Color4? clr = ver.color;
       if (clr != null) {
         if (avgClr == null) {
@@ -3769,50 +3766,42 @@ class VertexJoiner extends VertexMerger {
       avgWeight += ver.weight;
       divWeight++;
     }
-
     final Vertex argVer = Vertex();
     if ((divLoc <= 0) || (avgLoc == null)) {
       argVer.location = null;
     } else {
       argVer.location = avgLoc / divLoc.toDouble();
     }
-
     if (avgNorm == null) {
       argVer.normal = null;
     } else {
       argVer.normal = avgNorm.normal();
     }
-
     if (avgBinm == null) {
       argVer.binormal = null;
     } else {
       argVer.binormal = avgBinm.normal();
     }
-
     if ((divTxt2D <= 0) || (avgTxt2D == null)) {
       argVer.texture2D = null;
     } else {
       argVer.texture2D = avgTxt2D / divTxt2D.toDouble();
     }
-
     if ((divTxtCube <= 0) || (avgTxtCube == null)) {
       argVer.textureCube = null;
     } else {
       argVer.textureCube = avgTxtCube / divTxtCube.toDouble();
     }
-
     if ((divClr <= 0) || (avgClr == null)) {
       argVer.color = null;
     } else {
       argVer.color = Color4.fromList((avgClr / divClr.toDouble()).toList());
     }
-
     if (divWeight <= 0) {
       argVer.weight = 0.0;
     } else {
       argVer.weight = avgWeight / divWeight.toDouble();
     }
-
     return argVer;
   }
 }

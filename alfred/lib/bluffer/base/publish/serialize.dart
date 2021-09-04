@@ -1,14 +1,24 @@
 import '../../css/css.dart';
 import '../../html/html.dart';
 
+// TODO use StringBuffer, thread it through the visitors arg parameter.
 /// Serializes the given HtmlElement into an html string.
-/// TODO use StringBuffer, thread it through the visitors arg parameter.
-String serializeHtml({
-  required final HtmlElement html,
+String serializeHtmlElement({
+  required final HtmlElement element,
 }) =>
-    html.acceptHtmlElement(HtmlElementSerializerVisitor, null);
+    element.acceptHtmlElement(
+      const _HtmlElementSerializerVisitorImpl._(),
+      null,
+    );
 
-const _HtmlElementSerializerVisitorImpl HtmlElementSerializerVisitor = _HtmlElementSerializerVisitorImpl._();
+// TODO use StringBuffer, thread it through the visitors arg parameter.
+String serializeHtmlNode({
+  required final HtmlNode node,
+}) =>
+    node.acceptHtmlNode(
+      const _HtmlElementSerializerVisitorImpl._(),
+      null,
+    );
 
 /// TODO extract constants into a spec.
 class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, void>, HtmlNodeVisitor<String, void> {
@@ -19,11 +29,11 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
     final AnchorElement node,
     final void arg,
   ) =>
-      serializeHtmlNode(
+      _serializeHtmlNode(
         tag: "a",
         additionalAttrib: [
-          if (node.href != null) 'href="${node.href!}"',
-          if (node.target != null) 'target="${node.target!}"',
+          if (node.href != null) 'href="' + node.href! + '"',
+          if (node.target != null) 'target="' + node.target! + '"',
         ],
         element: node,
         altContent: null,
@@ -34,7 +44,7 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
     final BodyElement node,
     final void arg,
   ) =>
-      serializeHtmlNode(
+      _serializeHtmlNode(
         tag: "body",
         additionalAttrib: [],
         element: node,
@@ -46,7 +56,7 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
     final BRElement node,
     final void arg,
   ) =>
-      serializeHtmlNode(
+      _serializeHtmlNode(
         tag: "br",
         additionalAttrib: [],
         element: node,
@@ -58,7 +68,7 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
     final DivElement node,
     final void arg,
   ) =>
-      serializeHtmlNode(
+      _serializeHtmlNode(
         tag: "div",
         additionalAttrib: [],
         element: node,
@@ -70,7 +80,7 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
     final HeadElement node,
     final void arg,
   ) =>
-      serializeHtmlNode(
+      _serializeHtmlNode(
         tag: "head",
         additionalAttrib: [],
         element: node,
@@ -82,7 +92,7 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
     final HtmlHtmlElement node,
     final void arg,
   ) =>
-      serializeHtmlNode(
+      _serializeHtmlNode(
         tag: "html",
         additionalAttrib: [],
         element: node,
@@ -94,7 +104,7 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
     final ImageElement node,
     final void arg,
   ) =>
-      serializeHtmlNode(
+      _serializeHtmlNode(
         tag: "img",
         additionalAttrib: () sync* {
           final src = node.src;
@@ -115,7 +125,7 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
     final LinkElement node,
     final void arg,
   ) =>
-      serializeHtmlNode(
+      _serializeHtmlNode(
         tag: "link",
         additionalAttrib: () sync* {
           final href = node.href;
@@ -136,7 +146,7 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
     final MetaElement node,
     final void arg,
   ) =>
-      serializeHtmlNode(
+      _serializeHtmlNode(
         tag: "meta",
         additionalAttrib: () {
           final attributes = <String>[];
@@ -156,7 +166,7 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
     final ParagraphElement node,
     final void arg,
   ) =>
-      serializeHtmlNode(
+      _serializeHtmlNode(
         tag: "p",
         additionalAttrib: [],
         element: node,
@@ -168,12 +178,12 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
     final ScriptElement node,
     final void arg,
   ) =>
-      serializeHtmlNode(
+      _serializeHtmlNode(
         tag: "script",
         additionalAttrib: [
-          if (node.src != null) 'src="${node.src!}"',
-          if (node.async != null) 'alt="${node.async!}"',
-          if (node.defer != null) 'alt="${node.defer!}"',
+          if (node.src != null) 'src="' + node.src! + '"',
+          if (node.async != null) 'alt="' + node.async!.toString() + '"',
+          if (node.defer != null) 'alt="' + node.defer!.toString() + '"',
         ],
         element: node,
         altContent: node.content,
@@ -184,7 +194,7 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
     final StyleElement node,
     final void arg,
   ) =>
-      serializeHtmlNode(
+      _serializeHtmlNode(
         tag: "style",
         additionalAttrib: [],
         element: node,
@@ -196,7 +206,7 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
     final TitleElement node,
     final void arg,
   ) =>
-      serializeHtmlNode(
+      _serializeHtmlNode(
         tag: "title",
         additionalAttrib: [],
         element: node,
@@ -226,7 +236,7 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
 
 StringBuffer _sharedStringBuffer = StringBuffer();
 
-String serializeHtmlNode({
+String _serializeHtmlNode({
   required final String tag,
   required final Iterable<String> additionalAttrib,
   required final HtmlElement element,
@@ -273,14 +283,18 @@ String serializeHtmlNode({
       return visitor. //
               attributes
               .map(
-                (final a) => a.acceptHtmlNode(HtmlElementSerializerVisitor, null),
+                (final a) => serializeHtmlNode(
+                  node: a,
+                ),
               )
               .join(" ") +
           " " +
           visitor. //
               elements
               .map(
-                (final a) => a.acceptHtmlElement(HtmlElementSerializerVisitor, null),
+                (final a) => serializeHtmlElement(
+                  element: a,
+                ),
               )
               .join("\n");
     }

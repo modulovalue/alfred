@@ -32,22 +32,22 @@ const int websocketCodeBadGateway = 1014;
 
 const int websocketCodeTLSGateway = 1015;
 
-bool websocketStatusCodeReserverForFutureUserbyTheStandard({
+bool websocketStatusCodeReservedForFutureUserbyTheStandard({
   required final int code,
 }) =>
     code >= 1016 && code <= 1999;
 
-bool websocketStatusCodeReserverForExtensions({
+bool websocketStatusCodeReservedForExtensions({
   required final int code,
 }) =>
     code >= 2000 && code <= 2999;
 
-bool websocketStatusCodeReserverForLibrariesAndFrameworks({
+bool websocketStatusCodeReservedForLibrariesAndFrameworks({
   required final int code,
 }) =>
     code >= 3000 && code <= 3999;
 
-bool websocketStatusCodeReserverForApplications({
+bool websocketStatusCodeReservedForApplications({
   required final int code,
 }) =>
     code >= 4000 && code <= 4999;

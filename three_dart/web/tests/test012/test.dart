@@ -19,16 +19,13 @@ void main() {
       "a directional light with a cube texture bump map."
     ])
     ..addPar(["«[Back to Tests|../]"]);
-
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
-
   final three_dart.Entity obj = three_dart.Entity()
     ..shape = cube()
     ..mover = (Group()
       ..add(UserRotator(input: td.userInput, invertY: true))
       ..add(UserRoller(input: td.userInput, ctrl: true))
       ..add(UserZoom(input: td.userInput)));
-
   final TextureCube color = td.textureLoader.loadCubeFromPath("../resources/diceColor");
   final MaterialLight tech = MaterialLight()
     ..lights.add(Directional(mover: Constant.vectorTowards(1.0, 1.0, -3.0), color: Color3.white()))
@@ -40,13 +37,11 @@ void main() {
     ..specular.textureCube = td.textureLoader.loadCubeFromPath("../resources/diceSpecular")
     ..specular.shininess = 10.0
     ..bump.textureCube = td.textureLoader.loadCubeFromPath("../resources/diceBumpMap");
-
   td.scene = EntityPass()
     ..technique = tech
     ..children.add(obj)
     ..camera?.mover = Constant.translate(0.0, 0.0, 5.0);
-
-  td.postrender.once((_) {
+  td.postrender.once((final _) {
     page
       ..addCode("Vertex Shader", "glsl", 0, tech.vertexSourceCode.split("\n"))
       ..addCode("Fragment Shader", "glsl", 0, tech.fragmentSourceCode.split("\n"));

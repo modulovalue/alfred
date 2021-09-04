@@ -88,7 +88,7 @@ class HttpBodyHandlerImpl extends StreamTransformerBase<AlfredRequest, AlfredHtt
     var closed = false;
     return stream.transform(
       StreamTransformer.fromHandlers(
-        handleData: (final AlfredRequest request, final sink) async {
+        handleData: (final request, final sink) async {
           pending++;
           try {
             final body = await processRequest(
@@ -283,6 +283,7 @@ Future<AlfredHttpBody<Object?>> _process({
       );
     }
 
+    // TODO centralize primary type constants.
     switch (contentType.primaryType) {
       case 'text':
         return asText(defaultEncoding);

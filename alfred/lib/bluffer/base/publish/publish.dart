@@ -62,7 +62,7 @@ mixin PublishAppContextDefaultMixin implements PublishAppContext {
   App get application;
 
   @override
-  Assets get assets => const AssetsDefaultImpl();
+  Assets get assets => const AssetsDefaultPublishImpl();
 
   @override
   String get assetsDirectory => 'assets';
@@ -90,6 +90,15 @@ mixin PublishAppContextDefaultMixin implements PublishAppContext {
     required String targetPath,
     required HtmlElement element,
   });
+}
+
+class AssetsDefaultPublishImpl implements Assets {
+  static const String dir = 'assets';
+
+  const AssetsDefaultPublishImpl();
+
+  @override
+  String get local => dir;
 }
 
 abstract class PublishAppContext {
@@ -157,7 +166,8 @@ String processLocale({
     locale: locale,
   );
   final localeDirectoryPath = directory + Platform.pathSeparator + locale.toString();
-  Directory(localeDirectoryPath).createSync(
+  final dir = Directory(localeDirectoryPath);
+  dir.createSync(
     recursive: true,
   );
   return localeDirectoryPath;

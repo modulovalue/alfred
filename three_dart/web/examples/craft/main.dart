@@ -106,8 +106,12 @@ Generator _getGenerator() {
   int seed = -1;
   final String? seedQueryParam = Uri.base.queryParameters['seed'];
   if (seedQueryParam != null) {
-    if (seedQueryParam == 'test') return TestGenerator();
-    if (seedQueryParam == 'checkers') return CheckersGenerator();
+    if (seedQueryParam == 'test') {
+      return TestGenerator();
+    }
+    if (seedQueryParam == 'checkers') {
+      return CheckersGenerator();
+    }
     seed = int.tryParse(seedQueryParam) ?? -1;
   }
   if (seed <= 0) {
@@ -238,17 +242,29 @@ class BlockInfo {
   HitRegion solidNeighbors() {
     HitRegion neighbors = HitRegion.None;
     BlockInfo? info = this.left;
-    if ((info != null) && BlockType.solid(info.value)) neighbors |= HitRegion.XNeg;
+    if ((info != null) && BlockType.solid(info.value)) {
+      neighbors |= HitRegion.XNeg;
+    }
     info = this.right;
-    if ((info != null) && BlockType.solid(info.value)) neighbors |= HitRegion.XPos;
+    if ((info != null) && BlockType.solid(info.value)) {
+      neighbors |= HitRegion.XPos;
+    }
     info = this.below;
-    if ((info != null) && BlockType.solid(info.value)) neighbors |= HitRegion.YNeg;
+    if ((info != null) && BlockType.solid(info.value)) {
+      neighbors |= HitRegion.YNeg;
+    }
     info = this.above;
-    if ((info != null) && BlockType.solid(info.value)) neighbors |= HitRegion.YPos;
+    if ((info != null) && BlockType.solid(info.value)) {
+      neighbors |= HitRegion.YPos;
+    }
     info = this.back;
-    if ((info != null) && BlockType.solid(info.value)) neighbors |= HitRegion.ZNeg;
+    if ((info != null) && BlockType.solid(info.value)) {
+      neighbors |= HitRegion.ZNeg;
+    }
     info = this.front;
-    if ((info != null) && BlockType.solid(info.value)) neighbors |= HitRegion.ZPos;
+    if ((info != null) && BlockType.solid(info.value)) {
+      neighbors |= HitRegion.ZPos;
+    }
     return neighbors;
   }
 
@@ -636,12 +652,24 @@ class Chunk {
   /// Gets the value of the block at the given location.
   /// This will not check neighbors if the coordinates are outside this chunk.
   int getBlock(int x, int y, int z) {
-    if (y < 0) return BlockType.Boundary;
-    if (y >= Constants.chunkYSize) return BlockType.Air;
-    if (x < 0) return BlockType.Air;
-    if (x >= Constants.chunkSideSize) return BlockType.Air;
-    if (z < 0) return BlockType.Air;
-    if (z >= Constants.chunkSideSize) return BlockType.Air;
+    if (y < 0) {
+      return BlockType.Boundary;
+    }
+    if (y >= Constants.chunkYSize) {
+      return BlockType.Air;
+    }
+    if (x < 0) {
+      return BlockType.Air;
+    }
+    if (x >= Constants.chunkSideSize) {
+      return BlockType.Air;
+    }
+    if (z < 0) {
+      return BlockType.Air;
+    }
+    if (z >= Constants.chunkSideSize) {
+      return BlockType.Air;
+    }
     return this._data[this._index(x, y, z)];
   }
 

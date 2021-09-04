@@ -18,13 +18,10 @@ void main() {
     ..addLargeCanvas("testCanvas")
     ..addPar(["Test of an animated texture on a square."])
     ..addPar(["«[Back to Tests|../]"]);
-
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
-
   final three_dart.Entity obj = three_dart.Entity()
     ..shape = (shapes.cube()..adjustNormals())
     ..mover = movers.Rotator();
-
   final textures.Texture2DChanger color = textures.Texture2DChanger(
     textures: [
       td.textureLoader.load2DFromFile("../resources/diceColor/posx.png"),

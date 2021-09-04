@@ -252,7 +252,13 @@ class Polynomial implements Smoother {
       return 1.0;
     } else {
       final p0 = this._data[i];
-      final p1 = (i == len - 1) ? 1.0 : this._data[i + 1];
+      final p1 = () {
+        if ((i == len - 1)) {
+          return 1.0;
+        } else {
+          return this._data[i + 1];
+        }
+      }();
       final r = f - i;
       return p0 * (1.0 - r) + p1 * r;
     }
@@ -379,15 +385,33 @@ abstract class Smoothers {
   static Smoother? _linearLazy;
 
   /// Stays still until the very end then snaps to the stop location.
-  static Smoother get snapEnd => _snapEndLazy ??= Handler((t) => t > 0.99 ? 1.0 : 0.0);
+  static Smoother get snapEnd => _snapEndLazy ??= Handler((t) {
+        if (t > 0.99) {
+          return 1.0;
+        } else {
+          return 0.0;
+        }
+      });
   static Smoother? _snapEndLazy;
 
   /// Stays still until half-way then snaps to the stop location.
-  static Smoother get snapHalf => _snapHalfLazy ??= Handler((t) => t >= 0.5 ? 1.0 : 0.0);
+  static Smoother get snapHalf => _snapHalfLazy ??= Handler((t) {
+        if (t >= 0.5) {
+          return 1.0;
+        } else {
+          return 0.0;
+        }
+      });
   static Smoother? _snapHalfLazy;
 
   /// Stays snaps stop location at the start.
-  static Smoother get snapStart => _snapStartLazy ??= Handler((t) => t < 0.01 ? 0.0 : 1.0);
+  static Smoother get snapStart => _snapStartLazy ??= Handler((t) {
+        if (t < 0.01) {
+          return 0.0;
+        } else {
+          return 1.0;
+        }
+      });
   static Smoother? _snapStartLazy;
 
   /// Starts out slow and ends linear movement.

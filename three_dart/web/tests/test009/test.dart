@@ -19,11 +19,8 @@ void main() {
       "moved around the object."
     ])
     ..addPar(["«[Back to Tests|../]"]);
-
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
-
   final three_dart.Entity obj = three_dart.Entity()..shape = toroid();
-
   final MaterialLight tech = MaterialLight()
     ..lights.add(Directional(mover: Constant.vectorTowards(-1.0, -1.0, -1.0), color: Color3.white()))
     ..emission.color = Color3.black()
@@ -31,19 +28,16 @@ void main() {
     ..diffuse.color = Color3(0.0, 1.0, 0.0)
     ..specular.color = Color3(1.0, 0.0, 0.0)
     ..specular.shininess = 10.0;
-
   final Group camMover = Group()
     ..add(UserRotator(input: td.userInput, invertY: true))
     ..add(UserRoller(input: td.userInput, ctrl: true))
     ..add(UserZoom(input: td.userInput))
     ..add(Constant.translate(0.0, 0.0, 5.0));
-
   td.scene = EntityPass()
     ..technique = tech
     ..children.add(obj)
     ..camera?.mover = camMover;
-
-  td.postrender.once((_) {
+  td.postrender.once((final _) {
     page
       ..addCode("Vertex Shader", "glsl", 0, tech.vertexSourceCode.split("\n"))
       ..addCode("Fragment Shader", "glsl", 0, tech.fragmentSourceCode.split("\n"));

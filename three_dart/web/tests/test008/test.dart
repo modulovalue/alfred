@@ -29,9 +29,7 @@ void main() {
     ])
     ..addControlBoxes(["bumpMaps", "scalars"])
     ..addPar(["«[Back to Tests|../]"]);
-
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
-
   final Shape shape = grid(widthDiv: 50, heightDiv: 50);
   shape.calculateNormals();
   shape.calculateBinormals();
@@ -42,24 +40,19 @@ void main() {
     shape.vertices.add(ver2);
     shape.lines.add(ver1, ver2);
   }
-
   final BumpyTechnique tech = BumpyTechnique()..offsetScalar = 0.5;
-
   final three_dart.Entity objTech = three_dart.Entity()
     ..shape = shape
     ..technique = tech;
-
   final three_dart.Entity group = three_dart.Entity()
     ..children.add(objTech)
     ..mover = (Group()
       ..add(UserRotator(input: td.userInput, invertY: true))
       ..add(UserRoller(input: td.userInput, ctrl: true))
       ..add(UserZoom(input: td.userInput)));
-
   td.scene = EntityPass()
     ..children.add(group)
     ..camera?.mover = Constant.translate(0.0, 0.0, 5.0);
-
   common.Texture2DGroup("bumpMaps", (String fileName) {
     tech.bumpyTexture = td.textureLoader.load2DFromFile(fileName);
   })
@@ -70,7 +63,6 @@ void main() {
     ..add("../resources/BumpMap5.png")
     ..add("../resources/ScrewBumpMap.png")
     ..add("../resources/CtrlPnlBumpMap.png");
-
   common.RadioGroup("scalars")
     ..add("0.1", () {
       tech.offsetScalar = 0.1;
@@ -102,8 +94,7 @@ void main() {
     ..add("1.0", () {
       tech.offsetScalar = 1.0;
     });
-
-  td.postrender.once((_) {
+  td.postrender.once((final _) {
     page
       ..addCode("Vertex Shader", "glsl", 0, tech.vertexSourceCode.split("\n"))
       ..addCode("Fragment Shader", "glsl", 0, tech.fragmentSourceCode.split("\n"));

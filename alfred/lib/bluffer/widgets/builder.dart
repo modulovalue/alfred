@@ -7,10 +7,15 @@ class Builder extends StatelessWidget {
   final Widget Function(BuildContext context) builder;
 
   Builder({
-    required this.builder,
-    Key? key,
-  }) : super(key: key);
+    required final this.builder,
+    final Key? key,
+  }) : super(
+          key: key,
+        );
 
   @override
-  Widget build(BuildContext context) => builder(context);
+  Widget build(
+    final BuildContext context,
+  ) =>
+      builder(context);
 }

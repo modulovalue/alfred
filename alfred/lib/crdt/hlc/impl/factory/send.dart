@@ -22,7 +22,13 @@ Hlc sendHlc(
   // * ensure that the logical time never goes backward
   // * increment the counter if time does not advance
   final millisNew = max(millisOld, millis);
-  final counterNew = millisOld == millisNew ? counterOld + 1 : 0;
+  final counterNew = () {
+    if (millisOld == millisNew) {
+      return counterOld + 1;
+    } else {
+      return 0;
+    }
+  }();
   // Check the result for drift and counter overflow
   if (millisNew - millis > hlcMaxDrift) {
     throw ClockDriftException(millisNew, millis);

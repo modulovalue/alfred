@@ -18,13 +18,9 @@ void main() {
     ..addPar(["Test of Material Lighting shader with bump mapping, reflections, refractions."])
     ..addControlBoxes(["bumpMaps", "controls"])
     ..addPar(["«[Back to Tests|../]"]);
-
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
-
   final FrontTarget target = FrontTarget()..clearColor = false;
-
   final three_dart.Entity obj = three_dart.Entity()..shape = cube();
-
   final TextureCube environment = td.textureLoader.loadCubeFromPath("../resources/maskonaive", ext: ".jpg");
   final MaterialLight tech = MaterialLight()
     ..lights.add(Directional(mover: Constant.vectorTowards(-1.0, -1.0, -1.0)))
@@ -36,28 +32,22 @@ void main() {
     ..refraction.deflection = 0.6
     ..refraction.color = Color3(0.2, 0.3, 1.0)
     ..reflection.color = Color3(0.6, 0.6, 0.6);
-
   final Group mover = Group()
     ..add(UserRotator(input: td.userInput))
     ..add(UserRoller(input: td.userInput, ctrl: true))
     ..add(UserZoom(input: td.userInput))
     ..add(Constant.translate(0.0, 0.0, 5.0));
-
   final Perspective camera = Perspective(mover: mover);
-
   final CoverPass skybox = CoverPass.skybox(environment)
     ..target = target
     ..camera = camera;
-
   final EntityPass pass = EntityPass()
     ..camera = camera
     ..technique = tech
     ..target = target
     ..children.add(obj);
   (pass.target as FrontTarget?)!.clearColor = false;
-
   td.scene = Compound(passes: [skybox, pass]);
-
   common.RadioGroup("controls")
     ..add("Silver", () {
       tech
@@ -128,7 +118,6 @@ void main() {
         ..refraction.color = Color3.black()
         ..reflection.color = Color3.gray(0.3);
     });
-
   common.Texture2DGroup("bumpMaps", (String fileName) {
     tech.bump.texture2D = td.textureLoader.load2DFromFile(fileName);
   })
@@ -139,8 +128,7 @@ void main() {
     ..add("../resources/BumpMap5.png")
     ..add("../resources/ScrewBumpMap.png")
     ..add("../resources/CtrlPnlBumpMap.png");
-
-  td.postrender.once((_) {
+  td.postrender.once((final _) {
     page
       ..addCode("Vertex Shader", "glsl", 0, tech.vertexSourceCode.split("\n"))
       ..addCode("Fragment Shader", "glsl", 0, tech.fragmentSourceCode.split("\n"));

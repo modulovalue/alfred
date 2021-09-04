@@ -59,7 +59,9 @@ class Click implements Widget {
               context: context,
             );
             // TODO need a redirecting node that can mutate the class name and redirect the rest.
-            return inactive.copyWith(className: inactive.className! + ' inactive');
+            return inactive.copyWith(
+              className: inactive.className! + ' inactive',
+            );
           }(),
           () {
             final builtActive = builder(
@@ -69,7 +71,9 @@ class Click implements Widget {
             final active = builtActive.renderElement(
               context: context,
             );
-            return active.copyWith(className: active.className! + ' active');
+            return active.copyWith(
+              className: active.className! + ' active',
+            );
           }(),
           () {
             final builtHover = builder(
@@ -79,7 +83,9 @@ class Click implements Widget {
             final hover = builtHover.renderElement(
               context: context,
             );
-            return hover.copyWith(className: hover.className! + ' hover');
+            return hover.copyWith(
+              className: hover.className! + ' hover',
+            );
           }(),
         ],
       );

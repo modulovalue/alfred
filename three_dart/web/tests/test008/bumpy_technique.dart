@@ -62,7 +62,6 @@ class BumpyTechnique extends Technique {
   void render(three_dart.RenderState state, three_dart.Entity obj) {
     var shader = this._shader;
     shader ??= this._shader = BumpyShader.cached(state);
-
     if (obj.cacheNeedsUpdate) {
       obj.cache = obj.shape?.build(WebGLBufferBuilder(state.gl),
         VertexType.Pos|VertexType.Norm|VertexType.Binm|
@@ -73,11 +72,9 @@ class BumpyTechnique extends Technique {
         ..findAttribute(VertexType.Txt2D)?.attr = shader.txtAttr?.loc ?? 3
         ..findAttribute(VertexType.Weight)?.attr = shader.weightAttr?.loc ?? 4;
     }
-
     final txt = this._txt;
     if (txt != null) {
       txt.index = 0;
-
       shader
         ..bind(state)
         ..bumpTexture = txt
@@ -85,7 +82,6 @@ class BumpyTechnique extends Technique {
         ..viewMatrix = state.view.matrix
         ..objectMatrix = state.object.matrix
         ..offsetScalar = this._offsetScalar;
-
       txt.bind(state);
       final _cache = obj.cache;
       if (_cache is BufferStore) {
@@ -96,7 +92,6 @@ class BumpyTechnique extends Technique {
       } else {
         obj.clearCache();
       }
-
       shader.unbind(state);
       txt.unbind(state);
     }

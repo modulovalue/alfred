@@ -126,7 +126,9 @@ class Regions {
         if (last != null) {
           final sideData = (last.data as EdgeSide?)!;
           sideData.right = regionId;
-          if (sideData.left == regionId) removeEdge.add(last);
+          if (sideData.left == regionId) {
+            removeEdge.add(last);
+          }
         } else {
           final outterRangeId = _getSide(start, end);
           if (outterRangeId != regionId) {
@@ -222,8 +224,12 @@ class Regions {
     while (edge != null) {
       final sideData = (edge.data as EdgeSide?)!;
       final _side = side(edge, start);
-      if (_side == Side.Right) return sideData.right;
-      if (_side == Side.Left) return sideData.left;
+      if (_side == Side.Right) {
+        return sideData.right;
+      }
+      if (_side == Side.Left) {
+        return sideData.left;
+      }
       edge = edge.nextBorder();
     }
     return 0;
@@ -270,7 +276,9 @@ class Regions {
       // Push the adjusted lines to the tree.
       for (final edge in finalEdges) {
         final node = tree.insertEdge(edge, null)!;
-        node.data = EdgeSide.copy((edge.data as EdgeSide?)!);
+        node.data = copyEdgeSide(
+          (edge.data as EdgeSide?)!,
+        );
       }
       return result.point;
     }
@@ -340,6 +348,15 @@ class Regions {
   }
 }
 
+/// Creates a copy of the [other] edge side data.
+EdgeSide copyEdgeSide(
+  final EdgeSide other,
+) =>
+    EdgeSide(
+      other.left,
+      other.right,
+    );
+
 /// The data for the edges in the region map.
 /// The data defining identifier for the regions to the left and right of the edge
 /// looking from the start point of the edge down to the end point.
@@ -356,15 +373,6 @@ class EdgeSide {
     final this.left,
     final this.right,
   );
-
-  /// Creates a copy of the [other] edge side data.
-  factory EdgeSide.copy(
-    final EdgeSide other,
-  ) =>
-      EdgeSide(
-        other.left,
-        other.right,
-      );
 
   /// A simple string displaying the data.
   @override

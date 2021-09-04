@@ -20,16 +20,13 @@ void main() {
       "ambient, diffuse, and specular 2D texturing."
     ])
     ..addPar(["«[Back to Tests|../]"]);
-
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
-
   final three_dart.Entity obj = three_dart.Entity()
     ..shape = cube()
     ..mover = (Group()
       ..add(UserRotator(input: td.userInput, invertY: true))
       ..add(UserRoller(input: td.userInput, ctrl: true))
       ..add(UserZoom(input: td.userInput)));
-
   final Texture2D color = td.textureLoader.load2DFromFile("../resources/ScrewColor.png");
   final MaterialLight tech = MaterialLight()
     ..lights.add(Directional(mover: Constant.vectorTowards(0.0, 0.0, -1.0), color: Color3.white()))
@@ -41,13 +38,11 @@ void main() {
     ..specular.color = Color3.white()
     ..specular.texture2D = td.textureLoader.load2DFromFile("../resources/ScrewSpecular.png")
     ..specular.shininess = 10.0;
-
   td.scene = EntityPass()
     ..technique = tech
     ..children.add(obj)
     ..camera?.mover = Constant.translate(0.0, 0.0, 5.0);
-
-  td.postrender.once((_) {
+  td.postrender.once((final _) {
     page
       ..addCode("Vertex Shader", "glsl", 0, tech.vertexSourceCode.split("\n"))
       ..addCode("Fragment Shader", "glsl", 0, tech.fragmentSourceCode.split("\n"));

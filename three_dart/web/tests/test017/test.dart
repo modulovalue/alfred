@@ -22,13 +22,9 @@ void main() {
     ])
     ..addControlBoxes(["shapes"])
     ..addPar(["«[Back to Tests|../]"]);
-
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
-
   final three_dart.Entity obj = three_dart.Entity()..shape = sphere();
-
   final FrontTarget target = FrontTarget()..clearColor = false;
-
   final TextureCube environment = td.textureLoader.loadCubeFromPath("../resources/maskonaive", ext: ".jpg");
   final TextureCube specular = td.textureLoader.loadCubeFromPath("../resources/earthSpecular");
   final TextureCube color = td.textureLoader.loadCubeFromPath("../resources/earthColor");
@@ -43,27 +39,21 @@ void main() {
     ..reflection.textureCube = specular
     ..reflection.color = Color3(0.5, 0.5, 0.5)
     ..specular.shininess = 10.0;
-
   final Group mover = Group()
     ..add(UserRotator(input: td.userInput))
     ..add(UserRoller(input: td.userInput, ctrl: true))
     ..add(UserZoom(input: td.userInput))
     ..add(Constant.translate(0.0, 0.0, 5.0));
-
   final Perspective camera = Perspective(mover: mover);
-
   final CoverPass skybox = CoverPass.skybox(environment)
     ..target = target
     ..camera = camera;
-
   final EntityPass pass = EntityPass()
     ..camera = camera
     ..technique = tech
     ..target = target
     ..children.add(obj);
-
   td.scene = Compound(passes: [skybox, pass]);
-
   common.RadioGroup("shapes")
     ..add("Cube", () {
       obj.shape = cube();
@@ -92,8 +82,7 @@ void main() {
     ..add("Knot", () {
       obj.shape = knot();
     });
-
-  td.postrender.once((_) {
+  td.postrender.once((final _) {
     page
       ..addCode("Vertex Shader", "glsl", 0, tech.vertexSourceCode.split("\n"))
       ..addCode("Fragment Shader", "glsl", 0, tech.fragmentSourceCode.split("\n"));

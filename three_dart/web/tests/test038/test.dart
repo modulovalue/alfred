@@ -12,6 +12,35 @@ import 'package:three_dart/textures/textures.dart' as textures;
 
 import '../../common/common.dart' as common;
 
+void main() {
+  common.ShellPage("Test 038")
+    ..addLargeCanvas("testCanvas")
+    ..addPar([
+      "A test of basic 3D movement around a room similar to a first person view. ",
+      "A and D (left and right arrow keys) strifes left and right. ",
+      "W and S (up and down arrow keys) moves forward and backward. ",
+      "Q and E moves up and down. Mouse looks around with left mouse button pressed."
+    ])
+    ..addControlBoxes(["options"])
+    ..addPar(["«[Back to Tests|../]"]);
+  final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
+  final three_dart.Entity group = three_dart.Entity()..children.add(createFloor(td))..children.add(createObjects(td));
+  // Setup the First person camera
+  final movers.UserTranslator trans = movers.UserTranslator(input: td.userInput);
+  final movers.UserRotator rot = movers.UserRotator.flat(input: td.userInput);
+  rot.changed.add((events.EventArgs args) {
+    trans.velocityRotation = math.Matrix3.rotateY(-rot.yaw.location);
+  });
+  final movers.Group camera = movers.Group([trans, rot]);
+  td.scene = scenes.EntityPass()
+    ..children.add(group)
+    ..camera?.mover = camera;
+  common.CheckGroup("options").add("Mouse Locking", (bool enable) {
+    td.userInput.lockOnClick = enable;
+  }, false);
+  common.showFPS(td);
+}
+
 three_dart.Entity createFloor(three_dart.ThreeDart td) {
   final textures.Texture2D floorTxt =
       td.textureLoader.load2DFromFile("../resources/Grass.png", wrapEdges: true, mipMap: true);
@@ -57,33 +86,4 @@ three_dart.Entity createObjects(three_dart.ThreeDart td) {
     }
   }
   return group;
-}
-
-void main() {
-  common.ShellPage("Test 038")
-    ..addLargeCanvas("testCanvas")
-    ..addPar([
-      "A test of basic 3D movement around a room similar to a first person view. ",
-      "A and D (left and right arrow keys) strifes left and right. ",
-      "W and S (up and down arrow keys) moves forward and backward. ",
-      "Q and E moves up and down. Mouse looks around with left mouse button pressed."
-    ])
-    ..addControlBoxes(["options"])
-    ..addPar(["«[Back to Tests|../]"]);
-  final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
-  final three_dart.Entity group = three_dart.Entity()..children.add(createFloor(td))..children.add(createObjects(td));
-  // Setup the First person camera
-  final movers.UserTranslator trans = movers.UserTranslator(input: td.userInput);
-  final movers.UserRotator rot = movers.UserRotator.flat(input: td.userInput);
-  rot.changed.add((events.EventArgs args) {
-    trans.velocityRotation = math.Matrix3.rotateY(-rot.yaw.location);
-  });
-  final movers.Group camera = movers.Group([trans, rot]);
-  td.scene = scenes.EntityPass()
-    ..children.add(group)
-    ..camera?.mover = camera;
-  common.CheckGroup("options").add("Mouse Locking", (bool enable) {
-    td.userInput.lockOnClick = enable;
-  }, false);
-  common.showFPS(td);
 }

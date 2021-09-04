@@ -446,9 +446,8 @@ class GaussianBlur implements Scene {
         this._vertBlurPass = null {
     this._horzBlurTech = techniques.GaussianBlur()..changed.add(this._onChanged);
     this._horzBlurPass = CoverPass(target: this._horzBlurTarget, tech: this._horzBlurTech);
-    this._vertBlurTech =
-        techniques.GaussianBlur(colorTxt: this._horzBlurTarget.colorTexture, blurDir: Vector2.posY)
-          ..changed.add(this._onChanged);
+    this._vertBlurTech = techniques.GaussianBlur(colorTxt: this._horzBlurTarget.colorTexture, blurDir: Vector2.posY)
+      ..changed.add(this._onChanged);
     this._vertBlurPass = CoverPass(tech: this._vertBlurTech);
     this.blurValue = blurValue;
     this.colorTexture = colorTxt;
@@ -551,19 +550,13 @@ class GaussianBlur implements Scene {
 /// The render pass renders a single scene.
 abstract class RenderPass extends Scene {
   /// The camera describing the view of the scene.
-  Camera? get camera;
-
-  set camera(Camera? camera);
+  abstract Camera? camera;
 
   /// The target defining the storage to render to.
-  Target? get target;
-
-  set target(Target? target);
+  abstract Target? target;
 
   /// The default technique to render with.
-  techniques.Technique? get technique;
-
-  set technique(techniques.Technique? tech);
+  abstract techniques.Technique? technique;
 
   /// Event emitted on an render for this pass.
   Event get onRender;
@@ -572,12 +565,12 @@ abstract class RenderPass extends Scene {
 /// Interface for any class which can be used to generate a scene.
 abstract class Scene implements Changeable {
   /// Indicates if this scene should be rendered or not.
-  bool get enabled;
-
-  set enabled(bool enable);
+  abstract bool enabled;
 
   /// Render the scene with the given [state].
-  void render(RenderState state);
+  void render(
+    final RenderState state,
+  );
 }
 
 /// The render pass renders a single scene.

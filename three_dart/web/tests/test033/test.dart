@@ -15,9 +15,7 @@ void main() {
     ..addLargeCanvas("testCanvas")
     ..addPar(["Test of a Stereoscopic scene."])
     ..addPar(["«[Back to Tests|../]"]);
-
   final ThreeDart td = ThreeDart.fromId("testCanvas");
-
   final Entity cubeEntity = Entity(shape: cube());
   final Entity shapeEntity = Entity();
   for (double x = -1.6; x <= 1.7; x += 0.8) {
@@ -31,7 +29,6 @@ void main() {
       }
     }
   }
-
   final TextureCube color = td.textureLoader.loadCubeFromPath("../resources/diceColor");
   final MaterialLight colorTech = MaterialLight()
     ..lights.add(
@@ -45,23 +42,17 @@ void main() {
     ..specular.color = Color3(0.7, 0.7, 0.7)
     ..specular.shininess = 10.0
     ..bump.textureCube = td.textureLoader.loadCubeFromPath("../resources/diceBumpMap");
-
   final Group mover = Group()
     ..add(UserRotator(input: td.userInput))
     ..add(UserRoller(ctrl: true, input: td.userInput))
     ..add(UserZoom(input: td.userInput))
     ..add(Constant.translate(0.0, 0.0, 6.0));
-
   final FrontTarget target = FrontTarget()..clearColor = false;
-
   final CoverPass skybox =
       CoverPass.skybox(td.textureLoader.loadCubeFromPath("../resources/maskonaive", ext: ".jpg"));
-
   final EntityPass pass = EntityPass()
     ..technique = colorTech
     ..children.add(shapeEntity);
-
   td.scene = Stereoscopic(mover: mover, passes: [skybox, pass], target: target);
-
   common.showFPS(td);
 }

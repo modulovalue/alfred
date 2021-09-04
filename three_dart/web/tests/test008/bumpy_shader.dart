@@ -112,7 +112,9 @@ class BumpyShader extends Shader {
 
   /// The normal distortion texture of the object.
   set bumpTexture(Texture2D? txt) {
-    if (txt != null) this._bumpTxt?.setTexture2D(txt);
+    if (txt != null) {
+      this._bumpTxt?.setTexture2D(txt);
+    }
   }
 
   /// The object matrix.

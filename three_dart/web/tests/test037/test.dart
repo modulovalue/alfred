@@ -21,29 +21,23 @@ void main() {
     ])
     ..addControlBoxes(["heightMaps", "shapes", "scalars"])
     ..addPar(["«[Back to Tests|../]"]);
-
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
-
   final MaterialLight tech = MaterialLight()
     ..lights.add(Directional(mover: Constant.vectorTowards(1.0, 1.0, -3.0), color: Color3.white()))
     ..ambient.color = Color3(0.0, 0.0, 1.0)
     ..diffuse.color = Color3(0.0, 1.0, 0.0)
     ..specular.color = Color3(1.0, 0.0, 0.0)
     ..specular.shininess = 10.0;
-
   final three_dart.Entity objTech = three_dart.Entity()..technique = tech;
-
   final three_dart.Entity group = three_dart.Entity()
     ..children.add(objTech)
     ..mover = (Group()
       ..add(UserRotator(input: td.userInput))
       ..add(UserRoller(input: td.userInput, ctrl: true))
       ..add(UserZoom(input: td.userInput)));
-
   td.scene = EntityPass()
     ..children.add(group)
     ..camera?.mover = Constant.translate(0.0, 0.0, 5.0);
-
   Shape? baseShape;
   String textureFile = "";
   double scalar = 1.0;
@@ -63,7 +57,6 @@ void main() {
       });
     }
   };
-
   final setTextureFile = (String fileName) {
     textureFile = fileName;
     updateShape();
@@ -74,7 +67,6 @@ void main() {
     ..add("../resources/HeightMap3.png")
     ..add("../resources/HeightMap4.png")
     ..add("../resources/ScrewHeightMap.png");
-
   final setShape = (Shape shape) {
     baseShape = shape;
     updateShape();
@@ -104,7 +96,6 @@ void main() {
     ..add("Grid Large", () {
       setShape(grid(widthDiv: 150, heightDiv: 150));
     });
-
   final setScalar = (double s) {
     scalar = s;
     updateShape();
@@ -128,6 +119,5 @@ void main() {
     ..add("1.0", () {
       setScalar(1.0);
     });
-
   common.showFPS(td);
 }

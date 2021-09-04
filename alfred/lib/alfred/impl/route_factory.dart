@@ -34,7 +34,11 @@ class HttpRouteFactoryImpl implements AlfredHttpRouteFactory {
           );
         }
       },
-      at: (final _at) => at(path: _at.prefix).add(routes: _at.routes),
+      at: (final _at) => at(
+        path: _at.prefix,
+      ).add(
+        routes: _at.routes,
+      ),
     );
   }
 

@@ -106,7 +106,9 @@ class PolygonClipper {
           final area = subpnts.area;
           const epsilon = 1.0e-12;
           if (area.area > epsilon) {
-            if (!area.ccw) subpnts.reverse();
+            if (!area.ccw) {
+              subpnts.reverse();
+            }
             _result.add(subpnts.nodes);
           }
         }

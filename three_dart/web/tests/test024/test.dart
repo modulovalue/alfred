@@ -19,13 +19,10 @@ void main() {
     ])
     ..addControlBoxes(["shapes"])
     ..addPar(["«[Back to Tests|../]"]);
-
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
-
   final Group lightMover = Group()
     ..add(Constant.translate(0.0, 0.0, -2.5))
     ..add(UserRotator(input: td.userInput, ctrl: true));
-
   final Spot spot = Spot(
       mover: lightMover,
       color: Color3.white(),
@@ -34,7 +31,6 @@ void main() {
       attenuation0: 0.5,
       attenuation1: 0.05,
       attenuation2: 0.05);
-
   final MaterialLight tech = MaterialLight()
     ..lights.add(spot)
     ..emission.color = Color3.black()
@@ -42,30 +38,24 @@ void main() {
     ..diffuse.color = Color3.gray(0.7)
     ..specular.color = Color3.gray(0.3)
     ..specular.shininess = 100.0;
-
   final three_dart.Entity centerObj = three_dart.Entity()..shape = toroid();
-
   final three_dart.Entity room = three_dart.Entity()
     ..mover = Constant.scale(3.0, 3.0, 3.0)
     ..shape = (cube()..flip());
-
   final Group camMover = Group()
     ..add(UserRotator(input: td.userInput))
     ..add(Constant.rotateX(PI))
     ..add(Constant.translate(0.0, 0.0, 5.0));
-
   final three_dart.Entity obj = three_dart.Entity()
     ..mover = (Group()..add(Constant.scale(0.1, 0.1, 0.1))..add(lightMover))
     ..shape = cylinder(bottomRadius: 0.0, sides: 40, capBottom: false)
     ..technique = MaterialLight.glow();
-
   td.scene = EntityPass()
     ..technique = tech
     ..children.add(centerObj)
     ..children.add(room)
     ..children.add(obj)
     ..camera?.mover = camMover;
-
   common.RadioGroup("shapes")
     ..add("Cube", () {
       centerObj.shape = cube();
@@ -85,8 +75,7 @@ void main() {
     ..add("Knot", () {
       centerObj.shape = knot();
     });
-
-  td.postrender.once((_) {
+  td.postrender.once((final _) {
     page
       ..addCode("Vertex Shader", "glsl", 0, tech.vertexSourceCode.split("\n"))
       ..addCode("Fragment Shader", "glsl", 0, tech.fragmentSourceCode.split("\n"));

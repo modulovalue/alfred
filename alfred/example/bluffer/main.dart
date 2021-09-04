@@ -121,8 +121,8 @@ void main() {
     publishContext: PublishAppContextDefault(
       serialize: (final path, final element) {
         final file = File(path);
-        final serializedHtml = serializeHtml(
-          html: element,
+        final serializedHtml = serializeHtmlElement(
+          element: element,
         );
         file.writeAsStringSync(
           serializedHtml,

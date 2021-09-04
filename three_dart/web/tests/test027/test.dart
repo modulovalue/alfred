@@ -20,52 +20,39 @@ void main() {
         ["Test of a back buffer target for rendering to a texture. ", "That back buffer texture is applied to a box."])
     ..addControlBoxes(["shapes"])
     ..addPar(["«[Back to Tests|../]"]);
-
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
-
   final Group firstMover = Group()..add(Rotator())..add(Constant.translate(0.0, 0.0, 5.0));
   final Perspective rotatorCamera = Perspective(mover: firstMover);
-
   final BackTarget backTarget = BackTarget(width: 512, height: 512, clearColor: false);
-
   final CoverPass skybox =
       CoverPass.skybox(td.textureLoader.loadCubeFromPath("../resources/maskonaive", ext: ".jpg"))
         ..target = backTarget
         ..camera = rotatorCamera;
-
   final three_dart.Entity firstObj = three_dart.Entity()..shape = toroid();
-
   final MaterialLight firstTech = MaterialLight()
     ..lights.add(Directional(mover: Constant.vectorTowards(0.0, -1.0, -1.0), color: Color3.white()))
     ..ambient.color = Color3(0.0, 0.0, 1.0)
     ..diffuse.color = Color3(0.0, 1.0, 0.0)
     ..specular.color = Color3(1.0, 0.0, 0.0)
     ..specular.shininess = 10.0;
-
   final EntityPass firstPass = EntityPass()
     ..camera = rotatorCamera
     ..technique = firstTech
     ..target = backTarget
     ..children.add(firstObj);
-
   final Group secondMover = Group()
     ..add(UserRotator(input: td.userInput))
     ..add(UserRoller(ctrl: true, input: td.userInput))
     ..add(UserZoom(input: td.userInput))
     ..add(Constant.translate(0.0, 0.0, 5.0));
   final Perspective userCamera = Perspective(mover: secondMover);
-
   final three_dart.Entity secondObj = three_dart.Entity()..shape = cube();
-
   final MaterialLight secondTech = MaterialLight()..emission.texture2D = backTarget.colorTexture;
-
   final EntityPass secondPass = EntityPass()
     ..camera = userCamera
     ..technique = secondTech
     ..children.add(secondObj);
-
   td.scene = Compound(passes: [skybox, firstPass, secondPass]);
-
   common.RadioGroup("shapes")
     ..add("Cube", () {
       secondObj.shape = cube();
@@ -109,8 +96,7 @@ void main() {
     ..add("Knot", () {
       secondObj.shape = knot();
     });
-
-  td.postrender.once((_) {
+  td.postrender.once((final _) {
     page
       ..addCode("Vertex Shader", "glsl", 0, secondTech.vertexSourceCode.split("\n"))
       ..addCode("Fragment Shader", "glsl", 0, secondTech.fragmentSourceCode.split("\n"));

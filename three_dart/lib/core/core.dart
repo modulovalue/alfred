@@ -761,7 +761,6 @@ class _EnvironmentData {
     if (appName.contains('Microsoft')) {
       return Browser.edge;
     }
-
     return Browser.other;
   }
 

@@ -5,7 +5,6 @@ import 'dart:io';
 
 import '../../base/method.dart';
 import '../../base/parse_method.dart';
-import '../../base/unawaited.dart';
 import '../impl_io/request.dart';
 import '../impl_io/response.dart';
 import '../impl_io/serve_context.dart';
@@ -108,7 +107,6 @@ class AlfredImpl implements Alfred, AlfredHttpRouteFactory {
             method: request.method,
             uri: request.uri,
           );
-
           final res = AlfredResponseImpl(
             res: request.response,
           );

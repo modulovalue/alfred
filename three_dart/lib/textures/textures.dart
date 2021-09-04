@@ -251,9 +251,7 @@ class ColorPickerEventArgs extends EventArgs {
 /// The base for all texture and surface types.
 abstract class Texture extends Bindable implements Changeable {
   /// The index of the texture when bound to the rendering context.
-  int get index;
-
-  set index(int index);
+  abstract int index;
 }
 
 /// An interface for 2D texture.
@@ -412,7 +410,6 @@ class Texture2DSolid extends Texture2D {
     maxSize = nearestPower(maxSize);
     aWidth = min(aWidth, maxSize);
     aHeight = min(aHeight, maxSize);
-
     final webgl.Texture texture = gl.createTexture();
     gl.bindTexture(webgl.WebGL.TEXTURE_2D, texture);
     if (wrapEdges) {
@@ -427,7 +424,6 @@ class Texture2DSolid extends Texture2D {
     gl.texImage2D(webgl.WebGL.TEXTURE_2D, 0, webgl.WebGL.RGBA, aWidth, aHeight, 0, webgl.WebGL.RGBA,
         webgl.WebGL.UNSIGNED_BYTE, null);
     gl.bindTexture(webgl.WebGL.TEXTURE_2D, null);
-
     final Texture2DSolid result = Texture2DSolid(texture: texture);
     result._width = width;
     result._height = height;
@@ -634,7 +630,6 @@ class TextureLoader {
     this._gl.texParameteri(
         webgl.WebGL.TEXTURE_2D, webgl.WebGL.TEXTURE_MAG_FILTER, nearest ? webgl.WebGL.NEAREST : webgl.WebGL.LINEAR);
     this._gl.bindTexture(webgl.WebGL.TEXTURE_2D, null);
-
     this._incLoading();
     final ImageElement image = ImageElement(src: path);
     final Texture2DSolid result = Texture2DSolid(texture: texture);
@@ -644,7 +639,6 @@ class TextureLoader {
       final dynamic data = this._resizeImage(image, this._max2DSize, nearest);
       result._actualWidth = image.width ?? 512;
       result._actualHeight = image.height ?? 512;
-
       this._gl.bindTexture(webgl.WebGL.TEXTURE_2D, texture);
       this._gl.pixelStorei(webgl.WebGL.UNPACK_FLIP_Y_WEBGL, flipY ? 1 : 0);
       this
@@ -679,7 +673,6 @@ class TextureLoader {
     this._gl.texParameteri(webgl.WebGL.TEXTURE_CUBE_MAP, webgl.WebGL.TEXTURE_MIN_FILTER, webgl.WebGL.LINEAR);
     this._gl.texParameteri(webgl.WebGL.TEXTURE_CUBE_MAP, webgl.WebGL.TEXTURE_MAG_FILTER, webgl.WebGL.LINEAR);
     this._gl.bindTexture(webgl.WebGL.TEXTURE_CUBE_MAP, null);
-
     final TextureCube result = TextureCube(texture: texture);
     this._loadCubeFace(result, texture, posXPath, webgl.WebGL.TEXTURE_CUBE_MAP_POSITIVE_X, flipY, false);
     this._loadCubeFace(result, texture, negXPath, webgl.WebGL.TEXTURE_CUBE_MAP_NEGATIVE_X, flipY, false);
@@ -762,22 +755,22 @@ class TextureReader {
       {int x = 0, int y = 0, int? width, int? height, bool flipY = false}) {
     width ??= texture.actualWidth;
     height ??= texture.actualHeight;
-
-    if (flipY) y = texture.actualHeight - height - y;
-
+    if (flipY) {
+      y = texture.actualHeight - height - y;
+    }
     final webgl.Framebuffer fb = gl.createFramebuffer();
     gl.bindFramebuffer(webgl.WebGL.FRAMEBUFFER, fb);
     gl.readBuffer(webgl.WebGL.COLOR_ATTACHMENT0);
     gl.framebufferTexture2D(
         webgl.WebGL.FRAMEBUFFER, webgl.WebGL.COLOR_ATTACHMENT0, webgl.WebGL.TEXTURE_2D, texture.texture, 0);
-
     final Uint8List data = Uint8List(width * height * 4);
     gl.readPixels(x, y, width, height, webgl.WebGL.RGBA, webgl.WebGL.UNSIGNED_BYTE, data);
     gl.bindFramebuffer(webgl.WebGL.FRAMEBUFFER, null);
     final TextureReader reader = TextureReader._(data, width, height);
-
     // Update once WebGL allows a readPixels flag setting similar to "UNPACK_FLIP_Y_WEBGL".
-    if (flipY) reader._flipYInternal();
+    if (flipY) {
+      reader._flipYInternal();
+    }
     return reader;
   }
 

@@ -10,6 +10,7 @@ import '../publish/serialize.dart';
 
 String singlePage({
   required final Widget Function(BuildContext) builder,
+  final Assets assets = const AssetsDefaultSinglePageImpl(),
 }) =>
     constructSinglePageWithMediaQuery(
       child: Builder(
@@ -18,10 +19,12 @@ String singlePage({
           child: builder(context),
         ),
       ),
+      assets: assets,
     );
 
 String constructSinglePageWithMediaQuery({
   required final Widget child,
+  required final Assets assets,
 }) =>
     constructSinglePage(
       child: MediaQuery(
@@ -30,12 +33,13 @@ String constructSinglePageWithMediaQuery({
         ),
         child: child,
       ),
+      assets: assets,
     );
 
 String constructSinglePage({
   required final Widget child,
+  required final Assets assets,
 }) {
-  const assets = AssetsDefaultImpl();
   final buildContext = BuildContextImpl(
     assets: assets,
     styles: {},
@@ -43,7 +47,16 @@ String constructSinglePage({
   final element = child.renderElement(
     context: buildContext,
   );
-  return serializeHtml(
-    html: element,
+  return serializeHtmlElement(
+    element: element,
   );
+}
+
+class AssetsDefaultSinglePageImpl implements Assets {
+  static const String dir = 'assets';
+
+  const AssetsDefaultSinglePageImpl();
+
+  @override
+  String get local => dir;
 }

@@ -89,7 +89,6 @@ void main() {
         'localhost',
         0,
       );
-
       HttpBodyHandlerImpl(defaultEncoding)
           .bind(
         server.map(

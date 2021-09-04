@@ -57,7 +57,6 @@ void main() {
       "the sides of the hypersphere in the very middle."
     ])
     ..addPar(["«[Back to Examples|../]"]);
-
   startup2D("target2D");
   startup3D("target3D");
   startup4D("target4D");
@@ -65,25 +64,18 @@ void main() {
 
 void startup2D(String targetName) {
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId(targetName);
-
   final MaterialLight squareTech = MaterialLight()..emission.color = Color3(0.4, 0.6, 0.8);
-
   final MaterialLight sliceTech = MaterialLight()
     ..emission.color = Color3(0.8, 0.6, 0.4)
     ..alpha.value = 0.3;
-
   final MaterialLight projTech = MaterialLight()
     ..emission.color = Color3(0.4, 0.6, 0.8)
     ..alpha.value = 0.3;
-
   final Constant sliceMover = Constant();
-
   final Constant sphereScalar = Constant();
-
   final three_dart.Entity squareCircle = three_dart.Entity()
     ..technique = squareTech
     ..shape = (shapes.Shape()..merge(shapes.square(frameOnly: true))..merge(shapes.disk(sides: 36, frameOnly: true)));
-
   final three_dart.Entity slice = three_dart.Entity()
     ..technique = sliceTech
     ..shape = shapes.line()
@@ -91,15 +83,12 @@ void startup2D(String targetName) {
       ..add(Constant.scale(1.3, 1.3, 1.3))
       ..add(Constant.rotateX(-PI_2))
       ..add(sliceMover));
-
   final three_dart.Entity squareLine = three_dart.Entity()
     ..shape = shapes.line()
     ..mover = (Group()..add(Constant.translate(0.0, 0.0, 0.1)));
-
   final three_dart.Entity circleLine = three_dart.Entity()
     ..shape = shapes.line()
     ..mover = (Group()..add(sphereScalar));
-
   // Create left pass
   final EntityPass slicePass = EntityPass()
     ..target = FrontTarget(clearColor: false)
@@ -108,7 +97,6 @@ void startup2D(String targetName) {
       ..mover = Constant.translate(0.0, 0.0, 5.0))
     ..children.add(slice)
     ..children.add(squareCircle);
-
   // Create right pass
   final EntityPass projPass = EntityPass()
     ..camera = (Perspective()
@@ -117,7 +105,6 @@ void startup2D(String targetName) {
     ..technique = projTech
     ..children.add(circleLine)
     ..children.add(squareLine);
-
   // Add the left side slider control.
   double wOffset = 0.5;
   bool startInside = false;
@@ -129,13 +116,12 @@ void startup2D(String targetName) {
   });
   td.userInput.mouse.move.add((EventArgs e) {
     final MouseEventArgs ms = e as MouseEventArgs;
-    if (!startInside) return;
-
+    if (!startInside) {
+      return;
+    }
     wOffset += ms.adjustedDelta.dy;
     wOffset = clampVal(wOffset, -0.1, 1.1);
-
     sliceMover.matrix = Matrix4.translate(0.0, 1.0 - 2.0 * wOffset, 0.0);
-
     if ((wOffset <= 0.0) || (wOffset >= 1.0)) {
       squareLine.enabled = false;
       circleLine.enabled = false;
@@ -146,37 +132,28 @@ void startup2D(String targetName) {
       circleLine.enabled = true;
     }
   });
-
   // Add the two parts of the scene to the output.
   td.scene = Compound(passes: [projPass, slicePass]);
 }
 
 void startup3D(String targetName) {
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId(targetName);
-
   final Inspection cubeTech = Inspection()
     ..showWireFrame = true
     ..showFilled = true
     ..diffuse1 = Color4(0.2, 0.3, 0.4, 0.2)
     ..ambient1 = Color4(0.1, 0.2, 0.3, 0.2);
-
   final MaterialLight sliceTech = MaterialLight()
     ..emission.color = Color3(0.8, 0.6, 0.4)
     ..alpha.value = 0.3;
-
   final MaterialLight projTech = MaterialLight()..emission.color = Color3(0.4, 0.6, 0.8);
-
   final Constant sliceMover = Constant();
-
   final Constant sphereScalar = Constant();
-
   final Group sliceRotation = Group()..add(Constant.rotateX(0.4))..add(Constant.rotateY(0.4));
-
   final three_dart.Entity cubeSphere = three_dart.Entity()
     ..technique = cubeTech
     ..shape = (shapes.Shape()..merge(shapes.cube())..merge(shapes.isosphere(2)))
     ..mover = sliceRotation;
-
   final three_dart.Entity slice = three_dart.Entity()
     ..technique = sliceTech
     ..shape = shapes.square()
@@ -185,13 +162,10 @@ void startup3D(String targetName) {
       ..add(Constant.rotateX(-PI_2))
       ..add(sliceMover)
       ..add(sliceRotation));
-
   final three_dart.Entity square = three_dart.Entity()..shape = shapes.square(frameOnly: true);
-
   final three_dart.Entity circle = three_dart.Entity()
     ..shape = shapes.disk(sides: 36, frameOnly: true)
     ..mover = (Group()..add(sphereScalar));
-
   // Create left pass
   final EntityPass slicePass = EntityPass()
     ..target = FrontTarget(clearColor: false)
@@ -200,7 +174,6 @@ void startup3D(String targetName) {
       ..mover = Constant.translate(0.0, 0.0, 5.0))
     ..children.add(slice)
     ..children.add(cubeSphere);
-
   // Create right pass
   final EntityPass projPass = EntityPass()
     ..camera = (Perspective()
@@ -209,7 +182,6 @@ void startup3D(String targetName) {
     ..technique = projTech
     ..children.add(circle)
     ..children.add(square);
-
   // Add the left side slider control.
   double wOffset = 0.5;
   bool startInside = false;
@@ -221,24 +193,22 @@ void startup3D(String targetName) {
   });
   td.userInput.mouse.move.add((EventArgs e) {
     final MouseEventArgs ms = e as MouseEventArgs;
-    if (!startInside) return;
-
+    if (!startInside) {
+      return;
+    }
     wOffset += ms.adjustedDelta.dy;
     wOffset = clampVal(wOffset, -0.1, 1.1);
-
     sliceMover.matrix = Matrix4.translate(0.0, 1.0 - 2.0 * wOffset, 0.0);
-
     if ((wOffset <= 0.0) || (wOffset >= 1.0)) {
       square.enabled = false;
       circle.enabled = false;
     } else {
-      final double r = sin(wOffset * PI);
+      final r = sin(wOffset * PI);
       sphereScalar.matrix = Matrix4.scale(r, r, r);
       square.enabled = true;
       circle.enabled = true;
     }
   });
-
   // Add the two parts of the scene to the output.
   td.scene = Compound(passes: [projPass, slicePass]);
 }
