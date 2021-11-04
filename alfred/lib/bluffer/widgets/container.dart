@@ -6,7 +6,6 @@ import 'decorated_box.dart';
 import 'padding.dart';
 import 'sized_box.dart';
 import 'stateless.dart';
-import 'widget/interface/build_context.dart';
 import 'widget/interface/widget.dart';
 
 class Container extends StatelessWidget {

@@ -63,7 +63,9 @@ class FirstLeftEdgeArgsImpl implements FirstLeftEdgeArgs {
 
   /// This updates with the given edges.
   @override
-  void update(QTEdgeNode? edge) {
+  void update(
+    final QTEdgeNode? edge,
+  ) {
     if (edge != null) {
       if (edge != _resultEdge) {
         final __handle = _handle;
@@ -153,7 +155,10 @@ class FirstLeftEdgeArgsImpl implements FirstLeftEdgeArgs {
   }
 
   /// The edge to update with has the point on the horizontal edge inside it.
-  void _updateWithEdge(QTEdgeNode edge, double loc) {
+  void _updateWithEdge(
+    final QTEdgeNode edge,
+    final double loc,
+  ) {
     if (loc > _rightValue) {
       _resultEdge = edge;
       _resultPoint = null;
@@ -163,7 +168,9 @@ class FirstLeftEdgeArgsImpl implements FirstLeftEdgeArgs {
 
   /// The edge to update with has the point on the horizontal edge at one of the end points.
   /// This is called to update with that point instead of point inside the edge.
-  void _updateWithPoint(PointNode point) {
+  void _updateWithPoint(
+    final PointNode point,
+  ) {
     if (point.x > _rightValue) {
       // Do not set _resultEdge here, leave it as the previous value.
       _resultPoint = point;

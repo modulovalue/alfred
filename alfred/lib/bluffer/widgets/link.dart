@@ -2,7 +2,6 @@ import '../base/text.dart';
 import 'click.dart';
 import 'stateless.dart';
 import 'text.dart';
-import 'widget/interface/build_context.dart';
 import 'widget/interface/widget.dart';
 
 class TextLink extends StatelessWidget {

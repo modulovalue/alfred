@@ -8,6 +8,7 @@ import '../quadtree/point/impl.dart';
 import '../quadtree/point/interface.dart';
 import '../quadtree/point/ops/side.dart';
 import '../quadtree/quadtree/impl.dart';
+import '../quadtree/quadtree/interface.dart';
 import 'polygon_clipper.dart';
 
 /// A map of regions.
@@ -18,7 +19,7 @@ class Regions {
   final QuadTree tree;
 
   /// Creates a new region map.
-  Regions() : tree = QuadTree();
+  Regions() : tree = QuadTreeImpl();
 
   /// Determines the region that the point is inside of.
   int getRegion(
@@ -50,7 +51,10 @@ class Regions {
       regionId,
       List.generate(
         count,
-        (final i) => QTPointImpl(pntCoords[i * 2], pntCoords[i * 2 + 1]),
+        (final i) => QTPointImpl(
+          pntCoords[i * 2],
+          pntCoords[i * 2 + 1],
+        ),
       ),
     );
   }
@@ -82,7 +86,10 @@ class Regions {
     // Find all near points to the new edges.
     for (int i = 0; i < count; ++i) {
       final edge = nodes.edge(i);
-      final point = tree.findClosePoint(edge, QTPointHandlerEdgePointIgnorerImpl(edge));
+      final point = tree.findClosePoint(
+        edge,
+        QTPointHandlerEdgePointIgnorerImpl(edge),
+      );
       if (point != null) {
         nodes.nodes.insert(i + 1, point);
         ++count;
@@ -92,7 +99,10 @@ class Regions {
     // Find all edge intersections.
     for (int i = 0; i < count; ++i) {
       final edge = nodes.edge(i);
-      final result = tree.findFirstIntersection(edge, QTEdgeHandlerNeighborIgnorerImpl(edge));
+      final result = tree.findFirstIntersection(
+        edge,
+        QTEdgeHandlerNeighborIgnorerImpl(edge),
+      );
       if (result != null) {
         final point = _insertPoint(result.point!);
         nodes.nodes.insert(i + 1, point);
@@ -102,7 +112,7 @@ class Regions {
     }
     // Remove any contained data.
     // Create a tree which contains the input so it can be queried.
-    final newRegion = QuadTree();
+    final newRegion = QuadTreeImpl();
     for (int i = 0; i < count; ++i) {
       newRegion.insertEdge(nodes.edge(i), null);
     }
@@ -184,7 +194,11 @@ class Regions {
     final PointNode start,
     final PointNode end,
   ) {
-    QTEdgeHandlerBorderNeighborImpl border = QTEdgeHandlerBorderNeighborImpl.Points(start, end, true);
+    QTEdgeHandlerBorderNeighborImpl border = QTEdgeHandlerBorderNeighborImpl.Points(
+      start,
+      end,
+      true,
+    );
     // ignore: prefer_foreach
     for (final neighbor in end.startEdges) {
       border.handle(neighbor);
@@ -202,7 +216,11 @@ class Regions {
         return sideData.left;
       }
     }
-    border = QTEdgeHandlerBorderNeighborImpl.Points(end, start, false);
+    border = QTEdgeHandlerBorderNeighborImpl.Points(
+      end,
+      start,
+      false,
+    );
     // ignore: prefer_foreach
     for (final neighbor in start.startEdges) {
       border.handle(neighbor);
@@ -245,12 +263,29 @@ class Regions {
     } else {
       // The point is new, check if any edges pass near it.
       final nearEdges = <QTEdgeNode>{};
-      tree.forCloseEdges(QTEdgeHandlerEdgeCollectorImpl(edgeSet: nearEdges), pnt);
+      tree.forCloseEdges(
+        QTEdgeHandlerEdgeCollectorImpl(
+          edgeSet: nearEdges,
+        ),
+        pnt,
+      );
       // Remove near edges, store the replacement edges.
       final liftedEdges = <QTEdgeImpl>{};
       for (final edge in nearEdges) {
-        liftedEdges.add(QTEdgeImpl(edge.startNode, result.point, edge.data));
-        liftedEdges.add(QTEdgeImpl(result.point, edge.endNode, edge.data));
+        liftedEdges.add(
+          QTEdgeImpl(
+            edge.startNode,
+            result.point,
+            edge.data,
+          ),
+        );
+        liftedEdges.add(
+          QTEdgeImpl(
+            result.point,
+            edge.endNode,
+            edge.data,
+          ),
+        );
         tree.removeEdge(edge, false);
       }
       // Adjust all the near lines.
@@ -258,12 +293,29 @@ class Regions {
       while (liftedEdges.isNotEmpty) {
         final edge = liftedEdges.last;
         liftedEdges.remove(edge);
-        final point = tree.findClosePoint(edge, QTPointHandlerEdgePointIgnorerImpl(edge));
+        final point = tree.findClosePoint(
+          edge,
+          QTPointHandlerEdgePointIgnorerImpl(
+            edge,
+          ),
+        );
         if (point == null) {
           pushEdges.add(edge);
         } else {
-          liftedEdges.add(QTEdgeImpl(edge.start, point, edge.data));
-          liftedEdges.add(QTEdgeImpl(point, edge.end, edge.data));
+          liftedEdges.add(
+            QTEdgeImpl(
+              edge.start,
+              point,
+              edge.data,
+            ),
+          );
+          liftedEdges.add(
+            QTEdgeImpl(
+              point,
+              edge.end,
+              edge.data,
+            ),
+          );
         }
       }
       // Reduce all edges which are coincident.
@@ -368,7 +420,8 @@ class EdgeSide {
   int right;
 
   /// Creates an edge side data.
-  /// This specifies the identifiers of the region data to the [left] and [right] of the edge.
+  /// This specifies the identifiers of the region data to the
+  /// [left] and [right] of the edge.
   EdgeSide(
     final this.left,
     final this.right,

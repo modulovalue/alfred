@@ -4,6 +4,7 @@ import '../framework/mouse/mouse_handle.dart';
 import '../framework/mouse/mouse_handle_impl.dart';
 import '../framework/plotter/plotter_impl.dart';
 
+// TODO make this work with alfred.
 Plotter makeExamplePlotter() {
   final plot = makePlotter();
   {

@@ -1,4 +1,4 @@
-import 'package:alfred/crdt/crdt/interface/crdt.dart';
+import 'package:alfred/crdt/cachapa_crdt.dart';
 import 'package:test/test.dart';
 
 void crdtTests<T extends Crdt<String, int>>(

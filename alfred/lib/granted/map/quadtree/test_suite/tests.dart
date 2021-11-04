@@ -5,8 +5,7 @@ import '../../../framework/plotter/plotter_impl.dart';
 import '../../maps/polygon_clipper.dart';
 import '../../maps/regions.dart';
 import '../../plotter.dart';
-import '../boundary/impl.dart';
-import '../boundary/interface.dart';
+import '../boundary.dart';
 import '../boundary_region/impl.dart';
 import '../boundary_region/interface.dart';
 import '../edge/impl.dart';
@@ -21,6 +20,7 @@ import '../point/ops/distance2.dart';
 import '../point/ops/equals.dart';
 import '../point/ops/intersect.dart';
 import '../quadtree/impl.dart';
+import '../quadtree/interface.dart';
 
 /// A test framework agnostic test suite
 /// that supports different test frameworks.
@@ -681,7 +681,7 @@ class QuadTreeTester {
   /// Create a new quad-tree tester.
   QuadTreeTester(
     final this.args,
-  ) : tree = QuadTree();
+  ) : tree = QuadTreeImpl();
 
   /// Inserts a point into the test tree.
   PointNode insertPoint(

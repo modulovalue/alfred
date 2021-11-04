@@ -20,7 +20,7 @@ String serializeHtmlNode({
       null,
     );
 
-/// TODO extract constants into a spec.
+// TODO extract constants into a spec.
 class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, void>, HtmlNodeVisitor<String, void> {
   const _HtmlElementSerializerVisitorImpl._();
 
@@ -32,8 +32,10 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
       _serializeHtmlNode(
         tag: "a",
         additionalAttrib: [
-          if (node.href != null) 'href="' + node.href! + '"',
-          if (node.target != null) 'target="' + node.target! + '"',
+          if (node.href != null) //
+            'href="' + node.href! + '"',
+          if (node.target != null) //
+            'target="' + node.target! + '"',
         ],
         element: node,
         altContent: null,
@@ -47,6 +49,18 @@ class _HtmlElementSerializerVisitorImpl implements HtmlElementVisitor<String, vo
       _serializeHtmlNode(
         tag: "body",
         additionalAttrib: [],
+        element: node,
+        altContent: null,
+      );
+
+  @override
+  String visitCustomElementBody(
+    final CustomElement node,
+    final void arg,
+  ) =>
+      _serializeHtmlNode(
+        tag: node.tag,
+        additionalAttrib: node.additionalAttributes,
         element: node,
         altContent: null,
       );

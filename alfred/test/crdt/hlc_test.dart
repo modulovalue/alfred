@@ -1,11 +1,4 @@
-import 'package:alfred/crdt/hlc/impl/factory/date.dart';
-import 'package:alfred/crdt/hlc/impl/factory/exceptions.dart';
-import 'package:alfred/crdt/hlc/impl/factory/logical_time.dart';
-import 'package:alfred/crdt/hlc/impl/factory/parse.dart';
-import 'package:alfred/crdt/hlc/impl/factory/receive.dart';
-import 'package:alfred/crdt/hlc/impl/factory/send.dart';
-import 'package:alfred/crdt/hlc/impl/factory/zero.dart';
-import 'package:alfred/crdt/hlc/impl/hlc.dart';
+import 'package:alfred/crdt/cachapa_hlc.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -212,7 +205,7 @@ void main() {
   });
 }
 
-const _millis = 1000000000000;
-const _isoTime = '2001-09-09T01:46:40.000Z';
+const int _millis = 1000000000000;
+const String _isoTime = '2001-09-09T01:46:40.000Z';
 // ignore: avoid_js_rounded_ints
-const _logicalTime = 65536000000000066;
+const int _logicalTime = 65536000000000066;

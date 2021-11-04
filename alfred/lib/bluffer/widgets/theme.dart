@@ -5,7 +5,6 @@ import '../base/text.dart';
 import 'provider.dart';
 import 'stateless.dart';
 import 'widget/impl/widget_mixin.dart';
-import 'widget/interface/build_context.dart';
 import 'widget/interface/widget.dart';
 
 class Theme extends StatelessWidget {

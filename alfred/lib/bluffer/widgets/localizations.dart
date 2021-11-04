@@ -1,11 +1,11 @@
 import 'dart:async';
+// ignore: deprecated_member_use
 import 'dart:cli';
 
 import '../base/keys.dart';
 import '../base/locale.dart';
 import 'stateless.dart';
 import 'widget/impl/widget_mixin.dart';
-import 'widget/interface/build_context.dart';
 import 'widget/interface/widget.dart';
 
 class Localizations extends StatelessWidget {
@@ -88,6 +88,7 @@ class Localizations extends StatelessWidget {
           }
         },
       );
+      // ignore: deprecated_member_use
       typeToResources[delegate.type] = waitFor(value);
     }
     return _LocalizationsScope(

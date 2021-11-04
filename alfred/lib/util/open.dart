@@ -1,13 +1,13 @@
 import 'dart:io';
 
-void openLocalhost([
+void openLocalhost({
   final int port = 80,
-]) =>
+}) =>
     openAt(
-      "http://localhost:" + port.toString(),
+      url: "http://localhost:" + port.toString(),
     );
 
-void openAt(
-  final String url,
-) =>
+void openAt({
+  required final String url,
+}) =>
     Process.runSync("open", [url]);

@@ -1,12 +1,15 @@
-
 import 'hash_values.dart';
 
 class ImageProvider {
   final String url;
 
-  const ImageProvider.network(this.url);
+  const ImageProvider.network(
+    final this.url,
+  );
 
-  const ImageProvider.asset(String name) : url = 'asset://$name';
+  const ImageProvider.asset(
+    final String name,
+  ) : url = 'asset://' + name;
 }
 
 /// An image for a box decoration.
@@ -19,10 +22,10 @@ class DecorationImage {
   /// The [image], alignment, [repeat], and [matchTextDirection] arguments
   /// must not be null.
   const DecorationImage({
-    required this.image,
-    this.fit,
-    this.repeat = ImageRepeat.noRepeat,
-    this.matchTextDirection = false,
+    required final this.image,
+    final this.fit,
+    final this.repeat = ImageRepeat.noRepeat,
+    final this.matchTextDirection = false,
   });
 
   /// The image to be painted into the decoration.
@@ -53,7 +56,9 @@ class DecorationImage {
   final bool matchTextDirection;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(
+    final dynamic other,
+  ) {
     if (identical(this, other)) {
       return true;
     }
@@ -68,7 +73,12 @@ class DecorationImage {
   }
 
   @override
-  int get hashCode => hashValues(image, fit, repeat, matchTextDirection);
+  int get hashCode => hashValues(
+        image,
+        fit,
+        repeat,
+        matchTextDirection,
+      );
 
   @override
   String toString() {

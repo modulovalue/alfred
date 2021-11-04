@@ -14,6 +14,7 @@ import 'package:alfred/granted/map/quadtree/node/node/interface.dart';
 import 'package:alfred/granted/map/quadtree/node/point/interface.dart';
 import 'package:alfred/granted/map/quadtree/point/impl.dart';
 import 'package:alfred/granted/map/quadtree/quadtree/impl.dart';
+import 'package:alfred/granted/map/quadtree/quadtree/interface.dart';
 
 void main() {
   html.document.title = "Points & Lines";
@@ -194,7 +195,7 @@ class Driver {
   Driver(
     final this._svgPlot,
     final this._plot,
-  ) : _tree = QuadTree() {
+  ) : _tree = QuadTreeImpl() {
     _plotItem = _plot.addTree(_tree);
     _selectedTool = Tool.None;
     _centerView = BoolValue(false)..onChange.add(_onCenterViewChange);

@@ -97,7 +97,7 @@ class PlotHtmlSvg implements PlotterPlot {
           e.stopPropagation();
           e.preventDefault();
           final me = _mouseLoc(e);
-          final dw = e.deltaY.toDouble() / 300.0;
+          final dw = e.deltaY.toDouble() / 300;
           plotter.onMouseWheel(me, dw);
           plotter.onMouseMove(me);
           if (me.redraw) {

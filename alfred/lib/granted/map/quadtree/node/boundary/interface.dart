@@ -1,4 +1,4 @@
-import '../../boundary/interface.dart';
+import '../../boundary.dart';
 import '../branch/interface.dart';
 import '../edge/interface.dart';
 import '../node/interface.dart';

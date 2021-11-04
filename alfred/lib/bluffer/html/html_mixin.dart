@@ -88,6 +88,28 @@ mixin BodyElementMixin<SELF extends BodyElementMixin<SELF>> implements BodyEleme
       );
 }
 
+mixin CustomElementMixin<SELF extends CustomElementMixin<SELF>> implements CustomElement<SELF> {
+  @override
+  R acceptHtmlElement<R, A>(
+    final HtmlElementVisitor<R, A> v,
+    final A a,
+  ) =>
+      v.visitCustomElementBody(
+        this,
+        a,
+      );
+
+  @override
+  R acceptHtmlEntity<R, A>(
+    final HtmlEntityVisitor<R, A> v,
+    final A a,
+  ) =>
+      v.visitEntityElement(
+        this,
+        a,
+      );
+}
+
 mixin StyleElementMixin<SELF extends StyleElementMixin<SELF>> implements StyleElement<SELF> {
   @override
   R acceptHtmlElement<R, A>(

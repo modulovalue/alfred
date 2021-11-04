@@ -253,7 +253,7 @@ class Polynomial implements Smoother {
     } else {
       final p0 = this._data[i];
       final p1 = () {
-        if ((i == len - 1)) {
+        if (i == len - 1) {
           return 1.0;
         } else {
           return this._data[i + 1];

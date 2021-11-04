@@ -1,11 +1,8 @@
 import 'dart:io';
 
-import 'package:alfred/crdt/crdt/impl/map_crdt.dart';
-import 'package:alfred/crdt/crdt/impl/record.dart';
-import 'package:alfred/crdt/crdt/interface/crdt.dart';
-import 'package:alfred/crdt/crdt/serialization/decode_crdt.dart';
-import 'package:alfred/crdt/hlc/impl/factory/now.dart';
-import 'package:alfred/crdt/hlc/impl/hlc.dart';
+import 'package:alfred/crdt/cachapa_crdt.dart';
+import 'package:alfred/crdt/cachapa_crdt_serialize.dart';
+import 'package:alfred/crdt/cachapa_hlc.dart';
 import 'package:test/test.dart';
 
 import 'crdt_test_suite.dart';
@@ -134,7 +131,7 @@ void main() {
     });
     test('jsonDecodeStringKey', () {
       final crdt = MapCrdt<String, Object>('abc');
-      final map = decodeCrdtJson<String, Object>(
+      final map = crdtToJson<String, Object>(
         '{"x":{"hlc":"$_isoTime-0000-abc","value":1}}',
         hlcNow,
       );
@@ -143,7 +140,7 @@ void main() {
     });
     test('jsonDecodeIntKey', () {
       final crdt = MapCrdt<int, Object>('abc');
-      final map = decodeCrdtJson<int, Object>(
+      final map = crdtToJson<int, Object>(
         '{"1":{"hlc":"$_isoTime-0000-abc","value":1}}',
         hlcNow,
         keyDecoder: (final key) => int.parse(key),
@@ -153,7 +150,7 @@ void main() {
     });
     test('jsonDecodeDateTimeKey', () {
       final crdt = MapCrdt<DateTime, Object>('abc');
-      final map = decodeCrdtJson<DateTime, Object>(
+      final map = crdtToJson<DateTime, Object>(
         '{"2000-01-01 01:20:00.000":{"hlc":"$_isoTime-0000-abc","value":1}}',
         hlcNow,
         keyDecoder: (final key) => DateTime.parse(key),
@@ -164,7 +161,7 @@ void main() {
     });
     test('jsonDecodeCustomClassValue', () {
       final crdt = MapCrdt<String, Object>('abc');
-      final map = decodeCrdtJson<String, Object>(
+      final map = crdtToJson<String, Object>(
         '{"x":{"hlc":"$_isoTime-0000-abc","value":{"test":"test"}}}',
         hlcNow,
         valueDecoder: (final key, final dynamic value) => TestClass.fromJson(value),
@@ -179,7 +176,7 @@ void main() {
     });
     test('jsonDecodeCustomNodeId', () {
       final crdt = MapCrdt<String, Object>('abc');
-      final map = decodeCrdtJson<String, Object>(
+      final map = crdtToJson<String, Object>(
         '{"x":{"hlc":"$_isoTime-0000-1","value":0}}',
         hlcNow,
         nodeIdDecoder: (final a) => a,

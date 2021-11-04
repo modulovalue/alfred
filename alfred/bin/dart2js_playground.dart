@@ -1,6 +1,5 @@
 import 'dart:io';
 
-/// Exploratory efforts, to see what's fast and practical with dart2js, go here.
 void main() {
   _runCommand(
     command: "dart2js main.dart -O3 -o main.dart.js -m",

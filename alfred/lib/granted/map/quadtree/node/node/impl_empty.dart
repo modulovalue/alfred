@@ -1,5 +1,4 @@
-import '../../boundary/impl.dart';
-import '../../boundary/interface.dart';
+import '../../boundary.dart';
 import '../../edge/interface.dart';
 import '../../first_left_edge_args/interface.dart';
 import '../../handler_edge/interface.dart';
@@ -25,7 +24,12 @@ class QTNodeEmptyImpl implements QTNode {
   QTNodeEmptyImpl._();
 
   /// Adds a point to this location in the tree.
-  QTNode addPoint(int xmin, int ymin, int size, PointNode point) {
+  QTNode addPoint(
+    final int xmin,
+    final int ymin,
+    final int size,
+    final PointNode point,
+  ) {
     point.setLocation(xmin, ymin, size);
     return point;
   }

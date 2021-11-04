@@ -4,7 +4,6 @@ import '../widgets/builder.dart';
 import '../widgets/localizations.dart';
 import '../widgets/theme.dart';
 import '../widgets/widget/impl/widget_mixin.dart';
-import '../widgets/widget/interface/build_context.dart';
 import '../widgets/widget/interface/widget.dart';
 import 'breakpoint.dart';
 import 'keys.dart';
@@ -79,6 +78,7 @@ class App implements Widget {
       null;
 }
 
+// TODO put stylesheetlinks and scriptlinks into own model.
 class AppWidget<ROUTE extends WidgetRoute> implements Widget {
   static const List<MediaSize> availableSizes = MediaSize.values;
 
@@ -89,10 +89,12 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
   final Widget Function(BuildContext context, ROUTE child)? builder;
   @override
   final Key? key = null;
+  final bool enableCssReset;
 
   AppWidget({
     required final this.route,
     final this.theme,
+    final this.enableCssReset = true,
     final this.builder,
     final this.stylesheetLinks = const <String>[],
     final this.scriptLinks = const <ScriptElement>[],
@@ -128,10 +130,21 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
           ),
           StyleElementImpl(
             childNodes: [
-              const RawTextElementImpl(resetCss),
-              const RawTextElementImpl(baseCss),
-              for (final size in availableSizes) //
-                RawTextElementImpl(mediaClassForMediaSize(availableSizes, size)),
+              if (enableCssReset)
+                const RawTextElementImpl(
+                  resetCss,
+                ),
+              if (enableCssReset)
+                const RawTextElementImpl(
+                  baseCss,
+                ),
+              for (final size in availableSizes)
+                RawTextElementImpl(
+                  mediaClassForMediaSize(
+                    availableSizes,
+                    size,
+                  ),
+                ),
             ],
           ),
           BodyElementImpl(

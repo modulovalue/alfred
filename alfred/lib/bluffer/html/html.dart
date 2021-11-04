@@ -57,6 +57,12 @@ abstract class MetaElement<SELF extends MetaElement<SELF>> implements HtmlElemen
 
 abstract class BodyElement<SELF extends BodyElement<SELF>> implements HtmlElement<SELF> {}
 
+abstract class CustomElement<SELF extends CustomElement<SELF>> implements HtmlElement<SELF> {
+  String get tag;
+
+  Iterable<String> get additionalAttributes;
+}
+
 abstract class StyleElement<SELF extends StyleElement<SELF>> implements HtmlElement<SELF> {}
 
 abstract class ScriptElement<SELF extends ScriptElement<SELF>> implements HtmlElement<SELF> {
@@ -125,6 +131,11 @@ abstract class HtmlElementVisitor<R, A> {
 
   R visitElementBody(
     final BodyElement node,
+    final A arg,
+  );
+
+  R visitCustomElementBody(
+    final CustomElement node,
     final A arg,
   );
 

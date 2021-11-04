@@ -5,7 +5,7 @@ import '../point/impl.dart';
 import '../point/interface.dart';
 import '../point/ops/equals.dart';
 import '../point/ops/side.dart';
-import '../quadtree/impl.dart';
+import '../quadtree/interface.dart';
 import 'interface.dart';
 
 /// An edge handler to ignore a neighboring edge to the given edge.

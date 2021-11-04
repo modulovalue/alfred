@@ -1,0 +1,12 @@
+name: examples
+publish_to: none
+
+environment:
+  sdk: '>=2.15.0-82.0.dev <3.0.0'
+
+dependencies:
+  alfred:
+    path: ../alfred
+
+dev_dependencies:
+  extra_pedantic: 1.5.0

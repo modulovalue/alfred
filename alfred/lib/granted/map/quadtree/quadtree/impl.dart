@@ -1,5 +1,4 @@
-import '../boundary/impl.dart';
-import '../boundary/interface.dart';
+import '../boundary.dart';
 import '../edge/impl.dart';
 import '../edge/interface.dart';
 import '../first_left_edge_args/impl.dart';
@@ -24,11 +23,11 @@ import '../point/ops/distance2.dart';
 import '../point/ops/equals.dart';
 import '../point/ops/intersect.dart';
 import '../point/ops/point_on_edge.dart';
+import 'interface.dart';
 
-// TODO interface.
 /// A polygon mapping quad-tree for storing edges and
 /// points in a two dimensional logarithmic data structure.
-class QuadTree {
+class QuadTreeImpl implements QuadTree {
   /// Roughly the distance to the corner of an unit square.
   static const double _distToCorner = 1.415;
 
@@ -45,26 +44,25 @@ class QuadTree {
   int _edgeCount;
 
   /// Creates a new quad-tree.
-  QuadTree()
+  QuadTreeImpl()
       : _root = QTNodeEmptyImpl.instance,
         _boundary = QTBoundaryImpl.make(0, 0, 0, 0),
         _pointCount = 0,
         _edgeCount = 0;
 
-  /// The root node of the quad-tree.
+  @override
   QTNode get root => _root;
 
-  /// Gets the tight bounding box of all the data.
+  @override
   QTBoundaryImpl get boundary => _boundary;
 
-  /// Gets the number of points in the tree.
+  @override
   int get pointCount => _pointCount;
 
-  /// Gets the number of edges in the tree.
+  @override
   int get edgeCount => _edgeCount;
 
-  /// Clears all the points, edges, and nodes from the quad-tree.
-  /// Does not clear the additional data.
+  @override
   void clear() {
     _root = QTNodeEmptyImpl.instance;
     _boundary = QTBoundaryImpl.make(0, 0, 0, 0);
@@ -72,7 +70,7 @@ class QuadTree {
     _edgeCount = 0;
   }
 
-  /// Gets the boundary containing all nodes.
+  @override
   QTBoundaryImpl get rootBoundary {
     if (_root is QTNodeBoundaryMixin) {
       return (_root as QTNodeBoundaryMixin).boundary;
@@ -81,8 +79,10 @@ class QuadTree {
     }
   }
 
-  /// Finds a point node from this node for the given point.
-  PointNode? findPoint(QTPoint point) {
+  @override
+  PointNode? findPoint(
+    final QTPoint point,
+  ) {
     if (!rootBoundary.containsPoint(point)) {
       return null;
     }
@@ -104,10 +104,10 @@ class QuadTree {
     }
   }
 
-  /// This will locate the smallest non-empty node containing the given point.
-  /// Returns this is the smallest non-empty node containing the given point.
-  /// If no non-empty node could be found from this node then null is returned.
-  QTNodeBoundary? nodeContaining(QTPoint point) {
+  @override
+  QTNodeBoundary? nodeContaining(
+    final QTPoint point,
+  ) {
     if (!rootBoundary.containsPoint(point)) {
       return null;
     }
@@ -128,9 +128,11 @@ class QuadTree {
     }
   }
 
-  /// Finds an edge node from this node for the given edge.
-  /// Set [undirected] to true if the opposite edge may also be returned, false if not.
-  QTEdge? findEdge(QTEdge edge, bool undirected) {
+  @override
+  QTEdge? findEdge(
+    final QTEdge edge,
+    final bool undirected,
+  ) {
     final node = findPoint(edge.start);
     if (node == null) {
       return null;
@@ -142,17 +144,16 @@ class QuadTree {
     return result;
   }
 
-  /// Finds the nearest point to the given point.
-  /// [queryPoint] is the query point to find a point nearest to.
-  /// [cutoffDist2] is the maximum allowable distance squared to the nearest point.
-  /// [handle] is the handle to filter acceptable points with, or null to not filter.
+  @override
   PointNode? findNearestPointToPoint(
-    QTPoint queryPoint, {
+    final QTPoint queryPoint, {
+    final QTPointHandler? handle,
     double cutoffDist2 = double.maxFinite,
-    QTPointHandler? handle,
   }) {
     PointNode? result;
-    final stack = _NodeStack<QTNode>([_root]);
+    final stack = NodeStackImpl(
+      nodes: [_root],
+    );
     while (!stack.isEmpty) {
       final node = stack.pop;
       if (node is PointNode) {
@@ -169,8 +170,7 @@ class QuadTree {
         final branch = node;
         final dist2 = branch.distance2(queryPoint);
         if (dist2 <= cutoffDist2) {
-          _pushChildren(
-            stack,
+          stack.pushChildren(
             branch,
           );
         }
@@ -180,13 +180,16 @@ class QuadTree {
     return result;
   }
 
-  /// Finds the nearest point to the given edge.
-  /// [queryEdge] is the query edge to find a point nearest to.
-  /// [cutoffDist2] is the maximum allowable distance squared to the nearest point.
-  /// [handle] is the handle to filter acceptable points with, or null to not filter.
-  PointNode? findNearestPointToEdge(QTEdge queryEdge, {double cutoffDist2 = double.maxFinite, QTPointHandler? handle}) {
+  @override
+  PointNode? findNearestPointToEdge(
+    final QTEdge queryEdge, {
+    final QTPointHandler? handle,
+    double cutoffDist2 = double.maxFinite,
+  }) {
     PointNode? result;
-    final stack = _NodeStack([_root]);
+    final stack = NodeStackImpl(
+      nodes: [_root],
+    );
     while (!stack.isEmpty) {
       final node = stack.pop;
       if (node is PointNode) {
@@ -205,8 +208,7 @@ class QuadTree {
         final diagDist2 = 2.0 * width * width;
         final dist2 = qtEdgeDistance2(queryEdge, QTPointImpl(x, y)) - diagDist2;
         if (dist2 <= cutoffDist2) {
-          _pushChildren(
-            stack,
+          stack.pushChildren(
             node,
           );
         }
@@ -216,61 +218,61 @@ class QuadTree {
     return result;
   }
 
-  /// Finds the point close to the given edge.
-  /// [queryEdge] is the query edge to find a close point to.
-  /// [handle] is the handle to filter acceptable points with, or null to not filter.
-  PointNode? findClosePoint(QTEdge queryEdge, QTPointHandler handle) {
+  @override
+  PointNode? findClosePoint(
+    final QTEdge queryEdge,
+    final QTPointHandler handle,
+  ) {
     if (qtEdgeDegenerate(queryEdge)) {
       return null;
-    }
-    final stack = _NodeStack([_root]);
-    while (!stack.isEmpty) {
-      final node = stack.pop;
-      if (node is PointNode) {
-        final pnt = pointOnEdge(queryEdge, node);
-        if (pnt.onEdge) {
-          // ignore: unnecessary_null_comparison
-          if ((handle == null) || handle.handle(node)) {
-            return node;
+    } else {
+      final stack = NodeStackImpl(
+        nodes: [_root],
+      );
+      while (!stack.isEmpty) {
+        final node = stack.pop;
+        if (node is PointNode) {
+          final pnt = pointOnEdge(queryEdge, node);
+          if (pnt.onEdge) {
+            // ignore: unnecessary_null_comparison
+            if ((handle == null) || handle.handle(node)) {
+              return node;
+            }
+          }
+        } else if (node is BranchNode) {
+          final width = node.width;
+          final x = node.xmin + width ~/ 2;
+          final y = node.ymin + width ~/ 2;
+          final diagDist2 = 2.0 * width * width;
+          final dist2 = qtEdgeDistance2(queryEdge, QTPointImpl(x, y)) - diagDist2;
+          if (dist2 <= _distToCorner) {
+            stack.pushChildren(
+              node,
+            );
           }
         }
-      } else if (node is BranchNode) {
-        final width = node.width;
-        final x = node.xmin + width ~/ 2;
-        final y = node.ymin + width ~/ 2;
-        final diagDist2 = 2.0 * width * width;
-        final dist2 = qtEdgeDistance2(queryEdge, QTPointImpl(x, y)) - diagDist2;
-        if (dist2 <= _distToCorner) {
-          _pushChildren(
-            stack,
-            node,
-          );
-        }
+        // else, Pass nodes and empty nodes have no points.
       }
-      // else, Pass nodes and empty nodes have no points.
+      return null;
     }
-    return null;
   }
 
-  /// Returns the edge nearest to the given query point, which has been matched
-  /// by the given matcher, and is within the given cutoff distance.
-  /// [point] is the point to find the nearest edge to.
-  /// [cutoffDist2] is the maximum distance squared edges may be
-  /// away from the given point to be an eligible result.
-  /// [handler] is the matcher to filter eligible edges, if null all edges are accepted.
+  @override
   QTEdgeNode? findNearestEdge(
     final QTPoint point, {
     final double cutoffDist2 = double.maxFinite,
     final QTEdgeHandler<Object?>? handler,
   }) {
-    final args = NearestEdgeArgs(point, cutoffDist2, handler);
+    final args = NearestEdgeArgsImpl(
+      queryPoint: point,
+      cutoffDist2: cutoffDist2,
+      handle: handler,
+    );
     args.run(_root);
     return args.result();
   }
 
-  /// Returns the first left edge to the given query point.
-  /// [point] is the point to find the first left edge from.
-  /// [handle] is the matcher to filter eligible edges. If null all edges are accepted.
+  @override
   QTEdgeNode? firstLeftEdge(
     final QTPoint point, {
     final QTEdgeHandler<Object?>? handle,
@@ -280,17 +282,22 @@ class QuadTree {
     return args.result;
   }
 
-  /// Handle all the edges to the left of the given point.
-  /// [point] is the point to find the left edges from.
-  /// [handle] is the handle to process all the edges with.
-  bool foreachLeftEdge(QTPoint point, QTEdgeHandler<Object?> handle) => _root.foreachLeftEdge(point, handle);
+  @override
+  bool foreachLeftEdge(
+    final QTPoint point,
+    final QTEdgeHandler<Object?> handle,
+  ) =>
+      _root.foreachLeftEdge(point, handle);
 
-  /// Gets the first point in the tree.
-  /// [boundary] is the boundary of the tree to get the point from, or null for whole tree.
-  /// [handle] is the point handler to filter points with, or null for no filter.
-  PointNode? firstPoint(QTBoundary? boundary, QTPointHandler handle) {
+  @override
+  PointNode? firstPoint(
+    final QTBoundary? boundary,
+    final QTPointHandler handle,
+  ) {
     PointNode? result;
-    final stack = _NodeStack<QTNode>([_root]);
+    final stack = NodeStackImpl(
+      nodes: [_root],
+    );
     while (!stack.isEmpty) {
       final node = stack.pop;
       if (node is PointNode) {
@@ -299,8 +306,7 @@ class QuadTree {
         }
       } else if (node is BranchNode) {
         if ((boundary == null) || boundary.overlapsBoundary(node)) {
-          _pushChildren(
-            stack,
+          stack.pushChildren(
             node,
           );
         }
@@ -310,12 +316,15 @@ class QuadTree {
     return result;
   }
 
-  /// Gets the last point in the tree.
-  /// [boundary] is the boundary of the tree to get the point from, or null for whole tree.
-  /// [handle] is the point handler to filter points with, or null for no filter.
-  PointNode? lastPoint(QTBoundary? boundary, QTPointHandler handle) {
+  @override
+  PointNode? lastPoint(
+    final QTBoundary? boundary,
+    final QTPointHandler handle,
+  ) {
     PointNode? result;
-    final stack = _NodeStack([_root]);
+    final stack = NodeStackImpl(
+      nodes: [_root],
+    );
     while (!stack.isEmpty) {
       final node = stack.pop;
       if (node is PointNode) {
@@ -324,8 +333,7 @@ class QuadTree {
         }
       } else if (node is BranchNode) {
         if ((boundary == null) || boundary.overlapsBoundary(node)) {
-          _pushReverseChildren(
-            stack,
+          stack.pushReverseChildren(
             node,
           );
         }
@@ -335,32 +343,41 @@ class QuadTree {
     return result;
   }
 
-  /// Handles each point node in the boundary.
-  bool foreachPoint(QTPointHandler handle, [QTBoundary? bounds]) => _root.foreachPoint(handle, bounds);
+  @override
+  bool foreachPoint(
+    final QTPointHandler handle, [
+    final QTBoundary? bounds,
+  ]) =>
+      _root.foreachPoint(handle, bounds);
 
-  /// Handles each edge node in the boundary.
-  /// [handle] is the handler to run on each edge in the boundary.
-  /// [bounds] is the boundary containing the edges to handle.
-  /// [exclusive] indicates that only edge which have both end points
-  /// inside the region are collected, otherwise any edge which
-  /// exists even partially in the region are collected.
-  /// Returns true if all edges in the boundary were run, false if stopped.
-  bool foreachEdge(QTEdgeHandler<Object?> handle, [QTBoundary? bounds, bool exclusive = false]) =>
-      _root.foreachEdge(handle, bounds, exclusive);
+  @override
+  bool foreachEdge(
+    final QTEdgeHandler<Object?> handle, [
+    final QTBoundary? bounds,
+    final bool exclusive = false,
+  ]) =>
+      _root.foreachEdge(
+        handle,
+        bounds,
+        exclusive,
+      );
 
-  /// Handles each node in the boundary.
-  /// [handle] is the handler to run on each node in the boundary.
-  /// [bounds] is the boundary containing the nodes to handle.
-  /// Returns true if all nodes in the boundary were run, false if stopped.
-  bool foreachNode(QTNodeHandler handle, [QTBoundary? bounds]) => _root.foreachNode(handle, bounds);
+  @override
+  bool foreachNode(
+    final QTNodeHandler handle, [
+    final QTBoundary? bounds,
+  ]) =>
+      _root.foreachNode(handle, bounds);
 
-  /// Calls given handle for the all the near points to the given point.
-  /// [handle] is the handle to handle all near points with.
-  /// [queryPoint] is the query point to find the points near to.
-  /// [cutoffDist2] is the maximum allowable distance squared to the near points.
-  /// Returns true if all points handled, false if the handled returned false and stopped early.
-  bool forNearPointPoints(QTPointHandler handle, QTPoint queryPoint, double cutoffDist2) {
-    final stack = _NodeStack<QTNode>([_root]);
+  @override
+  bool forNearPointPoints(
+    final QTPointHandler handle,
+    final QTPoint queryPoint,
+    final double cutoffDist2,
+  ) {
+    final stack = NodeStackImpl(
+      nodes: [_root],
+    );
     while (!stack.isEmpty) {
       final node = stack.pop;
       if (node is PointNode) {
@@ -377,8 +394,7 @@ class QuadTree {
         final diagDist2 = 2.0 * width * width;
         final dist2 = pointDistance2(queryPoint, QTPointImpl(x, y)) - diagDist2;
         if (dist2 <= cutoffDist2) {
-          _pushChildren(
-            stack,
+          stack.pushChildren(
             node,
           );
         }
@@ -388,14 +404,15 @@ class QuadTree {
     return true;
   }
 
-  /// Finds the near points to the given edge.
-  /// [handle] is the callback to handle the near points.
-  /// [queryEdge] is the query edge to find all points near to.
-  /// [cutoffDist2] is the maximum allowable distance squared to the near points.
-  /// Returns true if all points handled,
-  /// false if the handled returned false and stopped early.
-  bool forNearEdgePoints(QTPointHandler handle, QTEdge queryEdge, double cutoffDist2) {
-    final stack = _NodeStack<QTNode>([_root]);
+  @override
+  bool forNearEdgePoints(
+    final QTPointHandler handle,
+    final QTEdge queryEdge,
+    final double cutoffDist2,
+  ) {
+    final stack = NodeStackImpl(
+      nodes: [_root],
+    );
     while (!stack.isEmpty) {
       final node = stack.pop;
       if (node is PointNode) {
@@ -412,8 +429,7 @@ class QuadTree {
         final diagDist2 = 2.0 * width * width;
         final dist2 = qtEdgeDistance2(queryEdge, QTPointImpl(x, y)) - diagDist2;
         if (dist2 <= cutoffDist2) {
-          _pushChildren(
-            stack,
+          stack.pushChildren(
             node,
           );
         }
@@ -423,13 +439,14 @@ class QuadTree {
     return true;
   }
 
-  /// Finds the close points to the given edge.
-  /// [handle] is the callback to handle the close points.
-  /// [queryEdge] is the query edge to find all points close to.
-  /// Returns true if all points handled,
-  /// false if the handled returned false and stopped early.
-  bool forClosePoints(QTPointHandler handle, QTEdge queryEdge) {
-    final stack = _NodeStack<QTNode>([_root]);
+  @override
+  bool forClosePoints(
+    final QTPointHandler handle,
+    final QTEdge queryEdge,
+  ) {
+    final stack = NodeStackImpl(
+      nodes: [_root],
+    );
     while (!stack.isEmpty) {
       final node = stack.pop;
       if (node is PointNode) {
@@ -446,8 +463,7 @@ class QuadTree {
         final diagDist2 = 2.0 * width * width;
         final dist2 = qtEdgeDistance2(queryEdge, QTPointImpl(x, y)) - diagDist2;
         if (dist2 <= _distToCorner) {
-          _pushChildren(
-            stack,
+          stack.pushChildren(
             node,
           );
         }
@@ -457,18 +473,15 @@ class QuadTree {
     return true;
   }
 
-  /// Calls given handle for all the edges near to the given query point.
-  /// [handler] is the handle to handle all near edges with.
-  /// [queryPoint] is the point to find the near edges to.
-  /// [cutoffDist2] is the maximum distance for near edges.
-  /// Returns true if all edges handled,
-  /// false if the handled returned false and stopped early.
+  @override
   bool forNearEdges(
     final QTEdgeHandler<Object?> handler,
     final QTPoint queryPoint,
     final double cutoffDist2,
   ) {
-    final stack = _NodeStack<QTNode>();
+    final stack = NodeStackImpl(
+      nodes: null,
+    );
     stack.push(_root);
     while (!stack.isEmpty) {
       final node = stack.pop;
@@ -509,8 +522,7 @@ class QuadTree {
         final diagDist2 = 2.0 * width * width;
         final dist2 = pointDistance2(queryPoint, QTPointImpl(x, y)) - diagDist2;
         if (dist2 <= cutoffDist2) {
-          _pushChildren(
-            stack,
+          stack.pushChildren(
             node,
           );
         }
@@ -520,16 +532,14 @@ class QuadTree {
     return true;
   }
 
-  /// Calls given handle for all the edges close to the given query point.
-  /// [handler] is the handle to handle all close edges with.
-  /// [queryPoint] is the point to find the close edges to.
-  /// Returns true if all edges handled,
-  /// false if the handled returned false and stopped early.
+  @override
   bool forCloseEdges(
     final QTEdgeHandler<Object?> handler,
     final QTPoint queryPoint,
   ) {
-    final stack = _NodeStack<QTNode>();
+    final stack = NodeStackImpl(
+      nodes: null,
+    );
     stack.push(_root);
     while (!stack.isEmpty) {
       final node = stack.pop;
@@ -574,8 +584,7 @@ class QuadTree {
         final diagDist2 = 2.0 * width * width;
         final dist2 = pointDistance2(queryPoint, QTPointImpl(x, y)) - diagDist2;
         if (dist2 <= _distToCorner) {
-          _pushChildren(
-            stack,
+          stack.pushChildren(
             node,
           );
         }
@@ -585,23 +594,14 @@ class QuadTree {
     return true;
   }
 
-  /// Finds the first intersection between the given line and lines in the tree which
-  /// match the given handler. When multiple intersections exist, which intersection
-  /// is discovered is not specific.
-  /// [edge] is the edge to find intersections with.
-  /// [hndl] is the edge handle to filter possible intersecting edges.
-  /// Returns the first found intersection.
+  @override
   IntersectionResult? findFirstIntersection(
     final QTEdge edge,
     final QTEdgeHandler<Object?>? hndl,
   ) =>
       _root.findFirstIntersection(edge, hndl);
 
-  /// This handles all the intersections.
-  /// [edge] is the edge to look for intersections with.
-  /// [hndl] is the handler to match valid edges with.
-  /// [intersections] is the set of intersections to add to.
-  /// Returns true if a new intersection was found.
+  @override
   bool findAllIntersections(
     final QTEdge edge,
     final QTEdgeHandler<Object?>? hndl,
@@ -610,24 +610,26 @@ class QuadTree {
     if (_edgeCount <= 0) {
       return false;
     } else {
-      return (_root as QTNodeBoundaryMixin).findAllIntersections(edge, hndl, intersections);
+      return (_root as QTNodeBoundaryMixin).findAllIntersections(
+        edge,
+        hndl,
+        intersections,
+      );
     }
   }
 
-  /// This inserts an edge or finds an existing edge in the quad-tree.
-  /// [edge] is the edge to insert into the tree.
-  /// Returns the edge in the tree.
+  @override
   QTEdge<T>? insertEdge<T>(
     final QTEdge<T> edge,
     final T data,
   ) =>
-      tryInsertEdge(edge, data)?.edge;
+      tryInsertEdge<T>(
+        edge,
+        data,
+      );
 
-  /// This inserts an edge or finds an existing edge in the quad-tree.
-  /// [edge] is the edge to insert into the tree.
-  /// Returns a pair containing the edge in the tree, and true if the edge is
-  /// new or false if the edge already existed in the tree.
-  InsertEdgeResult<T>? tryInsertEdge<T>(
+  @override
+  QTEdge<T>? tryInsertEdge<T>(
     final QTEdge<T> edge,
     final T initData,
   ) {
@@ -653,13 +655,13 @@ class QuadTree {
     }
     // Check for degenerate edges.
     if (startNode == endNode) {
-      return const InsertEdgeResult(null, false);
+      return null;
     }
     // If both points already existed check if edge exists.
     if (!(startNew || endNew)) {
       final edge = startNode.findEdgeTo(endNode);
       if (edge != null) {
-        return InsertEdgeResult(edge as QTEdgeNode<T>, false);
+        return edge as QTEdgeNode<T>;
       }
     }
     // Insert new edge.
@@ -675,28 +677,31 @@ class QuadTree {
       assert(ancestor != null);
       return null;
     }
-    final newEdge = QTEdgeNodeImpl<T>(startNode, endNode, initData);
+    final newEdge = QTEdgeNodeImpl<T>(
+      startNode,
+      endNode,
+      initData,
+    );
     final replacement = ancestor.insertEdge(newEdge);
     _reduceBranch(ancestor, replacement);
     _edgeCount++;
-    return InsertEdgeResult(
-      newEdge,
-      true,
-    );
+    return newEdge;
   }
 
-  /// This inserts a point or finds an existing point in the quad-tree.
-  /// [point] is the point to insert into the tree.
-  /// Returns the point node for the point inserted into the tree, or
-  /// the point node which already existed.
-  PointNode insertPoint(QTPoint point) => tryInsertPoint(point).point;
+  @override
+  PointNode insertPoint(
+    final QTPoint point,
+  ) =>
+      tryInsertPoint(point).point;
 
-  /// This inserts a point or finds an existing point in the quad-tree.
-  /// [point] is the point to insert into the tree.
-  /// Returns a pair containing the point node in the tree, and true if the
-  /// point is new or false if the point already existed in the tree.
-  InsertPointResult tryInsertPoint(QTPoint point) {
-    final pntNode = PointNodeImpl(point.x, point.y);
+  @override
+  InsertPointResult tryInsertPoint(
+    final QTPoint point,
+  ) {
+    final pntNode = PointNodeImpl(
+      point.x,
+      point.y,
+    );
     // Attempt to find the point first.
     final node = nodeContaining(pntNode);
     final _node = node;
@@ -704,7 +709,10 @@ class QuadTree {
       // A node containing the point has been found.
       if (_node is PointNodeImpl) {
         if (pointEquals(_node, pntNode)) {
-          return InsertPointResult(_node, true);
+          return InsertPointResultImpl(
+            _node,
+            true,
+          );
         }
       }
       final parent = _node.parent;
@@ -725,7 +733,14 @@ class QuadTree {
       int centerY = (pntNode.y ~/ initialTreeWidth) * initialTreeWidth;
       if (pntNode.x < 0) centerX -= initialTreeWidth - 1;
       if (pntNode.y < 0) centerY -= initialTreeWidth - 1;
-      _setRoot((_root as QTNodeEmptyImpl).addPoint(centerX, centerY, initialTreeWidth, pntNode));
+      _setRoot(
+        (_root as QTNodeEmptyImpl).addPoint(
+          centerX,
+          centerY,
+          initialTreeWidth,
+          pntNode,
+        ),
+      );
     } else {
       // Point outside of tree, expand the tree.
       final root = _expandFootprint(_root as QTNodeBoundaryMixin, pntNode);
@@ -736,13 +751,13 @@ class QuadTree {
     _pointCount++;
     _expandBoundingBox(pntNode);
     _reduceFootprint();
-    return InsertPointResult(pntNode, false);
+    return InsertPointResultImpl(
+      pntNode,
+      false,
+    );
   }
 
-  /// This removes an edge from the tree.
-  /// [edge] is the edge to remove from the tree.
-  /// [trimTree] indicates if the end points of the edge should be
-  /// removed if no other edge begins or ends at that point.
+  @override
   void removeEdge(
     final QTEdgeNode edge,
     final bool trimTree,
@@ -764,9 +779,10 @@ class QuadTree {
     }
   }
 
-  /// This removes a point from the tree.
-  /// [point] is the point to removed from the tree.
-  void removePoint(PointNode point) {
+  @override
+  void removePoint(
+    final PointNode point,
+  ) {
     // Remove any edges on the point.
     final startEdges = point.startEdges.toList();
     for (final edge in startEdges) {
@@ -798,10 +814,10 @@ class QuadTree {
     _collapseBoundingBox(point);
   }
 
-  /// Validates this quad-tree.
-  /// [sout] is the output to write errors to.
-  /// Returns true if valid, false if invalid.
-  bool validate([StringBuffer? sout]) {
+  @override
+  bool validate([
+    StringBuffer? sout,
+  ]) {
     bool result = true;
     bool toConsole = false;
     if (sout == null) {
@@ -856,7 +872,10 @@ class QuadTree {
   /// This reduces the root to the smallest branch needed.
   /// [node] is the original node to reduce.
   /// [replacement] is the node to replace the original node with.
-  void _reduceBranch(QTNodeBoundary node, QTNode replacement) {
+  void _reduceBranch(
+    QTNodeBoundary node,
+    QTNode replacement,
+  ) {
     while (replacement != node) {
       final parent = node.parent;
       if (parent == null) {
@@ -875,7 +894,9 @@ class QuadTree {
   /// This sets the root node of this tree.
   /// [node] is the node to set as the root.
   /// Returns true if root changed, false if no change.
-  bool _setRoot(QTNode? node) {
+  bool _setRoot(
+    final QTNode? node,
+  ) {
     // ignore: prefer_asserts_with_message
     assert(node != null);
     if (_root == node!) return false;
@@ -889,7 +910,10 @@ class QuadTree {
   /// This expands the foot print of the tree to include the given point.
   /// [root] is the original root to expand.
   /// Returns the new expanded root.
-  QTNodeBoundaryMixin _expandFootprint(QTNodeBoundaryMixin root, QTPoint point) {
+  QTNodeBoundaryMixin _expandFootprint(
+    QTNodeBoundaryMixin root,
+    final QTPoint point,
+  ) {
     while (!root.containsPoint(point)) {
       final xmin = root.xmin;
       final ymin = root.ymin;
@@ -969,33 +993,55 @@ class QuadTree {
 
   /// This collapses the boundary with the given point which was just removed.
   /// [point] is the point which was removed.
-  void _collapseBoundingBox(QTPoint point) {
+  void _collapseBoundingBox(
+    final QTPoint point,
+  ) {
     if (_pointCount <= 0) {
       _boundary = QTBoundaryImpl.make(0, 0, 0, 0);
     } else {
       if (_boundary.xmax <= point.x) {
-        _boundary =
-            QTBoundaryImpl.make(_boundary.xmin, _boundary.ymin, _determineEastSide(_boundary.xmin), _boundary.ymax);
+        _boundary = QTBoundaryImpl.make(
+          _boundary.xmin,
+          _boundary.ymin,
+          _determineEastSide(_boundary.xmin),
+          _boundary.ymax,
+        );
       }
       if (_boundary.xmin >= point.x) {
-        _boundary =
-            QTBoundaryImpl.make(_determineWestSide(_boundary.xmax), _boundary.ymin, _boundary.xmax, _boundary.ymax);
+        _boundary = QTBoundaryImpl.make(
+          _determineWestSide(_boundary.xmax),
+          _boundary.ymin,
+          _boundary.xmax,
+          _boundary.ymax,
+        );
       }
       if (_boundary.ymax <= point.y) {
-        _boundary =
-            QTBoundaryImpl.make(_boundary.xmin, _boundary.ymin, _boundary.xmax, _determineNorthSide(_boundary.ymin));
+        _boundary = QTBoundaryImpl.make(
+          _boundary.xmin,
+          _boundary.ymin,
+          _boundary.xmax,
+          _determineNorthSide(_boundary.ymin),
+        );
       }
       if (_boundary.ymin >= point.y) {
-        _boundary =
-            QTBoundaryImpl.make(_boundary.xmax, _boundary.ymax, _boundary.xmin, _determineSouthSide(_boundary.ymax));
+        _boundary = QTBoundaryImpl.make(
+          _boundary.xmax,
+          _boundary.ymax,
+          _boundary.xmin,
+          _determineSouthSide(_boundary.ymax),
+        );
       }
     }
   }
 
   /// This finds the north side in the tree.
   /// Return is the value of the north side for the given direction.
-  int _determineNorthSide(int value) {
-    final stack = _NodeStack<QTNode>([_root]);
+  int _determineNorthSide(
+    int value,
+  ) {
+    final stack = NodeStackImpl(
+      nodes: [_root],
+    );
     while (!stack.isEmpty) {
       final node = stack.pop;
       if (node is PointNode) {
@@ -1014,8 +1060,12 @@ class QuadTree {
 
   /// This finds the east side in the tree.
   /// Returns the value of the east side for the given direction.
-  int _determineEastSide(int value) {
-    final stack = _NodeStack<QTNode>([_root]);
+  int _determineEastSide(
+    int value,
+  ) {
+    final stack = NodeStackImpl(
+      nodes: [_root],
+    );
     while (!stack.isEmpty) {
       final node = stack.pop;
       if (node is PointNode) {
@@ -1033,8 +1083,12 @@ class QuadTree {
 
   /// This finds the south side in the tree.
   /// Returns the value of the south side for the given direction.
-  int _determineSouthSide(int value) {
-    final stack = _NodeStack<QTNode>([_root]);
+  int _determineSouthSide(
+    int value,
+  ) {
+    final stack = NodeStackImpl(
+      nodes: [_root],
+    );
     while (!stack.isEmpty) {
       final node = stack.pop;
       if (node is PointNode) {
@@ -1052,8 +1106,12 @@ class QuadTree {
 
   /// This finds the west side in the tree.
   /// Returns the value of the west side for the given direction.
-  int _determineWestSide(int value) {
-    final stack = _NodeStack<QTNode>([_root]);
+  int _determineWestSide(
+    int value,
+  ) {
+    final stack = NodeStackImpl(
+      nodes: [_root],
+    );
     while (!stack.isEmpty) {
       final node = stack.pop;
       if (node is PointNode) {
@@ -1072,47 +1130,82 @@ class QuadTree {
   }
 }
 
-/// The result from a edge insertion into the tree.
-class InsertEdgeResult<T> {
-  /// The inserted edge.
-  final QTEdge<T>? edge;
+/// A stack of nodes.
+class NodeStackImpl implements NodeStack {
+  /// The internal stack of nodes.
+  final List<QTNode> _stack;
 
-  /// True if the edge existed, false if the edge is new.
-  final bool existed;
+  /// Creates a new stack.
+  /// The initial sets of [nodes] is pushed in order.
+  NodeStackImpl({
+    required final List<QTNode>? nodes,
+  }) : _stack = <QTNode>[] {
+    if (nodes != null) {
+      // ignore: prefer_foreach
+      for (final node in nodes) {
+        push(node);
+      }
+    }
+  }
 
-  /// Creates a new insert edge result.
-  const InsertEdgeResult(
-    final this.edge,
-    final this.existed,
-  );
-}
+  @override
+  bool get isEmpty => _stack.isEmpty;
 
-/// The result from a point insertion into the tree.
-class InsertPointResult {
-  /// The inserted point.
-  final PointNode point;
+  @override
+  QTNode get pop => _stack.removeLast();
 
-  /// True if the point existed, false if the point is new.
-  final bool existed;
+  @override
+  void push(
+    final QTNode node,
+  ) =>
+      _stack.add(node);
 
-  /// Creates a new insert point result.
-  const InsertPointResult(
-    final this.point,
-    final this.existed,
-  );
+  @override
+  void pushAll(
+    final List<QTNode> nodes,
+  ) {
+    // ignore: prefer_foreach
+    for (final node in nodes) {
+      push(node);
+    }
+  }
+
+  @override
+  void pushChildren(
+    final BranchNode node,
+  ) {
+    // Push in reverse order from typical searches so that they
+    // are processed in the order: NE, NW, SE, then SW.
+    push(node.sw);
+    push(node.se);
+    push(node.nw);
+    push(node.ne);
+  }
+
+  @override
+  void pushReverseChildren(
+    final BranchNode node,
+  ) {
+    // Push in normal order from typical searches so that they
+    // are processed in the order: SW, SE, NW, then NE.
+    push(node.ne);
+    push(node.nw);
+    push(node.se);
+    push(node.sw);
+  }
 }
 
 /// The nearest edge arguments to handle multiple returns
 /// objects for determining the nearest edge to a point.
-class NearestEdgeArgs {
+class NearestEdgeArgsImpl implements NearestEdgeArgs {
   /// The query point to find the nearest line to.
-  final QTPoint _queryPoint;
+  final QTPoint queryPoint;
 
   /// The line matcher to filter lines with.
-  final QTEdgeHandler<Object?>? _handle;
+  final QTEdgeHandler<Object?>? handle;
 
   /// The maximum allowable distance squared to the result.
-  double _cutoffDist2;
+  double cutoffDist2;
 
   /// The currently found closest edge. Null if a point has been found closer.
   QTEdgeNode? _resultEdge;
@@ -1122,16 +1215,23 @@ class NearestEdgeArgs {
   PointNode? _resultPoint;
 
   /// Creates a new nearest edge arguments.
-  /// [_queryPoint] is the query point to find an edge nearest to.
-  /// [_cutoffDist2] is the maximum allowable distance squared to the nearest edge.
-  /// The [_handle] is the filter acceptable edges with, or null to not filter.
-  NearestEdgeArgs(this._queryPoint, this._cutoffDist2, this._handle)
-      : _resultEdge = null,
+  /// [queryPoint] is the query point to find an edge nearest to.
+  /// [cutoffDist2] is the maximum allowable distance squared to the nearest edge.
+  /// The [handle] is the filter acceptable edges with, or null to not filter.
+  NearestEdgeArgsImpl({
+    required final this.queryPoint,
+    required final this.cutoffDist2,
+    required final this.handle,
+  })  : _resultEdge = null,
         _resultPoint = null;
 
-  /// Runs this node and all children nodes through this search.
-  void run(QTNode rootNode) {
-    final stack = _NodeStack<QTNode>();
+  @override
+  void run(
+    final QTNode rootNode,
+  ) {
+    final stack = NodeStackImpl(
+      nodes: null,
+    );
     stack.push(rootNode);
     while (!stack.isEmpty) {
       final node = stack.pop;
@@ -1158,22 +1258,23 @@ class NearestEdgeArgs {
         final x = node.xmin + width ~/ 2;
         final y = node.ymin + width ~/ 2;
         final diagDist2 = 2.0 * width * width;
-        final dist2 = pointDistance2(_queryPoint, QTPointImpl(x, y)) - diagDist2;
-        if (dist2 <= _cutoffDist2) {
-          _pushChildren(stack, node);
+        // ignore: avoid_dynamic_calls
+        final dist2 = pointDistance2(queryPoint, QTPointImpl(x, y)) - diagDist2;
+        if (dist2 <= cutoffDist2) {
+          stack.pushChildren(node);
         }
       }
       // else, empty nodes have no edges.
     }
   }
 
-  /// Gets the result from this search.
+  @override
   QTEdgeNode? result() {
     final __resultPoint = _resultPoint;
     if (__resultPoint == null) {
       return _resultEdge;
     } else {
-      return __resultPoint.nearEndEdge(_queryPoint);
+      return __resultPoint.nearEndEdge(queryPoint);
     }
   }
 
@@ -1187,14 +1288,14 @@ class NearestEdgeArgs {
     if (edge == _resultEdge) {
       return;
     }
-    final __handle = _handle;
+    final __handle = handle;
     if (__handle != null) {
       if (!__handle.handle(edge)) {
         return;
       }
     }
     // Determine how the point is relative to the edge.
-    final result = pointOnEdge(edge, _queryPoint);
+    final result = pointOnEdge(edge, queryPoint);
     switch (result.location) {
       case IntersectionLocation.InMiddle:
         _updateWithEdge(edge, result.closestOnEdge);
@@ -1217,89 +1318,40 @@ class NearestEdgeArgs {
   }
 
   /// Update with the edge with the middle of the edge the closest.
-  void _updateWithEdge(QTEdgeNode edge, QTPoint closePoint) {
-    final dist2 = pointDistance2(_queryPoint, closePoint);
-    if (dist2 <= _cutoffDist2) {
+  void _updateWithEdge(
+    final QTEdgeNode edge,
+    final QTPoint closePoint,
+  ) {
+    final dist2 = pointDistance2(queryPoint, closePoint);
+    if (dist2 <= cutoffDist2) {
       _resultEdge = edge;
       _resultPoint = null;
-      _cutoffDist2 = dist2;
+      cutoffDist2 = dist2;
     }
   }
 
   /// Update with the point at the end of the edge.
-  void _updateWithPoint(PointNode point) {
-    final dist2 = pointDistance2(_queryPoint, point);
-    if (dist2 <= _cutoffDist2) {
+  void _updateWithPoint(
+    final PointNode point,
+  ) {
+    final dist2 = pointDistance2(queryPoint, point);
+    if (dist2 <= cutoffDist2) {
       // Do not set _resultEdge here, leave it as the previous value.
       _resultPoint = point;
-      _cutoffDist2 = dist2;
+      cutoffDist2 = dist2;
     }
   }
 }
 
-/// Pushes the children of the given branch onto this stack.
-void _pushChildren(
-  final _NodeStack<QTNode> stack,
-  final BranchNode node,
-) {
-  // Push in reverse order from typical searches so that they
-  // are processed in the order: NE, NW, SE, then SW.
-  stack.push(node.sw);
-  stack.push(node.se);
-  stack.push(node.nw);
-  stack.push(node.ne);
-}
+class InsertPointResultImpl implements InsertPointResult {
+  @override
+  final PointNode point;
 
-/// Pushes the children of the given branch onto this stack in reverse order.
-void _pushReverseChildren(
-  final _NodeStack<QTNode> stack,
-  final BranchNode node,
-) {
-  // Push in normal order from typical searches so that they
-  // are processed in the order: SW, SE, NW, then NE.
-  stack.push(node.ne);
-  stack.push(node.nw);
-  stack.push(node.se);
-  stack.push(node.sw);
-}
+  @override
+  final bool existed;
 
-/// A stack of nodes.
-class _NodeStack<T> {
-  /// The internal stack of nodes.
-  final List<T> _stack;
-
-  /// Creates a new stack.
-  /// The initial sets of [nodes] is pushed in order.
-  _NodeStack([
-    final List<T>? nodes,
-  ]) : _stack = <T>[] {
-    if (nodes != null) {
-      // ignore: prefer_foreach
-      for (final node in nodes) {
-        push(node);
-      }
-    }
-  }
-
-  /// Indicates if the task is empty.
-  bool get isEmpty => _stack.isEmpty;
-
-  /// Pops the the top node off the stack.
-  T get pop => _stack.removeLast();
-
-  /// Pushes the given node onto the top of the stack.
-  void push(
-    final T node,
-  ) =>
-      _stack.add(node);
-
-  /// Pushes a set of nodes onto the stack.
-  void pushAll(
-    final List<T> nodes,
-  ) {
-    // ignore: prefer_foreach
-    for (final node in nodes) {
-      push(node);
-    }
-  }
+  const InsertPointResultImpl(
+    final this.point,
+    final this.existed,
+  );
 }

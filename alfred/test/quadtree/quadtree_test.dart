@@ -4,11 +4,19 @@ import 'package:test/test.dart';
 
 void main() {
   runQuadtreeTestSuite<TestBlock>(
-    runTest: (final testName, final testfn) => test(
+    runTest: (
+      final testName,
+      final testfn,
+    ) =>
+        test(
       testName,
-      () => testfn(TestBlock()),
+      () => testfn(
+        TestBlock(),
+      ),
     ),
-    suite: (final args) => QuadTreeTestSuiteTest(args: args),
+    suite: (final args) => QuadTreeTestSuiteTest(
+      args: args,
+    ),
   );
 }
 
@@ -20,7 +28,9 @@ class QuadTreeTestSuiteTest with QuadTreeTestSuite {
   });
 
   @override
-  void onPlot(final Plotter plotter) {
+  void onPlot(
+    final Plotter plotter,
+  ) {
     // Don't plot.
   }
 }

@@ -134,6 +134,43 @@ class BodyElementImpl with BodyElementMixin<BodyElementImpl> {
   Null get style => null;
 }
 
+class CustomElementImpl with CustomElementMixin<CustomElementImpl> {
+  @override
+  final String? className;
+  @override
+  final String? id;
+  @override
+  final List<HtmlEntity> childNodes;
+  @override
+  final String tag;
+  @override
+  final Iterable<String> additionalAttributes;
+
+  const CustomElementImpl({
+    required final this.tag,
+    required final this.additionalAttributes,
+    required final this.childNodes,
+    final this.className,
+    final this.id,
+  });
+
+  @override
+  CustomElementImpl copyWith({
+    final String? className,
+    final String? id,
+  }) =>
+      CustomElementImpl(
+        childNodes: childNodes,
+        className: className ?? this.className,
+        id: id ?? this.id,
+        tag: tag,
+        additionalAttributes: additionalAttributes,
+      );
+
+  @override
+  Null get style => null;
+}
+
 class RawTextElementImpl with RawTextElementMixin {
   @override
   final String text;
@@ -155,6 +192,9 @@ class CssTextElementImpl with CssTextElementMixin {
   );
 }
 
+// TODO support integrity
+// TODO support crossorigin
+// TODO support rel
 class ScriptElementImpl with ScriptElementMixin<ScriptElementImpl> {
   @override
   final String? className;

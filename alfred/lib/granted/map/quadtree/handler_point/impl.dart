@@ -1,10 +1,10 @@
-import '../boundary/impl.dart';
+import '../boundary.dart';
 import '../edge/interface.dart';
 import '../handler_point/interface.dart';
 import '../node/point/interface.dart';
 import '../point/ops/equals.dart';
 import '../point/ops/side.dart';
-import '../quadtree/impl.dart';
+import '../quadtree/interface.dart';
 import 'interface.dart';
 
 /// Validation handler is an assistant method to the validate method.

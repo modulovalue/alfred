@@ -1,7 +1,6 @@
 import '../framework/mouse/mouse_handle_impl.dart';
 import '../framework/plotter/plotter_impl.dart';
-import 'quadtree/boundary/impl.dart';
-import 'quadtree/boundary/interface.dart';
+import 'quadtree/boundary.dart';
 import 'quadtree/edge/interface.dart';
 import 'quadtree/handler_edge/interface.dart';
 import 'quadtree/handler_node/interface.dart';
@@ -12,7 +11,7 @@ import 'quadtree/node/node/impl_empty.dart';
 import 'quadtree/node/node/interface.dart';
 import 'quadtree/node/point/interface.dart';
 import 'quadtree/point/interface.dart';
-import 'quadtree/quadtree/impl.dart';
+import 'quadtree/quadtree/interface.dart';
 
 /// A plotter customized to work with quad-trees.
 class QuadTreePlotter {

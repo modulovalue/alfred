@@ -7,7 +7,7 @@ import '../point/interface.dart';
 /// The edge node is a connection in the quad-tree
 /// between two point nodes. It represents a two
 /// dimensional directed line segment.
-// TODO remove bound.
+// TODO remove type bound.
 abstract class QTEdgeNode<T extends Object?> implements QTEdge<T> {
   /// Gets the start point node for the edge.
   PointNode get startNode;

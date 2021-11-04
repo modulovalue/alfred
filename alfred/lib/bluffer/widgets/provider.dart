@@ -1,7 +1,6 @@
 import '../base/keys.dart';
 import 'stateless.dart';
 import 'widget/impl/widget_mixin.dart';
-import 'widget/interface/build_context.dart';
 import 'widget/interface/widget.dart';
 
 class Provider<T> extends StatelessWidget {

@@ -1,4 +1,4 @@
-import '../../boundary/interface.dart';
+import '../../boundary.dart';
 import '../../handler_point/interface.dart';
 import '../../point/interface.dart';
 import '../boundary/interface.dart';

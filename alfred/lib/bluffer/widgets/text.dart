@@ -9,7 +9,6 @@ import '../html/html.dart';
 import '../html/html_impl.dart';
 import 'theme.dart';
 import 'widget/impl/widget_mixin.dart';
-import 'widget/interface/build_context.dart';
 import 'widget/interface/widget.dart';
 
 class Text implements Widget {

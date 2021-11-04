@@ -10,10 +10,20 @@ void main() {
     initialUrl: 'https://google.com/',
     userAgent: 'spidart',
   );
-  crawler.crawl(pageLimit: 500);
+  crawler.crawl(
+    pageLimit: 500,
+  );
 }
 
 class Crawler {
+  // TODO should this also include https?
+  static final RegExp _insecureHttpValidUrl = RegExp(
+    '("|\')http:\/\/(www.)?(\\w+?\.)+?\\w+?(\/[^"\']+?)*?("|\')',
+  );
+  static final RegExp _secureHttpValidUrl = RegExp(
+    '("|\')https:\/\/(www.)?(\\w+?\.)+?\\w+?(\/[^"\']+?)*?("|\')',
+  );
+
   /// The starting point of the crawl
   final String initialUrl;
 
@@ -37,15 +47,13 @@ class Crawler {
     required final this.initialUrl,
     final this.userAgent = 'spidart',
     final this.allowInsecureHttp = false,
-  }) : _validUrl = RegExp(
-          '("|\')http${() {
-            if (!allowInsecureHttp) {
-              return 's';
-            } else {
-              return '';
-            }
-          }}():\/\/(www.)?(\\w+?\.)+?\\w+?(\/[^"\']+?)*?("|\')',
-        );
+  }) : _validUrl = (() {
+          if (allowInsecureHttp) {
+            return _insecureHttpValidUrl;
+          } else {
+            return _secureHttpValidUrl;
+          }
+        }());
 
   /// Specifies a valid path match, disallowing links to files, scripts and images
   final RegExp _validPath = RegExp('"\/[^\.]+?"');

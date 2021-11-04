@@ -3,7 +3,7 @@ import 'dart:io';
 import '../../html/html.dart';
 import '../../widgets/localizations.dart';
 import '../../widgets/widget/impl/build_context.dart';
-import '../../widgets/widget/interface/build_context.dart';
+import '../../widgets/widget/interface/widget.dart';
 import '../app.dart';
 import '../assets.dart';
 import '../locale.dart';

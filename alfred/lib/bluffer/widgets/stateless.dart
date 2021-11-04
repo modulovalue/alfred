@@ -1,10 +1,9 @@
 import '../base/keys.dart';
 import '../html/html.dart';
 import 'widget/impl/widget_mixin.dart';
-import 'widget/interface/build_context.dart';
 import 'widget/interface/widget.dart';
 
-abstract class StatelessWidget implements Widget {
+abstract class StatelessWidget with ElementWidget {
   @override
   final Key? key;
 
@@ -25,6 +24,16 @@ abstract class StatelessWidget implements Widget {
       context: context,
     );
   }
+}
+
+mixin ElementWidget implements Widget {
+  @override
+  Key? get key => null;
+
+  @override
+  HtmlElement renderHtml({
+    required final BuildContext context,
+  });
 
   @override
   HtmlElement renderElement({

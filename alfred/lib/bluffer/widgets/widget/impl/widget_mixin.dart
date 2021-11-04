@@ -2,8 +2,6 @@ import '../../../base/keys.dart';
 import '../../../base/media_query_data.dart';
 import '../../../css/css.dart';
 import '../../../html/html.dart';
-import '../interface/build_context.dart';
-import '../interface/inherited_widget.dart';
 import '../interface/widget.dart';
 
 HtmlElement renderWidget({
@@ -15,7 +13,9 @@ HtmlElement renderWidget({
   );
   return renderedChildHtml.copyWith(
     className: () {
-      final renderedChildCss = child.renderCss(context: context);
+      final renderedChildCss = child.renderCss(
+        context: context,
+      );
       if (renderedChildCss != null) {
         final newClass = context.createDefaultKey().className;
         context.setStyle(

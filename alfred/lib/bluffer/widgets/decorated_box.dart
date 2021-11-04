@@ -11,7 +11,6 @@ import '../html/html_impl.dart';
 import 'flex.dart';
 import 'widget/impl/resolve_url.dart';
 import 'widget/impl/widget_mixin.dart';
-import 'widget/interface/build_context.dart';
 import 'widget/interface/widget.dart';
 
 class DecoratedBox implements Widget {

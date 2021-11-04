@@ -1,5 +1,4 @@
-import '../../boundary/impl.dart';
-import '../../boundary/interface.dart';
+import '../../boundary.dart';
 import '../../boundary_region/interface.dart';
 import '../../edge/interface.dart';
 import '../../first_left_edge_args/interface.dart';

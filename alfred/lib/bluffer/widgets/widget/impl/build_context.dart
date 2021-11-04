@@ -1,8 +1,7 @@
 import '../../../base/assets.dart';
 import '../../../base/keys.dart';
 import '../../../css/css.dart';
-import '../interface/build_context.dart';
-import '../interface/inherited_widget.dart';
+import '../interface/widget.dart';
 
 class BuildContextImpl implements BuildContext {
   static int lastKeyIndex = 0;
