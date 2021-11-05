@@ -2,7 +2,7 @@ import '../css/css.dart';
 import 'html.dart';
 import 'html_mixin.dart';
 
-class BRElementImpl with BRElementMixin<BRElementImpl> {
+class BRElementImpl with HtmlElementMixin<BRElementImpl> {
   @override
   final String? className;
   @override
@@ -20,18 +20,13 @@ class BRElementImpl with BRElementMixin<BRElementImpl> {
   Null get style => null;
 
   @override
-  BRElementImpl copyWith({
-    final String? className,
-    final String? id,
-  }) =>
-      BRElementImpl(
-        childNodes: childNodes,
-        className: className ?? this.className,
-        id: id ?? this.id,
-      );
+  Iterable<String> get additionalAttributes => const [];
+
+  @override
+  String get tag => "br";
 }
 
-class HtmlHtmlElementImpl with HtmlHtmlElementMixin<HtmlHtmlElementImpl> {
+class HtmlHtmlElementImpl with HtmlElementMixin<HtmlHtmlElementImpl> {
   @override
   final String? className;
   @override
@@ -49,18 +44,13 @@ class HtmlHtmlElementImpl with HtmlHtmlElementMixin<HtmlHtmlElementImpl> {
   Null get style => null;
 
   @override
-  HtmlHtmlElementImpl copyWith({
-    final String? className,
-    final String? id,
-  }) =>
-      HtmlHtmlElementImpl(
-        childNodes: childNodes,
-        className: className ?? this.className,
-        id: id ?? this.id,
-      );
+  Iterable<String> get additionalAttributes => const [];
+
+  @override
+  String get tag => "html";
 }
 
-class MetaElementImpl with MetaElementMixin<MetaElementImpl> {
+class MetaElementImpl with HtmlElementMixin<MetaElementImpl> {
   @override
   final String? className;
   @override
@@ -80,32 +70,21 @@ class MetaElementImpl with MetaElementMixin<MetaElementImpl> {
   Null get style => null;
 
   @override
-  MetaElementImpl copyWith({
-    final String? className,
-    final String? id,
-  }) =>
-      MetaElementImpl(
-        childNodes: childNodes,
-        attributes: attributes,
-        className: className ?? this.className,
-        id: id ?? this.id,
-      );
+  Iterable<String> get additionalAttributes {
+    final _attributes = <String>[];
+    attributes.forEach(
+      (final key, final value) => _attributes.add(
+        key + '="' + value + '"',
+      ),
+    );
+    return _attributes;
+  }
 
   @override
-  void setAttribute({
-    required final String key,
-    required final String value,
-  }) =>
-      attributes[key] = value;
-
-  @override
-  void forEachAttribute({
-    required final void Function(String key, String value) forEach,
-  }) =>
-      attributes.forEach(forEach);
+  String get tag => "meta";
 }
 
-class BodyElementImpl with BodyElementMixin<BodyElementImpl> {
+class BodyElementImpl with HtmlElementMixin<BodyElementImpl> {
   @override
   final String? className;
   @override
@@ -120,21 +99,16 @@ class BodyElementImpl with BodyElementMixin<BodyElementImpl> {
   });
 
   @override
-  BodyElementImpl copyWith({
-    final String? className,
-    final String? id,
-  }) =>
-      BodyElementImpl(
-        childNodes: childNodes,
-        className: className ?? this.className,
-        id: id ?? this.id,
-      );
+  Null get style => null;
 
   @override
-  Null get style => null;
+  Iterable<String> get additionalAttributes => const [];
+
+  @override
+  String get tag => "body";
 }
 
-class CustomElementImpl with CustomElementMixin<CustomElementImpl> {
+class CustomElementImpl with HtmlElementMixin<CustomElementImpl> {
   @override
   final String? className;
   @override
@@ -153,19 +127,6 @@ class CustomElementImpl with CustomElementMixin<CustomElementImpl> {
     final this.className,
     final this.id,
   });
-
-  @override
-  CustomElementImpl copyWith({
-    final String? className,
-    final String? id,
-  }) =>
-      CustomElementImpl(
-        childNodes: childNodes,
-        className: className ?? this.className,
-        id: id ?? this.id,
-        tag: tag,
-        additionalAttributes: additionalAttributes,
-      );
 
   @override
   Null get style => null;
@@ -192,10 +153,20 @@ class CssTextElementImpl with CssTextElementMixin {
   );
 }
 
+abstract class ScriptElement<SELF extends ScriptElement<SELF>> implements HtmlElement<SELF> {
+  bool? get async;
+
+  bool? get defer;
+
+  String? get src;
+
+  String? get content;
+}
+
 // TODO support integrity
 // TODO support crossorigin
 // TODO support rel
-class ScriptElementImpl with ScriptElementMixin<ScriptElementImpl> {
+class ScriptElementImpl with HtmlElementMixin<ScriptElementImpl> implements ScriptElement<ScriptElementImpl> {
   @override
   final String? className;
   @override
@@ -211,7 +182,7 @@ class ScriptElementImpl with ScriptElementMixin<ScriptElementImpl> {
   @override
   final String? content;
 
-  ScriptElementImpl({
+  const ScriptElementImpl({
     required final this.childNodes,
     final this.async,
     final this.defer,
@@ -222,34 +193,36 @@ class ScriptElementImpl with ScriptElementMixin<ScriptElementImpl> {
   });
 
   @override
-  ScriptElementImpl copyWith({
-    final String? className,
-    final String? id,
-  }) =>
-      ScriptElementImpl(
-        childNodes: childNodes,
-        async: async,
-        defer: defer,
-        src: src,
-        content: content,
-        className: className ?? this.className,
-        id: id ?? this.id,
-      );
+  Null get style => null;
 
   @override
-  Null get style => null;
+  Iterable<String> get additionalAttributes sync* {
+    final _src = src;
+    if (_src != null) {
+      yield 'src="' + _src + '"';
+    }
+    final _async = async;
+    if (_async != null) {
+      yield 'async="' + _async.toString() + '"';
+    }
+    final _defer = defer;
+    if (_defer != null) {
+      yield 'defer="' + _defer.toString() + '"';
+    }
+  }
+
+  @override
+  String get tag => "script";
 }
 
-class LinkElementImpl with LinkElementMixin<LinkElementImpl> {
+class LinkElementImpl with HtmlElementMixin<LinkElementImpl> {
   @override
   final String? className;
   @override
   final String? id;
   @override
   final List<HtmlEntity> childNodes;
-  @override
   final String? href;
-  @override
   final String? rel;
 
   LinkElementImpl({
@@ -261,56 +234,56 @@ class LinkElementImpl with LinkElementMixin<LinkElementImpl> {
   });
 
   @override
-  LinkElementImpl copyWith({
-    final String? className,
-    final String? id,
-  }) =>
-      LinkElementImpl(
-        href: href,
-        rel: rel,
-        childNodes: childNodes,
-        className: className ?? this.className,
-        id: id ?? this.id,
-      );
+  Null get style => null;
 
   @override
-  Null get style => null;
+  Iterable<String> get additionalAttributes sync* {
+    final _href = href;
+    if (_href != null) {
+      yield 'href="' + _href + '"';
+    }
+    final _rel = rel;
+    if (_rel != null) {
+      yield 'rel="' + _rel + '"';
+    }
+  }
+
+  @override
+  String get tag => "link";
 }
 
-class TitleElementImpl with TitleElementMixin<TitleElementImpl> {
+class TitleElementImpl with HtmlElementMixin<TitleElementImpl> {
   @override
   final String? className;
   @override
   final String? id;
-  @override
-  final List<HtmlEntity> childNodes;
-  @override
   final String? text;
 
   TitleElementImpl({
-    required final this.childNodes,
     required final this.text,
     final this.className,
     final this.id,
   });
 
   @override
-  TitleElementImpl copyWith({
-    final String? className,
-    final String? id,
-  }) =>
-      TitleElementImpl(
-        childNodes: childNodes,
-        text: text,
-        className: className ?? this.className,
-        id: id ?? this.id,
-      );
+  Iterable<HtmlEntity> get childNodes sync* {
+    yield RawTextElementImpl(
+      text ?? "",
+    );
+  }
 
   @override
   Null get style => null;
+
+  @override
+  Iterable<String> get additionalAttributes => const [];
+
+  @override
+  String get tag => "title";
 }
 
-class StyleElementImpl with StyleElementMixin<StyleElementImpl> {
+// TODO find a way to remove the is check for this element where this element is is'ed
+class StyleElementImpl with HtmlElementMixin<StyleElementImpl> {
   @override
   final String? className;
   @override
@@ -325,59 +298,23 @@ class StyleElementImpl with StyleElementMixin<StyleElementImpl> {
   });
 
   @override
-  StyleElementImpl copyWith({
-    final String? className,
-    final String? id,
-  }) =>
-      StyleElementImpl(
-        childNodes: childNodes,
-        className: className ?? this.className,
-        id: id ?? this.id,
-      );
+  Null get style => null;
 
   @override
-  Null get style => null;
+  Iterable<String> get additionalAttributes => [];
+
+  @override
+  String get tag => "style";
 }
 
-class ParagraphElementImpl with ParagraphElementMixin<ParagraphElementImpl> {
+class ImageElementImpl with HtmlElementMixin<ImageElementImpl> {
   @override
   final String? className;
   @override
   final String? id;
   @override
   final List<HtmlEntity> childNodes;
-
-  ParagraphElementImpl({
-    required final this.childNodes,
-    final this.className,
-    final this.id,
-  });
-
-  @override
-  ParagraphElementImpl copyWith({
-    final String? className,
-    final String? id,
-  }) =>
-      ParagraphElementImpl(
-        childNodes: childNodes,
-        className: className ?? this.className,
-        id: id ?? this.id,
-      );
-
-  @override
-  Null get style => null;
-}
-
-class ImageElementImpl with ImageElementMixin<ImageElementImpl> {
-  @override
-  final String? className;
-  @override
-  final String? id;
-  @override
-  final List<HtmlEntity> childNodes;
-  @override
   final String? alt;
-  @override
   final String? src;
 
   ImageElementImpl({
@@ -389,89 +326,97 @@ class ImageElementImpl with ImageElementMixin<ImageElementImpl> {
   });
 
   @override
-  ImageElementImpl copyWith({
-    final String? className,
-    final String? id,
-  }) =>
-      ImageElementImpl(
-        alt: alt,
-        src: src,
-        childNodes: childNodes,
-        className: className ?? this.className,
-        id: id ?? this.id,
-      );
+  Null get style => null;
 
   @override
-  Null get style => null;
+  Iterable<String> get additionalAttributes sync* {
+    final _src = src;
+    if (_src != null) {
+      yield 'src="' + _src + '"';
+    }
+    final _alt = alt;
+    if (_alt != null) {
+      yield 'alt="' + _alt + '"';
+    }
+  }
+
+  @override
+  String get tag => "img";
 }
 
-class DivElementImpl with DivElementMixin<DivElementImpl> {
+class DivElementImpl with HtmlElementMixin<DivElementImpl> {
   @override
   final String? className;
   @override
   final String? id;
   @override
   final List<HtmlEntity> childNodes;
+  final Iterable<MapEntry<String, String>> otherAdditionalAttributes;
 
-  DivElementImpl({
+  const DivElementImpl({
     required final this.childNodes,
+    final this.otherAdditionalAttributes = const [],
     final this.className,
     final this.id,
   });
 
   @override
-  DivElementImpl copyWith({
-    final String? className,
-    final String? id,
-  }) =>
-      DivElementImpl(
-        childNodes: childNodes,
-        className: className ?? this.className,
-        id: id ?? this.id,
-      );
+  Null get style => null;
 
   @override
-  Null get style => null;
+  Iterable<String> get additionalAttributes sync* {
+    for (final a in otherAdditionalAttributes) {
+      yield a.key + '="' + a.value + '"';
+    }
+  }
+
+  @override
+  String get tag => "div";
 }
 
-class AnchorElementImpl with AnchorElementMixin<AnchorElementImpl> {
+class AnchorElementImpl with HtmlElementMixin<AnchorElementImpl> {
   @override
   final String? className;
   @override
   final String? id;
   @override
   final List<HtmlEntity> childNodes;
-  @override
   final String? href;
-  @override
   final String? target;
+  final Iterable<MapEntry<String, String>> otherAdditionalAttributes;
 
-  AnchorElementImpl({
+  const AnchorElementImpl({
     required final this.href,
-    required final this.target,
     required final this.childNodes,
+    final this.target,
     final this.className,
     final this.id,
+    final this.otherAdditionalAttributes = const [],
   });
 
   @override
-  AnchorElementImpl copyWith({
-    final String? className,
-    final String? id,
-  }) =>
-      AnchorElementImpl(
-        href: href,
-        target: target,
-        childNodes: childNodes,
-        className: className ?? this.className,
-        id: id ?? this.id,
-      );
+  Null get style => null;
 
   @override
-  Null get style => null;
+  Iterable<String> get additionalAttributes sync* {
+    final _href = href;
+    if (_href != null) {
+      yield 'href="' + _href + '"';
+    }
+    final _target = target;
+    if (_target != null) {
+      yield 'target="' + _target + '"';
+    }
+    for (final a in otherAdditionalAttributes) {
+      yield a.key + '="' + a.value + '"';
+    }
+  }
+
+  @override
+  String get tag => "a";
 }
 
-class HeadElementImpl with HeadElementMixin<HeadElementImpl> {
+class HeadElementImpl with HtmlElementMixin<HeadElementImpl> {
   @override
   final String? className;
   @override
@@ -486,16 +431,11 @@ class HeadElementImpl with HeadElementMixin<HeadElementImpl> {
   });
 
   @override
-  HeadElementImpl copyWith({
-    final String? className,
-    final String? id,
-  }) =>
-      HeadElementImpl(
-        childNodes: childNodes,
-        className: className ?? this.className,
-        id: id ?? this.id,
-      );
+  Null get style => null;
 
   @override
-  Null get style => null;
+  Iterable<String> get additionalAttributes => const [];
+
+  @override
+  String get tag => "head";
 }

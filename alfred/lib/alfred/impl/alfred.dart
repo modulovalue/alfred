@@ -67,6 +67,7 @@ AlfredImpl makeSimpleAlfred({
 }) =>
     AlfredImpl.raw(
       routes: <AlfredHttpRoute>[],
+      // TODO delegate for onNotFound and onInternalError with a default implementation.
       onNotFound: onNotFound ?? const NotFound404Middleware(),
       onInternalError: onInternalError ??
           (final a) => InternalError500Middleware(

@@ -4,9 +4,14 @@ class Breakpoint {
   final int minSize;
   final MediaSize size;
 
-  const Breakpoint(this.size, this.minSize);
+  const Breakpoint(
+    final this.size,
+    final this.minSize,
+  );
 
-  static int defaultBreakpointSize(MediaSize size) {
+  static int defaultBreakpointSize(
+    final MediaSize size,
+  ) {
     switch (size) {
       case MediaSize.xsmall:
         return 0;

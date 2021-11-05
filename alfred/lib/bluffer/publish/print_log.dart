@@ -1,5 +1,5 @@
-import '../app.dart';
-import '../locale.dart';
+import '../base/app.dart';
+import '../base/locale.dart';
 import 'publish.dart';
 
 /// A [PublishingLog] that exposes log messages using [print].

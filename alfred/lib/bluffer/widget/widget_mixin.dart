@@ -1,8 +1,8 @@
-import '../../../base/keys.dart';
-import '../../../base/media_query_data.dart';
-import '../../../css/css.dart';
-import '../../../html/html.dart';
-import '../interface/widget.dart';
+import '../base/keys.dart';
+import '../base/media_query_data.dart';
+import '../css/css.dart';
+import '../html/html.dart';
+import 'widget.dart';
 
 HtmlElement renderWidget({
   required final Widget child,
@@ -11,7 +11,7 @@ HtmlElement renderWidget({
   final renderedChildHtml = child.renderHtml(
     context: context,
   );
-  return renderedChildHtml.copyWith(
+  return renderedChildHtml.overwrite(
     className: () {
       final renderedChildCss = child.renderCss(
         context: context,
@@ -42,7 +42,7 @@ HtmlElement renderWidget({
         return null;
       }
     }(),
-  ) as HtmlElement /* TODO very bad, find a way to remove this cast. */;
+  );
 }
 
 mixin InheritedWidgetMixin implements InheritedWidget {

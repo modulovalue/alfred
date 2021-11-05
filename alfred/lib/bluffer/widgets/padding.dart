@@ -1,12 +1,12 @@
 import '../base/edge_insets.dart';
 import '../base/keys.dart';
-import '../css/css.dart';
+import '../css/null_mixin.dart';
 import '../html/html.dart';
 import '../html/html_impl.dart';
-import 'widget/impl/widget_mixin.dart';
-import 'widget/interface/widget.dart';
+import '../widget/widget.dart';
+import 'stateless.dart';
 
-class Padding implements Widget {
+class Padding with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMixin implements Widget {
   final Widget? child;
   final EdgeInsets? padding;
   @override
@@ -19,39 +19,37 @@ class Padding implements Widget {
   });
 
   @override
-  CssStyleDeclaration renderCss({
-    required final BuildContext context,
-  }) =>
-      CssStyleDeclaration2Impl(
-        css_display: "flex",
-        css_margin: () {
-          if (padding != null) {
-            return '${padding!.top}px ${padding!.right}px ${padding!.bottom}px ${padding!.left}px';
-          } else {
-            return null;
-          }
-        }(),
-      );
+  String get css_display => "flex";
+
+  @override
+  String? get css_margin {
+    final _padding = padding;
+    if (_padding != null) {
+      return _padding.top.toString() +
+          'px ' +
+          _padding.right.toString() +
+          'px ' +
+          _padding.bottom.toString() +
+          'px ' +
+          _padding.left.toString() +
+          'px';
+    } else {
+      return null;
+    }
+  }
 
   @override
   HtmlElement renderHtml({
     required final BuildContext context,
   }) {
     if (child == null) {
-      return DivElementImpl(childNodes: []);
+      return DivElementImpl(
+        childNodes: [],
+      );
     } else {
       return child!.renderElement(
         context: context,
       );
     }
   }
-
-  @override
-  HtmlElement renderElement({
-    required final BuildContext context,
-  }) =>
-      renderWidget(
-        child: this,
-        context: context,
-      );
 }

@@ -1,4 +1,4 @@
-import '../interface/widget.dart';
+import 'widget.dart';
 import 'widget_mixin.dart';
 
 String resolveUrl({

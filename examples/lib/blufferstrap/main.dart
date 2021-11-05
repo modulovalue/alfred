@@ -1,45 +1,25 @@
-import 'dart:io';
-
 import 'package:alfred/bluffer/base/app.dart';
 import 'package:alfred/bluffer/base/edge_insets.dart';
-import 'package:alfred/bluffer/base/publish/publish.dart';
-import 'package:alfred/bluffer/base/publish/serialize.dart';
-import 'package:alfred/bluffer/bootstrap_5/button.dart';
-import 'package:alfred/bluffer/html/html_impl.dart';
+import 'package:alfred/bluffer/publish/publish.dart';
+import 'package:alfred/bluffer/publish/simple_serialize.dart';
+import 'package:alfred/bluffer/systems/bootstrap_5/button.dart';
+import 'package:alfred/bluffer/systems/bootstrap_5/include.dart';
+import 'package:alfred/bluffer/widget/widget.dart';
 import 'package:alfred/bluffer/widgets/flex.dart';
 import 'package:alfred/bluffer/widgets/padding.dart';
 import 'package:alfred/bluffer/widgets/sized_box.dart';
-import 'package:alfred/bluffer/widgets/widget/interface/widget.dart';
 
-// TODO finish https://www.tutorialrepublic.com/twitter-bootstrap-tutorial/bootstrap-get-started.php
+// TODO implement more from https://www.tutorialrepublic.com/twitter-bootstrap-tutorial/bootstrap-get-started.php
+// TODO bootstrap navbar, better with an html element that is less typesafe by passing on pure html?
 void main() {
   publishRaw(
     publishContext: PublishAppContextDefault(
-      serialize: (final path, final element) {
-        final file = File(path);
-        final serializedHtml = serializeHtmlElement(
-          element: element,
-        );
-        file.writeAsStringSync(
-          serializedHtml,
-        );
-      },
+      serialize: serializeToDisk,
       application: App(
         application: (final route) => AppWidget(
           route: route,
           enableCssReset: false,
-          // TODO have a bootstrap include model.
-          scriptLinks: [
-            ScriptElementImpl(
-              // TODO rel crossorigin integrity https://www.tutorialrepublic.com/twitter-bootstrap-tutorial/bootstrap-get-started.php
-              src: "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js",
-              childNodes: [],
-            ),
-          ],
-          stylesheetLinks: [
-            // TODO rel crossorigin integrity https://www.tutorialrepublic.com/twitter-bootstrap-tutorial/bootstrap-get-started.php
-            "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css",
-          ],
+          includes: bootstrapIncludes,
         ),
         routes: [
           UrlWidgetRoute(
@@ -172,7 +152,7 @@ void main() {
                       ),
                     ],
                   ),
-                ]
+                ],
               ),
             ),
           ),

@@ -1,6 +1,6 @@
 import '../../../bluffer/base/app.dart';
-import '../../../bluffer/base/util/single_file.dart';
-import '../../../bluffer/widgets/widget/interface/widget.dart';
+import '../../../bluffer/publish/single_file.dart';
+import '../../../bluffer/widget/widget.dart';
 import '../../interface/middleware.dart';
 import '../../interface/serve_context.dart';
 import 'html.dart';
@@ -81,10 +81,14 @@ class ServeWidgetAppBuilderImpl implements ServeWidget {
   final Widget Function(ServeContext, BuildContext) builder;
   final String title;
   final void Function()? onProcess;
+  final AppIncludes includes;
+  final bool enableCssReset;
 
   const ServeWidgetAppBuilderImpl({
     required final this.title,
     required final this.builder,
+    final this.includes = const AppIncludesEmptyImpl(),
+    final this.enableCssReset = true,
     final this.onProcess,
   });
 
@@ -95,6 +99,8 @@ class ServeWidgetAppBuilderImpl implements ServeWidget {
     onProcess?.call();
     final html = singlePage(
       builder: (final context) => AppWidget(
+        includes: includes,
+        enableCssReset: enableCssReset,
         route: WidgetRouteSimpleImpl(
           title: title,
           child: builder(c, context),

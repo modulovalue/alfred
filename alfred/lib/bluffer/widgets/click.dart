@@ -1,13 +1,12 @@
-// TODO get rid of this dependency.
+// TODO remove this dependency.
 import 'dart:io';
 
 import '../base/keys.dart';
-import '../css/css.dart';
 import '../html/html.dart';
 import '../html/html_impl.dart';
-import 'widget/impl/resolve_url.dart';
-import 'widget/impl/widget_mixin.dart';
-import 'widget/interface/widget.dart';
+import '../widget/resolve_url.dart';
+import '../widget/widget.dart';
+import 'stateless.dart';
 
 enum ClickState {
   inactive,
@@ -15,7 +14,7 @@ enum ClickState {
   active,
 }
 
-class Click implements Widget {
+class Click with NoCSSMixin, RenderElementMixin implements Widget {
   final String url;
   final Widget Function(BuildContext context, ClickState value) builder;
   final bool newTab;
@@ -58,7 +57,7 @@ class Click implements Widget {
               context: context,
             );
             // TODO need a redirecting node that can mutate the class name and redirect the rest.
-            return inactive.copyWith(
+            return inactive.overwrite(
               className: inactive.className! + ' inactive',
             );
           }(),
@@ -70,7 +69,7 @@ class Click implements Widget {
             final active = builtActive.renderElement(
               context: context,
             );
-            return active.copyWith(
+            return active.overwrite(
               className: active.className! + ' active',
             );
           }(),
@@ -82,25 +81,10 @@ class Click implements Widget {
             final hover = builtHover.renderElement(
               context: context,
             );
-            return hover.copyWith(
+            return hover.overwrite(
               className: hover.className! + ' hover',
             );
           }(),
         ],
       );
-
-  @override
-  HtmlElement renderElement({
-    required final BuildContext context,
-  }) =>
-      renderWidget(
-        context: context,
-        child: this,
-      );
-
-  @override
-  CssStyleDeclaration? renderCss({
-    required final BuildContext context,
-  }) =>
-      null;
 }

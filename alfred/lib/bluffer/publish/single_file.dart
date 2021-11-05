@@ -1,11 +1,11 @@
-import '../../widgets/builder.dart';
-import '../../widgets/theme.dart';
-import '../../widgets/widget/impl/build_context.dart';
-import '../../widgets/widget/impl/widget_mixin.dart';
-import '../../widgets/widget/interface/widget.dart';
-import '../assets.dart';
-import '../media_query_data.dart';
-import '../publish/serialize.dart';
+import '../base/assets.dart';
+import '../base/media_query_data.dart';
+import '../widget/build_context.dart';
+import '../widget/widget.dart';
+import '../widget/widget_mixin.dart';
+import '../widgets/builder.dart';
+import '../widgets/theme.dart';
+import 'serialize.dart';
 
 String singlePage({
   required final Widget Function(BuildContext) builder,

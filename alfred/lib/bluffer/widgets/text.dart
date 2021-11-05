@@ -5,13 +5,14 @@ import '../base/keys.dart';
 import '../base/locale.dart';
 import '../base/text.dart';
 import '../css/css.dart';
+import '../css/null_mixin.dart';
 import '../html/html.dart';
 import '../html/html_impl.dart';
+import '../widget/widget.dart';
+import 'stateless.dart';
 import 'theme.dart';
-import 'widget/impl/widget_mixin.dart';
-import 'widget/interface/widget.dart';
 
-class Text implements Widget {
+class Text with RenderElementMixin {
   @override
   final Key? key;
 
@@ -114,13 +115,17 @@ class Text implements Widget {
   }) {
     final splitLineIterable = LineSplitter.split(data);
     final lines = splitLineIterable.toList();
-    return ParagraphElementImpl(
+    return CustomElementImpl(
+      tag: "p",
+      additionalAttributes: [],
       childNodes: [
-        if (lines.isNotEmpty) // 
+        if (lines.isNotEmpty) //
           RawTextElementImpl(lines.first),
         if (lines.length > 1)
           for (final line in lines.skip(1)) ...[
-            BRElementImpl(childNodes: []),
+            BRElementImpl(
+              childNodes: [],
+            ),
             RawTextElementImpl(line),
           ],
       ],
@@ -142,41 +147,67 @@ class Text implements Widget {
         return _themeStyle.merge(_style);
       }
     }();
-    return CssStyleDeclaration2Impl(
-      css_textAlign: () {
-        if (textAlign != null) {
-          switch (textAlign!) {
-            case TextAlign.end:
-              // TODO should respect text direction.
-              return 'right';
-            case TextAlign.right:
-              return 'right';
-            case TextAlign.center:
-              return 'center';
-            case TextAlign.left:
-              return 'left';
-            case TextAlign.justify:
-              // TODO is this correct?
-              return 'left';
-            case TextAlign.start:
-              // TODO should respect text direction.
-              return 'left';
-          }
-        } else {
-          return null;
-        }
-      }(),
-      css_lineHeight: () {
-        if (textStyles.height != null) {
-          return textStyles.height.toString();
-        } else {
-          return null;
-        }
-      }(),
-      css_display: 'flex',
-      css_fontSize: (textStyles.fontSize ?? 12).toString(),
-      css_color: (textStyles.color ?? const Color(0xFF000000)).toCss(),
-      css_fontWeight: const <int, String>{
+    return _TextCSS(
+      text: this,
+      textStyles: textStyles,
+    );
+  }
+}
+
+class _TextCSS with CssStyleDeclarationNullMixin {
+  final Text text;
+  final TextStyle textStyles;
+
+  const _TextCSS({
+    required final this.text,
+    required final this.textStyles,
+  });
+
+  @override
+  String? get css_textAlign {
+    if (text.textAlign != null) {
+      switch (text.textAlign!) {
+        case TextAlign.end:
+          // TODO should respect text direction.
+          return 'right';
+        case TextAlign.right:
+          return 'right';
+        case TextAlign.center:
+          return 'center';
+        case TextAlign.left:
+          return 'left';
+        case TextAlign.justify:
+          // TODO is this correct?
+          return 'left';
+        case TextAlign.start:
+          // TODO should respect text direction.
+          return 'left';
+      }
+    } else {
+      return null;
+    }
+  }
+
+  @override
+  String? get css_lineHeight {
+    if (textStyles.height != null) {
+      return textStyles.height.toString();
+    } else {
+      return null;
+    }
+  }
+
+  @override
+  String get css_display => 'flex';
+
+  @override
+  String get css_fontSize => (textStyles.fontSize ?? 12).toString();
+
+  @override
+  String get css_color => (textStyles.color ?? const Color(0xFF000000)).toCss();
+
+  @override
+  String? get css_fontWeight => const <int, String>{
         0: '100',
         1: '200',
         2: '300',
@@ -186,22 +217,13 @@ class Text implements Widget {
         6: '700',
         7: '800',
         8: '900',
-      }[textStyles.fontWeight?.index ?? FontWeight.w400.index],
-      css_fontFamily: <String>[
+      }[textStyles.fontWeight?.index ?? FontWeight.w400.index];
+
+  @override
+  String get css_fontFamily => <String>[
         if (textStyles.fontFamily != null) //
           "'" + textStyles.fontFamily! + "'",
         if (textStyles.fontFamilyFallback != null) //
           ...textStyles.fontFamilyFallback!
-      ].join(', '),
-    );
-  }
-
-  @override
-  HtmlElement renderElement({
-    required final BuildContext context,
-  }) =>
-      renderWidget(
-        child: this,
-        context: context,
-      );
+      ].join(', ');
 }

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:alfred/bluffer/base/app.dart';
 import 'package:alfred/bluffer/base/border_radius.dart';
 import 'package:alfred/bluffer/base/color.dart';
@@ -8,9 +6,10 @@ import 'package:alfred/bluffer/base/edge_insets.dart';
 import 'package:alfred/bluffer/base/geometry.dart';
 import 'package:alfred/bluffer/base/image.dart';
 import 'package:alfred/bluffer/base/locale.dart';
-import 'package:alfred/bluffer/base/publish/publish.dart';
-import 'package:alfred/bluffer/base/publish/serialize.dart';
 import 'package:alfred/bluffer/base/text.dart';
+import 'package:alfred/bluffer/publish/publish.dart';
+import 'package:alfred/bluffer/publish/simple_serialize.dart';
+import 'package:alfred/bluffer/widget/widget.dart';
 import 'package:alfred/bluffer/widgets/click.dart';
 import 'package:alfred/bluffer/widgets/container.dart';
 import 'package:alfred/bluffer/widgets/flex.dart';
@@ -20,21 +19,12 @@ import 'package:alfred/bluffer/widgets/padding.dart';
 import 'package:alfred/bluffer/widgets/sized_box.dart';
 import 'package:alfred/bluffer/widgets/text.dart';
 import 'package:alfred/bluffer/widgets/theme.dart';
-import 'package:alfred/bluffer/widgets/widget/interface/widget.dart';
 
 // Run 'dart main.dart' so that assets are located correctly.
 void main() {
   publishRaw(
     publishContext: PublishAppContextDefault(
-      serialize: (final path, final element) {
-        final file = File(path);
-        final serializedHtml = serializeHtmlElement(
-          element: element,
-        );
-        file.writeAsStringSync(
-          serializedHtml,
-        );
-      },
+      serialize: serializeToDisk,
       application: App(
         supportedLocales: [
           const Locale('fr', 'FR'),

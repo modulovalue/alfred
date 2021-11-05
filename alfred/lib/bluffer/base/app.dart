@@ -1,22 +1,17 @@
 import '../html/html.dart';
 import '../html/html_impl.dart';
+import '../widget/widget.dart';
+import '../widget/widget_mixin.dart';
 import '../widgets/builder.dart';
 import '../widgets/localizations.dart';
+import '../widgets/stateless.dart';
 import '../widgets/theme.dart';
-import '../widgets/widget/impl/widget_mixin.dart';
-import '../widgets/widget/interface/widget.dart';
 import 'breakpoint.dart';
 import 'keys.dart';
 import 'locale.dart';
 import 'media_query_data.dart';
 
-class App implements Widget {
-  static const List<Locale> defaultSupportedLocales = <Locale>[
-    Locale('en', 'US'),
-  ];
-
-  static const List<LocalizationsDelegate<dynamic>> defaultDelegates = <LocalizationsDelegate<dynamic>>[];
-
+class App with NoCSSMixin implements Widget {
   final String? currentRoute;
   final List<UrlWidgetRoute> routes;
   final AppWidget Function(WidgetRoute) application;
@@ -32,8 +27,10 @@ class App implements Widget {
     required final this.routes,
     required final this.application,
     final this.currentRoute,
-    final this.supportedLocales = defaultSupportedLocales,
-    final this.delegates = defaultDelegates,
+    final this.supportedLocales = const <Locale>[
+      Locale('en', 'US'),
+    ],
+    final this.delegates = const <LocalizationsDelegate<dynamic>>[],
   });
 
   App withCurrentRoute(
@@ -49,6 +46,7 @@ class App implements Widget {
   HtmlElement renderHtml({
     required final BuildContext context,
   }) {
+    // TODO firstWhere is bad because it will throw if nothing is found use firstWhereOrNull or do it manually.
     final currentRoute = routes.firstWhere(
       (final x) => x.relativeUrl == this.currentRoute,
     );
@@ -70,25 +68,18 @@ class App implements Widget {
       context: context,
     );
   }
-
-  @override
-  Null renderCss({
-    required final BuildContext context,
-  }) =>
-      null;
 }
 
-// TODO put stylesheetlinks and scriptlinks into own model.
-class AppWidget<ROUTE extends WidgetRoute> implements Widget {
-  static const List<MediaSize> availableSizes = MediaSize.values;
-
+class AppWidget<ROUTE extends WidgetRoute> with NoCSSMixin implements Widget {
   final ROUTE route;
-  final List<String> stylesheetLinks;
-  final List<ScriptElement> scriptLinks;
+  final AppIncludes includes;
   final ThemeData Function(BuildContext context)? theme;
   final Widget Function(BuildContext context, ROUTE child)? builder;
   @override
   final Key? key = null;
+
+  // TODO combine this delegate and include into an "AppSetup" model.
+  // TODO have a "(reset|default style) delegate".
   final bool enableCssReset;
 
   AppWidget({
@@ -96,8 +87,7 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
     final this.theme,
     final this.enableCssReset = true,
     final this.builder,
-    final this.stylesheetLinks = const <String>[],
-    final this.scriptLinks = const <ScriptElement>[],
+    final this.includes = const AppIncludesEmptyImpl(),
   });
 
   @override
@@ -119,7 +109,7 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
                   'content': 'width=device-width, initial-scale=1',
                 },
               ),
-              for (final link in stylesheetLinks) //
+              for (final link in includes.stylesheetLinks) //
                 LinkElementImpl(
                   childNodes: [],
                   href: link,
@@ -130,6 +120,7 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
           ),
           StyleElementImpl(
             childNodes: [
+              // TODO have a reset delegate.
               if (enableCssReset)
                 const RawTextElementImpl(
                   resetCss,
@@ -138,10 +129,10 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
                 const RawTextElementImpl(
                   baseCss,
                 ),
-              for (final size in availableSizes)
+              for (final size in MediaSize.values)
                 RawTextElementImpl(
                   mediaClassForMediaSize(
-                    availableSizes,
+                    MediaSize.values,
                     size,
                   ),
                 ),
@@ -149,7 +140,7 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
           ),
           BodyElementImpl(
             childNodes: [
-              for (final size in availableSizes)
+              for (final size in MediaSize.values)
                 DivElementImpl(
                   className: 'size' + size.index.toString(),
                   childNodes: [
@@ -170,7 +161,7 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
                     ).renderElement(context: context)
                   ],
                 ),
-              ...scriptLinks,
+              ...includes.scriptLinks,
             ],
           )
         ],
@@ -185,7 +176,7 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
       child: this,
     );
     for (final child in result.childNodes) {
-      if (child is StyleElement) {
+      if (child is StyleElementImpl) {
         context.styles.entries.forEach(
           (final e) => child.childNodes.add(
             CssTextElementImpl(
@@ -199,12 +190,57 @@ class AppWidget<ROUTE extends WidgetRoute> implements Widget {
     }
     return result;
   }
+}
+
+class AppIncludesEmptyImpl implements AppIncludes {
+  const AppIncludesEmptyImpl();
 
   @override
-  Null renderCss({
-    required final BuildContext context,
-  }) =>
-      null;
+  Iterable<String> get stylesheetLinks => const Iterable.empty();
+
+  @override
+  Iterable<ScriptElement> get scriptLinks => const Iterable.empty();
+}
+
+class AppIncludesImpl implements AppIncludes {
+  @override
+  final List<String> stylesheetLinks;
+  @override
+  final List<ScriptElement> scriptLinks;
+
+  const AppIncludesImpl({
+    required final this.stylesheetLinks,
+    required final this.scriptLinks,
+  });
+}
+
+abstract class AppIncludes {
+  // TODO make this not be a string but a stylesheet model.
+  Iterable<String> get stylesheetLinks;
+
+  Iterable<ScriptElement> get scriptLinks;
+}
+
+class AppIncludesCompositeImpl implements AppIncludes {
+  final Iterable<AppIncludes> includes;
+
+  const AppIncludesCompositeImpl({
+    required final this.includes,
+  });
+
+  @override
+  Iterable<String> get stylesheetLinks sync* {
+    for (final include in includes) {
+      yield* include.stylesheetLinks;
+    }
+  }
+
+  @override
+  Iterable<ScriptElement> get scriptLinks sync* {
+    for (final include in includes) {
+      yield* include.scriptLinks;
+    }
+  }
 }
 
 abstract class WidgetRoute {
@@ -273,7 +309,6 @@ mixin WidgetRouteMixin implements WidgetRoute {
       [
         TitleElementImpl(
           text: makeTitle(context),
-          childNodes: [],
         ),
       ];
 }

@@ -1,8 +1,8 @@
 import '../base/keys.dart';
+import '../widget/widget.dart';
 import 'stateless.dart';
-import 'widget/interface/widget.dart';
 
-class Builder extends StatelessWidget {
+class Builder extends StatelessWidgetBase with NoCSSMixin {
   final Widget Function(BuildContext context) builder;
 
   Builder({

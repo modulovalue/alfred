@@ -1,9 +1,9 @@
 import '../base/keys.dart';
+import '../widget/widget.dart';
+import '../widget/widget_mixin.dart';
 import 'stateless.dart';
-import 'widget/impl/widget_mixin.dart';
-import 'widget/interface/widget.dart';
 
-class Provider<T> extends StatelessWidget {
+class Provider<T> extends StatelessWidgetBase with NoCSSMixin {
   final T Function(BuildContext context) create;
   final Widget child;
 
@@ -11,7 +11,9 @@ class Provider<T> extends StatelessWidget {
     required final this.create,
     required final this.child,
     final Key? key,
-  }) : super(key: key);
+  }) : super(
+          key: key,
+        );
 
   static T? of<T>(
     final BuildContext context,

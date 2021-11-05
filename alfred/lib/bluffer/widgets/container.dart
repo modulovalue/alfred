@@ -1,14 +1,14 @@
 import '../base/decoration.dart';
 import '../base/edge_insets.dart';
 import '../base/keys.dart';
+import '../widget/widget.dart';
 import 'constrained_box.dart';
 import 'decorated_box.dart';
 import 'padding.dart';
 import 'sized_box.dart';
 import 'stateless.dart';
-import 'widget/interface/widget.dart';
 
-class Container extends StatelessWidget {
+class Container extends StatelessWidgetBase with NoCSSMixin {
   final Widget? child;
   final double? width;
   final double? height;
@@ -24,7 +24,9 @@ class Container extends StatelessWidget {
     final this.constraints,
     final this.padding,
     final Key? key,
-  }) : super(key: key);
+  }) : super(
+          key: key,
+        );
 
   @override
   Widget build(

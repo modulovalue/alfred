@@ -1,3 +1,0 @@
-TODO fixtures
-TODO fix async in scripts adds an alt tag.
-TODO fix divs have a trailing space.

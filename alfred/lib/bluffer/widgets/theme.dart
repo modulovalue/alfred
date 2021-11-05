@@ -2,12 +2,12 @@ import '../base/color.dart';
 import '../base/keys.dart';
 import '../base/media_query_data.dart';
 import '../base/text.dart';
+import '../widget/widget.dart';
+import '../widget/widget_mixin.dart';
 import 'provider.dart';
 import 'stateless.dart';
-import 'widget/impl/widget_mixin.dart';
-import 'widget/interface/widget.dart';
 
-class Theme extends StatelessWidget {
+class Theme extends StatelessWidgetBase with NoCSSMixin {
   final ThemeData? data;
   final Widget child;
 
@@ -15,7 +15,9 @@ class Theme extends StatelessWidget {
     required final this.child,
     required final this.data,
     final Key? key,
-  }) : super(key: key);
+  }) : super(
+          key: key,
+        );
 
   static ThemeData? of(
     final BuildContext context,

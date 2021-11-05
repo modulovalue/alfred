@@ -1,17 +1,17 @@
-import '../html/html.dart';
-import '../html/html_impl.dart';
-import '../widgets/stateless.dart';
-import '../widgets/widget/interface/widget.dart';
+import '../../html/html.dart';
+import '../../html/html_impl.dart';
+import '../../widget/widget.dart';
+import '../../widgets/stateless.dart';
 
 // TODO action (open link, execute, others)
 // TODO more from https://www.tutorialrepublic.com/twitter-bootstrap-tutorial/bootstrap-buttons.php
-class BootstrapButton with ElementWidget {
+class BootstrapButton with RenderElementMixin, NoCSSMixin, NoKeyMixin {
   final String text;
   final BootstrapButtonType type;
 
   const BootstrapButton({
     required final this.text,
-    required final this.type,
+    final this.type = BootstrapButtonType.primary,
   });
 
   @override
@@ -37,13 +37,13 @@ class BootstrapButton with ElementWidget {
 }
 
 // TODO action.
-class BootstrapOutlineButton with ElementWidget {
+class BootstrapOutlineButton with RenderElementMixin, NoCSSMixin, NoKeyMixin {
   final String text;
   final BootstrapOutlineButtonType type;
 
   const BootstrapOutlineButton({
     required final this.text,
-    required final this.type,
+    final this.type = BootstrapOutlineButtonType.primary,
   });
 
   @override

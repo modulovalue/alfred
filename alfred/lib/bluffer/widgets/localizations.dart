@@ -1,14 +1,15 @@
 import 'dart:async';
+
 // ignore: deprecated_member_use
 import 'dart:cli';
 
 import '../base/keys.dart';
 import '../base/locale.dart';
+import '../widget/widget.dart';
+import '../widget/widget_mixin.dart';
 import 'stateless.dart';
-import 'widget/impl/widget_mixin.dart';
-import 'widget/interface/widget.dart';
 
-class Localizations extends StatelessWidget {
+class Localizations extends StatelessWidgetBase with NoCSSMixin {
   /// Create a widget from which localizations (like translated strings) can be obtained.
   const Localizations({
     required this.locale,

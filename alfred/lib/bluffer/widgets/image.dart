@@ -1,16 +1,16 @@
-// TODO get rid of this dependency.
+// TODO remove this dependency?
 import 'dart:io';
 
 import '../base/image.dart';
 import '../base/keys.dart';
-import '../css/css.dart';
+import '../css/null_mixin.dart';
 import '../html/html.dart';
 import '../html/html_impl.dart';
-import 'widget/impl/resolve_url.dart';
-import 'widget/impl/widget_mixin.dart';
-import 'widget/interface/widget.dart';
+import '../widget/resolve_url.dart';
+import '../widget/widget.dart';
+import 'stateless.dart';
 
-class Image implements Widget {
+class Image with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMixin implements Widget {
   final ImageProvider image;
   final double? width;
   final double? height;
@@ -57,44 +57,47 @@ class Image implements Widget {
           width: width,
           height: height,
           semanticsLabel: semanticsLabel,
-          image: ImageProvider.asset(name),
+          image: ImageProvider.asset(
+            name,
+          ),
         );
 
   @override
-  CssStyleDeclaration renderCss({
-    required final BuildContext context,
-  }) =>
-      CssStyleDeclaration2Impl(
-        css_display: "flex",
-        css_width: () {
-          if (width != null) {
-            return width.toString() + 'px';
-          } else {
-            return null;
-          }
-        }(),
-        css_height: () {
-          if (height != null) {
-            return height.toString() + 'px';
-          } else {
-            return null;
-          }
-        }(),
-        css_objectFit: () {
-          switch (fit) {
-            case BoxFit.cover:
-              return 'cover';
-            case BoxFit.fill:
-              return 'fill';
-            case BoxFit.none:
-              return 'none';
-            case BoxFit.scaleDown:
-              return 'scale-down';
-            case BoxFit.contain:
-              return 'contain';
-          }
-        }(),
-      );
+  String? get css_display => "flex";
+
+  @override
+  String? get css_width {
+    if (width != null) {
+      return width.toString() + 'px';
+    } else {
+      return null;
+    }
+  }
+
+  @override
+  String? get css_height {
+    if (height != null) {
+      return height.toString() + 'px';
+    } else {
+      return null;
+    }
+  }
+
+  @override
+  String get css_objectFit {
+    switch (fit) {
+      case BoxFit.cover:
+        return 'cover';
+      case BoxFit.fill:
+        return 'fill';
+      case BoxFit.none:
+        return 'none';
+      case BoxFit.scaleDown:
+        return 'scale-down';
+      case BoxFit.contain:
+        return 'contain';
+    }
+  }
 
   @override
   HtmlElement renderHtml({
@@ -114,14 +117,5 @@ class Image implements Widget {
             return null;
           }
         }(),
-      );
-
-  @override
-  HtmlElement renderElement({
-    required final BuildContext context,
-  }) =>
-      renderWidget(
-        child: this,
-        context: context,
       );
 }

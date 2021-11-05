@@ -1,11 +1,11 @@
 import '../base/keys.dart';
-import '../css/css.dart';
+import '../css/null_mixin.dart';
 import '../html/html.dart';
 import '../html/html_impl.dart';
-import 'widget/impl/widget_mixin.dart';
-import 'widget/interface/widget.dart';
+import '../widget/widget.dart';
+import 'stateless.dart';
 
-class ConstrainedBox implements Widget {
+class ConstrainedBox with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMixin implements Widget {
   /// The additional constraints to impose on the child.
   final BoxConstraints? constraints;
   final Widget? child;
@@ -19,18 +19,50 @@ class ConstrainedBox implements Widget {
   });
 
   @override
-  CssStyleDeclaration? renderCss({
-    required final BuildContext context,
-  }) {
+  String? get css_margin {
     final _constraints = constraints;
     if (_constraints != null) {
-      return CssStyleDeclaration2Impl(
-        css_margin: 'auto',
-        css_maxHeight: _constraints.maxHeight.toString() + 'px',
-        css_maxWidth: _constraints.maxWidth.toString() + 'px',
-        css_minHeight: _constraints.minHeight.toString() + 'px',
-        css_minWidth: _constraints.minWidth.toString() + 'px',
-      );
+      return 'auto';
+    } else {
+      return null;
+    }
+  }
+
+  @override
+  String? get css_maxHeight {
+    final _constraints = constraints;
+    if (_constraints != null) {
+      return _constraints.maxHeight.toString() + 'px';
+    } else {
+      return null;
+    }
+  }
+
+  @override
+  String? get css_maxWidth {
+    final _constraints = constraints;
+    if (_constraints != null) {
+      return _constraints.maxWidth.toString() + 'px';
+    } else {
+      return null;
+    }
+  }
+
+  @override
+  String? get css_minHeight {
+    final _constraints = constraints;
+    if (_constraints != null) {
+      return _constraints.minHeight.toString() + 'px';
+    } else {
+      return null;
+    }
+  }
+
+  @override
+  String? get css_minWidth {
+    final _constraints = constraints;
+    if (_constraints != null) {
+      return _constraints.minWidth.toString() + 'px';
     } else {
       return null;
     }
@@ -43,15 +75,6 @@ class ConstrainedBox implements Widget {
     final rendered = child?.renderElement(context: context);
     return rendered ?? DivElementImpl(childNodes: []);
   }
-
-  @override
-  HtmlElement renderElement({
-    required final BuildContext context,
-  }) =>
-      renderWidget(
-        child: this,
-        context: context,
-      );
 }
 
 class BoxConstraints {

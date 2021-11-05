@@ -1,10 +1,10 @@
 import '../base/basic_types.dart';
 import '../base/keys.dart';
-import '../css/css.dart';
+import '../css/null_mixin.dart';
 import '../html/html.dart';
 import '../html/html_impl.dart';
-import 'widget/impl/widget_mixin.dart';
-import 'widget/interface/widget.dart';
+import '../widget/widget.dart';
+import 'stateless.dart';
 
 class Column extends Flex {
   const Column({
@@ -42,12 +42,13 @@ class Row extends Flex {
         );
 }
 
-class Flex implements Widget {
+class Flex with CssStyleDeclarationNullMixin, WidgetSelfCSS, MultiRenderElementMixin implements Widget {
   final Axis direction;
   final MainAxisAlignment mainAxisAlignment;
   final MainAxisSize mainAxisSize;
   final CrossAxisAlignment crossAxisAlignment;
-  final List<Widget>? children;
+  @override
+  final List<Widget> children;
   @override
   final Key? key;
 
@@ -61,80 +62,66 @@ class Flex implements Widget {
   });
 
   @override
-  HtmlElement renderElement({
-    required final BuildContext context,
-  }) {
-    final result = renderWidget(
-      child: this,
-      context: context,
-    );
-    if (children != null) {
-      for (final child in children!) {
-        final rendered = child.renderElement(context: context);
-        result.childNodes.add(rendered);
-      }
-    }
-    return result;
-  }
-
-  @override
   HtmlElement renderHtml({
     required final BuildContext context,
   }) =>
-      DivElementImpl(childNodes: []);
+      DivElementImpl(
+        childNodes: [],
+      );
 
   @override
-  CssStyleDeclaration renderCss({
-    required final BuildContext context,
-  }) =>
-      CssStyleDeclaration2Impl(
-        css_display: 'flex',
-        css_flexDirection: () {
-          if (direction == Axis.horizontal) {
-            return 'row';
-          } else {
-            return 'column';
-          }
-        }(),
-        css_justifyContent: () {
-          switch (mainAxisSize) {
-            case MainAxisSize.max:
-              return 'stretch';
-            case MainAxisSize.min:
-              switch (mainAxisAlignment) {
-                case MainAxisAlignment.end:
-                  return 'flex-end';
-                case MainAxisAlignment.spaceAround:
-                  return 'space-around';
-                case MainAxisAlignment.spaceBetween:
-                  return 'space-between';
-                case MainAxisAlignment.spaceEvenly:
-                  return 'space-evenly';
-                case MainAxisAlignment.center:
-                  return 'center';
-                case MainAxisAlignment.start:
-                  return 'flex-start';
-              }
-          }
-        }(),
-        css_alignItems: () {
-          switch (crossAxisAlignment) {
-            case CrossAxisAlignment.end:
-              return 'flex-end';
-            case CrossAxisAlignment.baseline:
-              return 'baseline';
-            case CrossAxisAlignment.stretch:
-              return 'stretch';
-            case CrossAxisAlignment.center:
-              return 'center';
-            case CrossAxisAlignment.start:
-              return 'flex-start';
-          }
-        }(),
-      );
+  String get css_display => 'flex';
+
+  @override
+  String get css_flexDirection {
+    if (direction == Axis.horizontal) {
+      return 'row';
+    } else {
+      return 'column';
+    }
+  }
+
+  @override
+  String get css_justifyContent {
+    switch (mainAxisSize) {
+      case MainAxisSize.max:
+        return 'stretch';
+      case MainAxisSize.min:
+        switch (mainAxisAlignment) {
+          case MainAxisAlignment.end:
+            return 'flex-end';
+          case MainAxisAlignment.spaceAround:
+            return 'space-around';
+          case MainAxisAlignment.spaceBetween:
+            return 'space-between';
+          case MainAxisAlignment.spaceEvenly:
+            return 'space-evenly';
+          case MainAxisAlignment.center:
+            return 'center';
+          case MainAxisAlignment.start:
+            return 'flex-start';
+        }
+    }
+  }
+
+  @override
+  String get css_alignItems {
+    switch (crossAxisAlignment) {
+      case CrossAxisAlignment.end:
+        return 'flex-end';
+      case CrossAxisAlignment.baseline:
+        return 'baseline';
+      case CrossAxisAlignment.stretch:
+        return 'stretch';
+      case CrossAxisAlignment.center:
+        return 'center';
+      case CrossAxisAlignment.start:
+        return 'flex-start';
+    }
+  }
 }
 
-class Flexible implements Widget {
+class Flexible with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMixin implements Widget {
   final Widget child;
 
   /// The flex factor to use for this child
@@ -170,32 +157,34 @@ class Flexible implements Widget {
       child.renderElement(context: context);
 
   @override
-  CssStyleDeclaration renderCss({
-    required final BuildContext context,
-  }) {
+  String? get css_flexBasis {
     switch (fit) {
       case FlexFit.tight:
-        return CssStyleDeclaration2Impl(
-          css_flexGrow: flex.toString(),
-          css_flexShrink: '1',
-          css_flexBasis: '0',
-        );
+        return '0';
       case FlexFit.loose:
-        return CssStyleDeclaration2Impl(
-          css_flexGrow: '0',
-          css_flexShrink: flex.toString(),
-        );
+        return null;
     }
   }
 
   @override
-  HtmlElement renderElement({
-    required final BuildContext context,
-  }) =>
-      renderWidget(
-        child: this,
-        context: context,
-      );
+  String get css_flexGrow {
+    switch (fit) {
+      case FlexFit.tight:
+        return flex.toString();
+      case FlexFit.loose:
+        return '0';
+    }
+  }
+
+  @override
+  String get css_flexShrink {
+    switch (fit) {
+      case FlexFit.tight:
+        return '1';
+      case FlexFit.loose:
+        return flex.toString();
+    }
+  }
 }
 
 class Expanded extends Flexible {

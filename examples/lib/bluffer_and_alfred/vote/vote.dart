@@ -6,6 +6,7 @@ import 'package:alfred/bluffer/base/color.dart';
 import 'package:alfred/bluffer/base/decoration.dart';
 import 'package:alfred/bluffer/base/edge_insets.dart';
 import 'package:alfred/bluffer/base/text.dart';
+import 'package:alfred/bluffer/widget/widget.dart';
 import 'package:alfred/bluffer/widgets/builder.dart';
 import 'package:alfred/bluffer/widgets/click.dart';
 import 'package:alfred/bluffer/widgets/container.dart';
@@ -14,7 +15,6 @@ import 'package:alfred/bluffer/widgets/padding.dart';
 import 'package:alfred/bluffer/widgets/sized_box.dart';
 import 'package:alfred/bluffer/widgets/text.dart';
 import 'package:alfred/bluffer/widgets/theme.dart';
-import 'package:alfred/bluffer/widgets/widget/interface/widget.dart';
 
 Future<void> main() async {
   final app = alfredWithRoutes(

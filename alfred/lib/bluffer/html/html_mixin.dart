@@ -1,16 +1,7 @@
+import '../css/css.dart';
 import 'html.dart';
 
-mixin DivElementMixin<SELF extends DivElementMixin<SELF>> implements DivElement<SELF> {
-  @override
-  R acceptHtmlElement<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementDiv(
-        this,
-        a,
-      );
-
+mixin HtmlElementMixin<SELF extends HtmlElementMixin<SELF>> implements HtmlElement<SELF> {
   @override
   R acceptHtmlEntity<R, A>(
     final HtmlEntityVisitor<R, A> v,
@@ -19,19 +10,37 @@ mixin DivElementMixin<SELF extends DivElementMixin<SELF>> implements DivElement<
       v.visitEntityElement(
         this,
         a,
+      );
+
+  @override
+  HtmlElement<SELF> append(
+    final Iterable<HtmlElement> other,
+  ) =>
+      HtmlElementAppended(
+        this,
+        other,
+      );
+
+  @override
+  HtmlElement<SELF> overwrite({
+    final String? className,
+    final String? id,
+  }) =>
+      HtmlElementCopy(
+        other: this,
+        className: className ?? this.className,
+        id: id ?? this.id,
       );
 }
 
-mixin HeadElementMixin<SELF extends HeadElement<SELF>> implements HeadElement<SELF> {
-  @override
-  R acceptHtmlElement<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementHead(
-        this,
-        a,
-      );
+class HtmlElementAppended<T extends HtmlElement<T>> implements HtmlElement<T> {
+  final HtmlElement other;
+  final Iterable<HtmlElement> additional;
+
+  const HtmlElementAppended(
+    final this.other,
+    final this.additional,
+  );
 
   @override
   R acceptHtmlEntity<R, A>(
@@ -41,19 +50,62 @@ mixin HeadElementMixin<SELF extends HeadElement<SELF>> implements HeadElement<SE
       v.visitEntityElement(
         this,
         a,
+      );
+
+  @override
+  Iterable<String> get additionalAttributes => other.additionalAttributes;
+
+  @override
+  Iterable<HtmlEntity> get childNodes sync* {
+    yield* other.childNodes;
+    yield* additional;
+  }
+
+  @override
+  String? get className => other.className;
+
+  @override
+  String? get id => other.id;
+
+  @override
+  CssStyleDeclaration? get style => other.style;
+
+  @override
+  String get tag => other.tag;
+
+  @override
+  HtmlElement<T> append(
+    final Iterable<HtmlElement> other,
+  ) =>
+      HtmlElementAppended(
+        this,
+        other,
+      );
+
+  @override
+  HtmlElement<T> overwrite({
+    final String? className,
+    final String? id,
+  }) =>
+      HtmlElementCopy(
+        other: this,
+        className: className ?? this.className,
+        id: id ?? this.id,
       );
 }
 
-mixin MetaElementMixin<SELF extends MetaElementMixin<SELF>> implements MetaElement<SELF> {
+class HtmlElementCopy<T extends HtmlElement<T>> implements HtmlElement<T> {
+  final HtmlElement<T> other;
   @override
-  R acceptHtmlElement<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementMeta(
-        this,
-        a,
-      );
+  final String? className;
+  @override
+  final String? id;
+
+  const HtmlElementCopy({
+    required final this.other,
+    required final this.className,
+    required final this.id,
+  });
 
   @override
   R acceptHtmlEntity<R, A>(
@@ -64,247 +116,37 @@ mixin MetaElementMixin<SELF extends MetaElementMixin<SELF>> implements MetaEleme
         this,
         a,
       );
-}
 
-mixin BodyElementMixin<SELF extends BodyElementMixin<SELF>> implements BodyElement<SELF> {
   @override
-  R acceptHtmlElement<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
+  CssStyleDeclaration? get style => other.style;
+
+  @override
+  Iterable<HtmlEntity> get childNodes => other.childNodes;
+
+  @override
+  String get tag => other.tag;
+
+  @override
+  Iterable<String> get additionalAttributes => other.additionalAttributes;
+
+  @override
+  HtmlElement<T> append(
+    final Iterable<HtmlElement> other,
   ) =>
-      v.visitElementBody(
+      HtmlElementAppended(
         this,
-        a,
+        other,
       );
 
   @override
-  R acceptHtmlEntity<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(
-        this,
-        a,
-      );
-}
-
-mixin CustomElementMixin<SELF extends CustomElementMixin<SELF>> implements CustomElement<SELF> {
-  @override
-  R acceptHtmlElement<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitCustomElementBody(
-        this,
-        a,
-      );
-
-  @override
-  R acceptHtmlEntity<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(
-        this,
-        a,
-      );
-}
-
-mixin StyleElementMixin<SELF extends StyleElementMixin<SELF>> implements StyleElement<SELF> {
-  @override
-  R acceptHtmlElement<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementStyle(
-        this,
-        a,
-      );
-
-  @override
-  R acceptHtmlEntity<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(
-        this,
-        a,
-      );
-}
-
-mixin ScriptElementMixin<SELF extends ScriptElementMixin<SELF>> implements ScriptElement<SELF> {
-  @override
-  R acceptHtmlElement<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementScript(
-        this,
-        a,
-      );
-
-  @override
-  R acceptHtmlEntity<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(
-        this,
-        a,
-      );
-}
-
-mixin LinkElementMixin<SELF extends LinkElementMixin<SELF>> implements LinkElement<SELF> {
-  @override
-  R acceptHtmlElement<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementLink(
-        this,
-        a,
-      );
-
-  @override
-  R acceptHtmlEntity<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(
-        this,
-        a,
-      );
-}
-
-mixin TitleElementMixin<SELF extends TitleElementMixin<SELF>> implements TitleElement<SELF> {
-  @override
-  R acceptHtmlElement<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementTitle(
-        this,
-        a,
-      );
-
-  @override
-  R acceptHtmlEntity<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(
-        this,
-        a,
-      );
-}
-
-mixin HtmlHtmlElementMixin<SELF extends HtmlHtmlElementMixin<SELF>> implements HtmlHtmlElement<SELF> {
-  @override
-  R acceptHtmlElement<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementHtmlHtml(
-        this,
-        a,
-      );
-
-  @override
-  R acceptHtmlEntity<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(
-        this,
-        a,
-      );
-}
-
-mixin BRElementMixin<SELF extends BRElementMixin<SELF>> implements BRElement<SELF> {
-  @override
-  R acceptHtmlElement<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementBr(
-        this,
-        a,
-      );
-
-  @override
-  R acceptHtmlEntity<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(
-        this,
-        a,
-      );
-}
-
-mixin ParagraphElementMixin<SELF extends ParagraphElementMixin<SELF>> implements ParagraphElement<SELF> {
-  @override
-  R acceptHtmlElement<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementParagraph(
-        this,
-        a,
-      );
-
-  @override
-  R acceptHtmlEntity<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(
-        this,
-        a,
-      );
-}
-
-mixin ImageElementMixin<SELF extends ImageElementMixin<SELF>> implements ImageElement<SELF> {
-  @override
-  R acceptHtmlElement<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementImage(
-        this,
-        a,
-      );
-
-  @override
-  R acceptHtmlEntity<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(
-        this,
-        a,
-      );
-}
-
-mixin AnchorElementMixin<SELF extends AnchorElementMixin<SELF>> implements AnchorElement<SELF> {
-  @override
-  R acceptHtmlElement<R, A>(
-    final HtmlElementVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitElementAnchor(
-        this,
-        a,
-      );
-
-  @override
-  R acceptHtmlEntity<R, A>(
-    final HtmlEntityVisitor<R, A> v,
-    final A a,
-  ) =>
-      v.visitEntityElement(
-        this,
-        a,
+  HtmlElement<T> overwrite({
+    final String? className,
+    final String? id,
+  }) =>
+      HtmlElementCopy(
+        other: this,
+        className: className ?? this.className,
+        id: id ?? this.id,
       );
 }
 
