@@ -27,3 +27,22 @@ class AlfredContentTypeFromContentTypeImpl implements AlfredContentType {
   @override
   String get mimeType => contentType.mimeType;
 }
+
+// TODO inline mime type dependency.
+class AlfredContentTypeSvg extends AlfredContentTypeFromContentTypeImpl {
+  AlfredContentTypeSvg()
+      : super(
+          contentType: ContentType.parse(
+            "image/svg+xml",
+          ),
+        );
+}
+
+class AlfredContentTypePng extends AlfredContentTypeFromContentTypeImpl {
+  AlfredContentTypePng()
+      : super(
+          contentType: ContentType.parse(
+            "image/png",
+          ),
+        );
+}

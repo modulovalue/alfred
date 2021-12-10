@@ -5,6 +5,10 @@ publish_to: none
 environment:
   sdk: ">=2.12.0 <3.0.0"
 
+# TODO look into https://github.com/threedart/three.dart
+# TODO look into https://github.com/threeDart/csg.dart
+# TODO look into https://github.com/zijam/three_dart
+# TODO look into https://github.com/wasabia/three_dart
 dev_dependencies:
   build_runner: ">=1.6.2 <3.0.0"
   build_web_compilers: ^2.11.0

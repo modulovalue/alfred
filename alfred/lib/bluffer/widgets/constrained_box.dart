@@ -73,7 +73,7 @@ class ConstrainedBox with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderEle
     required final BuildContext context,
   }) {
     final rendered = child?.renderElement(context: context);
-    return rendered ?? DivElementImpl(childNodes: []);
+    return rendered ?? const DivElementImpl(childNodes: [],);
   }
 }
 

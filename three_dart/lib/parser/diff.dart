@@ -9,7 +9,10 @@ class Step {
   final int count;
 
   /// Creates a new step group.
-  Step(this.type, this.count);
+  const Step(
+    final this.type,
+    final this.count,
+  );
 
   /// Gets the string for this group.
   @override
@@ -29,25 +32,52 @@ enum StepType {
 }
 
 /// Gets the difference path for the sources as defined by the given comparable.
-Iterable<Step> diffPath(Comparable comp) => _Path(comp).iteratePath();
+Iterable<Step> diffPath(
+  final Comparable comp,
+) =>
+    _Path(comp).iteratePath();
 
 /// Gets the difference path for the two given string lists.
-Iterable<Step> stringListPath(List<String> aSource, List<String> bSource) =>
-    diffPath(_StringsComparable(aSource, bSource));
+Iterable<Step> stringListPath(
+  final List<String> aSource,
+  final List<String> bSource,
+) =>
+    diffPath(
+      _StringsComparable(
+        aSource,
+        bSource,
+      ),
+    );
 
 /// Gets the difference path for the lines in the given strings.
-Iterable<Step> linesPath(String aSource, String bSource) => stringListPath(aSource.split('\n'), bSource.split('\n'));
+Iterable<Step> linesPath(
+  final String aSource,
+  final String bSource,
+) =>
+    stringListPath(
+      aSource.split('\n'),
+      bSource.split('\n'),
+    );
 
 /// Gets the labelled difference between the two list of lines.
 /// It formats the results by prepending a "+" to new lines in `bSource`,
 /// a "-" for any to removed strings from `aSource`, and space if the strings are the same.
-String plusMinusLines(String aSource, String bSource) =>
-    plusMinusParts(aSource.split('\n'), bSource.split('\n')).join('\n');
+String plusMinusLines(
+  final String aSource,
+  final String bSource,
+) =>
+    plusMinusParts(
+      aSource.split('\n'),
+      bSource.split('\n'),
+    ).join('\n');
 
 /// Gets the labelled difference between the two list of lines.
 /// It formats the results by prepending a "+" to new lines in `bSource`,
 /// a "-" for any to removed strings from `aSource`, and space if the strings are the same.
-List<String> plusMinusParts(List<String> aSource, List<String> bSource) {
+List<String> plusMinusParts(
+  final List<String> aSource,
+  final List<String> bSource,
+) {
   final result = <String>[];
   int aIndex = 0;
   int bIndex = 0;
@@ -94,7 +124,9 @@ class _Path {
   List<int> _scoreOther = [];
 
   /// Creates a new path builder.
-  _Path(this._baseComp) {
+  _Path(
+    final this._baseComp,
+  ) {
     final len = this._baseComp.bLength + 1;
     this._scoreFront = List<int>.filled(len, 0, growable: false);
     this._scoreBack = List<int>.filled(len, 0, growable: false);
@@ -116,11 +148,24 @@ class _Path {
   }
 
   /// Gets the maximum value of the three given values.
-  int _max(int a, int b, int c) => math.max(a, math.max(b, c));
+  int _max(
+    final int a,
+    final int b,
+    final int c,
+  ) =>
+      math.max(
+        a,
+        math.max(
+          b,
+          c,
+        ),
+      );
 
   /// Calculate the Needleman-Wunsch score.
   /// At the end of this calculation the score is in the back vector.
-  void _calculateScore(_Container comp) {
+  void _calculateScore(
+    final _Container comp,
+  ) {
     final aLen = comp.aLength;
     final bLen = comp.bLength;
     this._scoreBack[0] = 0;
@@ -130,7 +175,7 @@ class _Path {
     for (int i = 1; i <= aLen; ++i) {
       this._scoreFront[0] = this._scoreBack[0] + comp.removeCost(i - 1);
       for (int j = 1; j <= bLen; ++j) {
-        this._scoreFront[j] = this._max(this._scoreBack[j - 1] + comp.substitionCost(i - 1, j - 1),
+        this._scoreFront[j] = this._max(this._scoreBack[j - 1] + comp.substitutionCost(i - 1, j - 1),
             this._scoreBack[j] + comp.removeCost(i - 1), this._scoreFront[j - 1] + comp.addCost(j - 1));
       }
 
@@ -140,7 +185,9 @@ class _Path {
 
   /// Finds the pivot between the other score and the reverse of the back score.
   /// The pivot is the index of the maximum sum of each element in the two scores.
-  int _findPivot(int bLength) {
+  int _findPivot(
+    final int bLength,
+  ) {
     int index = 0;
     int max = this._scoreOther[0] + this._scoreBack[bLength];
     for (int j = 1; j <= bLength; ++j) {
@@ -154,11 +201,18 @@ class _Path {
   }
 
   /// Handles when at the edge of the A source subset in the given container.
-  Iterable<Step> _aEdge(_Container comp) sync* {
+  Iterable<Step> _aEdge(
+    final _Container comp,
+  ) sync* {
     final aLen = comp.aLength;
     final bLen = comp.bLength;
     if (aLen <= 0) {
-      if (bLen > 0) yield Step(StepType.Added, bLen);
+      if (bLen > 0) {
+        yield Step(
+          StepType.Added,
+          bLen,
+        );
+      }
       return;
     }
     int split = -1;
@@ -169,21 +223,25 @@ class _Path {
       }
     }
     if (split < 0) {
-      yield Step(StepType.Removed, 1);
+      yield const Step(StepType.Removed, 1);
       yield Step(StepType.Added, bLen);
     } else {
       if (split > 0) yield Step(StepType.Added, split);
-      yield Step(StepType.Equal, 1);
+      yield const Step(StepType.Equal, 1);
       if (split < bLen - 1) yield Step(StepType.Added, bLen - split - 1);
     }
   }
 
   /// Handles when at the edge of the B source subset in the given container.
-  Iterable<Step> _bEdge(_Container comp) sync* {
+  Iterable<Step> _bEdge(
+    final _Container comp,
+  ) sync* {
     final aLen = comp.aLength;
     final bLen = comp.bLength;
     if (bLen <= 0) {
-      if (aLen > 0) yield Step(StepType.Removed, aLen);
+      if (aLen > 0) {
+        yield Step(StepType.Removed, aLen);
+      }
       return;
     }
     int split = -1;
@@ -195,16 +253,22 @@ class _Path {
     }
     if (split < 0) {
       yield Step(StepType.Removed, aLen);
-      yield Step(StepType.Added, 1);
+      yield const Step(StepType.Added, 1);
     } else {
-      if (split > 0) yield Step(StepType.Removed, split);
-      yield Step(StepType.Equal, 1);
-      if (split < aLen - 1) yield Step(StepType.Removed, aLen - split - 1);
+      if (split > 0) {
+        yield Step(StepType.Removed, split);
+      }
+      yield const Step(StepType.Equal, 1);
+      if (split < aLen - 1) {
+        yield Step(StepType.Removed, aLen - split - 1);
+      }
     }
   }
 
   /// This performs the Hirschberg divide and conquer and returns the path.
-  Iterable<Step> _breakupPath(_Container comp) sync* {
+  Iterable<Step> _breakupPath(
+    final _Container comp,
+  ) sync* {
     final aLen = comp.aLength;
     final bLen = comp.bLength;
     if (aLen <= 1) {
@@ -263,9 +327,15 @@ class _Path {
       }
     }
 
-    if (removedCount > 0) yield Step(StepType.Removed, removedCount);
-    if (addedCount > 0) yield Step(StepType.Added, addedCount);
-    if (equalCount > 0) yield Step(StepType.Equal, equalCount);
+    if (removedCount > 0) {
+      yield Step(StepType.Removed, removedCount);
+    }
+    if (addedCount > 0) {
+      yield Step(StepType.Added, addedCount);
+    }
+    if (equalCount > 0) {
+      yield Step(StepType.Equal, equalCount);
+    }
   }
 }
 
@@ -280,16 +350,46 @@ class _Container {
   final bool _reverse;
 
   /// Creates a new comparable container with the given subset and reverse settings.
-  _Container(this._comp, this._aOffset, this._aLength, this._bOffset, this._bLength, this._reverse);
+  _Container(
+    this._comp,
+    this._aOffset,
+    this._aLength,
+    this._bOffset,
+    this._bLength,
+    this._reverse,
+  );
 
   /// Creates a new comparable for a full container.
-  factory _Container.Full(Comparable comp) => _Container(comp, 0, comp.aLength, 0, comp.bLength, false);
+  factory _Container.Full(
+    final Comparable comp,
+  ) =>
+      _Container(
+        comp,
+        0,
+        comp.aLength,
+        0,
+        comp.bLength,
+        false,
+      );
 
   /// Creates a new comparable container for a subset and reverse relative to this container's settings.
-  _Container sub(int aLow, int aHigh, int bLow, int bHigh, {bool reverse = false}) {
+  _Container sub(
+    final int aLow,
+    final int aHigh,
+    final int bLow,
+    final int bHigh, {
+    final bool reverse = false,
+  }) {
     final aOffset = this._aAdjust(this._reverse ? aHigh : aLow);
     final bOffset = this._bAdjust(this._reverse ? bHigh : bLow);
-    return _Container(this._comp, aOffset, aHigh - aLow, bOffset, bHigh - bLow, this._reverse != reverse);
+    return _Container(
+      this._comp,
+      aOffset,
+      aHigh - aLow,
+      bOffset,
+      bHigh - bLow,
+      this._reverse != reverse,
+    );
   }
 
   /// The length of the first list being compared.
@@ -299,22 +399,42 @@ class _Container {
   int get bLength => this._bLength;
 
   /// Gets the A index adjusted by the container's condition.
-  int _aAdjust(int aIndex) => (this._reverse) ? (this._aLength - 1 - aIndex + this._aOffset) : (aIndex + this._aOffset);
+  int _aAdjust(
+    final int aIndex,
+  ) =>
+      (this._reverse) ? (this._aLength - 1 - aIndex + this._aOffset) : (aIndex + this._aOffset);
 
   /// Gets the B index adjusted by the container's condition.
-  int _bAdjust(int bIndex) => (this._reverse) ? (this._bLength - 1 - bIndex + this._bOffset) : (bIndex + this._bOffset);
+  int _bAdjust(
+    final int bIndex,
+  ) =>
+      (this._reverse) ? (this._bLength - 1 - bIndex + this._bOffset) : (bIndex + this._bOffset);
 
   /// Determines if the entries in the two given indices are equal.
-  bool equals(int aIndex, int bIndex) => this._comp.equals(this._aAdjust(aIndex), this._bAdjust(bIndex));
+  bool equals(
+    final int aIndex,
+    final int bIndex,
+  ) =>
+      this._comp.equals(this._aAdjust(aIndex), this._bAdjust(bIndex));
 
   /// Gives the cost to remove A at the given index.
-  int removeCost(int aIndex) => this._comp.removeCost(this._aAdjust(aIndex));
+  int removeCost(
+    final int aIndex,
+  ) =>
+      this._comp.removeCost(this._aAdjust(aIndex));
 
   /// Gives the cost to add B at the given index.
-  int addCost(int bIndex) => this._comp.addCost(this._bAdjust(bIndex));
+  int addCost(
+    final int bIndex,
+  ) =>
+      this._comp.addCost(this._bAdjust(bIndex));
 
-  /// Gives the substition cost for replacing A with B at the given indices.
-  int substitionCost(int aIndex, int bIndex) => this._comp.substitionCost(this._aAdjust(aIndex), this._bAdjust(bIndex));
+  /// Gives the substitution cost for replacing A with B at the given indices.
+  int substitutionCost(
+    final int aIndex,
+    final int bIndex,
+  ) =>
+      this._comp.substitionCost(this._aAdjust(aIndex), this._bAdjust(bIndex));
 
   /// Gets the debug string for this container.
   @override
@@ -349,19 +469,37 @@ abstract class Comparable {
   int get bLength;
 
   /// Determines if the entries in the two given indices are equal.
-  bool equals(int aIndex, int bIndex);
+  bool equals(
+    final int aIndex,
+    final int bIndex,
+  );
 
   /// Gives the cost to remove A at the given index.
   /// By default this will always return -1.
-  int removeCost(int aIndex) => -1;
+  int removeCost(
+    final int aIndex,
+  ) =>
+      -1;
 
   /// Gives the cost to add B at the given index.
   /// By default this will always return -1.
-  int addCost(int bIndex) => -1;
+  int addCost(
+    final int bIndex,
+  ) =>
+      -1;
 
   /// Gives the substition cost for replacing A with B at the given indices.
   /// By default this will always return 0 if equal, -2 if not equal.
-  int substitionCost(int aIndex, int bIndex) => this.equals(aIndex, bIndex) ? 0 : -2;
+  int substitionCost(
+    final int aIndex,
+    final int bIndex,
+  ) {
+    if (this.equals(aIndex, bIndex)) {
+      return 0;
+    } else {
+      return -2;
+    }
+  }
 
   /// Gets a generic debug string for this comparable.
   @override
@@ -374,7 +512,10 @@ class _StringsComparable extends Comparable {
   final List<String> _bSource;
 
   /// Creates a new diff comparable for the two given strings.
-  _StringsComparable(this._aSource, this._bSource);
+  _StringsComparable(
+    final this._aSource,
+    final this._bSource,
+  );
 
   /// The length of the first list being compared.
   @override
@@ -386,7 +527,11 @@ class _StringsComparable extends Comparable {
 
   /// Determines if the entries in the two given indices are equal.
   @override
-  bool equals(int aIndex, int bIndex) => this._aSource[aIndex] == this._bSource[bIndex];
+  bool equals(
+    final int aIndex,
+    final int bIndex,
+  ) =>
+      this._aSource[aIndex] == this._bSource[bIndex];
 
   /// Gets a generic debug string for this comparable.
   @override

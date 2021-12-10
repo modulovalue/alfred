@@ -46,8 +46,9 @@ class Parser {
   /// Creates a parser from the given JSON serialization.
   factory Parser.deserialize(simple.Deserializer data) {
     final int version = data.readInt();
-    if (version != 1) throw Exception('Unknown version, $version, for parser serialization.');
-
+    if (version != 1) {
+      throw Exception('Unknown version, $version, for parser serialization.');
+    }
     final __grammar.Grammar grammar = __grammar.Grammar.deserialize(data.readSer());
     final _Table table = _Table.deserialize(data.readSer(), grammar);
     final __tokenizer.Tokenizer tokenizer = __tokenizer.Tokenizer.deserialize(data.readSer());
@@ -335,11 +336,9 @@ class Loader {
   static __tokenizer.Tokenizer getTokenizer() {
     final __tokenizer.Tokenizer tok = __tokenizer.Tokenizer();
     tok.start("start");
-
     tok.join("start", "whitespace").addSet(" \n\r\t");
     tok.join("whitespace", "whitespace").addSet(" \n\r\t");
     tok.setToken("whitespace", "whitespace").consume();
-
     tok.joinToToken("start", "openParen").addSet("(");
     tok.joinToToken("start", "closeParen").addSet(")");
     tok.joinToToken("start", "openBracket").addSet("[");
@@ -357,29 +356,26 @@ class Loader {
     tok.joinToToken("start", "comma").addSet(",");
     tok.joinToToken("start", "any").addSet("*");
     tok.joinToToken("start", "lambda").addSet("_");
-
     tok.join("start", "comment").addSet("#");
     tok.join("comment", "commentEnd").addSet("\n");
     tok.join("comment", "comment").addAll();
     tok.setToken("commentEnd", "comment").consume();
-
     tok.join("start", "equal").addSet("=");
     tok.join("equal", "arrow").addSet(">");
     tok.setToken("arrow", "arrow");
-
     tok.join("start", "startRange").addSet(".");
     tok.joinToToken("startRange", "range").addSet(".");
-
-    final matcher.Group hexMatcher = matcher.Group()..addRange('0', '9')..addRange('A', 'F')..addRange('a', 'f');
+    final matcher.Group hexMatcher = matcher.Group()
+      ..addRange('0', '9')
+      ..addRange('A', 'F')
+      ..addRange('a', 'f');
     final matcher.Group idLetter = matcher.Group()
       ..addRange('a', 'z')
       ..addRange('A', 'Z')
       ..addRange('0', '9')
       ..addSet("_.-");
-
     tok.joinToToken("start", "id").add(idLetter);
     tok.join("id", "id").add(idLetter);
-
     tok.join("start", "singleQuote.open")
       ..addSet("'")
       ..consume = true;
@@ -400,7 +396,6 @@ class Loader {
     tok.join("singleQuote.unicode4", "singleQuote.body").add(hexMatcher);
     tok.join("singleQuote.body", "singleQuote.body").addAll();
     tok.setToken("singleQuote", "string");
-
     tok.join("start", "doubleQuote.open")
       ..addSet('"')
       ..consume = true;
@@ -430,7 +425,6 @@ class Loader {
     gram.start("def.set");
     gram.newRule("def.set").addTerm("def.set").addTerm("def").addToken("semicolon");
     gram.newRule("def.set");
-
     gram
         .newRule("def")
         .addTrigger("new.def")
@@ -440,10 +434,8 @@ class Loader {
         .addTerm("def.state.optional");
     gram.newRule("def").addTrigger("new.def").addTerm("stateID").addTerm("def.state");
     gram.newRule("def").addTrigger("new.def").addTerm("tokenStateID").addTerm("def.token");
-
     gram.newRule("def.state.optional");
     gram.newRule("def.state.optional").addTerm("def.state");
-
     gram
         .newRule("def.state")
         .addToken("colon")
@@ -466,7 +458,6 @@ class Loader {
         .addTerm("tokenStateID")
         .addTrigger("assign.token")
         .addTerm("def.token.optional");
-
     gram.newRule("stateID").addToken("openParen").addToken("id").addToken("closeParen").addTrigger("new.state");
     gram
         .newRule("tokenStateID")
@@ -515,7 +506,6 @@ class Loader {
         .addTerm("matcher")
         .addToken("closeParen")
         .addTrigger("not.group.end");
-
     gram.newRule("def.token.optional");
     gram.newRule("def.token.optional").addTerm("def.token");
     gram
@@ -525,7 +515,6 @@ class Loader {
         .addToken("arrow")
         .addTerm("tokenStateID")
         .addTrigger("replace.token");
-
     gram.newRule("replaceText").addToken("string").addTrigger("add.replace.text");
     gram
         .newRule("replaceText")
@@ -533,7 +522,6 @@ class Loader {
         .addToken("comma")
         .addToken("string")
         .addTrigger("add.replace.text");
-
     gram
         .newRule("def")
         .addTrigger("new.def")
@@ -549,7 +537,6 @@ class Loader {
         .addTrigger("start.rule")
         .addTerm("start.rule")
         .addTerm("next.rule.optional");
-
     gram.newRule("start.rule.optional");
     gram
         .newRule("start.rule.optional")
@@ -557,7 +544,6 @@ class Loader {
         .addTrigger("start.rule")
         .addTerm("start.rule")
         .addTerm("next.rule.optional");
-
     gram.newRule("next.rule.optional");
     gram
         .newRule("next.rule.optional")
@@ -565,12 +551,10 @@ class Loader {
         .addToken("or")
         .addTrigger("start.rule")
         .addTerm("start.rule");
-
     gram.newRule("start.rule").addTerm("tokenItemID").addTrigger("item.token").addTerm("rule.item");
     gram.newRule("start.rule").addTerm("termID").addTrigger("item.term").addTerm("rule.item");
     gram.newRule("start.rule").addTerm("triggerID").addTrigger("item.trigger").addTerm("rule.item");
     gram.newRule("start.rule").addToken("lambda");
-
     gram.newRule("rule.item");
     gram.newRule("rule.item").addTerm("rule.item").addTerm("tokenItemID").addTrigger("item.token");
     gram.newRule("rule.item").addTerm("rule.item").addTerm("termID").addTrigger("item.term");
@@ -845,7 +829,8 @@ class Loader {
   void _notGroupEnd(_parsetree.TriggerArgs args) => this._curTransGroups.removeLast();
 
   /// A trigger handle for adding a new replacement string to the loader.
-  void _addReplaceText(_parsetree.TriggerArgs args) => this._replaceText.add(unescapeString(args.recent(1)?.text ?? ''));
+  void _addReplaceText(_parsetree.TriggerArgs args) =>
+      this._replaceText.add(unescapeString(args.recent(1)?.text ?? ''));
 
   /// A trigger handle for setting a set of replacements between two
   /// tokens with a previously set replacement string set.
@@ -968,8 +953,7 @@ class _Runner {
         if (ruleItem is __grammar.Term) {
           if (item is _parsetree.RuleNode) {
             if (ruleItem.name != item.rule.term?.name) {
-              throw Exception(
-                  'The action, $action, could not reduce item $i, $item: the term names did not match.');
+              throw Exception('The action, $action, could not reduce item $i, $item: the term names did not match.');
             }
           } else {
             throw Exception('The action, $action, could not reduce item $i, $item: the item is not a rule node.');
@@ -978,8 +962,7 @@ class _Runner {
           // if (ruleItem is Grammar.TokenItem) {
           if (item is _parsetree.TokenNode) {
             if (ruleItem.name != item.token.name) {
-              throw Exception(
-                  'The action, $action, could not reduce item $i, $item: the token names did not match.');
+              throw Exception('The action, $action, could not reduce item $i, $item: the token names did not match.');
             }
           } else {
             throw Exception('The action, $action, could not reduce item $i, $item: the item is not a token node.');

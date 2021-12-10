@@ -29,6 +29,8 @@ abstract class BuiltAlfred {
   /// this build.
   ServerConfig get args;
 
+  // TODO alfred can be built, this is a built alfred it should not be able to build alfred again.
+  // TODO have alfred properties in Alfred and expose them here?
   /// The Alfred configuration that lead to this build.
   Alfred get alfred;
 

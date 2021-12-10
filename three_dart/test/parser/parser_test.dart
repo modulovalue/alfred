@@ -5,6 +5,7 @@ import 'package:three_dart/parser/parser.dart' as _parser;
 import 'package:three_dart/parser/simple.dart' as simple;
 import 'package:three_dart/parser/tokenizer.dart' as tokenizer;
 
+// TODO fix test
 void main() {
   final test = TestTool();
   test.run(diff00);

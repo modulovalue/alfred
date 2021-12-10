@@ -47,7 +47,9 @@ class SizedBox with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMi
     required final BuildContext context,
   }) {
     if (child == null) {
-      return DivElementImpl(childNodes: []);
+      return const DivElementImpl(
+        childNodes: [],
+      );
     } else {
       return child!.renderElement(
         context: context,

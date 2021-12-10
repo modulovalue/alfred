@@ -43,7 +43,7 @@ class Padding with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMix
     required final BuildContext context,
   }) {
     if (child == null) {
-      return DivElementImpl(
+      return const DivElementImpl(
         childNodes: [],
       );
     } else {

@@ -65,7 +65,7 @@ class Flex with CssStyleDeclarationNullMixin, WidgetSelfCSS, MultiRenderElementM
   HtmlElement renderHtml({
     required final BuildContext context,
   }) =>
-      DivElementImpl(
+      const DivElementImpl(
         childNodes: [],
       );
 
