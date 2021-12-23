@@ -3,11 +3,10 @@ import 'dart:io';
 
 import '../base/image.dart';
 import '../base/keys.dart';
-import '../css/null_mixin.dart';
 import '../html/html.dart';
-import '../html/html_impl.dart';
 import '../widget/resolve_url.dart';
 import '../widget/widget.dart';
+import 'css_null.dart';
 import 'stateless.dart';
 
 class Image with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMixin implements Widget {
@@ -100,22 +99,26 @@ class Image with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMixin
   }
 
   @override
-  HtmlElement renderHtml({
+  HtmlEntityElement renderHtml({
     required final BuildContext context,
   }) =>
-      ImageElementImpl(
-        src: resolveUrl(
-          context: context,
-          url: image.url,
-          pathSeparator: Platform.pathSeparator,
+      HtmlEntityElementImpl(
+        element: HtmlElementImageImpl(
+          className: null,
+          id: null,
+          src: resolveUrl(
+            context: context,
+            url: image.url,
+            pathSeparator: Platform.pathSeparator,
+          ),
+          childNodes: [],
+          alt: () {
+            if (semanticsLabel != null) {
+              return semanticsLabel;
+            } else {
+              return null;
+            }
+          }(),
         ),
-        childNodes: [],
-        alt: () {
-          if (semanticsLabel != null) {
-            return semanticsLabel;
-          } else {
-            return null;
-          }
-        }(),
       );
 }

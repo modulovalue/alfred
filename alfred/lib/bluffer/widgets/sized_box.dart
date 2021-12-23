@@ -1,8 +1,7 @@
 import '../base/keys.dart';
-import '../css/null_mixin.dart';
 import '../html/html.dart';
-import '../html/html_impl.dart';
 import '../widget/widget.dart';
+import 'css_null.dart';
 import 'stateless.dart';
 
 class SizedBox with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMixin implements Widget {
@@ -43,12 +42,17 @@ class SizedBox with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMi
   }
 
   @override
-  HtmlElement renderHtml({
+  HtmlEntityElement renderHtml({
     required final BuildContext context,
   }) {
     if (child == null) {
-      return const DivElementImpl(
-        childNodes: [],
+      return const HtmlEntityElementImpl(
+        element: HtmlElementDivImpl(
+          otherAdditionalAttributes: [],
+          className: null,
+          id: null,
+          childNodes: [],
+        ),
       );
     } else {
       return child!.renderElement(

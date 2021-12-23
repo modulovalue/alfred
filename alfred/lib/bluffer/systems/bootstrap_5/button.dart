@@ -1,5 +1,4 @@
 import '../../html/html.dart';
-import '../../html/html_impl.dart';
 import '../../widget/widget.dart';
 import '../../widgets/stateless.dart';
 
@@ -15,24 +14,30 @@ class BootstrapButton with RenderElementMixin, NoCSSMixin, NoKeyMixin {
   });
 
   @override
-  HtmlElement<HtmlElement> renderHtml({
+  HtmlEntityElement renderHtml({
     required final BuildContext context,
   }) =>
-      CustomElementImpl(
-        tag: "button",
-        additionalAttributes: [
-          'type="button"',
-          'class="btn btn-' +
-              _serializeBootstrapButtonType(
-                type: type,
-              ) +
-              '"',
-        ],
-        childNodes: [
-          RawTextElementImpl(
-            text,
-          ),
-        ],
+      HtmlEntityElementImpl(
+        element: HtmlElementCustomImpl(
+          id: null,
+          className: null,
+          tag: "button",
+          additionalAttributes: [
+            'type="button"',
+            'class="btn btn-' +
+                _serializeBootstrapButtonType(
+                  type: type,
+                ) +
+                '"',
+          ],
+          childNodes: [
+            HtmlEntityNodeImpl(
+              node: HtmlNodeTextImpl(
+                text,
+              ),
+            ),
+          ],
+        ),
       );
 }
 
@@ -47,24 +52,30 @@ class BootstrapOutlineButton with RenderElementMixin, NoCSSMixin, NoKeyMixin {
   });
 
   @override
-  HtmlElement<HtmlElement> renderHtml({
+  HtmlEntityElement renderHtml({
     required final BuildContext context,
   }) =>
-      CustomElementImpl(
-        tag: "button",
-        additionalAttributes: [
-          'type="button"',
-          'class="btn btn-outline-' +
-              _serializeBootstrapOutlineButtonType(
-                type: type,
-              ) +
-              '"',
-        ],
-        childNodes: [
-          RawTextElementImpl(
-            text,
-          ),
-        ],
+      HtmlEntityElementImpl(
+        element: HtmlElementCustomImpl(
+          id: null,
+          className: null,
+          tag: "button",
+          additionalAttributes: [
+            'type="button"',
+            'class="btn btn-outline-' +
+                _serializeBootstrapOutlineButtonType(
+                  type: type,
+                ) +
+                '"',
+          ],
+          childNodes: [
+            HtmlEntityNodeImpl(
+              node: HtmlNodeTextImpl(
+                text,
+              ),
+            ),
+          ],
+        ),
       );
 }
 

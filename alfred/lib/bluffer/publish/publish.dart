@@ -40,7 +40,7 @@ void publishRaw({
 }
 
 class PublishAppContextDefault with PublishAppContextDefaultMixin {
-  final void Function(String targetPath, HtmlElement element) serialize;
+  final void Function(String targetPath, HtmlEntityElement element) serialize;
   @override
   final App application;
 
@@ -52,7 +52,7 @@ class PublishAppContextDefault with PublishAppContextDefaultMixin {
   @override
   void serializeTo({
     required String targetPath,
-    required HtmlElement element,
+    required HtmlEntityElement element,
   }) =>
       serialize(targetPath, element);
 }
@@ -88,7 +88,7 @@ mixin PublishAppContextDefaultMixin implements PublishAppContext {
   @override
   void serializeTo({
     required String targetPath,
-    required HtmlElement element,
+    required HtmlEntityElement element,
   });
 }
 
@@ -118,7 +118,7 @@ abstract class PublishAppContext {
 
   void serializeTo({
     required final String targetPath,
-    required final HtmlElement element,
+    required final HtmlEntityElement element,
   });
 }
 
@@ -226,7 +226,7 @@ void processRoutes({
   required final String absoluteLocaleDirectory,
   required final void Function({
     required String targetPath,
-    required HtmlElement element,
+    required HtmlEntityElement element,
   })
       serializeTo,
 }) {

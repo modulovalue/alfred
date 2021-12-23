@@ -1,8 +1,7 @@
 import '../base/keys.dart';
-import '../css/null_mixin.dart';
 import '../html/html.dart';
-import '../html/html_impl.dart';
 import '../widget/widget.dart';
+import 'css_null.dart';
 import 'stateless.dart';
 
 class ConstrainedBox with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMixin implements Widget {
@@ -69,11 +68,21 @@ class ConstrainedBox with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderEle
   }
 
   @override
-  HtmlElement renderHtml({
+  HtmlEntityElement renderHtml({
     required final BuildContext context,
   }) {
-    final rendered = child?.renderElement(context: context);
-    return rendered ?? const DivElementImpl(childNodes: [],);
+    final rendered = child?.renderElement(
+      context: context,
+    );
+    return rendered ??
+        const HtmlEntityElementImpl(
+          element: HtmlElementDivImpl(
+            otherAdditionalAttributes: [],
+            className: null,
+            id: null,
+            childNodes: [],
+          ),
+        );
   }
 }
 

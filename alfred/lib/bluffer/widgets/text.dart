@@ -4,11 +4,9 @@ import '../base/color.dart';
 import '../base/keys.dart';
 import '../base/locale.dart';
 import '../base/text.dart';
-import '../css/css.dart';
-import '../css/null_mixin.dart';
 import '../html/html.dart';
-import '../html/html_impl.dart';
 import '../widget/widget.dart';
+import 'css_null.dart';
 import 'stateless.dart';
 import 'theme.dart';
 
@@ -110,48 +108,62 @@ class Text with RenderElementMixin {
   });
 
   @override
-  HtmlElement renderHtml({
+  HtmlEntityElement renderHtml({
     required final BuildContext context,
   }) {
     final splitLineIterable = LineSplitter.split(data);
     final lines = splitLineIterable.toList();
-    return CustomElementImpl(
-      tag: "p",
-      additionalAttributes: [],
-      childNodes: [
-        if (lines.isNotEmpty) //
-          RawTextElementImpl(lines.first),
-        if (lines.length > 1)
-          for (final line in lines.skip(1)) ...[
-            BRElementImpl(
-              childNodes: [],
+    return HtmlEntityElementImpl(
+      element: HtmlElementCustomImpl(
+        id: null,
+        className: null,
+        tag: "p",
+        additionalAttributes: [],
+        childNodes: [
+          if (lines.isNotEmpty) //
+            HtmlEntityNodeImpl(
+              node: HtmlNodeTextImpl(
+                lines.first,
+              ),
             ),
-            RawTextElementImpl(line),
-          ],
-      ],
+          if (lines.length > 1)
+            for (final line in lines.skip(1)) ...[
+              const HtmlEntityElementImpl(
+                element: HtmlElementBRImpl(
+                  id: null,
+                  className: null,
+                  childNodes: [],
+                ),
+              ),
+              HtmlEntityNodeImpl(
+                node: HtmlNodeTextImpl(
+                  line,
+                ),
+              ),
+            ],
+        ],
+      ),
     );
   }
 
   @override
   CssStyleDeclaration renderCss({
     required final BuildContext context,
-  }) {
-    final textStyles = () {
-      final _style = style;
-      final themeData = Theme.of(context);
-      final textTheme = themeData!.text;
-      final _themeStyle = textTheme.paragraph;
-      if (_style == null) {
-        return _themeStyle;
-      } else {
-        return _themeStyle.merge(_style);
-      }
-    }();
-    return _TextCSS(
-      text: this,
-      textStyles: textStyles,
-    );
-  }
+  }) =>
+      _TextCSS(
+        text: this,
+        textStyles: () {
+          final _style = style;
+          final themeData = Theme.of(context);
+          final textTheme = themeData!.text;
+          final _themeStyle = textTheme.paragraph;
+          if (_style == null) {
+            return _themeStyle;
+          } else {
+            return _themeStyle.merge(_style);
+          }
+        }(),
+      );
 }
 
 class _TextCSS with CssStyleDeclarationNullMixin {

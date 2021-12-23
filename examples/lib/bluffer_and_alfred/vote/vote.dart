@@ -15,6 +15,7 @@ import 'package:alfred/bluffer/widgets/padding.dart';
 import 'package:alfred/bluffer/widgets/sized_box.dart';
 import 'package:alfred/bluffer/widgets/text.dart';
 import 'package:alfred/bluffer/widgets/theme.dart';
+import 'package:alfred/util/open.dart';
 
 Future<void> main() async {
   final app = alfredWithRoutes(
@@ -61,6 +62,7 @@ Future<void> main() async {
     ],
   );
   await app.build();
+  openLocalhost();
 }
 
 int yes = 0;
@@ -70,7 +72,7 @@ Widget voteNoWidget(
   final int no,
 ) =>
     voteButton(
-      "No ($no)",
+      "No (" + no.toString() + ")",
       "/no",
       "Vote No",
     );
@@ -79,18 +81,24 @@ Widget voteYesWidget(
   final int yes,
 ) =>
     voteButton(
-      "Yes ($yes)",
+      "Yes (" + yes.toString() + ")",
       "/yes",
       "Vote Yes",
     );
 
 Widget thankYouWidget() => Padding(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(
+        20,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Thank you!"),
-          const SizedBox(height: 20.0),
+          const Text(
+            "Thank you!",
+          ),
+          const SizedBox(
+            height: 20.0,
+          ),
           Click(
             newTab: false,
             url: '/',
@@ -133,8 +141,12 @@ Widget voteButton(
 ) =>
     Row(
       children: [
-        Text(text),
-        const SizedBox(width: 20.0),
+        Text(
+          text,
+        ),
+        const SizedBox(
+          width: 20.0,
+        ),
         Click(
           newTab: false,
           url: target,

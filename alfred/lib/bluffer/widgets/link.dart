@@ -24,6 +24,7 @@ class TextLink extends StatelessWidgetBase with NoCSSMixin {
     final BuildContext context,
   ) =>
       Click(
+        newTab: false,
         url: url,
         builder: (context, state) {
           TextStyle style;

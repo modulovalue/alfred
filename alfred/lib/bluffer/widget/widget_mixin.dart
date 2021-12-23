@@ -1,47 +1,49 @@
 import '../base/keys.dart';
 import '../base/media_query_data.dart';
-import '../css/css.dart';
 import '../html/html.dart';
 import 'widget.dart';
 
-HtmlElement renderWidget({
+HtmlEntityElement renderWidget({
   required final Widget child,
   required final BuildContext context,
 }) {
   final renderedChildHtml = child.renderHtml(
     context: context,
   );
-  return renderedChildHtml.overwrite(
-    className: () {
-      final renderedChildCss = child.renderCss(
-        context: context,
-      );
-      if (renderedChildCss != null) {
-        final newClass = context.createDefaultKey().className;
-        context.setStyle(
-          newClass,
-          renderedChildCss,
+  return HtmlEntityElementImpl(
+    element: HtmlElementCopyImpl(
+      other: renderedChildHtml.element,
+      className: () {
+        final renderedChildCss = child.renderCss(
+          context: context,
         );
-        final currentClass = renderedChildHtml.className;
-        if (currentClass != null) {
-          return currentClass + " " + newClass;
+        if (renderedChildCss != null) {
+          final newClass = context.createDefaultKey().className;
+          context.setStyle(
+            newClass,
+            renderedChildCss,
+          );
+          final currentClass = renderedChildHtml.element.className;
+          if (currentClass != null) {
+            return currentClass + " " + newClass;
+          } else {
+            return newClass;
+          }
         } else {
-          return newClass;
+          return null;
         }
-      } else {
-        return null;
-      }
-    }(),
-    id: () {
-      final key = child.key;
-      if (key != null) {
-        final mediaQuerySize = MediaQuery.of(context)!.size;
-        final mediaQuerySizeIndex = mediaQuerySize.index.toString();
-        return key.className + '-' + mediaQuerySizeIndex;
-      } else {
-        return null;
-      }
-    }(),
+      }(),
+      id: () {
+        final key = child.key;
+        if (key != null) {
+          final mediaQuerySize = MediaQuery.of(context)!.size;
+          final mediaQuerySizeIndex = mediaQuerySize.index.toString();
+          return key.className + '-' + mediaQuerySizeIndex;
+        } else {
+          return null;
+        }
+      }(),
+    ),
   );
 }
 
@@ -49,7 +51,7 @@ mixin InheritedWidgetMixin implements InheritedWidget {
   Widget get child;
 
   @override
-  HtmlElement renderHtml({
+  HtmlEntityElement renderHtml({
     required final BuildContext context,
   }) {
     final newContext = context.withInherited(this);
@@ -59,7 +61,7 @@ mixin InheritedWidgetMixin implements InheritedWidget {
   }
 
   @override
-  HtmlElement renderElement({
+  HtmlEntityElement renderElement({
     required final BuildContext context,
   }) {
     final newContext = context.withInherited(this);

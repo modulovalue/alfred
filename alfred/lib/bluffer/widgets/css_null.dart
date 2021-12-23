@@ -1,4 +1,4 @@
-import 'css.dart';
+import '../html/html.dart';
 
 mixin CssStyleDeclarationNullMixin implements CssStyleDeclaration {
   @override

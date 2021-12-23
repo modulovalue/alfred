@@ -1,9 +1,8 @@
 import '../base/basic_types.dart';
 import '../base/keys.dart';
-import '../css/null_mixin.dart';
 import '../html/html.dart';
-import '../html/html_impl.dart';
 import '../widget/widget.dart';
+import 'css_null.dart';
 import 'stateless.dart';
 
 class Column extends Flex {
@@ -62,11 +61,16 @@ class Flex with CssStyleDeclarationNullMixin, WidgetSelfCSS, MultiRenderElementM
   });
 
   @override
-  HtmlElement renderHtml({
+  HtmlEntityElement renderHtml({
     required final BuildContext context,
   }) =>
-      const DivElementImpl(
-        childNodes: [],
+      const HtmlEntityElementImpl(
+        element: HtmlElementDivImpl(
+          otherAdditionalAttributes: [],
+          className: null,
+          id: null,
+          childNodes: [],
+        ),
       );
 
   @override
@@ -151,7 +155,7 @@ class Flexible with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMi
   });
 
   @override
-  HtmlElement renderHtml({
+  HtmlEntityElement renderHtml({
     required final BuildContext context,
   }) =>
       child.renderElement(context: context);

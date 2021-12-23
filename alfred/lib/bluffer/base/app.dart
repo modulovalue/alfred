@@ -1,5 +1,4 @@
 import '../html/html.dart';
-import '../html/html_impl.dart';
 import '../widget/widget.dart';
 import '../widget/widget_mixin.dart';
 import '../widgets/builder.dart';
@@ -43,7 +42,7 @@ class App with NoCSSMixin implements Widget {
       );
 
   @override
-  HtmlElement renderHtml({
+  HtmlEntityElement renderHtml({
     required final BuildContext context,
   }) {
     // TODO firstWhere is bad because it will throw if nothing is found use firstWhereOrNull or do it manually.
@@ -57,7 +56,7 @@ class App with NoCSSMixin implements Widget {
   }
 
   @override
-  HtmlElement renderElement({
+  HtmlEntityElement renderElement({
     required final BuildContext context,
   }) {
     final currentRoute = routes.firstWhere(
@@ -91,101 +90,144 @@ class AppWidget<ROUTE extends WidgetRoute> with NoCSSMixin implements Widget {
   });
 
   @override
-  HtmlElement renderHtml({
+  HtmlEntityElement renderHtml({
     required final BuildContext context,
   }) =>
-      HtmlHtmlElementImpl(
-        childNodes: [
-          HeadElementImpl(
-            childNodes: [
-              // TODO have a meta subclass that already has those attributes.
-              // TODO look for and support more attributes
-              // TODO have an all-attribute-type-safe meta implementation.
-              MetaElementImpl(
-                childNodes: [],
-                attributes: {
-                  'charset': 'UTF-8',
-                  'name': 'viewport',
-                  'content': 'width=device-width, initial-scale=1',
-                },
-              ),
-              for (final link in includes.stylesheetLinks) //
-                LinkElementImpl(
-                  childNodes: [],
-                  href: link,
-                  rel: 'stylesheet',
-                ),
-              ...route.head(context),
-            ],
-          ),
-          StyleElementImpl(
-            childNodes: [
-              // TODO have a reset delegate.
-              if (enableCssReset)
-                const RawTextElementImpl(
-                  resetCss,
-                ),
-              if (enableCssReset)
-                const RawTextElementImpl(
-                  baseCss,
-                ),
-              for (final size in MediaSize.values)
-                RawTextElementImpl(
-                  mediaClassForMediaSize(
-                    MediaSize.values,
-                    size,
+      HtmlEntityElementImpl(
+        element: HtmlElementHtmlImpl(
+          id: null,
+          className: null,
+          childNodes: [
+            HtmlEntityElementImpl(
+              element: HtmlElementHeadImpl(
+                className: null,
+                id: null,
+                childNodes: [
+                  // TODO have a meta subclass that already has those attributes.
+                  // TODO look for and support more attributes
+                  // TODO have an all-attribute-type-safe meta implementation.
+                  const HtmlEntityElementImpl(
+                    element: HtmlElementMetaImpl(
+                      id: null,
+                      className: null,
+                      childNodes: [],
+                      attributes: {
+                        'charset': 'UTF-8',
+                        'name': 'viewport',
+                        'content': 'width=device-width, initial-scale=1',
+                      },
+                    ),
                   ),
-                ),
-            ],
-          ),
-          BodyElementImpl(
-            childNodes: [
-              for (final size in MediaSize.values)
-                DivElementImpl(
-                  className: 'size' + size.index.toString(),
-                  childNodes: [
-                    MediaQuery(
-                      data: MediaQueryDataImpl(size: size),
-                      child: Builder(
-                        builder: (final context) => Theme(
-                          data: theme?.call(context),
-                          child: () {
-                            if (builder != null) {
-                              return builder!(context, route);
-                            } else {
-                              return route.build(context);
-                            }
-                          }(),
+                  for (final link in includes.stylesheetLinks) //
+                    HtmlEntityElementImpl(
+                      element: HtmlElementLinkImpl(
+                        className: null,
+                        id: null,
+                        childNodes: [],
+                        href: link,
+                        rel: 'stylesheet',
+                      ),
+                    ),
+                  ...route.head(context),
+                ],
+              ),
+            ),
+            HtmlEntityElementImpl(
+              element: HtmlElementStyleImpl(
+                className: null,
+                id: null,
+                childNodes: [
+                  // TODO have a reset delegate.
+                  if (enableCssReset)
+                    const HtmlEntityNodeImpl(
+                      node: HtmlNodeTextImpl(
+                        resetCss,
+                      ),
+                    ),
+                  if (enableCssReset)
+                    const HtmlEntityNodeImpl(
+                      node: HtmlNodeTextImpl(
+                        baseCss,
+                      ),
+                    ),
+                  for (final size in MediaSize.values)
+                    HtmlEntityNodeImpl(
+                      node: HtmlNodeTextImpl(
+                        mediaClassForMediaSize(
+                          MediaSize.values,
+                          size,
                         ),
                       ),
-                    ).renderElement(context: context)
-                  ],
-                ),
-              ...includes.scriptLinks,
-            ],
-          )
-        ],
+                    ),
+                ],
+              ),
+            ),
+            HtmlEntityElementImpl(
+              element: HtmlElementBodyImpl(
+                id: null,
+                className: null,
+                childNodes: [
+                  for (final size in MediaSize.values)
+                    HtmlEntityElementImpl(
+                      element: HtmlElementDivImpl(
+                        otherAdditionalAttributes: [],
+                        id: null,
+                        className: 'size' + size.index.toString(),
+                        childNodes: [
+                          MediaQuery(
+                            data: MediaQueryDataImpl(size: size),
+                            child: Builder(
+                              builder: (final context) => Theme(
+                                data: theme?.call(context),
+                                child: () {
+                                  if (builder != null) {
+                                    return builder!(context, route);
+                                  } else {
+                                    return route.build(context);
+                                  }
+                                }(),
+                              ),
+                            ),
+                          ).renderElement(context: context)
+                        ],
+                      ),
+                    ),
+                  ...includes.scriptLinks.map(
+                    (final a) => HtmlEntityElementImpl(
+                      element: a,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       );
 
   @override
-  HtmlElement renderElement({
+  HtmlEntityElement renderElement({
     required final BuildContext context,
   }) {
     final result = renderWidget(
       context: context,
       child: this,
     );
-    for (final child in result.childNodes) {
-      if (child is StyleElementImpl) {
-        context.styles.entries.forEach(
-          (final e) => child.childNodes.add(
-            CssTextElementImpl(
-              e.key,
-              e.value,
+    for (final HtmlEntity child in result.element.childNodes) {
+      if (child is HtmlEntityElement) {
+        final _child = child.element;
+        if (_child is HtmlElementStyleImpl) {
+          context.styles.entries.forEach(
+            (final e) => _child.childNodes.add(
+              HtmlEntityNodeImpl(
+                node: HtmlNodeStyleImpl(
+                  e.key,
+                  e.value,
+                ),
+              ),
             ),
-          ),
-        );
-        break;
+          );
+          break;
+        }
       }
     }
     return result;
@@ -199,14 +241,14 @@ class AppIncludesEmptyImpl implements AppIncludes {
   Iterable<String> get stylesheetLinks => const Iterable.empty();
 
   @override
-  Iterable<ScriptElement> get scriptLinks => const Iterable.empty();
+  Iterable<HtmlElementScriptImpl> get scriptLinks => const Iterable.empty();
 }
 
 class AppIncludesImpl implements AppIncludes {
   @override
   final List<String> stylesheetLinks;
   @override
-  final List<ScriptElement> scriptLinks;
+  final List<HtmlElementScriptImpl> scriptLinks;
 
   const AppIncludesImpl({
     required final this.stylesheetLinks,
@@ -218,7 +260,7 @@ abstract class AppIncludes {
   // TODO make this not be a string but a stylesheet model.
   Iterable<String> get stylesheetLinks;
 
-  Iterable<ScriptElement> get scriptLinks;
+  Iterable<HtmlElementScriptImpl> get scriptLinks;
 }
 
 class AppIncludesCompositeImpl implements AppIncludes {
@@ -236,7 +278,7 @@ class AppIncludesCompositeImpl implements AppIncludes {
   }
 
   @override
-  Iterable<ScriptElement> get scriptLinks sync* {
+  Iterable<HtmlElementScriptImpl> get scriptLinks sync* {
     for (final include in includes) {
       yield* include.scriptLinks;
     }
@@ -248,7 +290,7 @@ abstract class WidgetRoute {
     final BuildContext context,
   );
 
-  Iterable<HtmlElement> head(
+  Iterable<HtmlEntityElement> head(
     final BuildContext context,
   );
 
@@ -303,12 +345,16 @@ class WidgetRouteSimpleImpl with WidgetRouteMixin {
 
 mixin WidgetRouteMixin implements WidgetRoute {
   @override
-  Iterable<HtmlElement> head(
+  Iterable<HtmlEntityElement> head(
     final BuildContext context,
   ) =>
       [
-        TitleElementImpl(
-          text: makeTitle(context),
+        HtmlEntityElementImpl(
+          element: HtmlElementTitleImpl(
+            className: null,
+            id: null,
+            text: makeTitle(context),
+          ),
         ),
       ];
 }

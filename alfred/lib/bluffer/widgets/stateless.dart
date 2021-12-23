@@ -1,5 +1,4 @@
 import '../base/keys.dart';
-import '../css/css.dart';
 import '../html/html.dart';
 import '../widget/widget.dart';
 import '../widget/widget_mixin.dart';
@@ -19,7 +18,7 @@ abstract class StatelessWidgetBase with RenderElementMixin implements StatelessW
   });
 
   @override
-  HtmlElement renderHtml({
+  HtmlEntityElement renderHtml({
     required final BuildContext context,
   }) {
     final built = build(
@@ -33,7 +32,7 @@ abstract class StatelessWidgetBase with RenderElementMixin implements StatelessW
 
 mixin RenderElementMixin implements Widget {
   @override
-  HtmlElement renderElement({
+  HtmlEntityElement renderElement({
     required final BuildContext context,
   }) =>
       renderWidget(
@@ -46,7 +45,7 @@ mixin MultiRenderElementMixin implements Widget {
   Iterable<Widget> get children;
 
   @override
-  HtmlElement renderElement({
+  HtmlEntityElement renderElement({
     required final BuildContext context,
   }) {
     var result = renderWidget(
@@ -54,13 +53,15 @@ mixin MultiRenderElementMixin implements Widget {
       context: context,
     );
     for (final child in children) {
-      final rendered = child.renderElement(
-        context: context,
-      );
-      result = result.append(
-        [
-          rendered,
-        ],
+      result = HtmlEntityElementImpl(
+        element: HtmlElementAppendedImpl(
+          other: result.element,
+          additional: [
+            child.renderElement(
+              context: context,
+            ),
+          ],
+        ),
       );
     }
     return result;

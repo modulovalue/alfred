@@ -1,6 +1,5 @@
 import '../base/assets.dart';
 import '../base/keys.dart';
-import '../css/css.dart';
 import '../html/html.dart';
 
 mixin WidgetSelfCSS implements Widget, CssStyleDeclaration {
@@ -35,7 +34,7 @@ abstract class InheritedWidget implements Widget {}
 abstract class Widget {
   Key? get key;
 
-  HtmlElement renderHtml({
+  HtmlEntityElement renderHtml({
     required final BuildContext context,
   });
 
@@ -43,7 +42,7 @@ abstract class Widget {
     required final BuildContext context,
   });
 
-  HtmlElement renderElement({
+  HtmlEntityElement renderElement({
     required final BuildContext context,
   });
 }

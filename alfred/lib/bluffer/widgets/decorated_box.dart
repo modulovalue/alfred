@@ -5,12 +5,10 @@ import '../base/border_radius.dart';
 import '../base/decoration.dart';
 import '../base/image.dart';
 import '../base/keys.dart';
-import '../css/css.dart';
-import '../css/null_mixin.dart';
 import '../html/html.dart';
-import '../html/html_impl.dart';
 import '../widget/resolve_url.dart';
 import '../widget/widget.dart';
+import 'css_null.dart';
 import 'flex.dart';
 import 'stateless.dart';
 
@@ -36,19 +34,24 @@ class DecoratedBox with RenderElementMixin implements Widget {
       );
 
   @override
-  HtmlElement renderHtml({
+  HtmlEntityElement renderHtml({
     required final BuildContext context,
   }) {
     final _child = child;
-    return DivElementImpl(
-      childNodes: [
-        if (_child != null)
-          Expanded(
-            child: _child,
-          ).renderElement(
-            context: context,
-          ),
-      ],
+    return HtmlEntityElementImpl(
+      element: HtmlElementDivImpl(
+        otherAdditionalAttributes: [],
+        className: null,
+        id: null,
+        childNodes: [
+          if (_child != null)
+            Expanded(
+              child: _child,
+            ).renderElement(
+              context: context,
+            ),
+        ],
+      ),
     );
   }
 }

@@ -1,11 +1,11 @@
 import '../base/assets.dart';
 import '../base/media_query_data.dart';
+import '../html/html.dart';
 import '../widget/build_context.dart';
 import '../widget/widget.dart';
 import '../widget/widget_mixin.dart';
 import '../widgets/builder.dart';
 import '../widgets/theme.dart';
-import 'serialize.dart';
 
 String singlePage({
   required final Widget Function(BuildContext) builder,
@@ -46,8 +46,8 @@ String constructSinglePage({
   final element = child.renderElement(
     context: buildContext,
   );
-  return serializeHtmlElement(
-    element: element,
+  return htmlElementToString(
+    element: element.element,
   );
 }
 
