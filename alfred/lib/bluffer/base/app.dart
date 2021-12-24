@@ -1,4 +1,5 @@
 import '../html/html.dart';
+import '../html/pretty.dart';
 import '../widget/widget.dart';
 import '../widget/widget_mixin.dart';
 import '../widgets/builder.dart';
@@ -111,11 +112,20 @@ class AppWidget<ROUTE extends WidgetRoute> with NoCSSMixin implements Widget {
                       id: null,
                       className: null,
                       childNodes: [],
-                      attributes: {
-                        'charset': 'UTF-8',
-                        'name': 'viewport',
-                        'content': 'width=device-width, initial-scale=1',
-                      },
+                      attributes: [
+                        MapEntry(
+                          'charset',
+                          'UTF-8',
+                        ),
+                        MapEntry(
+                          'name',
+                          'viewport',
+                        ),
+                        MapEntry(
+                          'content',
+                          'width=device-width, initial-scale=1',
+                        ),
+                      ],
                     ),
                   ),
                   for (final link in includes.stylesheetLinks) //
@@ -132,33 +142,241 @@ class AppWidget<ROUTE extends WidgetRoute> with NoCSSMixin implements Widget {
                 ],
               ),
             ),
+            // ignore: prefer_const_constructors
             HtmlEntityElementImpl(
+              // ignore: prefer_const_constructors
               element: HtmlElementStyleImpl(
                 className: null,
                 id: null,
                 childNodes: [
                   // TODO have a reset delegate.
-                  if (enableCssReset)
-                    const HtmlEntityNodeImpl(
-                      node: HtmlNodeTextImpl(
-                        resetCss,
-                      ),
-                    ),
-                  if (enableCssReset)
-                    const HtmlEntityNodeImpl(
-                      node: HtmlNodeTextImpl(
-                        baseCss,
-                      ),
-                    ),
-                  for (final size in MediaSize.values)
-                    HtmlEntityNodeImpl(
-                      node: HtmlNodeTextImpl(
-                        mediaClassForMediaSize(
-                          MediaSize.values,
-                          size,
+                  if (enableCssReset) ...[
+                    const StyleContentStyleImpl(
+                      content: HtmlStyleImpl(
+                        key: CssKeyImpl(
+                          key:
+                              "html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video",
+                        ),
+                        css: CssStyleDeclarationImpl(
+                          css_margin: "0",
+                          css_padding: "0",
+                          css_border: "0",
+                          css_fontSize: "100%",
+                          css_font: "inherit",
+                          css_verticalAlign: "baseline",
                         ),
                       ),
                     ),
+                    // HTML5 display-role reset for older browsers
+                    const StyleContentStyleImpl(
+                      content: HtmlStyleImpl(
+                        key: CssKeyImpl(
+                          key:
+                              "article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section",
+                        ),
+                        css: CssStyleDeclarationImpl(css_display: "block"),
+                      ),
+                    ),
+                    const StyleContentStyleImpl(
+                      content: HtmlStyleImpl(
+                        key: CssKeyImpl(
+                          key: "body",
+                        ),
+                        css: CssStyleDeclarationImpl(css_lineHeight: "1"),
+                      ),
+                    ),
+                    const StyleContentStyleImpl(
+                      content: HtmlStyleImpl(
+                        key: CssKeyImpl(
+                          key: "ol, ul",
+                        ),
+                        css: CssStyleDeclarationImpl(
+                          css_listStyle: "none",
+                        ),
+                      ),
+                    ),
+                    const StyleContentStyleImpl(
+                      content: HtmlStyleImpl(
+                        key: CssKeyImpl(
+                          key: "blockquote, q",
+                        ),
+                        css: CssStyleDeclarationImpl(
+                          css_quotes: "none",
+                        ),
+                      ),
+                    ),
+                    const StyleContentStyleImpl(
+                      content: HtmlStyleImpl(
+                        key: CssKeyImpl(
+                          key: "blockquote:before, blockquote:after, q:before, q:after",
+                        ),
+                        css: CssStyleDeclarationImpl(
+                          // css_content: "''",
+                          css_content: "none",
+                        ),
+                      ),
+                    ),
+                    const StyleContentStyleImpl(
+                      content: HtmlStyleImpl(
+                        key: CssKeyImpl(
+                          key: "table",
+                        ),
+                        css: CssStyleDeclarationImpl(
+                          css_borderCollapse: "collapse",
+                          css_spacing: "0",
+                        ),
+                      ),
+                    ),
+                    const StyleContentStyleImpl(
+                      content: HtmlStyleImpl(
+                        key: CssKeyImpl(
+                          key: "a",
+                        ),
+                        css: CssStyleDeclarationImpl(
+                          css_textDecoration: "none",
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (enableCssReset) ...[
+                    const StyleContentStyleImpl(
+                      content: HtmlStyleImpl(
+                        key: CssKeyImpl(
+                          key: ".click",
+                        ),
+                        css: CssStyleDeclarationImpl(
+                          css_display: "flex",
+                        ),
+                      ),
+                    ),
+                    const StyleContentStyleImpl(
+                      content: HtmlStyleImpl(
+                        key: CssKeyImpl(
+                          key: ".click .active",
+                        ),
+                        css: CssStyleDeclarationImpl(
+                          css_display: "none",
+                        ),
+                      ),
+                    ),
+                    const StyleContentStyleImpl(
+                      content: HtmlStyleImpl(
+                        key: CssKeyImpl(
+                          key: ".click .inactive",
+                        ),
+                        css: CssStyleDeclarationImpl(
+                          css_display: "flex",
+                        ),
+                      ),
+                    ),
+                    const StyleContentStyleImpl(
+                      content: HtmlStyleImpl(
+                        key: CssKeyImpl(
+                          key: ".click .hover",
+                        ),
+                        css: CssStyleDeclarationImpl(
+                          css_display: "none",
+                        ),
+                      ),
+                    ),
+                    const StyleContentStyleImpl(
+                      content: HtmlStyleImpl(
+                        key: CssKeyImpl(
+                          key: ".click:active .active",
+                        ),
+                        css: CssStyleDeclarationImpl(
+                          css_display: "flex",
+                        ),
+                      ),
+                    ),
+                    const StyleContentStyleImpl(
+                      content: HtmlStyleImpl(
+                        key: CssKeyImpl(
+                          key: ".click:active .inactive",
+                        ),
+                        css: CssStyleDeclarationImpl(
+                          css_display: "none",
+                        ),
+                      ),
+                    ),
+                    const StyleContentStyleImpl(
+                      content: HtmlStyleImpl(
+                        key: CssKeyImpl(
+                          key: ".click:active .hover",
+                        ),
+                        css: CssStyleDeclarationImpl(
+                          css_display: "none",
+                        ),
+                      ),
+                    ),
+                    const StyleContentStyleImpl(
+                      content: HtmlStyleImpl(
+                        key: CssKeyImpl(
+                          key: ".click:hover .active",
+                        ),
+                        css: CssStyleDeclarationImpl(
+                          css_display: "none",
+                        ),
+                      ),
+                    ),
+                    const StyleContentStyleImpl(
+                      content: HtmlStyleImpl(
+                        key: CssKeyImpl(
+                          key: ".click:hover .inactive",
+                        ),
+                        css: CssStyleDeclarationImpl(
+                          css_display: "none",
+                        ),
+                      ),
+                    ),
+                    const StyleContentStyleImpl(
+                      content: HtmlStyleImpl(
+                        key: CssKeyImpl(
+                          key: ".click:hover .hover",
+                        ),
+                        css: CssStyleDeclarationImpl(
+                          css_display: "flex",
+                          css_cursor: "pointer",
+                        ),
+                      ),
+                    ),
+                  ],
+                  for (final size in MediaSize.values) ...[
+                    StyleContentStructureImpl(
+                      key: CssKeyImpl(
+                        key: '@media all and (min-width: ' +
+                            Breakpoint.defaultBreakpointSize(size).toString() +
+                            'px)' +
+                            () {
+                              final index = MediaSize.values.indexOf(size);
+                              if (index + 1 >= MediaSize.values.length) {
+                                return "";
+                              } else {
+                                return " and (max-width: " +
+                                    (Breakpoint.defaultBreakpointSize(MediaSize.values[index + 1]) - 1).toString() +
+                                    "px)";
+                              }
+                            }(),
+                      ),
+                      style: [
+                        for (final current in MediaSize.values)
+                          HtmlStyleImpl(
+                            key: CssKeyImpl(
+                              key: '.size' + current.index.toString(),
+                            ),
+                            css: CssStyleDeclarationImpl(
+                              css_display: () {
+                                if (size == current) {
+                                  return "block";
+                                } else {
+                                  return "none";
+                                }
+                              }(),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -212,22 +430,49 @@ class AppWidget<ROUTE extends WidgetRoute> with NoCSSMixin implements Widget {
       context: context,
       child: this,
     );
-    for (final HtmlEntity child in result.element.childNodes) {
-      if (child is HtmlEntityElement) {
-        final _child = child.element;
-        if (_child is HtmlElementStyleImpl) {
-          context.styles.entries.forEach(
-            (final e) => _child.childNodes.add(
-              HtmlEntityNodeImpl(
-                node: HtmlNodeStyleImpl(
-                  e.key,
-                  e.value,
+    final children = elementChildNodes(
+      element: result.element,
+    );
+    for (final child in children) {
+      final stop = child.match(
+        element: (final a) => a.element.match(
+          copy: (final a) => false,
+          appended: (final a) => false,
+          br: (final a) => false,
+          html: (final a) => false,
+          meta: (final a) => false,
+          body: (final a) => false,
+          custom: (final a) => false,
+          script: (final a) => false,
+          link: (final a) => false,
+          title: (final a) => false,
+          style: (final a) {
+            context.styles.entries.forEach(
+              // TODO bad, don't 'add'
+              (final e) => a.childNodes.add(
+                StyleContentStyleImpl(
+                  content: HtmlStyleImpl(
+                    key: CssKeyImpl(
+                      key: "." + e.key,
+                    ),
+                    css: e.value,
+                  ),
                 ),
               ),
-            ),
-          );
-          break;
-        }
+            );
+            return true;
+          },
+          image: (final a) => false,
+          div: (final a) => false,
+          anchor: (final a) => false,
+          head: (final a) => false,
+        ),
+        node: (final a) => false,
+      );
+      if (stop) {
+        break;
+      } else {
+        // Continue.
       }
     }
     return result;
@@ -382,126 +627,3 @@ class UrlWidgetRoute with WidgetRouteMixin {
   ) =>
       title(context);
 }
-
-String mediaClassForMediaSize(
-  final List<MediaSize> all,
-  final MediaSize size,
-) {
-  final index = all.indexOf(size);
-  assert(
-    index != -1,
-    "The given size " + size.toString() + " was not in " + all.toString(),
-  );
-  return [
-    '@media all and (min-width: ' +
-        Breakpoint.defaultBreakpointSize(size).toString() +
-        'px)' +
-        () {
-          if (index + 1 >= all.length) {
-            return "";
-          } else {
-            return " and (max-width: " + (Breakpoint.defaultBreakpointSize(all[index + 1]) - 1).toString() + "px)";
-          }
-        }() +
-        ' {',
-    for (final current in all)
-      '  .size' +
-          current.index.toString() +
-          ' { display: ' +
-          () {
-            if (size == current) {
-              return "block";
-            } else {
-              return "none";
-            }
-          }() +
-          '; }',
-    '} \n',
-  ].join("\n");
-}
-
-const baseCss = '''
-.click {
-  display: flex;
-}
-
-.click .active {
-  display: none;
-}
-.click .inactive {
-  display: flex;
-}
-.click .hover {
-  display: none;
-}
-
-.click:active .active {
-  display: flex;
-}
-.click:active .inactive {
-  display: none;
-}
-.click:active .hover {
-  display: none;
-}
-
-.click:hover .active {
-  display: none;
-}
-.click:hover .inactive {
-  display: none;
-}
-.click:hover .hover {
-  display: flex;
-  cursor: pointer;
-}
-''';
-
-const resetCss = '''
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
-menu, nav, output, ruby, section, summary,
-time, mark, audio, video {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	vertical-align: baseline;
-}
-/* HTML5 display-role reset for older browsers */
-article, aside, details, figcaption, figure, 
-footer, header, hgroup, menu, nav, section {
-	display: block;
-}
-body {
-	line-height: 1;
-}
-ol, ul {
-	list-style: none;
-}
-blockquote, q {
-	quotes: none;
-}
-blockquote:before, blockquote:after,
-q:before, q:after {
-	content: '';
-	content: none;
-}
-table {
-	border-collapse: collapse;
-	border-spacing: 0;
-}
-a {
-  text-decoration: none;
-}
-''';

@@ -6,7 +6,7 @@ abstract class HtmlEntity {
 }
 
 abstract class HtmlEntityNode implements HtmlEntity {
-  HtmlNode get node;
+  String get text;
 }
 
 abstract class HtmlEntityElement implements HtmlEntity {
@@ -15,10 +15,10 @@ abstract class HtmlEntityElement implements HtmlEntity {
 
 class HtmlEntityNodeImpl implements HtmlEntityNode {
   @override
-  final HtmlNode node;
+  final String text;
 
   const HtmlEntityNodeImpl({
-    required final this.node,
+    required final this.text,
   });
 
   @override
@@ -43,58 +43,6 @@ class HtmlEntityElementImpl implements HtmlEntityElement {
     required final Z Function(HtmlEntityNode p1) node,
   }) =>
       element(this);
-}
-
-abstract class HtmlNode {
-  Z match<Z>({
-    required final Z Function(HtmlNodeText) text,
-    required final Z Function(HtmlNodeStyle) style,
-  });
-}
-
-abstract class HtmlNodeText implements HtmlNode {
-  String get text;
-}
-
-abstract class HtmlNodeStyle implements HtmlNode {
-  String get key;
-
-  CssStyleDeclaration get css;
-}
-
-class HtmlNodeTextImpl implements HtmlNodeText {
-  @override
-  final String text;
-
-  const HtmlNodeTextImpl(
-    final this.text,
-  );
-
-  @override
-  Z match<Z>({
-    required final Z Function(HtmlNodeText p1) text,
-    required final Z Function(HtmlNodeStyle p1) style,
-  }) =>
-      text(this);
-}
-
-class HtmlNodeStyleImpl implements HtmlNodeStyle {
-  @override
-  final String key;
-  @override
-  final CssStyleDeclaration css;
-
-  const HtmlNodeStyleImpl(
-    final this.key,
-    final this.css,
-  );
-
-  @override
-  Z match<Z>({
-    required final Z Function(HtmlNodeText p1) text,
-    required final Z Function(HtmlNodeStyle p1) style,
-  }) =>
-      style(this);
 }
 
 abstract class CssStyleDeclaration {
@@ -157,24 +105,453 @@ abstract class CssStyleDeclaration {
   String? get css_fontWeight;
 
   String? get css_fontFamily;
+
+  String? get css_cursor;
+
+  String? get css_padding;
+
+  String? get css_border;
+
+  String? get css_font;
+
+  String? get css_verticalAlign;
+
+  String? get css_listStyle;
+
+  String? get css_quotes;
+
+  String? get css_content;
+
+  String? get css_borderCollapse;
+
+  String? get css_spacing;
+
+  String? get css_textDecoration;
 }
 
-abstract class HtmlElement {
+class CssStyleDeclarationImpl implements CssStyleDeclaration {
+  @override
+  final String? css_margin;
+  @override
+  final String? css_maxHeight;
+  @override
+  final String? css_maxWidth;
+  @override
+  final String? css_minHeight;
+  @override
+  final String? css_minWidth;
+  @override
+  final String? css_display;
+  @override
+  final String? css_backgroundColor;
+  @override
+  final String? css_backgroundImage;
+  @override
+  final String? css_backgroundPosition;
+  @override
+  final String? css_backgroundSize;
+  @override
+  final String? css_borderTopLeftRadius;
+  @override
+  final String? css_borderTopRightRadius;
+  @override
+  final String? css_borderBottomLeftRadius;
+  @override
+  final String? css_borderBottomRightRadius;
+  @override
+  final String? css_boxShadow;
+  @override
+  final String? css_flexDirection;
+  @override
+  final String? css_justifyContent;
+  @override
+  final String? css_alignItems;
+  @override
+  final String? css_flexGrow;
+  @override
+  final String? css_flexShrink;
+  @override
+  final String? css_flexBasis;
+  @override
+  final String? css_objectFit;
+  @override
+  final String? css_width;
+  @override
+  final String? css_height;
+  @override
+  final String? css_textAlign;
+  @override
+  final String? css_lineHeight;
+  @override
+  final String? css_fontSize;
+  @override
+  final String? css_color;
+  @override
+  final String? css_fontWeight;
+  @override
+  final String? css_fontFamily;
+  @override
+  final String? css_cursor;
+  @override
+  final String? css_padding;
+  @override
+  final String? css_border;
+  @override
+  final String? css_font;
+  @override
+  final String? css_verticalAlign;
+  @override
+  final String? css_listStyle;
+  @override
+  final String? css_quotes;
+  @override
+  final String? css_content;
+  @override
+  final String? css_borderCollapse;
+  @override
+  final String? css_spacing;
+  @override
+  final String? css_textDecoration;
+
+  const CssStyleDeclarationImpl({
+    final this.css_margin,
+    final this.css_maxHeight,
+    final this.css_maxWidth,
+    final this.css_minHeight,
+    final this.css_minWidth,
+    final this.css_display,
+    final this.css_backgroundColor,
+    final this.css_backgroundImage,
+    final this.css_backgroundPosition,
+    final this.css_backgroundSize,
+    final this.css_borderTopLeftRadius,
+    final this.css_borderTopRightRadius,
+    final this.css_borderBottomLeftRadius,
+    final this.css_borderBottomRightRadius,
+    final this.css_boxShadow,
+    final this.css_flexDirection,
+    final this.css_justifyContent,
+    final this.css_alignItems,
+    final this.css_flexGrow,
+    final this.css_flexShrink,
+    final this.css_flexBasis,
+    final this.css_objectFit,
+    final this.css_width,
+    final this.css_height,
+    final this.css_textAlign,
+    final this.css_lineHeight,
+    final this.css_fontSize,
+    final this.css_color,
+    final this.css_fontWeight,
+    final this.css_fontFamily,
+    final this.css_cursor,
+    final this.css_padding,
+    final this.css_border,
+    final this.css_font,
+    final this.css_verticalAlign,
+    final this.css_listStyle,
+    final this.css_quotes,
+    final this.css_content,
+    final this.css_borderCollapse,
+    final this.css_spacing,
+    final this.css_textDecoration,
+  });
+}
+
+abstract class HtmlElement {}
+
+extension HtmlElementMatch on HtmlElement {
+  Z match<Z>({
+    required final Z Function(HtmlElementCopy) copy,
+    required final Z Function(HtmlElementAppended) appended,
+    required final Z Function(HtmlElementBr) br,
+    required final Z Function(HtmlElementHtml) html,
+    required final Z Function(HtmlElementMeta) meta,
+    required final Z Function(HtmlElementBody) body,
+    required final Z Function(HtmlElementCustom) custom,
+    required final Z Function(HtmlElementScript) script,
+    required final Z Function(HtmlElementLink) link,
+    required final Z Function(HtmlElementTitle) title,
+    required final Z Function(HtmlElementStyle) style,
+    required final Z Function(HtmlElementImage) image,
+    required final Z Function(HtmlElementDiv) div,
+    required final Z Function(HtmlElementAnchor) anchor,
+    required final Z Function(HtmlElementHead) head,
+  }) {
+    final _ = this;
+    if (_ is HtmlElementCopy) {
+      return copy(_);
+    } else if (_ is HtmlElementAppended) {
+      return appended(_);
+    } else if (_ is HtmlElementBr) {
+      return br(_);
+    } else if (_ is HtmlElementHtml) {
+      return html(_);
+    } else if (_ is HtmlElementMeta) {
+      return meta(_);
+    } else if (_ is HtmlElementBody) {
+      return body(_);
+    } else if (_ is HtmlElementCustom) {
+      return custom(_);
+    } else if (_ is HtmlElementScript) {
+      return script(_);
+    } else if (_ is HtmlElementLink) {
+      return link(_);
+    } else if (_ is HtmlElementTitle) {
+      return title(_);
+    } else if (_ is HtmlElementStyle) {
+      return style(_);
+    } else if (_ is HtmlElementImage) {
+      return image(_);
+    } else if (_ is HtmlElementDiv) {
+      return div(_);
+    } else if (_ is HtmlElementAnchor) {
+      return anchor(_);
+    } else if (_ is HtmlElementHead) {
+      return head(_);
+    } else {
+      throw Exception("Invalid State");
+    }
+  }
+}
+
+abstract class HtmlElementCopy implements HtmlElement {
+  String? get id;
+
+  String? get className;
+
+  HtmlElement get other;
+}
+
+abstract class HtmlElementAppended implements HtmlElement {
+  HtmlElement get other;
+
+  List<HtmlEntityElement> get additional;
+}
+
+abstract class HtmlElementBr implements HtmlElement {
   String? get className;
 
   String? get id;
 
-  CssStyleDeclaration? get style;
+  List<HtmlEntity> get childNodes;
+}
+
+abstract class HtmlElementHtml implements HtmlElement {
+  String? get className;
+
+  String? get id;
 
   List<HtmlEntity> get childNodes;
+}
+
+abstract class HtmlElementMeta implements HtmlElement {
+  String? get className;
+
+  String? get id;
+
+  List<MapEntry<String, String>> get attributes;
+
+  List<HtmlEntity> get childNodes;
+}
+
+abstract class HtmlElementBody implements HtmlElement {
+  String? get className;
+
+  String? get id;
+
+  List<HtmlEntity> get childNodes;
+}
+
+abstract class HtmlElementCustom implements HtmlElement {
+  String? get className;
+
+  String? get id;
 
   String get tag;
 
-  List<String> get additionalAttributes;
+  List<MapEntry<String, String>> get additionalAttributes;
+
+  List<HtmlEntity> get childNodes;
 }
 
-// TODO abstract classes with matchers and impls.
-class HtmlElementCopyImpl implements HtmlElement {
+abstract class HtmlElementScript implements HtmlElement {
+  String? get className;
+
+  String? get id;
+
+  bool? get async;
+
+  bool? get defer;
+
+  String? get src;
+
+  String? get integrity;
+
+  String? get crossorigin;
+
+  String? get rel;
+}
+
+abstract class HtmlElementLink implements HtmlElement {
+  String? get className;
+
+  String? get id;
+
+  String? get href;
+
+  String? get rel;
+
+  List<HtmlEntity> get childNodes;
+}
+
+abstract class HtmlElementTitle implements HtmlElement {
+  String? get className;
+
+  String? get id;
+
+  String get text;
+}
+
+abstract class HtmlElementStyle implements HtmlElement {
+  String? get className;
+
+  String? get id;
+
+  List<StyleContent> get childNodes;
+}
+
+abstract class StyleContent {
+  Z match<Z>({
+    required Z Function(StyleContentStyle) style,
+    required Z Function(StyleContentStructure) structure,
+  });
+}
+
+abstract class StyleContentStyle implements StyleContent {
+  HtmlStyle get content;
+}
+
+abstract class StyleContentStructure implements StyleContent {
+  CssKey get key;
+
+  List<HtmlStyle> get style;
+}
+
+class StyleContentStyleImpl implements StyleContentStyle {
+  @override
+  final HtmlStyle content;
+
+  const StyleContentStyleImpl({
+    required final this.content,
+  });
+
+  @override
+  Z match<Z>({
+    required final Z Function(StyleContentStyle) style,
+    required final Z Function(StyleContentStructure) structure,
+  }) =>
+      style(this);
+}
+
+class StyleContentStructureImpl implements StyleContentStructure {
+  @override
+  final CssKey key;
+  @override
+  final List<HtmlStyle> style;
+
+  const StyleContentStructureImpl({
+    required final this.key,
+    required final this.style,
+  });
+
+  @override
+  Z match<Z>({
+    required final Z Function(StyleContentStyle) style,
+    required final Z Function(StyleContentStructure) structure,
+  }) =>
+      structure(this);
+}
+
+abstract class HtmlStyle {
+  CssKey get key;
+
+  CssStyleDeclaration get css;
+}
+
+class HtmlStyleImpl implements HtmlStyle {
+  @override
+  final CssKey key;
+  @override
+  final CssStyleDeclaration css;
+
+  const HtmlStyleImpl({
+    required final this.key,
+    required final this.css,
+  });
+}
+
+// TODO dsl for css keys
+// TODO List of CssKey, Class, Id, colon?
+abstract class CssKey {
+  String get key;
+}
+
+class CssKeyImpl implements CssKey {
+  @override
+  final String key;
+
+  const CssKeyImpl({
+    required final this.key,
+  });
+}
+
+abstract class HtmlElementImage implements HtmlElement {
+  String? get className;
+
+  String? get id;
+
+  String? get alt;
+
+  String? get src;
+
+  List<HtmlEntity> get childNodes;
+}
+
+abstract class HtmlElementDiv implements HtmlElement {
+  String? get className;
+
+  String? get id;
+
+  List<MapEntry<String, String>> get otherAdditionalAttributes;
+
+  List<HtmlEntity> get childNodes;
+}
+
+abstract class HtmlElementAnchor implements HtmlElement {
+  String? get className;
+
+  String? get id;
+
+  String? get href;
+
+  String? get target;
+
+  List<MapEntry<String, String>> get otherAdditionalAttributes;
+
+  List<HtmlEntity> get childNodes;
+}
+
+abstract class HtmlElementHead implements HtmlElement {
+  String? get className;
+
+  String? get id;
+
+  List<HtmlEntity> get childNodes;
+}
+
+class HtmlElementCopyImpl implements HtmlElementCopy {
+  @override
   final HtmlElement other;
   @override
   final String? className;
@@ -186,52 +563,21 @@ class HtmlElementCopyImpl implements HtmlElement {
     required final this.className,
     required final this.id,
   });
-
-  @override
-  CssStyleDeclaration? get style => other.style;
-
-  @override
-  List<HtmlEntity> get childNodes => other.childNodes;
-
-  @override
-  String get tag => other.tag;
-
-  @override
-  List<String> get additionalAttributes => other.additionalAttributes;
 }
 
-class HtmlElementAppendedImpl implements HtmlElement {
+class HtmlElementAppendedImpl implements HtmlElementAppended {
+  @override
   final HtmlElement other;
+  @override
   final List<HtmlEntityElement> additional;
 
   const HtmlElementAppendedImpl({
     required final this.other,
     required final this.additional,
   });
-
-  @override
-  List<String> get additionalAttributes => other.additionalAttributes;
-
-  @override
-  List<HtmlEntity> get childNodes => [
-        ...other.childNodes,
-        ...additional,
-      ];
-
-  @override
-  String? get className => other.className;
-
-  @override
-  String? get id => other.id;
-
-  @override
-  CssStyleDeclaration? get style => other.style;
-
-  @override
-  String get tag => other.tag;
 }
 
-class HtmlElementBRImpl implements HtmlElement {
+class HtmlElementBrImpl implements HtmlElementBr {
   @override
   final String? className;
   @override
@@ -239,23 +585,14 @@ class HtmlElementBRImpl implements HtmlElement {
   @override
   final List<HtmlEntity> childNodes;
 
-  const HtmlElementBRImpl({
+  const HtmlElementBrImpl({
     required final this.childNodes,
     required final this.className,
     required final this.id,
   });
-
-  @override
-  Null get style => null;
-
-  @override
-  List<String> get additionalAttributes => const [];
-
-  @override
-  String get tag => "br";
 }
 
-class HtmlElementHtmlImpl implements HtmlElement {
+class HtmlElementHtmlImpl implements HtmlElementHtml {
   @override
   final String? className;
   @override
@@ -268,25 +605,17 @@ class HtmlElementHtmlImpl implements HtmlElement {
     required final this.className,
     required final this.id,
   });
-
-  @override
-  Null get style => null;
-
-  @override
-  List<String> get additionalAttributes => const [];
-
-  @override
-  String get tag => "html";
 }
 
-class HtmlElementMetaImpl implements HtmlElement {
+class HtmlElementMetaImpl implements HtmlElementMeta {
   @override
   final String? className;
   @override
   final String? id;
   @override
   final List<HtmlEntity> childNodes;
-  final Map<String, String> attributes;
+  @override
+  final List<MapEntry<String, String>> attributes;
 
   const HtmlElementMetaImpl({
     required final this.childNodes,
@@ -294,26 +623,9 @@ class HtmlElementMetaImpl implements HtmlElement {
     required final this.className,
     required final this.id,
   });
-
-  @override
-  Null get style => null;
-
-  @override
-  List<String> get additionalAttributes {
-    final _attributes = <String>[];
-    attributes.forEach(
-      (final key, final value) => _attributes.add(
-        key + '="' + value + '"',
-      ),
-    );
-    return _attributes;
-  }
-
-  @override
-  String get tag => "meta";
 }
 
-class HtmlElementBodyImpl implements HtmlElement {
+class HtmlElementBodyImpl implements HtmlElementBody {
   @override
   final String? className;
   @override
@@ -326,18 +638,9 @@ class HtmlElementBodyImpl implements HtmlElement {
     required final this.className,
     required final this.id,
   });
-
-  @override
-  Null get style => null;
-
-  @override
-  List<String> get additionalAttributes => const [];
-
-  @override
-  String get tag => "body";
 }
 
-class HtmlElementCustomImpl implements HtmlElement {
+class HtmlElementCustomImpl implements HtmlElementCustom {
   @override
   final String? className;
   @override
@@ -347,7 +650,7 @@ class HtmlElementCustomImpl implements HtmlElement {
   @override
   final String tag;
   @override
-  final List<String> additionalAttributes;
+  final List<MapEntry<String, String>> additionalAttributes;
 
   const HtmlElementCustomImpl({
     required final this.tag,
@@ -356,64 +659,48 @@ class HtmlElementCustomImpl implements HtmlElement {
     required final this.className,
     required final this.id,
   });
-
-  @override
-  Null get style => null;
 }
 
-class HtmlElementScriptImpl implements HtmlElement {
+class HtmlElementScriptImpl implements HtmlElementScript {
   @override
   final String? className;
   @override
   final String? id;
   @override
-  final List<HtmlEntity> childNodes;
   final bool? async;
+  @override
   final bool? defer;
+  @override
   final String? src;
-  final String? content;
-
-  // TODO support integrity
-  // TODO support crossorigin
-  // TODO support rel
+  @override
+  final String? integrity;
+  @override
+  final String? crossorigin;
+  @override
+  final String? rel;
 
   const HtmlElementScriptImpl({
-    required final this.childNodes,
     required final this.async,
     required final this.defer,
     required final this.src,
-    required final this.content,
     required final this.className,
     required final this.id,
+    required final this.integrity,
+    required final this.crossorigin,
+    required final this.rel,
   });
-
-  @override
-  Null get style => null;
-
-  @override
-  List<String> get additionalAttributes {
-    final _src = src;
-    final _async = async;
-    final _defer = defer;
-    return [
-      if (_src != null) 'src="' + _src + '"',
-      if (_async != null) 'async="' + _async.toString() + '"',
-      if (_defer != null) 'defer="' + _defer.toString() + '"',
-    ];
-  }
-
-  @override
-  String get tag => "script";
 }
 
-class HtmlElementLinkImpl implements HtmlElement {
+class HtmlElementLinkImpl implements HtmlElementLink {
   @override
   final String? className;
   @override
   final String? id;
   @override
   final List<HtmlEntity> childNodes;
+  @override
   final String? href;
+  @override
   final String? rel;
 
   const HtmlElementLinkImpl({
@@ -423,88 +710,48 @@ class HtmlElementLinkImpl implements HtmlElement {
     required final this.className,
     required final this.id,
   });
-
-  @override
-  Null get style => null;
-
-  @override
-  List<String> get additionalAttributes {
-    final _href = href;
-    final _rel = rel;
-    return [
-      if (_href != null) 'href="' + _href + '"',
-      if (_rel != null) 'rel="' + _rel + '"',
-    ];
-  }
-
-  @override
-  String get tag => "link";
 }
 
-class HtmlElementTitleImpl implements HtmlElement {
+class HtmlElementTitleImpl implements HtmlElementTitle {
   @override
   final String? className;
   @override
   final String? id;
-  final String? text;
+  @override
+  final String text;
 
   const HtmlElementTitleImpl({
     required final this.text,
     required final this.className,
     required final this.id,
   });
-
-  @override
-  List<HtmlEntity> get childNodes => [
-        HtmlEntityNodeImpl(
-          node: HtmlNodeTextImpl(
-            text ?? "",
-          ),
-        ),
-      ];
-
-  @override
-  Null get style => null;
-
-  @override
-  List<String> get additionalAttributes => const [];
-
-  @override
-  String get tag => "title";
 }
 
-class HtmlElementStyleImpl implements HtmlElement {
+class HtmlElementStyleImpl implements HtmlElementStyle {
   @override
   final String? className;
   @override
   final String? id;
   @override
-  final List<HtmlEntity> childNodes;
+  final List<StyleContent> childNodes;
 
   const HtmlElementStyleImpl({
     required final this.childNodes,
     required final this.className,
     required final this.id,
   });
-
-  @override
-  Null get style => null;
-
-  @override
-  List<String> get additionalAttributes => [];
-
-  @override
-  String get tag => "style";
 }
 
-class HtmlElementImageImpl implements HtmlElement {
+class HtmlElementImageImpl implements HtmlElementImage {
   @override
   final String? className;
   @override
   final String? id;
   @override
   final List<HtmlEntity> childNodes;
+  @override
   final String? alt;
+  @override
   final String? src;
 
   const HtmlElementImageImpl({
@@ -514,31 +761,16 @@ class HtmlElementImageImpl implements HtmlElement {
     required final this.className,
     required final this.id,
   });
-
-  @override
-  Null get style => null;
-
-  @override
-  List<String> get additionalAttributes {
-    final _src = src;
-    final _alt = alt;
-    return [
-      if (_src != null) 'src="' + _src + '"',
-      if (_alt != null) 'alt="' + _alt + '"',
-    ];
-  }
-
-  @override
-  String get tag => "img";
 }
 
-class HtmlElementDivImpl implements HtmlElement {
+class HtmlElementDivImpl implements HtmlElementDiv {
   @override
   final String? className;
   @override
   final String? id;
   @override
   final List<HtmlEntity> childNodes;
+  @override
   final List<MapEntry<String, String>> otherAdditionalAttributes;
 
   const HtmlElementDivImpl({
@@ -547,28 +779,20 @@ class HtmlElementDivImpl implements HtmlElement {
     required final this.className,
     required final this.id,
   });
-
-  @override
-  Null get style => null;
-
-  @override
-  List<String> get additionalAttributes => [
-        for (final a in otherAdditionalAttributes) a.key + '="' + a.value + '"',
-      ];
-
-  @override
-  String get tag => "div";
 }
 
-class HtmlElementAnchorImpl implements HtmlElement {
+class HtmlElementAnchorImpl implements HtmlElementAnchor {
   @override
   final String? className;
   @override
   final String? id;
   @override
   final List<HtmlEntity> childNodes;
+  @override
   final String? href;
+  @override
   final String? target;
+  @override
   final List<MapEntry<String, String>> otherAdditionalAttributes;
 
   const HtmlElementAnchorImpl({
@@ -579,26 +803,9 @@ class HtmlElementAnchorImpl implements HtmlElement {
     required final this.id,
     required final this.otherAdditionalAttributes,
   });
-
-  @override
-  Null get style => null;
-
-  @override
-  List<String> get additionalAttributes {
-    final _href = href;
-    final _target = target;
-    return [
-      if (_href != null) 'href="' + _href + '"',
-      if (_target != null) 'target="' + _target + '"',
-      for (final a in otherAdditionalAttributes) a.key + '="' + a.value + '"',
-    ];
-  }
-
-  @override
-  String get tag => "a";
 }
 
-class HtmlElementHeadImpl implements HtmlElement {
+class HtmlElementHeadImpl implements HtmlElementHead {
   @override
   final String? className;
   @override
@@ -611,135 +818,4 @@ class HtmlElementHeadImpl implements HtmlElement {
     required final this.className,
     required final this.id,
   });
-
-  @override
-  Null get style => null;
-
-  @override
-  List<String> get additionalAttributes => const [];
-
-  @override
-  String get tag => "head";
 }
-
-String htmlElementToString({
-  required final HtmlElement element,
-}) =>
-    _htmlElementToString(
-      tag: element.tag,
-      additionalAttrib: element.additionalAttributes,
-      element: element,
-    );
-
-String _htmlNodeToString({
-  required final HtmlNode node,
-}) =>
-    node.match(
-      text: (final node) => node.text,
-      style: (final node) => "." + node.key + " { " + _serializeCss(css: node.css) + " }",
-    );
-
-String _htmlElementToString({
-  required final HtmlElement element,
-  required final String tag,
-  required final List<String> additionalAttrib,
-}) =>
-    "<" +
-    () {
-      final cssContent = () {
-        final css = element.style;
-        if (css != null) {
-          return _serializeCss(css: css);
-        } else {
-          return null;
-        }
-      }();
-      final className = element.className;
-      final id = element.id;
-      return [
-        tag,
-        if (className != null) //
-          'class="' + className + '"',
-        if (id != null) //
-          'id="' + id + '"',
-        if (cssContent != null && cssContent.isNotEmpty) //
-          'style="' + cssContent + '"',
-        ...additionalAttrib,
-      ].join(" ");
-    }() +
-    ">" +
-    () {
-      final elements = <HtmlEntityElement>[];
-      final attributes = <HtmlEntityNode>[];
-      for (final child in element.childNodes) {
-        child.match(
-          node: (final a) => attributes.add(a),
-          element: (final a) => elements.add(a),
-        );
-      }
-      final _attributes = attributes
-          .map(
-            (final a) => _htmlNodeToString(
-              node: a.node,
-            ),
-          )
-          .join(" ");
-      final _elements = elements
-          .map(
-            (final a) => htmlElementToString(
-              element: a.element,
-            ),
-          )
-          .join("\n");
-      if (_attributes == "") {
-        if (_elements == "") {
-          return "";
-        } else {
-          return _elements;
-        }
-      } else {
-        if (_elements == "") {
-          return _attributes;
-        } else {
-          return _attributes + " " + _elements;
-        }
-      }
-    }() +
-    "</" +
-    tag +
-    ">";
-
-/// Converts the given [CssStyleDeclaration] into a css string.
-String _serializeCss({
-  required final CssStyleDeclaration css,
-}) =>
-    [
-      if (css.css_margin != null) "margin: " + css.css_margin!,
-      if (css.css_maxHeight != null) "max-height: " + css.css_maxHeight!,
-      if (css.css_maxWidth != null) "max-width: " + css.css_maxWidth!,
-      if (css.css_display != null) "display: " + css.css_display!,
-      if (css.css_backgroundColor != null) "background-color: " + css.css_backgroundColor!,
-      if (css.css_backgroundImage != null) "background-image: " + css.css_backgroundImage!,
-      if (css.css_backgroundPosition != null) "background-position: " + css.css_backgroundPosition!,
-      if (css.css_backgroundSize != null) "background-size: " + css.css_backgroundSize!,
-      if (css.css_borderTopLeftRadius != null) "border-top-left-radius: " + css.css_borderTopLeftRadius!,
-      if (css.css_borderTopRightRadius != null) "border-top-right-radius: " + css.css_borderTopRightRadius!,
-      if (css.css_borderBottomLeftRadius != null) "border-bottom-left-radius: " + css.css_borderBottomLeftRadius!,
-      if (css.css_borderBottomRightRadius != null) "border-bottom-right-radius: " + css.css_borderBottomRightRadius!,
-      if (css.css_boxShadow != null) "box-shadow: " + css.css_boxShadow!,
-      if (css.css_flexDirection != null) "flex-direction: " + css.css_flexDirection!,
-      if (css.css_justifyContent != null) "justify-content: " + css.css_justifyContent!,
-      if (css.css_alignItems != null) "align-items: " + css.css_alignItems!,
-      if (css.css_flexGrow != null) "flex-grow: " + css.css_flexGrow!,
-      if (css.css_flexShrink != null) "flex-shrink: " + css.css_flexShrink!,
-      if (css.css_flexBasis != null) "flex-basis: " + css.css_flexBasis!,
-      if (css.css_objectFit != null) "object-fit: " + css.css_objectFit!,
-      if (css.css_width != null) "width: " + css.css_width!,
-      if (css.css_height != null) "height: " + css.css_height!,
-      if (css.css_textAlign != null) "text-align: " + css.css_textAlign!,
-      if (css.css_lineHeight != null) "line-height: " + css.css_lineHeight!,
-      if (css.css_fontSize != null) "font-size: " + css.css_fontSize!,
-      if (css.css_color != null) "color: " + css.css_color!,
-      if (css.css_fontWeight != null) "font-weight: " + css.css_fontWeight!,
-      if (css.css_fontFamily != null) "font-family: " + css.css_fontFamily!,
-    ].join("; ");

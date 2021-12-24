@@ -1,6 +1,7 @@
 import '../base/keys.dart';
 import '../base/media_query_data.dart';
 import '../html/html.dart';
+import '../html/pretty.dart';
 import 'widget.dart';
 
 HtmlEntityElement renderWidget({
@@ -23,7 +24,9 @@ HtmlEntityElement renderWidget({
             newClass,
             renderedChildCss,
           );
-          final currentClass = renderedChildHtml.element.className;
+          final currentClass = elementClassname(
+            element: renderedChildHtml.element,
+          );
           if (currentClass != null) {
             return currentClass + " " + newClass;
           } else {

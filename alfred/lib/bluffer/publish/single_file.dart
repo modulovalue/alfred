@@ -1,6 +1,6 @@
 import '../base/assets.dart';
 import '../base/media_query_data.dart';
-import '../html/html.dart';
+import '../html/pretty.dart';
 import '../widget/build_context.dart';
 import '../widget/widget.dart';
 import '../widget/widget_mixin.dart';

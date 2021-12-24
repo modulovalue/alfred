@@ -47,9 +47,7 @@ class BootstrapAccordion with RenderElementMixin, NoCSSMixin, NoKeyMixin {
                               href: "#collapse" + i.toString(),
                               childNodes: [
                                 HtmlEntityNodeImpl(
-                                  node: HtmlNodeTextImpl(
-                                    entry.title,
-                                  ),
+                                  text: entry.title,
                                 ),
                               ],
                             ),

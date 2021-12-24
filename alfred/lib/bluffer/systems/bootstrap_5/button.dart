@@ -23,18 +23,21 @@ class BootstrapButton with RenderElementMixin, NoCSSMixin, NoKeyMixin {
           className: null,
           tag: "button",
           additionalAttributes: [
-            'type="button"',
-            'class="btn btn-' +
-                _serializeBootstrapButtonType(
-                  type: type,
-                ) +
-                '"',
+            const MapEntry(
+              "type",
+              "button",
+            ),
+            MapEntry(
+              "class",
+              'btn btn-' +
+                  _serializeBootstrapButtonType(
+                    type: type,
+                  ),
+            ),
           ],
           childNodes: [
             HtmlEntityNodeImpl(
-              node: HtmlNodeTextImpl(
-                text,
-              ),
+              text: text,
             ),
           ],
         ),
@@ -61,18 +64,21 @@ class BootstrapOutlineButton with RenderElementMixin, NoCSSMixin, NoKeyMixin {
           className: null,
           tag: "button",
           additionalAttributes: [
-            'type="button"',
-            'class="btn btn-outline-' +
-                _serializeBootstrapOutlineButtonType(
-                  type: type,
-                ) +
-                '"',
+            const MapEntry(
+              "type",
+              "button",
+            ),
+            MapEntry(
+              "class",
+              'btn btn-outline-' +
+                  _serializeBootstrapOutlineButtonType(
+                    type: type,
+                  ),
+            ),
           ],
           childNodes: [
             HtmlEntityNodeImpl(
-              node: HtmlNodeTextImpl(
-                text,
-              ),
+              text: text,
             ),
           ],
         ),

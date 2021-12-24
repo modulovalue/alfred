@@ -122,23 +122,19 @@ class Text with RenderElementMixin {
         childNodes: [
           if (lines.isNotEmpty) //
             HtmlEntityNodeImpl(
-              node: HtmlNodeTextImpl(
-                lines.first,
-              ),
+              text: lines.first,
             ),
           if (lines.length > 1)
             for (final line in lines.skip(1)) ...[
               const HtmlEntityElementImpl(
-                element: HtmlElementBRImpl(
+                element: HtmlElementBrImpl(
                   id: null,
                   className: null,
                   childNodes: [],
                 ),
               ),
               HtmlEntityNodeImpl(
-                node: HtmlNodeTextImpl(
-                  line,
-                ),
+                text: line,
               ),
             ],
         ],

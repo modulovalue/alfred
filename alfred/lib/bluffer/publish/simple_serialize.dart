@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import '../html/html.dart';
+import '../html/pretty.dart';
 
 /// Writes the given element to the given path.
 void serializeToDisk(

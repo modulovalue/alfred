@@ -90,4 +90,37 @@ mixin CssStyleDeclarationNullMixin implements CssStyleDeclaration {
 
   @override
   String? get css_fontFamily => null;
+
+  @override
+  String? get css_cursor => null;
+
+  @override
+  String? get css_padding => null;
+
+  @override
+  String? get css_border => null;
+
+  @override
+  String? get css_font => null;
+
+  @override
+  String? get css_verticalAlign => null;
+
+  @override
+  String? get css_listStyle => null;
+
+  @override
+  String? get css_quotes => null;
+
+  @override
+  String? get css_content => null;
+
+  @override
+  String? get css_borderCollapse => null;
+
+  @override
+  String? get css_spacing => null;
+
+  @override
+  String? get css_textDecoration => null;
 }

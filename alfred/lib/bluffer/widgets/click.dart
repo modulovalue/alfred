@@ -3,6 +3,7 @@ import 'dart:io';
 
 import '../base/keys.dart';
 import '../html/html.dart';
+import '../html/pretty.dart';
 import '../widget/resolve_url.dart';
 import '../widget/widget.dart';
 import 'stateless.dart';
@@ -62,8 +63,13 @@ class Click with NoCSSMixin, RenderElementMixin implements Widget {
               return HtmlEntityElementImpl(
                 element: HtmlElementCopyImpl(
                   other: inactive.element,
-                  className: inactive.element.className! + ' inactive',
-                  id: inactive.element.id,
+                  className: elementClassname(
+                        element: inactive.element,
+                      )! +
+                      ' inactive',
+                  id: elementId(
+                    element: inactive.element,
+                  ),
                 ),
               );
             }(),
@@ -78,8 +84,13 @@ class Click with NoCSSMixin, RenderElementMixin implements Widget {
               return HtmlEntityElementImpl(
                 element: HtmlElementCopyImpl(
                   other: active.element,
-                  className: active.element.className! + ' active',
-                  id: active.element.id,
+                  className: elementClassname(
+                        element: active.element,
+                      )! +
+                      ' active',
+                  id: elementId(
+                    element: active.element,
+                  ),
                 ),
               );
             }(),
@@ -94,8 +105,13 @@ class Click with NoCSSMixin, RenderElementMixin implements Widget {
               return HtmlEntityElementImpl(
                 element: HtmlElementCopyImpl(
                   other: hover.element,
-                  className: hover.element.className! + ' hover',
-                  id: hover.element.id,
+                  className: elementClassname(
+                        element: hover.element,
+                      )! +
+                      ' hover',
+                  id: elementId(
+                    element: hover.element,
+                  ),
                 ),
               );
             }(),
