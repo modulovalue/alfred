@@ -18,7 +18,7 @@ abstract class StatelessWidgetBase with RenderElementMixin implements StatelessW
   });
 
   @override
-  HtmlEntityElement renderHtml({
+  HtmlElement renderHtml({
     required final BuildContext context,
   }) {
     final built = build(
@@ -32,7 +32,7 @@ abstract class StatelessWidgetBase with RenderElementMixin implements StatelessW
 
 mixin RenderElementMixin implements Widget {
   @override
-  HtmlEntityElement renderElement({
+  HtmlElement renderElement({
     required final BuildContext context,
   }) =>
       renderWidget(
@@ -45,27 +45,13 @@ mixin MultiRenderElementMixin implements Widget {
   Iterable<Widget> get children;
 
   @override
-  HtmlEntityElement renderElement({
+  HtmlElement renderElement({
     required final BuildContext context,
-  }) {
-    var result = renderWidget(
-      child: this,
-      context: context,
-    );
-    for (final child in children) {
-      result = HtmlEntityElementImpl(
-        element: HtmlElementAppendedImpl(
-          other: result.element,
-          additional: [
-            child.renderElement(
-              context: context,
-            ),
-          ],
-        ),
+  }) =>
+      renderWidget(
+        child: this,
+        context: context,
       );
-    }
-    return result;
-  }
 }
 
 mixin NoCSSMixin implements Widget {

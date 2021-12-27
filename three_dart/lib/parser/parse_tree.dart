@@ -1,5 +1,5 @@
-import 'grammar.dart' as grammar;
-import 'tokenizer.dart' as tokenizer;
+import 'grammar.dart';
+import 'tokenizer.dart';
 
 /// The handler signature for a method to call for a specific trigger.
 typedef TriggerHandle = void Function(TriggerArgs args);
@@ -7,23 +7,24 @@ typedef TriggerHandle = void Function(TriggerArgs args);
 /// The tree node containing reduced rule of the grammar
 /// filled out with tokens and other TreeNodes.
 abstract class TreeNode {
-  /// Creates a new tree node.
-  TreeNode._();
-
   /// Processes this tree node with the given handles for the triggers to call.
-  void process(Map<String, TriggerHandle> handles);
+  void process(
+    final Map<String, TriggerHandle> handles,
+  );
 }
 
 /// The argument passed into the trigger handler when it is being called.
 class TriggerArgs {
   /// The list of recent tokens while processing a tree node.
-  List<tokenizer.Token> tokens = [];
+  List<Token> tokens = [];
 
   /// Creates a new trigger argument.
   TriggerArgs();
 
   /// Gets the recent token offset from most recent by the given index.
-  tokenizer.Token? recent(int index) {
+  Token? recent(
+    final int index,
+  ) {
     if ((index > 0) && (index <= tokens.length)) {
       return this.tokens[this.tokens.length - index];
     } else {
@@ -34,7 +35,7 @@ class TriggerArgs {
 
 /// The tree node containing reduced rule of the grammar
 /// filled out with tokens and other TreeNodes.
-class RuleNode extends TreeNode {
+class RuleNode implements TreeNode {
   static const String _charStart = '─';
   static const String _charBar = '  │';
   static const String _charBranch = '  ├─';
@@ -42,28 +43,31 @@ class RuleNode extends TreeNode {
   static const String _charLeaf = '  └─';
 
   /// The grammar rule for this node.
-  final grammar.Rule rule;
+  final Rule rule;
 
   /// The list of items for this rule.
   /// The items are `TreeNodes` and `Tokenizer.Token`s.
   final List<TreeNode> items;
 
   /// Creates a new tree node.
-  RuleNode(this.rule, this.items) : super._();
+  const RuleNode(
+    final this.rule,
+    final this.items,
+  );
 
   /// Helps construct the debugging output of the tree.
   void _toTree(StringBuffer buf, String indent, String first) {
     buf.write(first + '<' + (this.rule.term?.name ?? '') + '>');
     if (items.isNotEmpty) {
       for (int i = 0; i < items.length - 1; i++) {
-        final TreeNode item = items[i];
+        final item = items[i];
         if (item is RuleNode) {
           item._toTree(buf, indent + _charBar, '\n' + indent + _charBranch);
         } else {
           buf.write('\n' + indent + _charBranch + item.toString());
         }
       }
-      final TreeNode item = items[items.length - 1];
+      final item = items[items.length - 1];
       if (item is RuleNode) {
         item._toTree(buf, indent + _charSpace, '\n' + indent + _charLeaf);
       } else {
@@ -96,7 +100,7 @@ class RuleNode extends TreeNode {
   /// Gets a string for the tree node.
   @override
   String toString() {
-    final StringBuffer buf = StringBuffer();
+    final buf = StringBuffer();
     this._toTree(buf, '', _charStart);
     return buf.toString();
   }
@@ -104,16 +108,20 @@ class RuleNode extends TreeNode {
 
 /// The tree node containing reduced rule of the grammar
 /// filled out with tokens and other TreeNodes.
-class TokenNode extends TreeNode {
+class TokenNode implements TreeNode {
   /// The token found at this point in the parse tree.
-  final tokenizer.Token token;
+  final Token token;
 
   /// Creates a new token parse tree node.
-  TokenNode(this.token) : super._();
+  const TokenNode(
+    final this.token,
+  );
 
   /// Processes this tree node with the given handles for the triggers to call.
   @override
-  void process(Map<String, TriggerHandle> handles) {
+  void process(
+    final Map<String, TriggerHandle> handles,
+  ) {
     // Do Nothing, no trigger so there is no effect.
   }
 
@@ -124,20 +132,25 @@ class TokenNode extends TreeNode {
 
 /// The tree node containing reduced rule of the grammar
 /// filled out with tokens and other TreeNodes.
-class TriggerNode extends TreeNode {
+class TriggerNode implements TreeNode {
   /// The token found at this point in the parse tree.
   final String trigger;
 
   /// Creates a new token parse tree node.
-  TriggerNode(this.trigger) : super._();
+  const TriggerNode(
+    final this.trigger,
+  );
 
   /// Processes this tree node with the given handles for the triggers to call.
   @override
-  void process(Map<String, TriggerHandle> handles) {
+  void process(
+    final Map<String, TriggerHandle> handles,
+  ) {
     if (!handles.containsKey(this.trigger)) {
       throw Exception('Failed to find the handle for the trigger, ${this.trigger}');
+    } else {
+      handles[this.trigger]?.call(TriggerArgs());
     }
-    handles[this.trigger]?.call(TriggerArgs());
   }
 
   /// Gets a string for this tree node.

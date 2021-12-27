@@ -1,5 +1,5 @@
-import 'matcher.dart' as _matcher;
-import 'simple.dart' as simple;
+import 'matcher.dart';
+import 'simple.dart';
 
 /// A tokenizer for breaking a string into tokens.
 class Tokenizer {
@@ -12,25 +12,29 @@ class Tokenizer {
   Tokenizer();
 
   /// Loads a whole tokenizer from the given deserializer.
-  factory Tokenizer.deserialize(simple.Deserializer data) {
-    final int version = data.readInt();
-    if (version != 1) throw Exception('Unknown version, $version, for tokenizer serialization.');
-    final Tokenizer tokenizer = Tokenizer();
-    final int tokenCount = data.readInt();
+  factory Tokenizer.deserialize(
+    final Deserializer data,
+  ) {
+    final version = data.readInt();
+    if (version != 1) {
+      throw Exception('Unknown version, $version, for tokenizer serialization.');
+    }
+    final tokenizer = Tokenizer();
+    final tokenCount = data.readInt();
     for (int i = 0; i < tokenCount; i++) {
-      final String key = data.readStr();
-      final TokenState token = TokenState._(tokenizer, key);
+      final key = data.readStr();
+      final token = TokenState._(tokenizer, key);
       token._replace = data.readStringStringMap();
       tokenizer._token[key] = token;
     }
-    final int stateCount = data.readInt();
-    final List<String> keys = [];
+    final stateCount = data.readInt();
+    final keys = <String>[];
     for (int i = 0; i < stateCount; i++) {
-      final String key = data.readStr();
+      final key = data.readStr();
       tokenizer._states[key] = State._(tokenizer, key);
       keys.add(key);
     }
-    for (final String key in keys) {
+    for (final key in keys) {
       tokenizer._states[key]?._deserialize(data.readSer());
     }
     tokenizer._consume = Set.from(data.readStrList());
@@ -39,20 +43,20 @@ class Tokenizer {
   }
 
   /// Creates a serializer to represent the whole tokenizer.
-  simple.Serializer serialize() {
-    final simple.Serializer data = simple.Serializer();
+  Serializer serialize() {
+    final data = Serializer();
     data.writeInt(1); // Version 1
     data.writeInt(this._token.length);
-    for (final String key in this._token.keys) {
+    for (final key in this._token.keys) {
       data.writeStr(key);
       data.writeStringStringMap(this._token[key]?._replace ?? {});
     }
     data.writeInt(this._states.length);
     // ignore: prefer_foreach
-    for (final String key in this._states.keys) {
+    for (final key in this._states.keys) {
       data.writeStr(key);
     }
-    for (final String key in this._states.keys) {
+    for (final key in this._states.keys) {
       data.writeSer(this._states[key]?._serialize());
     }
     data.writeStrList(this._consume.toList());
@@ -64,12 +68,17 @@ class Tokenizer {
 
   /// Sets the start state for the tokenizer to a state with the name [stateName].
   /// If that state doesn't exist it will be created.
-  State start(String stateName) => this._start = this.state(stateName);
+  State start(
+    final String stateName,
+  ) =>
+      this._start = this.state(stateName);
 
   /// Creates and adds a state by the given name [stateName].
   /// If a state already exists it is returned,
   /// otherwise the new state is returned.
-  State state(String stateName) {
+  State state(
+    final String stateName,
+  ) {
     State? state = this._states[stateName];
     if (state == null) {
       state = State._(this, stateName);
@@ -93,7 +102,8 @@ class Tokenizer {
 
   /// Joins the two given states and returns the new or
   /// already existing transition.
-  Transition join(String startStateName, String endStateName) => this.state(startStateName).join(endStateName);
+  Transition join(String startStateName, String endStateName) =>
+      this.state(startStateName).join(endStateName);
 
   /// This is short hand for a join and setToken
   /// where the state name and token name are the same.
@@ -200,7 +210,7 @@ class State {
   State._(this._tokenizer, this._name);
 
   /// Loads a matcher group from the given deserializer.
-  void _deserializeGroup(_matcher.Group group, simple.Deserializer data) {
+  void _deserializeGroup(Group group, Deserializer data) {
     final int matcherCount = data.readInt();
     for (int i = 0; i < matcherCount; i++) {
       switch (data.readInt()) {
@@ -208,7 +218,7 @@ class State {
           this._deserializeGroup(group.addNot(), data);
           break;
         case 1:
-          final _matcher.Group other = _matcher.Group();
+          final Group other = Group();
           this._deserializeGroup(other, data);
           group.add(other);
           break;
@@ -216,7 +226,7 @@ class State {
           group.addAll();
           break;
         case 3:
-          group.add(_matcher.Range.fromCodeUnits(data.readInt(), data.readInt()));
+          group.add(Range.fromCodeUnits(data.readInt(), data.readInt()));
           break;
         case 4:
           group.addSet(data.readStr());
@@ -226,7 +236,7 @@ class State {
   }
 
   /// Loads a state from the given deserializer.
-  void _deserialize(simple.Deserializer data) {
+  void _deserialize(Deserializer data) {
     final int transCount = data.readInt();
     for (int i = 0; i < transCount; i++) {
       final String key = data.readStr();
@@ -242,22 +252,22 @@ class State {
   }
 
   /// Creates a serializer to represent the matcher group.
-  void _serializeGroup(simple.Serializer data, _matcher.Group group) {
+  void _serializeGroup(Serializer data, Group group) {
     data.writeInt(group.matchers.length);
-    for (final _matcher.Matcher matcher in group.matchers) {
-      if (matcher is _matcher.Not) {
+    for (final Matcher matcher in group.matchers) {
+      if (matcher is Not) {
         data.writeInt(0);
         this._serializeGroup(data, matcher);
-      } else if (matcher is _matcher.Group) {
+      } else if (matcher is Group) {
         data.writeInt(1);
         this._serializeGroup(data, matcher);
-      } else if (matcher is _matcher.All) {
+      } else if (matcher is All) {
         data.writeInt(2);
-      } else if (matcher is _matcher.Range) {
+      } else if (matcher is Range) {
         data.writeInt(3);
         data.writeInt(matcher.low);
         data.writeInt(matcher.high);
-      } else if (matcher is _matcher.Set) {
+      } else if (matcher is MatcherSet) {
         data.writeInt(4);
         data.writeStr(matcher.toString());
       } else {
@@ -267,8 +277,8 @@ class State {
   }
 
   /// Creates a serializer to represent the state.
-  simple.Serializer _serialize() {
-    final simple.Serializer data = simple.Serializer();
+  Serializer _serialize() {
+    final Serializer data = Serializer();
     data.writeInt(this._trans.length);
     for (final Transition trans in this._trans) {
       data.writeStr(trans._target?._name ?? '');
@@ -420,7 +430,7 @@ class TokenState {
 /// A transition is a matcher group which connects two states together.
 /// When at one state this transition should be taken to the next if
 /// the next character in the input is a match.
-class Transition extends _matcher.Group {
+class Transition extends Group {
   final State? _target;
 
   /// Indicates if the character should be consumed (true)

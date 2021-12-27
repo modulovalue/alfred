@@ -68,20 +68,17 @@ class ConstrainedBox with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderEle
   }
 
   @override
-  HtmlEntityElement renderHtml({
+  HtmlElement renderHtml({
     required final BuildContext context,
   }) {
     final rendered = child?.renderElement(
       context: context,
     );
     return rendered ??
-        const HtmlEntityElementImpl(
-          element: HtmlElementDivImpl(
-            otherAdditionalAttributes: [],
-            className: null,
-            id: null,
-            childNodes: [],
-          ),
+        const HtmlElementDivImpl(
+          attributes: [],
+          idClass: null,
+          childNodes: [],
         );
   }
 }

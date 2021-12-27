@@ -108,37 +108,32 @@ class Text with RenderElementMixin {
   });
 
   @override
-  HtmlEntityElement renderHtml({
+  HtmlElement renderHtml({
     required final BuildContext context,
   }) {
     final splitLineIterable = LineSplitter.split(data);
     final lines = splitLineIterable.toList();
-    return HtmlEntityElementImpl(
-      element: HtmlElementCustomImpl(
-        id: null,
-        className: null,
-        tag: "p",
-        additionalAttributes: [],
-        childNodes: [
-          if (lines.isNotEmpty) //
-            HtmlEntityNodeImpl(
-              text: lines.first,
+    return HtmlElementCustomImpl(
+      idClass: null,
+      tag: "p",
+      attributes: [],
+      childNodes: [
+        if (lines.isNotEmpty)
+          HtmlEntityNodeImpl(
+            text: lines.first,
+          ),
+        if (lines.length > 1)
+          for (final line in lines.skip(1)) ...[
+            const HtmlEntityElementImpl(
+              element: HtmlElementBrImpl(
+                idClass: null,
+              ),
             ),
-          if (lines.length > 1)
-            for (final line in lines.skip(1)) ...[
-              const HtmlEntityElementImpl(
-                element: HtmlElementBrImpl(
-                  id: null,
-                  className: null,
-                  childNodes: [],
-                ),
-              ),
-              HtmlEntityNodeImpl(
-                text: line,
-              ),
-            ],
-        ],
-      ),
+            HtmlEntityNodeImpl(
+              text: line,
+            ),
+          ],
+      ],
     );
   }
 

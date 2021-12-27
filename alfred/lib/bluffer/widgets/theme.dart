@@ -13,7 +13,7 @@ class Theme extends StatelessWidgetBase with NoCSSMixin {
 
   const Theme({
     required final this.child,
-    required final this.data,
+    final this.data,
     final Key? key,
   }) : super(
           key: key,

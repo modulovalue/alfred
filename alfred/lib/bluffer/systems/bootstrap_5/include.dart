@@ -10,8 +10,7 @@ const AppIncludes bootstrapIncludes = AppIncludesImpl(
     HtmlElementScriptImpl(
       async: null,
       defer: null,
-      className: null,
-      id: null,
+      idClass: null,
       // TODO rel crossorigin integrity https://www.tutorialrepublic.com/twitter-bootstrap-tutorial/bootstrap-get-started.php
       src: "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js",
       integrity: null,

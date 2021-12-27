@@ -1,10 +1,10 @@
-import 'dart:math' as math;
+import 'dart:math';
 
-import 'grammar.dart' as __grammar;
-import 'matcher.dart' as matcher;
-import 'parse_tree.dart' as _parsetree;
-import 'simple.dart' as simple;
-import 'tokenizer.dart' as __tokenizer;
+import 'grammar.dart';
+import 'matcher.dart';
+import 'parse_tree.dart';
+import 'simple.dart';
+import 'tokenizer.dart';
 
 const String _startTerm = 'startTerm';
 const String _eofTokenName = 'eofToken';
@@ -13,10 +13,10 @@ const String _eofTokenName = 'eofToken';
 /// if the tokens are part of that grammar.
 class Parser {
   _Table _table;
-  __grammar.Grammar _grammar;
-  __tokenizer.Tokenizer _tokenizer;
+  Grammar _grammar;
+  Tokenizer _tokenizer;
 
-  static String getDebugStateString(__grammar.Grammar grammar) {
+  static String getDebugStateString(Grammar grammar) {
     final _Builder builder = _Builder(grammar.copy());
     builder.determineStates();
     final StringBuffer buf = StringBuffer();
@@ -30,7 +30,7 @@ class Parser {
   Parser._(this._table, this._grammar, this._tokenizer);
 
   /// Creates a new parser with the given grammar.
-  factory Parser.fromGrammar(__grammar.Grammar grammar, __tokenizer.Tokenizer tokenizer) {
+  factory Parser.fromGrammar(Grammar grammar, Tokenizer tokenizer) {
     final String errors = grammar.validate();
     if (errors.isNotEmpty) throw Exception('Error: Parser can not use invalid grammar:\n' + errors);
 
@@ -39,19 +39,24 @@ class Parser {
     builder.determineStates();
     builder.fillTable();
     final String errs = builder.buildErrors;
-    if (errs.isNotEmpty) throw Exception('Errors while building parser:\n' + builder.toString(showTable: false));
-    return Parser._(builder.table, grammar, tokenizer);
+    if (errs.isNotEmpty) {
+      throw Exception('Errors while building parser:\n' + builder.toString(showTable: false));
+    } else {
+      return Parser._(builder.table, grammar, tokenizer);
+    }
   }
 
   /// Creates a parser from the given JSON serialization.
-  factory Parser.deserialize(simple.Deserializer data) {
+  factory Parser.deserialize(
+    final Deserializer data,
+  ) {
     final int version = data.readInt();
     if (version != 1) {
       throw Exception('Unknown version, $version, for parser serialization.');
     }
-    final __grammar.Grammar grammar = __grammar.Grammar.deserialize(data.readSer());
-    final _Table table = _Table.deserialize(data.readSer(), grammar);
-    final __tokenizer.Tokenizer tokenizer = __tokenizer.Tokenizer.deserialize(data.readSer());
+    final grammar = Grammar.deserialize(data.readSer());
+    final table = _Table.deserialize(data.readSer(), grammar);
+    final tokenizer = Tokenizer.deserialize(data.readSer());
     return Parser._(table, grammar, tokenizer);
   }
 
@@ -62,7 +67,7 @@ class Parser {
   factory Parser.fromDefinitionChar(Iterator<int> input) => (Loader()..loadChars(input)).parser;
 
   /// Serializes the parser into a JSON serialization.
-  simple.Serializer serialize() => simple.Serializer()
+  Serializer serialize() => Serializer()
     ..writeInt(1) // Version 1
     ..writeSer(this._grammar.serialize())
     ..writeSer(this._table.serialize())
@@ -70,11 +75,11 @@ class Parser {
 
   /// Gets the grammar for this parser.
   /// This should be treated as a constant, modifying it could cause the parser to fail.
-  __grammar.Grammar get grammar => this._grammar;
+  Grammar get grammar => this._grammar;
 
   /// Gets the tokenizer for this parser.
   /// This should be treated as a constant, modifying it could cause the parser to fail.
-  __tokenizer.Tokenizer get tokenizer => this._tokenizer;
+  Tokenizer get tokenizer => this._tokenizer;
 
   /// This parses the given string and returns the results.
   Result parse(String input) => this.parseTokens(this._tokenizer.tokenize(input));
@@ -83,12 +88,12 @@ class Parser {
   Result parseChars(Iterator<int> iterator) => this.parseTokens(this._tokenizer.tokenizeChars(iterator));
 
   /// This parses the given tokens and returns the results.
-  Result parseTokens(Iterable<__tokenizer.Token> tokens, [int errorCap = 0]) {
+  Result parseTokens(Iterable<Token> tokens, [int errorCap = 0]) {
     final _Runner runner = _Runner(this._table, errorCap);
-    for (final __tokenizer.Token token in tokens) {
+    for (final Token token in tokens) {
       if (!runner.add(token)) return runner.result;
     }
-    runner.add(__tokenizer.Token(_eofTokenName, _eofTokenName, -1));
+    runner.add(Token(_eofTokenName, _eofTokenName, -1));
     return runner.result;
   }
 }
@@ -128,7 +133,7 @@ class _Goto implements _Action {
 /// is used to reduce the parse set down to a term.
 class _Reduce implements _Action {
   /// The rule to reduce from the parse set.
-  final __grammar.Rule rule;
+  final Rule rule;
 
   /// Creates a new reduce action.
   _Reduce(this.rule);
@@ -166,30 +171,30 @@ class _Error implements _Action {
 
 /// This is a builder used to generate a parser giving a grammar.
 class _Builder {
-  final __grammar.Grammar _grammar;
+  final Grammar _grammar;
   final List<_State> _states = [];
-  final Set<__grammar.Item> _items = {};
+  final Set<Item> _items = {};
   final _Table _table = _Table();
   final StringBuffer _errors = StringBuffer();
 
   /// Constructs of a new parser builder.
   _Builder(this._grammar) {
-    final __grammar.Term? oldStart = this._grammar.startTerm;
+    final Term? oldStart = this._grammar.startTerm;
     this._grammar.start(_startTerm);
     this._grammar.newRule(_startTerm).addTerm(oldStart?.name ?? '').addToken(_eofTokenName);
 
-    for (final __grammar.Term term in this._grammar.terms) {
+    for (final Term term in this._grammar.terms) {
       this._items.add(term);
-      for (final __grammar.Rule rule in term.rules) {
-        for (final __grammar.Item item in rule.items) {
-          if (item is! __grammar.Trigger) this._items.add(item);
+      for (final Rule rule in term.rules) {
+        for (final Item item in rule.items) {
+          if (item is! Trigger) this._items.add(item);
         }
       }
     }
   }
 
   /// Finds a state with the given offset index for the given rule.
-  _State? find(int index, __grammar.Rule rule) {
+  _State? find(int index, Rule rule) {
     for (final _State state in this._states) {
       for (int i = 0; i < state.indices.length; i++) {
         if ((state.indices[i] == index) && (state.rules[i] == rule)) return state;
@@ -201,7 +206,7 @@ class _Builder {
   /// Determines all the parser states for the grammar.
   void determineStates() {
     final _State startState = _State(0);
-    for (final __grammar.Rule rule in this._grammar.startTerm?.rules ?? []) {
+    for (final Rule rule in this._grammar.startTerm?.rules ?? []) {
       startState.addRule(0, rule);
     }
     this._states.add(startState);
@@ -218,12 +223,12 @@ class _Builder {
     final List<_State> changed = [];
     for (int i = 0; i < state.indices.length; i++) {
       final int index = state.indices[i];
-      final __grammar.Rule rule = state.rules[i];
-      final List<__grammar.Item> items = rule.basicItems;
+      final Rule rule = state.rules[i];
+      final List<Item> items = rule.basicItems;
       if (index < items.length) {
-        final __grammar.Item item = items[index];
+        final Item item = items[index];
 
-        if ((item is __grammar.TokenItem) && (item.name == _eofTokenName)) {
+        if ((item is TokenItem) && (item.name == _eofTokenName)) {
           state.setAccept();
         } else {
           _State? next = state.findGoto(item);
@@ -251,15 +256,15 @@ class _Builder {
       if (state.hasAccept) this._table.writeShift(state.number, _eofTokenName, _Accept());
 
       for (int i = 0; i < state.rules.length; i++) {
-        final __grammar.Rule rule = state.rules[i];
+        final Rule rule = state.rules[i];
         final int index = state.indices[i];
-        final List<__grammar.Item> items = rule.basicItems;
+        final List<Item> items = rule.basicItems;
         if (items.length <= index) {
-          final List<__grammar.TokenItem> follows = rule.term?.determineFollows() ?? [];
+          final List<TokenItem> follows = rule.term?.determineFollows() ?? [];
           if (follows.isNotEmpty) {
             // Add the reduce action to all the follow items.
             final _Reduce reduce = _Reduce(rule);
-            for (final __grammar.TokenItem follow in follows) {
+            for (final TokenItem follow in follows) {
               this._table.writeShift(state.number, follow.name, reduce);
             }
           }
@@ -267,9 +272,9 @@ class _Builder {
       }
 
       for (int i = 0; i < state.gotos.length; i++) {
-        final __grammar.Item onItem = state.onItems[i];
+        final Item onItem = state.onItems[i];
         final int goto = state.gotos[i].number;
-        if (onItem is __grammar.Term) {
+        if (onItem is Term) {
           this._table.writeGoto(state.number, onItem.name, _Goto(goto));
         } else {
           this._table.writeShift(state.number, onItem.name, _Shift(goto));
@@ -278,7 +283,7 @@ class _Builder {
     }
 
     // Check for goto loops.
-    for (final __grammar.Term term in this._grammar.terms) {
+    for (final Term term in this._grammar.terms) {
       final List<int> checked = [];
       for (int i = 0; i < this._states.length; i++) {
         if (checked.contains(i)) continue;
@@ -333,8 +338,8 @@ class _Builder {
 /// definition from a string to create a parser.
 class Loader {
   /// Gets the tokenizer used for loading a parser definition.
-  static __tokenizer.Tokenizer getTokenizer() {
-    final __tokenizer.Tokenizer tok = __tokenizer.Tokenizer();
+  static Tokenizer getTokenizer() {
+    final tok = Tokenizer();
     tok.start("start");
     tok.join("start", "whitespace").addSet(" \n\r\t");
     tok.join("whitespace", "whitespace").addSet(" \n\r\t");
@@ -365,11 +370,11 @@ class Loader {
     tok.setToken("arrow", "arrow");
     tok.join("start", "startRange").addSet(".");
     tok.joinToToken("startRange", "range").addSet(".");
-    final matcher.Group hexMatcher = matcher.Group()
+    final hexMatcher = Group()
       ..addRange('0', '9')
       ..addRange('A', 'F')
       ..addRange('a', 'f');
-    final matcher.Group idLetter = matcher.Group()
+    final idLetter = Group()
       ..addRange('a', 'z')
       ..addRange('A', 'Z')
       ..addRange('0', '9')
@@ -420,8 +425,8 @@ class Loader {
   }
 
   /// Gets the grammar used for loading a parser definition.
-  static __grammar.Grammar getGrammar() {
-    final __grammar.Grammar gram = __grammar.Grammar();
+  static Grammar getGrammar() {
+    final gram = Grammar();
     gram.start("def.set");
     gram.newRule("def.set").addTerm("def.set").addTerm("def").addToken("semicolon");
     gram.newRule("def.set");
@@ -458,7 +463,12 @@ class Loader {
         .addTerm("tokenStateID")
         .addTrigger("assign.token")
         .addTerm("def.token.optional");
-    gram.newRule("stateID").addToken("openParen").addToken("id").addToken("closeParen").addTrigger("new.state");
+    gram
+        .newRule("stateID")
+        .addToken("openParen")
+        .addToken("id")
+        .addToken("closeParen")
+        .addTrigger("new.state");
     gram
         .newRule("tokenStateID")
         .addToken("openBracket")
@@ -479,7 +489,12 @@ class Loader {
         .addToken("id")
         .addToken("closeBracket")
         .addTrigger("new.token.item");
-    gram.newRule("triggerID").addToken("openCurly").addToken("id").addToken("closeCurly").addTrigger("new.trigger");
+    gram
+        .newRule("triggerID")
+        .addToken("openCurly")
+        .addToken("id")
+        .addToken("closeCurly")
+        .addTrigger("new.trigger");
 
     gram.newRule("matcher.start").addToken("any").addTrigger("match.any");
     gram.newRule("matcher.start").addTerm("matcher");
@@ -490,7 +505,12 @@ class Loader {
 
     gram.newRule("charSetRange").addToken("string").addTrigger("match.set");
     gram.newRule("charSetRange").addToken("not").addToken("string").addTrigger("match.set.not");
-    gram.newRule("charSetRange").addToken("string").addToken("range").addToken("string").addTrigger("match.range");
+    gram
+        .newRule("charSetRange")
+        .addToken("string")
+        .addToken("range")
+        .addToken("string")
+        .addTrigger("match.range");
     gram
         .newRule("charSetRange")
         .addToken("not")
@@ -563,7 +583,10 @@ class Loader {
   }
 
   /// Creates a new parser for loading tokenizer and grammar definitions.
-  static Parser getParser() => Parser.fromGrammar(Loader.getGrammar(), Loader.getTokenizer());
+  static Parser getParser() => Parser.fromGrammar(
+        Loader.getGrammar(),
+        Loader.getTokenizer(),
+      );
 
   /// This will convert an escaped strings from a tokenized language into
   /// the correct characters for the string.
@@ -598,14 +621,14 @@ class Loader {
           buf.write('"');
           break;
         case 'x':
-          final String hex = value.substring(stop + 2, stop + 4);
-          final int charCode = int.parse(hex, radix: 16);
+          final hex = value.substring(stop + 2, stop + 4);
+          final charCode = int.parse(hex, radix: 16);
           buf.writeCharCode(charCode);
           stop += 2;
           break;
         case 'u':
-          final String hex = value.substring(stop + 2, stop + 6);
-          final int charCode = int.parse(hex, radix: 16);
+          final hex = value.substring(stop + 2, stop + 6);
+          final charCode = int.parse(hex, radix: 16);
           buf.writeCharCode(charCode);
           stop += 4;
           break;
@@ -615,19 +638,19 @@ class Loader {
     return buf.toString();
   }
 
-  final Map<String, _parsetree.TriggerHandle> _handles = {};
-  final __grammar.Grammar _grammar = __grammar.Grammar();
-  final __tokenizer.Tokenizer _tokenizer = __tokenizer.Tokenizer();
+  final Map<String, TriggerHandle> _handles = {};
+  final Grammar _grammar = Grammar();
+  final Tokenizer _tokenizer = Tokenizer();
 
-  final List<__tokenizer.State> _states = [];
-  final List<__tokenizer.TokenState> _tokenStates = [];
-  final List<__grammar.Term> _terms = [];
-  final List<__grammar.TokenItem> _tokenItems = [];
-  final List<__grammar.Trigger> _triggers = [];
-  final List<matcher.Group> _curTransGroups = [];
+  final List<State> _states = [];
+  final List<TokenState> _tokenStates = [];
+  final List<Term> _terms = [];
+  final List<TokenItem> _tokenItems = [];
+  final List<Trigger> _triggers = [];
+  final List<Group> _curTransGroups = [];
   bool _curTransConsume = false;
   final List<String> _replaceText = [];
-  __grammar.Rule? _curRule;
+  Rule? _curRule;
 
   /// Creates a new loader.
   Loader() {
@@ -674,16 +697,16 @@ class Loader {
   }
 
   /// Gets the grammar which is being loaded.
-  __grammar.Grammar get grammar => this._grammar;
+  Grammar get grammar => this._grammar;
 
   /// Gets the tokenizer which is being loaded.
-  __tokenizer.Tokenizer get tokenizer => this._tokenizer;
+  Tokenizer get tokenizer => this._tokenizer;
 
   /// Creates a parser with the loaded tokenizer and grammar.
   Parser get parser => Parser.fromGrammar(this._grammar, this._tokenizer);
 
   /// A trigger handle for starting a new definition block.
-  void _newDef(_parsetree.TriggerArgs args) {
+  void _newDef(TriggerArgs args) {
     args.tokens.clear();
     this._states.clear();
     this._tokenStates.clear();
@@ -697,13 +720,13 @@ class Loader {
   }
 
   /// A trigger handle for setting the starting state of the tokenizer.
-  void _startState(_parsetree.TriggerArgs args) => this._tokenizer.start(this._states.last.name);
+  void _startState(TriggerArgs args) => this._tokenizer.start(this._states.last.name);
 
   /// A trigger handle for joining two states with the defined matcher.
-  void _joinState(_parsetree.TriggerArgs args) {
-    final __tokenizer.State start = this._states[this._states.length - 2];
-    final __tokenizer.State end = this._states.last;
-    final __tokenizer.Transition trans = start.join(end.name);
+  void _joinState(TriggerArgs args) {
+    final start = this._states[this._states.length - 2];
+    final end = this._states.last;
+    final trans = start.join(end.name);
     trans.matchers.addAll(this._curTransGroups[0].matchers);
     trans.consume = this._curTransConsume;
     this._curTransGroups.clear();
@@ -711,10 +734,10 @@ class Loader {
   }
 
   /// A trigger handle for joining a state to a token with the defined matcher.
-  void _joinToken(_parsetree.TriggerArgs args) {
-    final __tokenizer.State start = this._states.last;
-    final __tokenizer.TokenState end = this._tokenStates.last;
-    final __tokenizer.Transition trans = start.join(end.name);
+  void _joinToken(TriggerArgs args) {
+    final start = this._states.last;
+    final end = this._tokenStates.last;
+    final trans = start.join(end.name);
     trans.matchers.addAll(this._curTransGroups[0].matchers);
     trans.consume = this._curTransConsume;
     this._tokenizer.state(end.name).setToken(end.name);
@@ -723,83 +746,85 @@ class Loader {
   }
 
   /// A trigger handle for assigning a token to a state.
-  void _assignToken(_parsetree.TriggerArgs args) {
-    final __tokenizer.State start = this._states.last;
-    final __tokenizer.TokenState end = this._tokenStates.last;
+  void _assignToken(TriggerArgs args) {
+    final start = this._states.last;
+    final end = this._tokenStates.last;
     start.setToken(end.name);
   }
 
   /// A trigger handle for adding a new state to the tokenizer.
-  void _newState(_parsetree.TriggerArgs args) {
-    final String name = args.recent(2)?.text ?? '';
-    final __tokenizer.State state = this._tokenizer.state(name);
+  void _newState(TriggerArgs args) {
+    final name = args.recent(2)?.text ?? '';
+    final state = this._tokenizer.state(name);
     this._states.add(state);
   }
 
   /// A trigger handle for adding a new token to the tokenizer.
-  void _newTokenState(_parsetree.TriggerArgs args) {
-    final String name = args.recent(2)?.text ?? '';
-    final __tokenizer.TokenState token = this._tokenizer.token(name);
+  void _newTokenState(TriggerArgs args) {
+    final name = args.recent(2)?.text ?? '';
+    final token = this._tokenizer.token(name);
     this._tokenStates.add(token);
   }
 
   /// A trigger handle for adding a new token to the tokenizer
   /// and setting it to consume that token.
-  void _newTokenConsume(_parsetree.TriggerArgs args) {
-    final String name = args.recent(2)?.text ?? '';
-    final __tokenizer.TokenState token = this._tokenizer.token(name);
+  void _newTokenConsume(TriggerArgs args) {
+    final name = args.recent(2)?.text ?? '';
+    final token = this._tokenizer.token(name);
     token.consume();
     this._tokenStates.add(token);
   }
 
   /// A trigger handle for adding a new term to the grammar.
-  void _newTerm(_parsetree.TriggerArgs args) {
-    final String name = args.recent(2)?.text ?? '';
-    final __grammar.Term term = this._grammar.term(name);
+  void _newTerm(TriggerArgs args) {
+    final name = args.recent(2)?.text ?? '';
+    final term = this._grammar.term(name);
     this._terms.add(term);
   }
 
   /// A trigger handle for adding a new token to the grammar.
-  void _newTokenItem(_parsetree.TriggerArgs args) {
-    final String name = args.recent(2)?.text ?? '';
-    final __grammar.TokenItem token = this._grammar.token(name);
+  void _newTokenItem(TriggerArgs args) {
+    final name = args.recent(2)?.text ?? '';
+    final token = this._grammar.token(name);
     this._tokenItems.add(token);
   }
 
   /// A trigger handle for adding a new trigger to the grammar.
-  void _newTrigger(_parsetree.TriggerArgs args) {
-    final String name = args.recent(2)?.text ?? '';
-    final __grammar.Trigger trigger = this._grammar.trigger(name);
+  void _newTrigger(TriggerArgs args) {
+    final name = args.recent(2)?.text ?? '';
+    final trigger = this._grammar.trigger(name);
     this._triggers.add(trigger);
   }
 
   /// A trigger handle for setting the currently building matcher to match any.
-  void _matchAny(_parsetree.TriggerArgs args) {
-    if (this._curTransGroups.isEmpty) this._curTransGroups.add(matcher.Group());
+  void _matchAny(TriggerArgs args) {
+    if (this._curTransGroups.isEmpty) {
+      this._curTransGroups.add(Group());
+    }
     this._curTransGroups.last.addAll();
   }
 
   /// A trigger handle for setting the currently building matcher to be consumed.
-  void _matchConsume(_parsetree.TriggerArgs args) => this._curTransConsume = true;
+  void _matchConsume(TriggerArgs args) => this._curTransConsume = true;
 
   /// A trigger handle for setting the currently building matcher to match to a character set.
-  void _matchSet(_parsetree.TriggerArgs args) {
-    final __tokenizer.Token? token = args.recent(1);
-    if (this._curTransGroups.isEmpty) this._curTransGroups.add(matcher.Group());
+  void _matchSet(TriggerArgs args) {
+    final Token? token = args.recent(1);
+    if (this._curTransGroups.isEmpty) this._curTransGroups.add(Group());
     this._curTransGroups.last.addSet(unescapeString(token?.text ?? ''));
   }
 
   /// A trigger handle for setting the currently building matcher to not match to a character set.
-  void _matchSetNot(_parsetree.TriggerArgs args) {
+  void _matchSetNot(TriggerArgs args) {
     this._notGroupStart(args);
     this._matchSet(args);
     this._notGroupEnd(args);
   }
 
   /// A trigger handle for setting the currently building matcher to match to a character range.
-  void _matchRange(_parsetree.TriggerArgs args) {
-    final __tokenizer.Token? lowChar = args.recent(3);
-    final __tokenizer.Token? highChar = args.recent(1);
+  void _matchRange(TriggerArgs args) {
+    final Token? lowChar = args.recent(3);
+    final Token? highChar = args.recent(1);
     final String lowText = unescapeString(lowChar?.text ?? '');
     final String highText = unescapeString(highChar?.text ?? '');
     if (lowText.length != 1) {
@@ -808,53 +833,52 @@ class Loader {
     if (highText.length != 1) {
       throw Exception('May only have one character for the high char of a range. $highChar does not.');
     }
-    if (this._curTransGroups.isEmpty) this._curTransGroups.add(matcher.Group());
+    if (this._curTransGroups.isEmpty) this._curTransGroups.add(Group());
     this._curTransGroups.last.addRange(lowText, highText);
   }
 
   /// A trigger handle for setting the currently building matcher to not match to a character range.
-  void _matchRangeNot(_parsetree.TriggerArgs args) {
+  void _matchRangeNot(TriggerArgs args) {
     this._notGroupStart(args);
     this._matchRange(args);
     this._notGroupEnd(args);
   }
 
   /// A trigger handle for starting a not group of matchers.
-  void _notGroupStart(_parsetree.TriggerArgs args) {
-    if (this._curTransGroups.isEmpty) this._curTransGroups.add(matcher.Group());
+  void _notGroupStart(TriggerArgs args) {
+    if (this._curTransGroups.isEmpty) this._curTransGroups.add(Group());
     this._curTransGroups.add(this._curTransGroups.last.addNot());
   }
 
   /// A trigger handle for ending a not group of matchers.
-  void _notGroupEnd(_parsetree.TriggerArgs args) => this._curTransGroups.removeLast();
+  void _notGroupEnd(TriggerArgs args) => this._curTransGroups.removeLast();
 
   /// A trigger handle for adding a new replacement string to the loader.
-  void _addReplaceText(_parsetree.TriggerArgs args) =>
-      this._replaceText.add(unescapeString(args.recent(1)?.text ?? ''));
+  void _addReplaceText(TriggerArgs args) => this._replaceText.add(unescapeString(args.recent(1)?.text ?? ''));
 
   /// A trigger handle for setting a set of replacements between two
   /// tokens with a previously set replacement string set.
-  void _replaceToken(_parsetree.TriggerArgs args) {
-    final __tokenizer.TokenState start = this._tokenStates[this._tokenStates.length - 2];
-    final __tokenizer.TokenState end = this._tokenStates.last;
+  void _replaceToken(TriggerArgs args) {
+    final TokenState start = this._tokenStates[this._tokenStates.length - 2];
+    final TokenState end = this._tokenStates.last;
     start.replace(end.name, this._replaceText);
     this._replaceText.clear();
   }
 
   /// A trigger handle for starting a grammar definition of a term.
-  void _startTerm(_parsetree.TriggerArgs args) => this._grammar.start(this._terms.last.name);
+  void _startTerm(TriggerArgs args) => this._grammar.start(this._terms.last.name);
 
   /// A trigger handle for starting defining a rule for the current term.
-  void _startRule(_parsetree.TriggerArgs args) => this._curRule = this._terms.last.newRule();
+  void _startRule(TriggerArgs args) => this._curRule = this._terms.last.newRule();
 
   /// A trigger handle for adding a token to the current rule being built.
-  void _itemToken(_parsetree.TriggerArgs args) => this._curRule?.addToken(this._tokenItems.removeLast().name);
+  void _itemToken(TriggerArgs args) => this._curRule?.addToken(this._tokenItems.removeLast().name);
 
   /// A trigger handle for adding a term to the current rule being built.
-  void _itemTerm(_parsetree.TriggerArgs args) => this._curRule?.addTerm(this._terms.removeLast().name);
+  void _itemTerm(TriggerArgs args) => this._curRule?.addTerm(this._terms.removeLast().name);
 
   /// A trigger handle for adding a trigger to the current rule being built.
-  void _itemTrigger(_parsetree.TriggerArgs args) => this._curRule?.addTrigger(this._triggers.removeLast().name);
+  void _itemTrigger(TriggerArgs args) => this._curRule?.addTrigger(this._triggers.removeLast().name);
 }
 
 /// This is the result from a parse of a stream of tokens.
@@ -864,7 +888,7 @@ class Result {
 
   /// The tree of the parsed tokens into grammar rules.
   /// This will be null if there are any errors.
-  final _parsetree.TreeNode? tree;
+  final TreeNode? tree;
 
   /// Creates a new parser result.
   Result(this.errors, this.tree);
@@ -887,7 +911,7 @@ class _Runner {
   final _Table _table;
   final int _errorCap;
   final List<String> _errors = [];
-  final List<_parsetree.TreeNode> _itemStack = [];
+  final List<TreeNode> _itemStack = [];
   final List<int> _stateStack = [0];
   bool _accepted = false;
   final bool _verbose = false;
@@ -909,7 +933,7 @@ class _Runner {
   bool get _errorLimitReached => (this._errorCap > 0) && (this._errors.length >= this._errorCap);
 
   /// Handles when a default error action has been reached.
-  bool _nullAction(int curState, __tokenizer.Token token, String indent) {
+  bool _nullAction(int curState, Token token, String indent) {
     if (this._verbose) print('${indent}null error');
     final List<String> tokens = this._table.getAllTokens(curState);
     this._errors.add('Unexpected item, $token, in state $curState. Expected: ${tokens.join(', ')}.');
@@ -928,44 +952,48 @@ class _Runner {
   }
 
   /// Handles when a shift action has been reached.
-  bool _shiftAction(_Shift action, __tokenizer.Token token, String indent) {
+  bool _shiftAction(_Shift action, Token token, String indent) {
     if (this._verbose) print('${indent}shift ${action.state} on $token');
-    this._itemStack.add(_parsetree.TokenNode(token));
+    this._itemStack.add(TokenNode(token));
     this._stateStack.add(action.state);
     return true;
   }
 
   /// Handles when a reduce action has been reached.
-  bool _reduceAction(_Reduce action, __tokenizer.Token token, String indent) {
+  bool _reduceAction(_Reduce action, Token token, String indent) {
     // Pop the items off the stack for this action.
     // Also check that the items match the expected rule.
     final int count = action.rule.items.length;
-    final List<_parsetree.TreeNode> items = [];
+    final List<TreeNode> items = [];
     for (int i = count - 1; i >= 0; i--) {
-      final __grammar.Item ruleItem = action.rule.items[i];
-      if (ruleItem is __grammar.Trigger) {
-        items.insert(0, _parsetree.TriggerNode(ruleItem.name));
+      final Item ruleItem = action.rule.items[i];
+      if (ruleItem is Trigger) {
+        items.insert(0, TriggerNode(ruleItem.name));
       } else {
         this._stateStack.removeLast();
-        final _parsetree.TreeNode item = this._itemStack.removeLast();
+        final TreeNode item = this._itemStack.removeLast();
         items.insert(0, item);
 
-        if (ruleItem is __grammar.Term) {
-          if (item is _parsetree.RuleNode) {
+        if (ruleItem is Term) {
+          if (item is RuleNode) {
             if (ruleItem.name != item.rule.term?.name) {
-              throw Exception('The action, $action, could not reduce item $i, $item: the term names did not match.');
+              throw Exception(
+                  'The action, $action, could not reduce item $i, $item: the term names did not match.');
             }
           } else {
-            throw Exception('The action, $action, could not reduce item $i, $item: the item is not a rule node.');
+            throw Exception(
+                'The action, $action, could not reduce item $i, $item: the item is not a rule node.');
           }
         } else {
           // if (ruleItem is Grammar.TokenItem) {
-          if (item is _parsetree.TokenNode) {
+          if (item is TokenNode) {
             if (ruleItem.name != item.token.name) {
-              throw Exception('The action, $action, could not reduce item $i, $item: the token names did not match.');
+              throw Exception(
+                  'The action, $action, could not reduce item $i, $item: the token names did not match.');
             }
           } else {
-            throw Exception('The action, $action, could not reduce item $i, $item: the item is not a token node.');
+            throw Exception(
+                'The action, $action, could not reduce item $i, $item: the item is not a token node.');
           }
         }
       }
@@ -973,7 +1001,7 @@ class _Runner {
 
     // Create a new item with the items for this rule in it
     // and put it onto the stack.
-    final _parsetree.RuleNode node = _parsetree.RuleNode(action.rule, items);
+    final RuleNode node = RuleNode(action.rule, items);
     this._itemStack.add(node);
     if (this._verbose) print('${indent}reduce ${action.rule}');
 
@@ -1005,7 +1033,7 @@ class _Runner {
   }
 
   /// Inserts the next look ahead token into the parser.
-  bool add(__tokenizer.Token token) {
+  bool add(Token token) {
     if (this._accepted) {
       this._errors.add('unexpected token after end: $token');
       return false;
@@ -1015,12 +1043,10 @@ class _Runner {
 
   /// Inserts the next look ahead token into the parser.
   /// This is the internal method for `add` which can be called recursively.
-  bool _addToken(__tokenizer.Token token, String indent) {
+  bool _addToken(Token token, String indent) {
     if (this._verbose) print('$indent$token =>');
-
     final int curState = this._stateStack.last;
     final _Action? action = this._table.readShift(curState, token.name);
-
     bool result;
     if (action == null) {
       result = this._nullAction(curState, token, indent);
@@ -1035,7 +1061,6 @@ class _Runner {
     } else {
       throw Exception('Unexpected action type: $action');
     }
-
     if (this._verbose) print('$indent=> ${this._stackToString()}');
     return result;
   }
@@ -1043,8 +1068,8 @@ class _Runner {
   /// Gets a string for the current parser stack.
   String _stackToString() {
     final StringBuffer buf = StringBuffer();
-    final int max = math.max(this._itemStack.length, this._stateStack.length);
-    for (int i = 0; i < max; ++i) {
+    final int _max = max(this._itemStack.length, this._stateStack.length);
+    for (int i = 0; i < _max; ++i) {
       if (i != 0) buf.write(', ');
       bool hasState = false;
       if (i < this._stateStack.length) {
@@ -1053,12 +1078,12 @@ class _Runner {
       }
       if (i < this._itemStack.length) {
         if (hasState) buf.write(':');
-        final _parsetree.TreeNode item = this._itemStack[i];
-        if (item is _parsetree.RuleNode) {
+        final item = this._itemStack[i];
+        if (item is RuleNode) {
           buf.write('<${item.rule.term?.name ?? ''}>');
-        } else if (item is _parsetree.TokenNode) {
+        } else if (item is TokenNode) {
           buf.write('[${item.token.name}]');
-        } else if (item is _parsetree.TriggerNode) {
+        } else if (item is TriggerNode) {
           buf.write('{${item.trigger}}');
         }
       }
@@ -1072,8 +1097,8 @@ class _Runner {
 /// These states are used for generating the parser table.
 class _State {
   final List<int> _indices = [];
-  final List<__grammar.Rule> _rules = [];
-  final List<__grammar.Item> _onItems = [];
+  final List<Rule> _rules = [];
+  final List<Item> _onItems = [];
   final List<_State> _gotos = [];
   bool _accept = false;
 
@@ -1087,11 +1112,11 @@ class _State {
   List<int> get indices => this._indices;
 
   /// The rules for this state which match up with the indices.
-  List<__grammar.Rule> get rules => this._rules;
+  List<Rule> get rules => this._rules;
 
   /// This is the items which connect two states together.
   /// This matches with the goto values to create a connection.
-  List<__grammar.Item> get onItems => this._onItems;
+  List<Item> get onItems => this._onItems;
 
   /// This is the goto which indicates which state to go to for the matched items.
   /// This matches with the `onItems` to create a connection.
@@ -1104,7 +1129,7 @@ class _State {
   void setAccept() => this._accept = true;
 
   /// Checks if the given index and rule exist in this state.
-  bool hasRule(int index, __grammar.Rule rule) {
+  bool hasRule(int index, Rule rule) {
     for (int i = this._indices.length - 1; i >= 0; i--) {
       if ((this._indices[i] == index) && (this._rules[i] == rule)) return true;
     }
@@ -1113,16 +1138,16 @@ class _State {
 
   /// Adds the given index and rule to this state.
   /// Returns false if it already exists, true if added.
-  bool addRule(int index, __grammar.Rule rule) {
+  bool addRule(int index, Rule rule) {
     if (this.hasRule(index, rule)) return false;
     this._indices.add(index);
     this._rules.add(rule);
 
-    final List<__grammar.Item> items = rule.basicItems;
+    final List<Item> items = rule.basicItems;
     if (index < items.length) {
-      final __grammar.Item item = items[index];
-      if (item is __grammar.Term) {
-        for (final __grammar.Rule rule in item.rules) {
+      final Item item = items[index];
+      if (item is Term) {
+        for (final Rule rule in item.rules) {
           this.addRule(0, rule);
         }
       }
@@ -1132,7 +1157,7 @@ class _State {
 
   /// Finds the go to state from the given item,
   /// null is returned if none is found.
-  _State? findGoto(__grammar.Item item) {
+  _State? findGoto(Item item) {
     for (int i = this._onItems.length - 1; i >= 0; i--) {
       if (this._onItems[i] == item) return this._gotos[i];
     }
@@ -1140,7 +1165,7 @@ class _State {
   }
 
   /// Adds a goto connection on the given item to the given state.
-  bool addGoto(__grammar.Item item, _State state) {
+  bool addGoto(Item item, _State state) {
     if (this.findGoto(item) == state) return false;
     this._onItems.add(item);
     this._gotos.add(state);
@@ -1189,7 +1214,7 @@ class _Table {
   _Table();
 
   /// Deserializes the given serialized data into this table.
-  factory _Table.deserialize(simple.Deserializer data, __grammar.Grammar grammar) {
+  factory _Table.deserialize(Deserializer data, Grammar grammar) {
     final int version = data.readInt();
     if (version != 1) throw Exception('Unknown version, $version, for parser table serialization.');
 
@@ -1225,15 +1250,15 @@ class _Table {
   }
 
   /// Creates an action from the given data.
-  _Action? _deserializeAction(simple.Deserializer data, __grammar.Grammar grammar) {
+  _Action? _deserializeAction(Deserializer data, Grammar grammar) {
     switch (data.readInt()) {
       case 1:
         return _Shift(data.readInt());
       case 2:
         return _Goto(data.readInt());
       case 3:
-        final __grammar.Term term = grammar.term(data.readStr());
-        final __grammar.Rule rule = term.rules[data.readInt()];
+        final Term term = grammar.term(data.readStr());
+        final Rule rule = term.rules[data.readInt()];
         return _Reduce(rule);
       case 4:
         return _Accept();
@@ -1244,12 +1269,11 @@ class _Table {
   }
 
   /// Serializes the table.
-  simple.Serializer serialize() {
-    final simple.Serializer data = simple.Serializer();
+  Serializer serialize() {
+    final Serializer data = Serializer();
     data.writeInt(1); // Version 1
     data.writeStrList(this._shiftColumns.toList());
     data.writeStrList(this._gotoColumns.toList());
-
     data.writeInt(this._shiftTable.length);
     for (final Map<String, _Action?> shiftMap in this._shiftTable) {
       data.writeInt(shiftMap.keys.length);
@@ -1258,7 +1282,6 @@ class _Table {
         this._serializeAction(data, shiftMap[key]);
       }
     }
-
     data.writeInt(this._gotoTable.length);
     for (final Map<String, _Action?> gotoMap in this._gotoTable) {
       data.writeInt(gotoMap.keys.length);
@@ -1267,12 +1290,11 @@ class _Table {
         this._serializeAction(data, gotoMap[key]);
       }
     }
-
     return data;
   }
 
   /// Sets up the data for serializing an action.
-  void _serializeAction(simple.Serializer data, _Action? action) {
+  void _serializeAction(Serializer data, _Action? action) {
     if (action is _Shift) {
       data.writeInt(1);
       data.writeInt(action.state);
@@ -1281,7 +1303,7 @@ class _Table {
       data.writeInt(action.state);
     } else if (action is _Reduce) {
       data.writeInt(3);
-      final __grammar.Term? term = action.rule.term;
+      final Term? term = action.rule.term;
       final int ruleNum = term?.rules.indexOf(action.rule) ?? -1;
       data.writeStr(term?.name ?? '');
       data.writeInt(ruleNum);
@@ -1337,7 +1359,6 @@ class _Table {
         table.add(rowData);
       }
     }
-
     if (!rowData.containsKey(column)) columns.add(column);
     rowData[column] = value;
   }
@@ -1354,7 +1375,6 @@ class _Table {
   @override
   String toString() {
     final List<List<String>> grid = [];
-
     // Add Column labels...
     final List<String> columnLabels = ['']; // blank space for row labels
     final List<String> shiftColumns = this._shiftColumns.toList();
@@ -1368,9 +1388,8 @@ class _Table {
       columnLabels.add(gotoColumns[j].toString());
     }
     grid.add(columnLabels);
-
     // Add all the data into the table...
-    final int maxRowCount = math.max(this._shiftTable.length, this._gotoTable.length);
+    final int maxRowCount = max(this._shiftTable.length, this._gotoTable.length);
     for (int row = 0; row < maxRowCount; row++) {
       final List<String> values = ['$row'];
       for (int i = 0; i < shiftColumns.length; i++) {
@@ -1391,20 +1410,18 @@ class _Table {
       }
       grid.add(values);
     }
-
     // Make all the items in a column the same width...
     final int colCount = shiftColumns.length + gotoColumns.length + 1;
     final int rowCount = grid.length;
     for (int j = 0; j < colCount; j++) {
       int maxWidth = 0;
       for (int i = 0; i < rowCount; i++) {
-        maxWidth = math.max(maxWidth, grid[i][j].length);
+        maxWidth = max(maxWidth, grid[i][j].length);
       }
       for (int i = 0; i < rowCount; i++) {
         grid[i][j] = grid[i][j].padRight(maxWidth);
       }
     }
-
     // Write the table...
     final StringBuffer buf = StringBuffer();
     for (int i = 0; i < rowCount; i++) {

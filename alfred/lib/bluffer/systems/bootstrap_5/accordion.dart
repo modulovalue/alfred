@@ -10,38 +10,45 @@ class BootstrapAccordion with RenderElementMixin, NoCSSMixin, NoKeyMixin {
   });
 
   @override
-  HtmlEntityElement renderHtml({
+  HtmlElement renderHtml({
     required final BuildContext context,
   }) =>
-      HtmlEntityElementImpl(
-        element: HtmlElementDivImpl(
-          otherAdditionalAttributes: [],
-          className: null,
-          id: "accordion",
+        HtmlElementDivImpl(
+          attributes: [],
+          idClass: const IdClassImpl(
+            className: null,
+            id: "accordion",
+          ),
           childNodes: () sync* {
             int i = 0;
             for (final entry in entries) {
               yield HtmlEntityElementImpl(
                 element: HtmlElementDivImpl(
-                  otherAdditionalAttributes: [],
-                  id: null,
-                  className: "card",
+                  attributes: [],
+                  idClass: const IdClassImpl(
+                    id: null,
+                    className: "card",
+                  ),
                   childNodes: [
                     HtmlEntityElementImpl(
                       element: HtmlElementDivImpl(
-                        otherAdditionalAttributes: [],
-                        id: null,
-                        className: "card-header",
+                        attributes: [],
+                        idClass: const IdClassImpl(
+                          id: null,
+                          className: "card-header",
+                        ),
                         childNodes: [
                           HtmlEntityElementImpl(
                             element: HtmlElementAnchorImpl(
-                              id: null,
                               target: null,
-                              className: "btn",
-                              otherAdditionalAttributes: [
-                                const MapEntry(
-                                  "data-bs-toggle",
-                                  "collapse",
+                              idClass: const IdClassImpl(
+                                id: null,
+                                className: "btn",
+                              ),
+                              attributes: [
+                                const Attribute(
+                                  key: "data-bs-toggle",
+                                  value: "collapse",
                                 ),
                               ],
                               href: "#collapse" + i.toString(),
@@ -57,29 +64,37 @@ class BootstrapAccordion with RenderElementMixin, NoCSSMixin, NoKeyMixin {
                     ),
                     HtmlEntityElementImpl(
                       element: HtmlElementDivImpl(
-                        id: "collapse" + i.toString(),
-                        className: "collapse" +
-                            () {
-                              if (entry.showByDefault) {
-                                return " show";
-                              } else {
-                                return "";
-                              }
-                            }(),
-                        otherAdditionalAttributes: const [
-                          MapEntry(
-                            "data-bs-parent",
-                            "#accordion",
+                        idClass: IdClassImpl(
+                          id: "collapse" + i.toString(),
+                          className: "collapse" +
+                              () {
+                                if (entry.showByDefault) {
+                                  return " show";
+                                } else {
+                                  return "";
+                                }
+                              }(),
+                        ),
+                        attributes: const [
+                          Attribute(
+                            key: "data-bs-parent",
+                            value: "#accordion",
                           ),
                         ],
                         childNodes: [
                           HtmlEntityElementImpl(
                             element: HtmlElementDivImpl(
-                              otherAdditionalAttributes: [],
-                              id: null,
-                              className: "card-body",
+                              attributes: [],
+                              idClass: const IdClassImpl(
+                                id: null,
+                                className: "card-body",
+                              ),
                               childNodes: [
-                                entry.body.renderElement(context: context),
+                                HtmlEntityElementImpl(
+                                  element: entry.body.renderElement(
+                                    context: context,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -93,7 +108,6 @@ class BootstrapAccordion with RenderElementMixin, NoCSSMixin, NoKeyMixin {
             }
           }()
               .toList(),
-        ),
       );
 }
 

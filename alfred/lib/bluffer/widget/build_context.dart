@@ -37,11 +37,17 @@ class BuildContextImpl implements BuildContext {
       if (atT is T?) {
         return atT;
       } else {
-        assert(false, 'Invalid type, no inherited widget for $T found but found ' + atT.toString());
+        assert(
+          false,
+          'Invalid type, no inherited widget for $T found but found ' + atT.toString(),
+        );
         return null;
       }
     } else {
-      assert(false, 'No inherited widget with type $T found in tree');
+      assert(
+        false,
+        'No inherited widget with type $T found in tree',
+      );
       return null;
     }
   }

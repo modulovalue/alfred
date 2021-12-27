@@ -47,7 +47,7 @@ String constructSinglePage({
     context: buildContext,
   );
   return htmlElementToString(
-    element: element.element,
+    element: element,
   );
 }
 

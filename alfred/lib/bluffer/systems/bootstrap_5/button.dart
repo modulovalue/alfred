@@ -14,22 +14,20 @@ class BootstrapButton with RenderElementMixin, NoCSSMixin, NoKeyMixin {
   });
 
   @override
-  HtmlEntityElement renderHtml({
+  HtmlElement renderHtml({
     required final BuildContext context,
   }) =>
-      HtmlEntityElementImpl(
-        element: HtmlElementCustomImpl(
-          id: null,
-          className: null,
+         HtmlElementCustomImpl(
+          idClass: null,
           tag: "button",
-          additionalAttributes: [
-            const MapEntry(
-              "type",
-              "button",
+          attributes: [
+            const Attribute(
+              key: "type",
+              value: "button",
             ),
-            MapEntry(
-              "class",
-              'btn btn-' +
+            Attribute(
+              key: "class",
+              value: 'btn btn-' +
                   _serializeBootstrapButtonType(
                     type: type,
                   ),
@@ -40,7 +38,6 @@ class BootstrapButton with RenderElementMixin, NoCSSMixin, NoKeyMixin {
               text: text,
             ),
           ],
-        ),
       );
 }
 
@@ -55,22 +52,20 @@ class BootstrapOutlineButton with RenderElementMixin, NoCSSMixin, NoKeyMixin {
   });
 
   @override
-  HtmlEntityElement renderHtml({
+  HtmlElement renderHtml({
     required final BuildContext context,
   }) =>
-      HtmlEntityElementImpl(
-        element: HtmlElementCustomImpl(
-          id: null,
-          className: null,
+        HtmlElementCustomImpl(
+          idClass: null,
           tag: "button",
-          additionalAttributes: [
-            const MapEntry(
-              "type",
-              "button",
+          attributes: [
+            const Attribute(
+              key: "type",
+              value: "button",
             ),
-            MapEntry(
-              "class",
-              'btn btn-outline-' +
+            Attribute(
+              key: "class",
+              value :'btn btn-outline-' +
                   _serializeBootstrapOutlineButtonType(
                     type: type,
                   ),
@@ -81,7 +76,6 @@ class BootstrapOutlineButton with RenderElementMixin, NoCSSMixin, NoKeyMixin {
               text: text,
             ),
           ],
-        ),
       );
 }
 

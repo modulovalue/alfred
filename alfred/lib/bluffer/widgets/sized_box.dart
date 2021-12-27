@@ -42,17 +42,14 @@ class SizedBox with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMi
   }
 
   @override
-  HtmlEntityElement renderHtml({
+  HtmlElement renderHtml({
     required final BuildContext context,
   }) {
     if (child == null) {
-      return const HtmlEntityElementImpl(
-        element: HtmlElementDivImpl(
-          otherAdditionalAttributes: [],
-          className: null,
-          id: null,
-          childNodes: [],
-        ),
+      return const HtmlElementDivImpl(
+        attributes: [],
+        idClass: null,
+        childNodes: [],
       );
     } else {
       return child!.renderElement(

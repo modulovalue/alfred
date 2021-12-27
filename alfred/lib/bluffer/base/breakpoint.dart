@@ -9,9 +9,9 @@ class Breakpoint {
     final this.minSize,
   );
 
-  static int defaultBreakpointSize(
-    final MediaSize size,
-  ) {
+  static int defaultBreakpointSize({
+    required final MediaSize size,
+  }) {
     switch (size) {
       case MediaSize.xsmall:
         return 0;

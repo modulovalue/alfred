@@ -26,19 +26,19 @@ class TextLink extends StatelessWidgetBase with NoCSSMixin {
       Click(
         newTab: false,
         url: url,
-        builder: (context, state) {
+        builder: (context) {
           TextStyle style;
-          switch (state) {
-            case ClickState.active:
+          // switch (state) {
+          //   case ClickState.active:
               style = activeStyle ?? hoverStyle ?? inactiveStyle;
-              break;
-            case ClickState.hover:
-              style = hoverStyle ?? activeStyle ?? inactiveStyle;
-              break;
-            case ClickState.inactive:
-              style = inactiveStyle;
-              break;
-          }
+              // break;
+            // case ClickState.hover:
+            //   style = hoverStyle ?? activeStyle ?? inactiveStyle;
+            //   break;
+            // case ClickState.inactive:
+            //   style = inactiveStyle;
+            //   break;
+          // }
           return Text(
             title,
             style: style,

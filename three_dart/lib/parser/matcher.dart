@@ -1,16 +1,16 @@
 /// A matcher which matches a set of characters.
-class Set implements Matcher {
+class MatcherSet implements Matcher {
   List<int> _set = [];
 
   /// Creates a set matcher for all the characters in the given string.
   /// The set must contain at least one character.
-  factory Set(String charSet) {
-    return Set.fromCodeUnits(charSet.codeUnits);
+  factory MatcherSet(String charSet) {
+    return MatcherSet.fromCodeUnits(charSet.codeUnits);
   }
 
   /// Creates a set matcher with a given list of code units.
   /// The set must contain at least one character.
-  Set.fromCodeUnits(Iterable<int> charSet) {
+  MatcherSet.fromCodeUnits(Iterable<int> charSet) {
     if (charSet.isEmpty) throw Exception('May not create a Set with zero characters.');
     final map = <int, bool>{};
     for (final char in charSet) {
@@ -129,7 +129,7 @@ class Group implements Matcher {
   }
 
   /// Adds a character set matcher to this group.
-  Set addSet(String charSet) => this.add(Set(charSet)) as Set;
+  MatcherSet addSet(String charSet) => this.add(MatcherSet(charSet)) as MatcherSet;
 
   /// Adds a range of characters to match to this group.
   Range addRange(String lowChar, String highChar) => this.add(Range(lowChar, highChar)) as Range;

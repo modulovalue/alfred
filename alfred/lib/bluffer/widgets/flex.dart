@@ -61,16 +61,20 @@ class Flex with CssStyleDeclarationNullMixin, WidgetSelfCSS, MultiRenderElementM
   });
 
   @override
-  HtmlEntityElement renderHtml({
+  HtmlElement renderHtml({
     required final BuildContext context,
   }) =>
-      const HtmlEntityElementImpl(
-        element: HtmlElementDivImpl(
-          otherAdditionalAttributes: [],
-          className: null,
-          id: null,
-          childNodes: [],
-        ),
+       HtmlElementDivImpl(
+        attributes: [],
+        idClass: null,
+        childNodes: [
+          for (final child in children)
+            HtmlEntityElementImpl(
+              element: child.renderHtml(
+                context: context,
+              ),
+            ),
+        ],
       );
 
   @override
@@ -155,7 +159,7 @@ class Flexible with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMi
   });
 
   @override
-  HtmlEntityElement renderHtml({
+  HtmlElement renderHtml({
     required final BuildContext context,
   }) =>
       child.renderElement(context: context);

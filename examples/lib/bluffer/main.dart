@@ -92,17 +92,17 @@ void main() {
                   Click(
                     newTab: true,
                     url: 'https://www.google.com',
-                    builder: (final context, final state) => Container(
+                    builder: (final context) => Container(
                       child: Text(
                         'Button',
                         style: Theme.of(context)!.text.paragraph.merge(
                           TextStyle(
                             color: () {
-                              if (state == ClickState.hover) {
+                              // if (state == ClickState.hover) {
                                 return const Color(0xFFFFFFFF);
-                              } else {
-                                return const Color(0xFF0000FF);
-                              }
+                              // } else {
+                              //   return const Color(0xFF0000FF);
+                              // }
                             }(),
                           ),
                         ),
@@ -110,11 +110,11 @@ void main() {
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         color: () {
-                          if (state == ClickState.hover) {
+                          // if (state == ClickState.hover) {
                             return const Color(0xFF0000FF);
-                          } else {
-                            return const Color(0x440000FF);
-                          }
+                          // } else {
+                          //   return const Color(0x440000FF);
+                          // }
                         }(),
                         borderRadius: BorderRadius.circular(5),
                       ),

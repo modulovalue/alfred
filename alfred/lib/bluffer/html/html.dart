@@ -258,12 +258,39 @@ class CssStyleDeclarationImpl implements CssStyleDeclaration {
   });
 }
 
+abstract class IdClass {
+  String? get className;
+
+  String? get id;
+}
+
+class IdClassImpl implements IdClass {
+  @override
+  final String? className;
+  @override
+  final String? id;
+
+  const IdClassImpl({
+    required final this.className,
+    required final this.id,
+  });
+}
+
+class Attribute {
+  final String key;
+  final String value;
+
+  const Attribute({
+    required final this.key,
+    required final this.value,
+  });
+}
+
 abstract class HtmlElement {}
 
 extension HtmlElementMatch on HtmlElement {
   Z match<Z>({
     required final Z Function(HtmlElementCopy) copy,
-    required final Z Function(HtmlElementAppended) appended,
     required final Z Function(HtmlElementBr) br,
     required final Z Function(HtmlElementHtml) html,
     required final Z Function(HtmlElementMeta) meta,
@@ -281,8 +308,6 @@ extension HtmlElementMatch on HtmlElement {
     final _ = this;
     if (_ is HtmlElementCopy) {
       return copy(_);
-    } else if (_ is HtmlElementAppended) {
-      return appended(_);
     } else if (_ is HtmlElementBr) {
       return br(_);
     } else if (_ is HtmlElementHtml) {
@@ -316,69 +341,45 @@ extension HtmlElementMatch on HtmlElement {
 }
 
 abstract class HtmlElementCopy implements HtmlElement {
-  String? get id;
-
-  String? get className;
+  IdClass? get idClass;
 
   HtmlElement get other;
-}
-
-abstract class HtmlElementAppended implements HtmlElement {
-  HtmlElement get other;
-
-  List<HtmlEntityElement> get additional;
 }
 
 abstract class HtmlElementBr implements HtmlElement {
-  String? get className;
-
-  String? get id;
-
-  List<HtmlEntity> get childNodes;
+  IdClass? get idClass;
 }
 
 abstract class HtmlElementHtml implements HtmlElement {
-  String? get className;
-
-  String? get id;
+  IdClass? get idClass;
 
   List<HtmlEntity> get childNodes;
 }
 
 abstract class HtmlElementMeta implements HtmlElement {
-  String? get className;
+  IdClass? get idClass;
 
-  String? get id;
-
-  List<MapEntry<String, String>> get attributes;
-
-  List<HtmlEntity> get childNodes;
+  List<Attribute> get attributes;
 }
 
 abstract class HtmlElementBody implements HtmlElement {
-  String? get className;
-
-  String? get id;
+  IdClass? get idClass;
 
   List<HtmlEntity> get childNodes;
 }
 
 abstract class HtmlElementCustom implements HtmlElement {
-  String? get className;
-
-  String? get id;
+  IdClass? get idClass;
 
   String get tag;
 
-  List<MapEntry<String, String>> get additionalAttributes;
+  List<Attribute> get attributes;
 
   List<HtmlEntity> get childNodes;
 }
 
 abstract class HtmlElementScript implements HtmlElement {
-  String? get className;
-
-  String? get id;
+  IdClass? get idClass;
 
   bool? get async;
 
@@ -394,31 +395,266 @@ abstract class HtmlElementScript implements HtmlElement {
 }
 
 abstract class HtmlElementLink implements HtmlElement {
-  String? get className;
-
-  String? get id;
+  IdClass? get idClass;
 
   String? get href;
 
   String? get rel;
-
-  List<HtmlEntity> get childNodes;
 }
 
 abstract class HtmlElementTitle implements HtmlElement {
-  String? get className;
-
-  String? get id;
+  IdClass? get idClass;
 
   String get text;
 }
 
 abstract class HtmlElementStyle implements HtmlElement {
-  String? get className;
+  IdClass? get idClass;
 
-  String? get id;
+  List<StyleContent> get styles;
+}
 
-  List<StyleContent> get childNodes;
+abstract class HtmlElementImage implements HtmlElement {
+  IdClass? get idClass;
+
+  String? get alt;
+
+  String? get src;
+
+  List<HtmlEntity> get childNodes;
+}
+
+abstract class HtmlElementDiv implements HtmlElement {
+  IdClass? get idClass;
+
+  List<Attribute> get attributes;
+
+  List<HtmlEntity> get childNodes;
+}
+
+abstract class HtmlElementAnchor implements HtmlElement {
+  IdClass? get idClass;
+
+  String? get href;
+
+  String? get target;
+
+  List<Attribute> get attributes;
+
+  List<HtmlEntity> get childNodes;
+}
+
+abstract class HtmlElementHead implements HtmlElement {
+  IdClass? get idClass;
+
+  List<HtmlEntity> get childNodes;
+}
+
+class HtmlElementCopyImpl implements HtmlElementCopy {
+  @override
+  final HtmlElement other;
+  @override
+  final IdClass? idClass;
+
+  const HtmlElementCopyImpl({
+    required final this.other,
+    required final this.idClass,
+  });
+}
+
+class HtmlElementBrImpl implements HtmlElementBr {
+  @override
+  final IdClass? idClass;
+
+  const HtmlElementBrImpl({
+    required final this.idClass,
+  });
+}
+
+class HtmlElementHtmlImpl implements HtmlElementHtml {
+  @override
+  final IdClass? idClass;
+  @override
+  final List<HtmlEntity> childNodes;
+
+  const HtmlElementHtmlImpl({
+    required final this.childNodes,
+    required final this.idClass,
+  });
+}
+
+class HtmlElementMetaImpl implements HtmlElementMeta {
+  @override
+  final IdClass? idClass;
+  @override
+  final List<Attribute> attributes;
+
+  const HtmlElementMetaImpl({
+    required final this.attributes,
+    required final this.idClass,
+  });
+}
+
+class HtmlElementBodyImpl implements HtmlElementBody {
+  @override
+  final IdClass? idClass;
+  @override
+  final List<HtmlEntity> childNodes;
+
+  const HtmlElementBodyImpl({
+    required final this.childNodes,
+    required final this.idClass,
+  });
+}
+
+class HtmlElementCustomImpl implements HtmlElementCustom {
+  @override
+  final IdClass? idClass;
+  @override
+  final List<HtmlEntity> childNodes;
+  @override
+  final String tag;
+  @override
+  final List<Attribute> attributes;
+
+  const HtmlElementCustomImpl({
+    required final this.tag,
+    required final this.attributes,
+    required final this.childNodes,
+    required final this.idClass,
+  });
+}
+
+class HtmlElementScriptImpl implements HtmlElementScript {
+  @override
+  final IdClass? idClass;
+  @override
+  final bool? async;
+  @override
+  final bool? defer;
+  @override
+  final String? src;
+  @override
+  final String? integrity;
+  @override
+  final String? crossorigin;
+  @override
+  final String? rel;
+
+  const HtmlElementScriptImpl({
+    required final this.async,
+    required final this.defer,
+    required final this.src,
+    required final this.idClass,
+    required final this.integrity,
+    required final this.crossorigin,
+    required final this.rel,
+  });
+}
+
+class HtmlElementLinkImpl implements HtmlElementLink {
+  @override
+  final IdClass? idClass;
+  @override
+  final String? href;
+  @override
+  final String? rel;
+
+  const HtmlElementLinkImpl({
+    required final this.href,
+    required final this.rel,
+    required final this.idClass,
+  });
+}
+
+class HtmlElementTitleImpl implements HtmlElementTitle {
+  @override
+  final IdClass? idClass;
+  @override
+  final String text;
+
+  const HtmlElementTitleImpl({
+    required final this.text,
+    required final this.idClass,
+  });
+}
+
+class HtmlElementStyleImpl implements HtmlElementStyle {
+  @override
+  final IdClass? idClass;
+  @override
+  final List<StyleContent> styles;
+
+  const HtmlElementStyleImpl({
+    required final this.styles,
+    required final this.idClass,
+  });
+}
+
+class HtmlElementImageImpl implements HtmlElementImage {
+  @override
+  final IdClass? idClass;
+  @override
+  final List<HtmlEntity> childNodes;
+  @override
+  final String? alt;
+  @override
+  final String? src;
+
+  const HtmlElementImageImpl({
+    required final this.alt,
+    required final this.src,
+    required final this.childNodes,
+    required final this.idClass,
+  });
+}
+
+class HtmlElementDivImpl implements HtmlElementDiv {
+  @override
+  final IdClass? idClass;
+  @override
+  final List<HtmlEntity> childNodes;
+  @override
+  final List<Attribute> attributes;
+
+  const HtmlElementDivImpl({
+    required final this.childNodes,
+    required final this.attributes,
+    required final this.idClass,
+  });
+}
+
+class HtmlElementAnchorImpl implements HtmlElementAnchor {
+  @override
+  final IdClass? idClass;
+  @override
+  final List<HtmlEntity> childNodes;
+  @override
+  final String? href;
+  @override
+  final String? target;
+  @override
+  final List<Attribute> attributes;
+
+  const HtmlElementAnchorImpl({
+    required final this.href,
+    required final this.childNodes,
+    required final this.target,
+    required final this.idClass,
+    required final this.attributes,
+  });
+}
+
+class HtmlElementHeadImpl implements HtmlElementHead {
+  @override
+  final IdClass? idClass;
+  @override
+  final List<HtmlEntity> childNodes;
+
+  const HtmlElementHeadImpl({
+    required final this.childNodes,
+    required final this.idClass,
+  });
 }
 
 abstract class StyleContent {
@@ -491,331 +727,52 @@ class HtmlStyleImpl implements HtmlStyle {
   });
 }
 
-// TODO dsl for css keys
-// TODO List of CssKey, Class, Id, colon?
+// TODO dsl for css keys separated by space
+// TODO dsl for css keys id, class and colon at the end.
+// TODO, Class, Id, colon?
 abstract class CssKey {
+  Z match<Z>({
+    required Z Function(CssKeyRaw) raw,
+    required Z Function(CssKeyComposite) composite,
+  });
+}
+
+abstract class CssKeyRaw implements CssKey {
   String get key;
 }
 
-class CssKeyImpl implements CssKey {
+abstract class CssKeyComposite implements CssKey {
+  List<CssKey> get keys;
+}
+
+class CssKeyRawImpl implements CssKeyRaw {
   @override
   final String key;
 
-  const CssKeyImpl({
+  const CssKeyRawImpl({
     required final this.key,
   });
-}
 
-abstract class HtmlElementImage implements HtmlElement {
-  String? get className;
-
-  String? get id;
-
-  String? get alt;
-
-  String? get src;
-
-  List<HtmlEntity> get childNodes;
-}
-
-abstract class HtmlElementDiv implements HtmlElement {
-  String? get className;
-
-  String? get id;
-
-  List<MapEntry<String, String>> get otherAdditionalAttributes;
-
-  List<HtmlEntity> get childNodes;
-}
-
-abstract class HtmlElementAnchor implements HtmlElement {
-  String? get className;
-
-  String? get id;
-
-  String? get href;
-
-  String? get target;
-
-  List<MapEntry<String, String>> get otherAdditionalAttributes;
-
-  List<HtmlEntity> get childNodes;
-}
-
-abstract class HtmlElementHead implements HtmlElement {
-  String? get className;
-
-  String? get id;
-
-  List<HtmlEntity> get childNodes;
-}
-
-class HtmlElementCopyImpl implements HtmlElementCopy {
   @override
-  final HtmlElement other;
-  @override
-  final String? className;
-  @override
-  final String? id;
+  Z match<Z>({
+    required final Z Function(CssKeyRaw p1) raw,
+    required final Z Function(CssKeyComposite p1) composite,
+  }) =>
+      raw(this);
+}
 
-  const HtmlElementCopyImpl({
-    required final this.other,
-    required final this.className,
-    required final this.id,
+class CssKeyCompositeImpl implements CssKeyComposite {
+  @override
+  final List<CssKey> keys;
+
+  const CssKeyCompositeImpl({
+    required final this.keys,
   });
-}
 
-class HtmlElementAppendedImpl implements HtmlElementAppended {
   @override
-  final HtmlElement other;
-  @override
-  final List<HtmlEntityElement> additional;
-
-  const HtmlElementAppendedImpl({
-    required final this.other,
-    required final this.additional,
-  });
-}
-
-class HtmlElementBrImpl implements HtmlElementBr {
-  @override
-  final String? className;
-  @override
-  final String? id;
-  @override
-  final List<HtmlEntity> childNodes;
-
-  const HtmlElementBrImpl({
-    required final this.childNodes,
-    required final this.className,
-    required final this.id,
-  });
-}
-
-class HtmlElementHtmlImpl implements HtmlElementHtml {
-  @override
-  final String? className;
-  @override
-  final String? id;
-  @override
-  final List<HtmlEntity> childNodes;
-
-  const HtmlElementHtmlImpl({
-    required final this.childNodes,
-    required final this.className,
-    required final this.id,
-  });
-}
-
-class HtmlElementMetaImpl implements HtmlElementMeta {
-  @override
-  final String? className;
-  @override
-  final String? id;
-  @override
-  final List<HtmlEntity> childNodes;
-  @override
-  final List<MapEntry<String, String>> attributes;
-
-  const HtmlElementMetaImpl({
-    required final this.childNodes,
-    required final this.attributes,
-    required final this.className,
-    required final this.id,
-  });
-}
-
-class HtmlElementBodyImpl implements HtmlElementBody {
-  @override
-  final String? className;
-  @override
-  final String? id;
-  @override
-  final List<HtmlEntity> childNodes;
-
-  const HtmlElementBodyImpl({
-    required final this.childNodes,
-    required final this.className,
-    required final this.id,
-  });
-}
-
-class HtmlElementCustomImpl implements HtmlElementCustom {
-  @override
-  final String? className;
-  @override
-  final String? id;
-  @override
-  final List<HtmlEntity> childNodes;
-  @override
-  final String tag;
-  @override
-  final List<MapEntry<String, String>> additionalAttributes;
-
-  const HtmlElementCustomImpl({
-    required final this.tag,
-    required final this.additionalAttributes,
-    required final this.childNodes,
-    required final this.className,
-    required final this.id,
-  });
-}
-
-class HtmlElementScriptImpl implements HtmlElementScript {
-  @override
-  final String? className;
-  @override
-  final String? id;
-  @override
-  final bool? async;
-  @override
-  final bool? defer;
-  @override
-  final String? src;
-  @override
-  final String? integrity;
-  @override
-  final String? crossorigin;
-  @override
-  final String? rel;
-
-  const HtmlElementScriptImpl({
-    required final this.async,
-    required final this.defer,
-    required final this.src,
-    required final this.className,
-    required final this.id,
-    required final this.integrity,
-    required final this.crossorigin,
-    required final this.rel,
-  });
-}
-
-class HtmlElementLinkImpl implements HtmlElementLink {
-  @override
-  final String? className;
-  @override
-  final String? id;
-  @override
-  final List<HtmlEntity> childNodes;
-  @override
-  final String? href;
-  @override
-  final String? rel;
-
-  const HtmlElementLinkImpl({
-    required final this.href,
-    required final this.rel,
-    required final this.childNodes,
-    required final this.className,
-    required final this.id,
-  });
-}
-
-class HtmlElementTitleImpl implements HtmlElementTitle {
-  @override
-  final String? className;
-  @override
-  final String? id;
-  @override
-  final String text;
-
-  const HtmlElementTitleImpl({
-    required final this.text,
-    required final this.className,
-    required final this.id,
-  });
-}
-
-class HtmlElementStyleImpl implements HtmlElementStyle {
-  @override
-  final String? className;
-  @override
-  final String? id;
-  @override
-  final List<StyleContent> childNodes;
-
-  const HtmlElementStyleImpl({
-    required final this.childNodes,
-    required final this.className,
-    required final this.id,
-  });
-}
-
-class HtmlElementImageImpl implements HtmlElementImage {
-  @override
-  final String? className;
-  @override
-  final String? id;
-  @override
-  final List<HtmlEntity> childNodes;
-  @override
-  final String? alt;
-  @override
-  final String? src;
-
-  const HtmlElementImageImpl({
-    required final this.alt,
-    required final this.src,
-    required final this.childNodes,
-    required final this.className,
-    required final this.id,
-  });
-}
-
-class HtmlElementDivImpl implements HtmlElementDiv {
-  @override
-  final String? className;
-  @override
-  final String? id;
-  @override
-  final List<HtmlEntity> childNodes;
-  @override
-  final List<MapEntry<String, String>> otherAdditionalAttributes;
-
-  const HtmlElementDivImpl({
-    required final this.childNodes,
-    required final this.otherAdditionalAttributes,
-    required final this.className,
-    required final this.id,
-  });
-}
-
-class HtmlElementAnchorImpl implements HtmlElementAnchor {
-  @override
-  final String? className;
-  @override
-  final String? id;
-  @override
-  final List<HtmlEntity> childNodes;
-  @override
-  final String? href;
-  @override
-  final String? target;
-  @override
-  final List<MapEntry<String, String>> otherAdditionalAttributes;
-
-  const HtmlElementAnchorImpl({
-    required final this.href,
-    required final this.childNodes,
-    required final this.target,
-    required final this.className,
-    required final this.id,
-    required final this.otherAdditionalAttributes,
-  });
-}
-
-class HtmlElementHeadImpl implements HtmlElementHead {
-  @override
-  final String? className;
-  @override
-  final String? id;
-  @override
-  final List<HtmlEntity> childNodes;
-
-  const HtmlElementHeadImpl({
-    required final this.childNodes,
-    required final this.className,
-    required final this.id,
-  });
+  Z match<Z>({
+    required final Z Function(CssKeyRaw p1) raw,
+    required final Z Function(CssKeyComposite p1) composite,
+  }) =>
+      composite(this);
 }

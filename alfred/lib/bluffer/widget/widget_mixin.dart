@@ -4,16 +4,16 @@ import '../html/html.dart';
 import '../html/pretty.dart';
 import 'widget.dart';
 
-HtmlEntityElement renderWidget({
+HtmlElement renderWidget({
   required final Widget child,
   required final BuildContext context,
 }) {
   final renderedChildHtml = child.renderHtml(
     context: context,
   );
-  return HtmlEntityElementImpl(
-    element: HtmlElementCopyImpl(
-      other: renderedChildHtml.element,
+  return HtmlElementCopyImpl(
+    other: renderedChildHtml,
+    idClass: IdClassImpl(
       className: () {
         final renderedChildCss = child.renderCss(
           context: context,
@@ -25,7 +25,7 @@ HtmlEntityElement renderWidget({
             renderedChildCss,
           );
           final currentClass = elementClassname(
-            element: renderedChildHtml.element,
+            element: renderedChildHtml,
           );
           if (currentClass != null) {
             return currentClass + " " + newClass;
@@ -54,7 +54,7 @@ mixin InheritedWidgetMixin implements InheritedWidget {
   Widget get child;
 
   @override
-  HtmlEntityElement renderHtml({
+  HtmlElement renderHtml({
     required final BuildContext context,
   }) {
     final newContext = context.withInherited(this);
@@ -64,7 +64,7 @@ mixin InheritedWidgetMixin implements InheritedWidget {
   }
 
   @override
-  HtmlEntityElement renderElement({
+  HtmlElement renderElement({
     required final BuildContext context,
   }) {
     final newContext = context.withInherited(this);

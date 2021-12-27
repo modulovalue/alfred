@@ -1,4 +1,4 @@
-import 'dart:math' as math;
+import 'dart:math';
 
 /// A continuous group of step types.
 class Step {
@@ -153,9 +153,9 @@ class _Path {
     final int b,
     final int c,
   ) =>
-      math.max(
+      max(
         a,
-        math.max(
+        max(
           b,
           c,
         ),
@@ -350,13 +350,13 @@ class _Container {
   final bool _reverse;
 
   /// Creates a new comparable container with the given subset and reverse settings.
-  _Container(
-    this._comp,
-    this._aOffset,
-    this._aLength,
-    this._bOffset,
-    this._bLength,
-    this._reverse,
+  const _Container(
+    final this._comp,
+    final this._aOffset,
+    final this._aLength,
+    final this._bOffset,
+    final this._bLength,
+    final this._reverse,
   );
 
   /// Creates a new comparable for a full container.

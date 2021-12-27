@@ -34,24 +34,23 @@ class DecoratedBox with RenderElementMixin implements Widget {
       );
 
   @override
-  HtmlEntityElement renderHtml({
+  HtmlElement renderHtml({
     required final BuildContext context,
   }) {
     final _child = child;
-    return HtmlEntityElementImpl(
-      element: HtmlElementDivImpl(
-        otherAdditionalAttributes: [],
-        className: null,
-        id: null,
-        childNodes: [
-          if (_child != null)
-            Expanded(
+    return HtmlElementDivImpl(
+      attributes: [],
+      idClass: null,
+      childNodes: [
+        if (_child != null)
+          HtmlEntityElementImpl(
+            element: Expanded(
               child: _child,
             ).renderElement(
               context: context,
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 }

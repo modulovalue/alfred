@@ -34,7 +34,7 @@ abstract class InheritedWidget implements Widget {}
 abstract class Widget {
   Key? get key;
 
-  HtmlEntityElement renderHtml({
+  HtmlElement renderHtml({
     required final BuildContext context,
   });
 
@@ -42,7 +42,7 @@ abstract class Widget {
     required final BuildContext context,
   });
 
-  HtmlEntityElement renderElement({
+  HtmlElement renderElement({
     required final BuildContext context,
   });
 }

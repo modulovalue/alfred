@@ -4,64 +4,44 @@ import 'pretty.dart';
 void main() {
   final result = htmlElementToString(
     element: const HtmlElementBodyImpl(
-      className: null,
-      id: null,
+      idClass: null,
       childNodes: [
         HtmlEntityNodeImpl(
           text: "LoremIpsum",
         ),
         HtmlEntityElementImpl(
           element: HtmlElementCopyImpl(
-            id: "overridden id",
-            className: "overridden class",
-            other: HtmlElementStyleImpl(
-              className: "class",
-              id: "id",
-              childNodes: [],
+            idClass: IdClassImpl(
+              id: "overridden id",
+              className: "overridden class",
             ),
-          ),
-        ),
-        HtmlEntityElementImpl(
-          element: HtmlElementAppendedImpl(
             other: HtmlElementStyleImpl(
-              className: "class",
-              id: "id",
-              childNodes: [],
-            ),
-            additional: [
-              HtmlEntityElementImpl(
-                element: HtmlElementStyleImpl(
-                  className: "class",
-                  id: "id",
-                  childNodes: [],
-                ),
+              idClass: IdClassImpl(
+                className: "class",
+                id: "id",
               ),
-            ],
+              styles: [],
+            ),
           ),
         ),
         HtmlEntityElementImpl(
           element: HtmlElementBrImpl(
-            childNodes: [],
-            className: null,
-            id: null,
+            idClass: null,
           ),
         ),
         HtmlEntityElementImpl(
           element: HtmlElementHtmlImpl(
             childNodes: [],
-            className: null,
-            id: null,
+            idClass: null,
           ),
         ),
         HtmlEntityElementImpl(
           element: HtmlElementMetaImpl(
-            childNodes: [],
-            className: null,
-            id: null,
+            idClass: null,
             attributes: [
-              MapEntry(
-                "attributekey",
-                "attributevalue",
+              Attribute(
+                key: "attributekey",
+                value: "attributevalue",
               ),
             ],
           ),
@@ -69,20 +49,18 @@ void main() {
         HtmlEntityElementImpl(
           element: HtmlElementBodyImpl(
             childNodes: [],
-            className: null,
-            id: null,
+            idClass: null,
           ),
         ),
         HtmlEntityElementImpl(
           element: HtmlElementCustomImpl(
             childNodes: [],
-            className: null,
-            id: null,
+            idClass: null,
             tag: "custom-tag",
-            additionalAttributes: [
-              MapEntry(
-                "attributekey",
-                "attributevalue",
+            attributes: [
+              Attribute(
+                key: "attributekey",
+                value: "attributevalue",
               ),
             ],
           ),
@@ -92,8 +70,7 @@ void main() {
             src: "src",
             async: true,
             defer: true,
-            className: null,
-            id: null,
+            idClass: null,
             crossorigin: "crossorigin",
             integrity: "integrity",
             rel: "rel",
@@ -101,9 +78,7 @@ void main() {
         ),
         HtmlEntityElementImpl(
           element: HtmlElementLinkImpl(
-            childNodes: [],
-            className: null,
-            id: null,
+            idClass: null,
             href: "href",
             rel: "rel",
           ),
@@ -111,18 +86,21 @@ void main() {
         HtmlEntityElementImpl(
           element: HtmlElementTitleImpl(
             text: "text",
-            className: null,
-            id: null,
+            idClass: null,
           ),
         ),
         HtmlEntityElementImpl(
           element: HtmlElementStyleImpl(
-            className: "class",
-            id: "id",
-            childNodes: [
+            idClass: IdClassImpl(
+              className: "class",
+              id: "id",
+            ),
+            styles: [
               StyleContentStyleImpl(
                 content: HtmlStyleImpl(
-                  key: CssKeyImpl(key: "key"),
+                  key: CssKeyRawImpl(
+                    key: "key",
+                  ),
                   css: CssStyleDeclarationImpl(
                     css_margin: "#",
                     css_maxHeight: "#",
@@ -169,10 +147,14 @@ void main() {
                 ),
               ),
               StyleContentStructureImpl(
-                key: CssKeyImpl(key: "outer"),
+                key: CssKeyRawImpl(
+                  key: "outer",
+                ),
                 style: [
                   HtmlStyleImpl(
-                    key: CssKeyImpl(key: "inner"),
+                    key: CssKeyRawImpl(
+                      key: "inner",
+                    ),
                     css: CssStyleDeclarationImpl(
                       css_margin: "#",
                       css_maxHeight: "#",
@@ -227,43 +209,39 @@ void main() {
             alt: "alt",
             src: "src",
             childNodes: [],
-            className: null,
-            id: null,
+            idClass: null,
           ),
         ),
         HtmlEntityElementImpl(
           element: HtmlElementDivImpl(
-            otherAdditionalAttributes: [
-              MapEntry(
-                "attributekey",
-                "attributevalue",
+            attributes: [
+              Attribute(
+                key: "attributekey",
+                value: "attributevalue",
               ),
             ],
             childNodes: [],
-            className: null,
-            id: null,
+            idClass: null,
           ),
         ),
         HtmlEntityElementImpl(
           element: HtmlElementAnchorImpl(
             target: "target",
             href: "href",
-            otherAdditionalAttributes: [
-              MapEntry(
-                "attributekey",
-                "attributevalue",
+            attributes: [
+              Attribute(
+                key: "attributekey",
+                value: "attributevalue",
               ),
             ],
             childNodes: [],
-            className: null,
-            id: null,
+            idClass: null,
           ),
         ),
         HtmlEntityElementImpl(
           element: HtmlElementHeadImpl(
             childNodes: [],
-            className: null,
-            id: null,
+            idClass: null,
           ),
         ),
       ],

@@ -99,26 +99,23 @@ class Image with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMixin
   }
 
   @override
-  HtmlEntityElement renderHtml({
+  HtmlElement renderHtml({
     required final BuildContext context,
   }) =>
-      HtmlEntityElementImpl(
-        element: HtmlElementImageImpl(
-          className: null,
-          id: null,
-          src: resolveUrl(
-            context: context,
-            url: image.url,
-            pathSeparator: Platform.pathSeparator,
-          ),
-          childNodes: [],
-          alt: () {
-            if (semanticsLabel != null) {
-              return semanticsLabel;
-            } else {
-              return null;
-            }
-          }(),
+      HtmlElementImageImpl(
+        idClass: null,
+        src: resolveUrl(
+          context: context,
+          url: image.url,
+          pathSeparator: Platform.pathSeparator,
         ),
+        childNodes: [],
+        alt: () {
+          if (semanticsLabel != null) {
+            return semanticsLabel;
+          } else {
+            return null;
+          }
+        }(),
       );
 }

@@ -13,17 +13,24 @@ class TableImpl with MultiRenderElementMixin, NoKeyMixin, NoCSSMixin {
   });
 
   @override
-  HtmlEntityElement renderHtml({
+  HtmlElement renderHtml({
     required final BuildContext context,
   }) =>
-      HtmlEntityElementImpl(
-        element: HtmlElementCustomImpl(
+      HtmlElementCustomImpl(
+        idClass: IdClassImpl(
           id: null,
-          tag: "table",
           className: clazz,
-          additionalAttributes: [],
-          childNodes: [],
         ),
+        tag: "table",
+        attributes: [],
+        childNodes: [
+          for (final child in children)
+            HtmlEntityElementImpl(
+              element: child.renderHtml(
+                context: context,
+              ),
+            ),
+        ],
       );
 }
 
@@ -36,17 +43,21 @@ class TableRowImpl with MultiRenderElementMixin, NoKeyMixin, NoCSSMixin {
   });
 
   @override
-  HtmlEntityElement renderHtml({
+  HtmlElement renderHtml({
     required final BuildContext context,
   }) =>
-      const HtmlEntityElementImpl(
-        element: HtmlElementCustomImpl(
-          id: null,
-          className: null,
-          tag: "tr",
-          additionalAttributes: [],
-          childNodes: [],
-        ),
+      HtmlElementCustomImpl(
+        idClass: null,
+        tag: "tr",
+        attributes: [],
+        childNodes: [
+          for (final child in children)
+            HtmlEntityElementImpl(
+              element: child.renderHtml(
+                context: context,
+              ),
+            ),
+        ],
       );
 }
 
@@ -67,21 +78,20 @@ class TableHeadImpl extends TableRowContent {
   });
 
   @override
-  HtmlEntityElement renderHtml({
+  HtmlElement renderHtml({
     required final BuildContext context,
   }) =>
-      HtmlEntityElementImpl(
-        element: HtmlElementCustomImpl(
-          id: null,
-          className: null,
-          tag: "th",
-          additionalAttributes: [],
-          childNodes: [
-            child.renderElement(
+      HtmlElementCustomImpl(
+        idClass: null,
+        tag: "th",
+        attributes: [],
+        childNodes: [
+          HtmlEntityElementImpl(
+            element: child.renderElement(
               context: context,
             ),
-          ],
-        ),
+          ),
+        ],
       );
 
   @override
@@ -100,21 +110,20 @@ class TableDataImpl extends TableRowContent {
   });
 
   @override
-  HtmlEntityElement renderHtml({
+  HtmlElement renderHtml({
     required final BuildContext context,
   }) =>
-      HtmlEntityElementImpl(
-        element: HtmlElementCustomImpl(
-          id: null,
-          className: null,
-          tag: "td",
-          additionalAttributes: [],
-          childNodes: [
-            child.renderElement(
+      HtmlElementCustomImpl(
+        idClass: null,
+        tag: "td",
+        attributes: [],
+        childNodes: [
+          HtmlEntityElementImpl(
+            element: child.renderElement(
               context: context,
             ),
-          ],
-        ),
+          ),
+        ],
       );
 
   @override

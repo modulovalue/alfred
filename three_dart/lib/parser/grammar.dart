@@ -1,4 +1,4 @@
-import 'simple.dart' as simple;
+import 'simple.dart';
 
 /// A grammar is a definition of a language.
 /// It is made up of a set of terms and the rules for how each term is used.
@@ -38,9 +38,13 @@ class Grammar {
   Grammar();
 
   /// Deserializes the given serialized data into a grammar.
-  factory Grammar.deserialize(simple.Deserializer data) {
+  factory Grammar.deserialize(
+    final Deserializer data,
+  ) {
     final version = data.readInt();
-    if (version != 1) throw Exception('Unknown version, $version, for grammar serialization.');
+    if (version != 1) {
+      throw Exception('Unknown version, $version, for grammar serialization.');
+    }
     final grammar = Grammar();
     grammar.start(data.readStr());
     final termCount = data.readInt();
@@ -76,7 +80,9 @@ class Grammar {
     for (final term in this._terms) {
       grammar._add(term.name);
     }
-    if (this._start != null) grammar._start = grammar._findTerm(this._start?.name ?? '');
+    if (this._start != null) {
+      grammar._start = grammar._findTerm(this._start?.name ?? '');
+    }
     for (final term in this._terms) {
       final termCopy = grammar._findTerm(term.name);
       if (termCopy != null) {
@@ -103,8 +109,8 @@ class Grammar {
   }
 
   /// Serializes the grammar.
-  simple.Serializer serialize() {
-    final data = simple.Serializer();
+  Serializer serialize() {
+    final data = Serializer();
     data.writeInt(1); // Version 1
     data.writeStr(this._start?.name ?? '');
     data.writeInt(this._terms.length);
@@ -276,11 +282,13 @@ class Grammar {
             }
           } else if (item is TokenItem) {
             if (!this._tokens.contains(item)) {
-              buf.writeln('The token, $item, in a rule for ${term.name}, was not found in the set of tokens.');
+              buf.writeln(
+                  'The token, $item, in a rule for ${term.name}, was not found in the set of tokens.');
             }
           } else if (item is Trigger) {
             if (!this._triggers.contains(item)) {
-              buf.writeln('The trigger, $item, in a rule for ${term.name}, was not found in the set of triggers.');
+              buf.writeln(
+                  'The trigger, $item, in a rule for ${term.name}, was not found in the set of triggers.');
             }
           } else {
             throw Exception('Unknown item type in ${term.name}.');
@@ -295,7 +303,7 @@ class Grammar {
   }
 }
 
-/// This is a tool to help gramar validate unreachable states.
+/// This is a tool to help grammar validate unreachable states.
 class _grammarUnreached {
   final StringBuffer _buf;
   final Set<String> _terms = {};
@@ -334,9 +342,15 @@ class _grammarUnreached {
 
   /// Validates the unreachable and writes errors to the buffer.
   void validate() {
-    if (this._terms.isNotEmpty) _buf.writeln('The following terms are unreachable: ${this._terms.join(', ')}');
-    if (this._tokens.isNotEmpty) _buf.writeln('The following tokens are unreachable: ${this._tokens.join(', ')}');
-    if (this._triggers.isNotEmpty) _buf.writeln('The following triggers are unreachable: ${this._triggers.join(', ')}');
+    if (this._terms.isNotEmpty) {
+      _buf.writeln('The following terms are unreachable: ${this._terms.join(', ')}');
+    }
+    if (this._tokens.isNotEmpty) {
+      _buf.writeln('The following tokens are unreachable: ${this._tokens.join(', ')}');
+    }
+    if (this._triggers.isNotEmpty) {
+      _buf.writeln('The following triggers are unreachable: ${this._triggers.join(', ')}');
+    }
   }
 }
 
@@ -345,7 +359,11 @@ class _grammarUnreached {
 /// The triggers can used when compiling or interpreting.
 class Trigger extends Item {
   /// Creates a new trigger.
-  Trigger(String name) : super._(name);
+  const Trigger(
+    final String name,
+  ) : super._(
+          name,
+        );
 
   /// Gets the string for this trigger.
   @override
@@ -358,7 +376,11 @@ class Trigger extends Item {
 /// This mirrors the `Tokenizer.Token` result object.
 class TokenItem extends Item {
   /// Creates a new token.
-  TokenItem(String name) : super._(name);
+  const TokenItem(
+    final String name,
+  ) : super._(
+          name,
+        );
 
   /// Gets the string for this token.
   @override
@@ -561,7 +583,9 @@ abstract class Item {
   final String name;
 
   /// Creates a new item.
-  Item._(this.name);
+  const Item._(
+    final this.name,
+  );
 
   /// Gets the string for this item.
   @override

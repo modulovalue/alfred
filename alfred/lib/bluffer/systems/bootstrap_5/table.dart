@@ -12,22 +12,24 @@ class BootstrapTable with RenderElementMixin, NoKeyMixin, NoCSSMixin {
   });
 
   @override
-  HtmlEntityElement renderHtml({
+  HtmlElement renderHtml({
     required final BuildContext context,
   }) =>
-      HtmlEntityElementImpl(
-        element: HtmlElementDivImpl(
-          otherAdditionalAttributes: [],
-          id: null,
-          className: "table-responsive",
+        HtmlElementDivImpl(
+          attributes: [],
+          idClass: const IdClassImpl(
+            id: null,
+            className: "table-responsive",
+          ),
           childNodes: [
-            TableImpl(
-              children: children,
-              clazz: "table table-sm table-striped",
-            ).renderElement(
-              context: context,
+            HtmlEntityElementImpl(
+              element: TableImpl(
+                children: children,
+                clazz: "table table-sm table-striped",
+              ).renderElement(
+                context: context,
+              ),
             ),
           ],
-        ),
       );
 }

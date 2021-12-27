@@ -232,7 +232,7 @@ class Calculator {
 
   // Creates a new calculator instance.
   Calculator() {
-    this._handles.addAll({
+    _handles.addAll({
       'Add': this._handleAdd,
       'And': this._handleAnd,
       'Assign': this._handleAssign,
