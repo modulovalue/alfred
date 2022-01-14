@@ -1,7 +1,15 @@
-import '../primitives/primitives.dart';
+import '../basic/bounds.dart';
+import '../basic/color.dart';
+import '../basic/transformer.dart';
 
 /// A renderer for drawing plots.
 abstract class PlotterRenderer {
+  PlotterDrawActions get actions;
+
+  PlotterDrawState get state;
+}
+
+abstract class PlotterDrawState {
   /// The bounds of the panel being drawn on.
   Bounds? get drawPanelBounds;
 
@@ -15,10 +23,10 @@ abstract class PlotterRenderer {
   abstract Transformer? transform;
 
   /// The point size to draw points with.
-  abstract double pointSize;
+  abstract double currentPointSize;
 
   /// The background color to clear to.
-  abstract Color backgroundColor;
+  abstract Color currentBackgroundColor;
 
   /// The color to draw lines with.
   abstract Color? color;
@@ -27,11 +35,13 @@ abstract class PlotterRenderer {
   abstract Color? fillColor;
 
   /// The font toy draw text with.
-  abstract String? font;
+  abstract String? currentFont;
 
   /// Indicates if the lines should be drawn directed (with arrows), or not.
-  abstract bool directedLines;
+  abstract bool currentShouldDrawDirectedLines;
+}
 
+abstract class PlotterDrawActions {
   /// Draws text to the viewport.
   void drawText(
     final double x,

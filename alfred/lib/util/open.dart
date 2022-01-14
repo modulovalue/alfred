@@ -10,4 +10,9 @@ void openLocalhost({
 void openAt({
   required final String url,
 }) =>
-    Process.runSync("open", [url]);
+    Process.runSync(
+      "open",
+      [
+        url,
+      ],
+    );

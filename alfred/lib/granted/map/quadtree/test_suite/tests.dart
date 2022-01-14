@@ -1,26 +1,23 @@
 import 'dart:math';
 
-import '../../../framework/mouse/mouse_handle_impl.dart';
-import '../../../framework/plotter/plotter_impl.dart';
+import '../../../framework/mouse/impl/mouse_coordinates.dart';
+import '../../../framework/plotter_item/impl/lines.dart';
+import '../../../framework/plotter_item/impl/plotter.dart';
+import '../../../framework/plotter_item/impl/points.dart';
 import '../../maps/polygon_clipper.dart';
 import '../../maps/regions.dart';
 import '../../plotter.dart';
+import '../basic/boundary_region.dart';
+import '../basic/qt_edge.dart';
+import '../basic/qt_edge_handler.dart';
+import '../basic/qt_point_handler.dart';
 import '../boundary.dart';
-import '../boundary_region/impl.dart';
-import '../boundary_region/interface.dart';
-import '../edge/impl.dart';
-import '../edge/interface.dart';
-import '../handler_edge/interface.dart';
-import '../handler_point/impl.dart';
-import '../handler_point/interface.dart';
 import '../node/point/interface.dart';
-import '../point/impl.dart';
-import '../point/interface.dart';
 import '../point/ops/distance2.dart';
 import '../point/ops/equals.dart';
 import '../point/ops/intersect.dart';
-import '../quadtree/impl.dart';
-import '../quadtree/interface.dart';
+import '../point/qt_point.dart';
+import '../quadtree/quadtree.dart';
 
 /// A test framework agnostic test suite
 /// that supports different test frameworks.
@@ -223,10 +220,12 @@ void runQuadtreeTestSuite<T extends TestArgs>({
     suite(args)._testClipper(args, "(0, 0) (0, 5) (5, 5) (5, 0)", ["(5, 5) (0, 5) (0, 0) (5, 0)"]);
   });
   runTest("Polygon Clipper 3 - Bowtie", (final args) {
-    suite(args)._testClipper(args, "(0, 0) (0, 5) (5, 0) (5, 5)", ["(3, 3) (5, 0) (5, 5)", "(0, 5) (0, 0) (3, 3)"]);
+    suite(args)
+        ._testClipper(args, "(0, 0) (0, 5) (5, 0) (5, 5)", ["(3, 3) (5, 0) (5, 5)", "(0, 5) (0, 0) (3, 3)"]);
   });
   runTest("Polygon Clipper 4 - Bowtie reversed", (final args) {
-    suite(args)._testClipper(args, "(0, 5) (0, 0) (5, 5) (5, 0)", ["(0, 5) (0, 0) (3, 3)", "(5, 5) (3, 3) (5, 0)"]);
+    suite(args)
+        ._testClipper(args, "(0, 5) (0, 0) (5, 5) (5, 0)", ["(0, 5) (0, 0) (3, 3)", "(5, 5) (3, 3) (5, 0)"]);
   });
   runTest("Polygon Clipper 5 - Big bowtie", (final args) {
     suite(args)._testClipper(args, "(-59, 81) (-23, 32) (-88, 38) (-90, 75) (-35, 69) (-39, 24) (-78, 84)", [
@@ -243,7 +242,8 @@ void runQuadtreeTestSuite<T extends TestArgs>({
     ]);
   });
   runTest("Polygon Clipper 7 - Repeats", (final args) {
-    suite(args)._testClipper(args, "(-68, 67) (-68, 67) (-24, 16) (2, 57) (-68, 67)", ["(-68, 67) (-24, 16) (2, 57)"]);
+    suite(args)._testClipper(
+        args, "(-68, 67) (-68, 67) (-24, 16) (2, 57) (-68, 67)", ["(-68, 67) (-24, 16) (2, 57)"]);
   });
   runTest("Polygon Clipper 8 - Degenerate", (final args) {
     suite(args)._testClipper(args, "(-40, 21) (-40, 21) (0, 0)", []);
@@ -689,10 +689,10 @@ class QuadTreeTester {
     final int y,
   ) {
     final pnt = QTPointImpl(x, y);
-    final oldCount = tree.pointCount;
+    final oldCount = tree.numberofPointsInTheTree;
     final oldPoint = tree.findPoint(pnt);
     final point = tree.insertPoint(pnt);
-    final newCount = tree.pointCount;
+    final newCount = tree.numberofPointsInTheTree;
     final newPoint = tree.findPoint(pnt);
     if (oldPoint == null) {
       if (oldCount + 1 != newCount) {
@@ -755,10 +755,10 @@ class QuadTreeTester {
       QTPointImpl(x2, y2),
       null,
     );
-    final oldCount = tree.edgeCount;
+    final oldCount = tree.numberOfEdgesInTheTree;
     final oldEdge = tree.findEdge(e, false);
     final edge = tree.insertEdge(e, null);
-    final newCount = tree.edgeCount;
+    final newCount = tree.numberOfEdgesInTheTree;
     final newEdge = tree.findEdge(e, false);
     if (oldEdge == null) {
       if (oldCount + 1 != newCount) {
@@ -886,12 +886,15 @@ class RegionMapTester {
   ]) {
     if (region < 0) {
       // ignore: parameter_assignments
-      region = this._polygons.length + 1;
+      region = _polygons.length + 1;
     }
-    this._polygons.add(polygon);
-    this._regions.add(region);
-    this._map.addRegionWithCoords(region, polygon);
-    if (!this._map.tree.validate()) this._args.fail();
+    _polygons.add(polygon);
+    _regions.add(region);
+    _map.quadTreeAddRegionWithCoords(
+          regionId: region,
+          pntCoords: polygon,
+        );
+    if (!_map.tree.validate()) _args.fail();
   }
 
   void _addPoint(
@@ -913,10 +916,15 @@ class RegionMapTester {
     final int exp,
   ) {
     this._addPoint(_points, x, y, exp);
-    final result = _map.getRegion(QTPointImpl(x, y));
+    final result = _map.quadTreeGetRegion(
+      pnt: QTPointImpl(
+        x,
+        y,
+      ),
+    );
     if (exp != result) {
-      this._addPoint(_errPnts, x, y, result);
-      this._args.error(
+      _addPoint(_errPnts, x, y, result);
+      _args.error(
             "Expected " +
                 exp.toString() +
                 " but got " +
@@ -1020,7 +1028,7 @@ mixin QuadTreeTestSuite {
         }
       }
     }
-    plot.plotter.updateBounds();
+    plot.plotter.updateDataBounds();
     plot.plotter.focusOnData();
     onPlot(plot.plotter);
   }
@@ -1067,7 +1075,7 @@ mixin QuadTreeTestSuite {
       )
         ..addColor(0.0, 0.8, 0.0)
         ..addPointSize(4.0);
-      plot.updateBounds();
+      plot.updateDataBounds();
       plot.focusOnData();
       onPlot(plot);
     } else {
@@ -1097,18 +1105,20 @@ mixin QuadTreeTestSuite {
           "   Bounds: $bounds\n" +
           "   Edge:   $edge\n\n");
       final plot = makePlotter();
-      plot.addRects([bounds.xmin.toDouble(), bounds.ymin.toDouble(), bounds.width.toDouble(), bounds.height.toDouble()])
+      plot.addRects(
+          [bounds.xmin.toDouble(), bounds.ymin.toDouble(), bounds.width.toDouble(), bounds.height.toDouble()])
         ..addColor(0.8, 0.0, 0.0)
         ..addPointSize(4.0);
       plot.addLines([edge.x1.toDouble(), edge.y1.toDouble(), edge.x2.toDouble(), edge.y2.toDouble()])
         ..addColor(0.0, 0.8, 0.0)
         ..addPointSize(4.0);
-      plot.updateBounds();
+      plot.updateDataBounds();
       plot.focusOnData();
       plot.mouseHandles.add(makeMouseCoords(plot));
       onPlot(plot);
     } else {
-      args.info("Passed: " + bounds.toString() + ".overlaps(" + edge.toString() + ") => " + overlaps.toString());
+      args.info(
+          "Passed: " + bounds.toString() + ".overlaps(" + edge.toString() + ") => " + overlaps.toString());
     }
   }
 
@@ -1174,7 +1184,7 @@ mixin QuadTreeTestSuite {
           poly.add([pnts[j].x.toDouble(), pnts[j].y.toDouble()]);
         }
       }
-      plot.plotter.updateBounds();
+      plot.plotter.updateDataBounds();
       plot.plotter.focusOnData();
       onPlot(plot.plotter);
     }
@@ -1227,7 +1237,7 @@ mixin QuadTreeTestSuite {
       )
         ..addColor(1.0, 0.0, 0.0)
         ..addPointSize(3.0);
-      plot.plotter.updateBounds();
+      plot.plotter.updateDataBounds();
       plot.plotter.focusOnData();
       onPlot(plot.plotter);
     }
@@ -1278,7 +1288,8 @@ mixin QuadTreeTestSuite {
     } else {
       if (count > 0) {
         tester.args.error(
-          "Expected to find $count intersections but found no first intersection.\n" + "${tester.tree.toString()}\n\n",
+          "Expected to find $count intersections but found no first intersection.\n" +
+              "${tester.tree.toString()}\n\n",
         );
         // ignore: parameter_assignments
         showPlot = true;
@@ -1313,7 +1324,7 @@ mixin QuadTreeTestSuite {
       points.addPointSize(4.0);
       points.addColor(1.0, 0.0, 0.0);
       plot.plotter.addItems([points]);
-      plot.plotter.updateBounds();
+      plot.plotter.updateDataBounds();
       plot.plotter.focusOnData();
       onPlot(plot.plotter);
     }
@@ -1353,7 +1364,7 @@ mixin QuadTreeTestSuite {
             edgeB.y2.toDouble()
           ],
         );
-        plot.updateBounds();
+        plot.updateDataBounds();
         plot.focusOnData();
         onPlot(plot);
       }
@@ -1440,7 +1451,7 @@ mixin QuadTreeTestSuite {
       points.addPointSize(4.0);
       points.addColor(1.0, 0.0, 0.0);
       plot.plotter.addItems([points]);
-      plot.plotter.updateBounds();
+      plot.plotter.updateDataBounds();
       plot.plotter.focusOnData();
       onPlot(plot.plotter);
     }
@@ -1508,7 +1519,7 @@ mixin QuadTreeTestSuite {
       plot.plotter
           .addGroup("Boundary")
           .addRects([x1.toDouble(), y1.toDouble(), (x2 - x1).toDouble(), (y2 - y1).toDouble()]);
-      plot.plotter.updateBounds();
+      plot.plotter.updateDataBounds();
       plot.plotter.focusOnData();
       onPlot(plot.plotter);
     }
@@ -1563,7 +1574,7 @@ mixin QuadTreeTestSuite {
         ..addColor(1.0, 0.0, 0.0)
         ..addPointSize(4.0);
       plot.addPoint(foundPnt, hndl.found!);
-      plot.plotter.updateBounds();
+      plot.plotter.updateDataBounds();
       plot.plotter.focusOnData();
       onPlot(plot.plotter);
     }
@@ -1592,7 +1603,7 @@ mixin QuadTreeTestSuite {
       ..showBoundary = showBoundary
       ..showRootBoundary = showRootBoundary;
     plot.plotter
-      ..updateBounds()
+      ..updateDataBounds()
       ..focusOnData();
     onPlot(plot.plotter);
   }

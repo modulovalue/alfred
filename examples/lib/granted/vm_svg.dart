@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:alfred/granted/example/example.dart';
-import 'package:alfred/granted/framework/plot/impl/file/svg.dart';
+import 'package:alfred/granted/framework/plot/impl/file_svg.dart';
 
 void main() {
   final plot = makeExamplePlotter();

@@ -1,4 +1,4 @@
-import '../interface.dart';
+import '../qt_point.dart';
 
 /// Checks if the two given points are equal.
 bool pointEquals(

@@ -1,8 +1,9 @@
-import '../framework/events/events.dart';
-import '../framework/events/events_impl.dart';
-import '../framework/mouse/mouse_handle.dart';
-import '../framework/mouse/mouse_handle_impl.dart';
-import '../framework/plotter/plotter_impl.dart';
+import '../framework/mouse/impl/arrow_adder.dart';
+import '../framework/mouse/impl/crosshairs.dart';
+import '../framework/mouse/impl/mouse_coordinates.dart';
+import '../framework/mouse/impl/point_adder.dart';
+import '../framework/plotter_item/impl/group.dart';
+import '../framework/plotter_item/impl/plotter.dart';
 
 // TODO make this work with alfred.
 Plotter makeExamplePlotter() {
@@ -45,24 +46,33 @@ Plotter makeExamplePlotter() {
   }
   {
     final group = _createBox(plot, 200.0, -100.0, "Directed Lines");
-    group.addLines([20.0, 20.0, 30.0, 45.0, 50.0, 55.0, 55.0, 45.5, 20.0, 60.0, 60.0, 20.0]).addDirected(true);
+    group
+        .addLines([20.0, 20.0, 30.0, 45.0, 50.0, 55.0, 55.0, 45.5, 20.0, 60.0, 60.0, 20.0]).addDirected(true);
   }
   {
     final group = _createBox(plot, 300.0, -100.0, "Pointed Lines");
-    group.addLines([20.0, 20.0, 30.0, 45.0, 50.0, 55.0, 55.0, 45.5, 20.0, 60.0, 60.0, 20.0]).addPointSize(3.0);
+    group
+        .addLines([20.0, 20.0, 30.0, 45.0, 50.0, 55.0, 55.0, 45.5, 20.0, 60.0, 60.0, 20.0]).addPointSize(3.0);
   }
   {
     final group = _createBox(plot, 0.0, -200.0, "Points");
-    group.addPoints([20.0, 20.0, 30.0, 45.0, 50.0, 55.0, 55.0, 45.5, 20.0, 60.0, 60.0, 20.0]).addPointSize(3.0);
+    group.addPoints([20.0, 20.0, 30.0, 45.0, 50.0, 55.0, 55.0, 45.5, 20.0, 60.0, 60.0, 20.0]).addPointSize(
+        3.0);
   }
   {
     final group = _createBox(plot, 0.0, -200.0, "Points");
-    group.addPoints([20.0, 20.0, 30.0, 45.0, 50.0, 55.0, 55.0, 45.5, 20.0, 60.0, 60.0, 20.0]).addPointSize(3.0);
+    group.addPoints([20.0, 20.0, 30.0, 45.0, 50.0, 55.0, 55.0, 45.5, 20.0, 60.0, 60.0, 20.0]).addPointSize(
+      3.0,
+    );
   }
   {
     final group = _createBox(plot, 100.0, -200.0, "Polygon");
     group.addPolygon([20.0, 20.0, 30.0, 45.0, 50.0, 55.0, 55.0, 45.5, 20.0, 60.0, 60.0, 20.0]).addFillColor(
-        0.0, 0.0, 1.0, 0.5);
+      0.0,
+      0.0,
+      1.0,
+      0.5,
+    );
   }
   {
     final group = _createBox(plot, 200.0, -200.0, "Rectangle Group");
@@ -96,13 +106,13 @@ Plotter makeExamplePlotter() {
     group.addText(10.0, 40.0, 6.0, "Hold ctrl while clicking", true).addFillColor(0.0, 0.0, 0.0);
     group.addText(20.0, 30.0, 6.0, "to add red arrows.", true).addFillColor(0.0, 0.0, 0.0);
   }
-  plot.updateBounds();
-  plot.focusOnData();
-  plot.mouseHandles.add(_makePointAdder(plot));
-  plot.mouseHandles.add(_makeArrowAdder(plot));
-  plot.mouseHandles.add(makeMouseCoords(plot));
-  plot.mouseHandles.add(makeMouseCrosshairs(plot));
-  return plot;
+  return plot
+    ..updateDataBounds()
+    ..focusOnData()
+    ..mouseHandles.add(makePointAdder(plot))
+    ..mouseHandles.add(makeArrowAdder(plot))
+    ..mouseHandles.add(makeMouseCoords(plot))
+    ..mouseHandles.add(makeMouseCrosshairs(plot));
 }
 
 Group _createBox(
@@ -118,112 +128,3 @@ Group _createBox(
       ..addText(5, 92, 8, title, true)
       ..addColor(0.7, 0.7, 0.7)
       ..addFillColor(1.0, 1.0, 1.0);
-
-// TODO fix arrow adder.
-_ArrowAdder _makeArrowAdder(
-  final Plotter _plot,
-) =>
-    _ArrowAdder._(
-      _plot.addLines([])
-        ..addDirected(true)
-        ..addColor(1.0, 0.0, 0.0),
-    );
-
-class _ArrowAdder implements PlotterMouseHandle {
-  static const PlotterMouseButtonState _state = PlotterMouseButtonStateImpl(
-    button: 0,
-    altKey: true,
-  );
-  bool _mouseDown = false;
-  final Lines _arrows;
-
-  _ArrowAdder._(
-    final this._arrows,
-  );
-
-  @override
-  void mouseDown(
-    final PlotterMouseEvent e,
-  ) {
-    if (e.state.equals(_state)) {
-      _mouseDown = true;
-      _arrows.add([e.vpx, e.vpy, e.vpx, e.vpy]);
-      e.redraw = true;
-    }
-  }
-
-  @override
-  void mouseMove(
-    final PlotterMouseEvent e,
-  ) {
-    if (_mouseDown) {
-      final points = _arrows.get(_arrows.count - 1, 1);
-      points[2] = e.vpx;
-      points[3] = e.vpy;
-      _arrows.set(_arrows.count - 1, points);
-      e.redraw = true;
-    }
-  }
-
-  @override
-  void mouseUp(
-    final PlotterMouseEvent e,
-  ) {
-    if (_mouseDown) {
-      final points = _arrows.get(_arrows.count - 1, 1);
-      points[2] = e.vpx;
-      points[3] = e.vpy;
-      _arrows.set(_arrows.count - 1, points);
-      e.redraw = true;
-      _mouseDown = false;
-    }
-  }
-}
-
-_PointAdder _makePointAdder(
-  final Plotter _plot,
-) =>
-    _PointAdder._(
-      _plot.addPoints([])
-        ..addPointSize(4.0)
-        ..addColor(1.0, 0.0, 0.0),
-    );
-
-class _PointAdder implements PlotterMouseHandle {
-  final Points _adderPoints;
-  bool _mouseDown = false;
-
-  static const PlotterMouseButtonStateImpl _state = PlotterMouseButtonStateImpl(
-    button: 0,
-    shiftKey: true,
-  );
-
-  _PointAdder._(
-    final this._adderPoints,
-  );
-
-  @override
-  void mouseDown(
-    final PlotterMouseEvent e,
-  ) {
-    if (e.state.equals(_state)) {
-      _mouseDown = true;
-      _adderPoints.add([e.vpx, e.vpy]);
-      e.redraw = true;
-    }
-  }
-
-  @override
-  void mouseMove(
-    final PlotterMouseEvent e,
-  ) {}
-
-  @override
-  void mouseUp(
-    final PlotterMouseEvent e,
-  ) {
-    if (_mouseDown) {
-      _mouseDown = false;
-    }
-  }
-}

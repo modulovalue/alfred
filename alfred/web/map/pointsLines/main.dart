@@ -1,46 +1,44 @@
-import 'dart:html' as html;
+import 'dart:html';
 
-import 'package:alfred/granted/framework/events/events.dart';
-import 'package:alfred/granted/framework/events/events_impl.dart';
-import 'package:alfred/granted/framework/mouse/mouse_handle.dart';
-import 'package:alfred/granted/framework/mouse/mouse_handle_impl.dart';
-import 'package:alfred/granted/framework/plot/impl/html/svg.dart';
-import 'package:alfred/granted/framework/plotter/plotter_impl.dart';
-import 'package:alfred/granted/framework/primitives/primitives_impl.dart';
+import 'package:alfred/granted/framework/basic/bounds.dart';
+import 'package:alfred/granted/framework/basic/mouse_button_state.dart';
+import 'package:alfred/granted/framework/mouse/impl/line_adder.dart';
+import 'package:alfred/granted/framework/mouse/impl/line_remover.dart';
+import 'package:alfred/granted/framework/mouse/impl/mouse_pan.dart';
+import 'package:alfred/granted/framework/mouse/impl/point_adder_qt.dart';
+import 'package:alfred/granted/framework/mouse/impl/point_remover_qt.dart';
+import 'package:alfred/granted/framework/plot/impl/html_svg.dart';
 import 'package:alfred/granted/map/plotter.dart';
-import 'package:alfred/granted/map/quadtree/edge/impl.dart';
-import 'package:alfred/granted/map/quadtree/node/edge/interface.dart';
-import 'package:alfred/granted/map/quadtree/node/node/interface.dart';
-import 'package:alfred/granted/map/quadtree/node/point/interface.dart';
-import 'package:alfred/granted/map/quadtree/point/impl.dart';
-import 'package:alfred/granted/map/quadtree/quadtree/impl.dart';
-import 'package:alfred/granted/map/quadtree/quadtree/interface.dart';
+import 'package:alfred/granted/map/quadtree/quadtree/quadtree.dart';
 
 void main() {
-  html.document.title = "Points & Lines";
-  final body = html.document.body!;
-  final menu = html.DivElement();
+  document.title = "Points & Lines";
+  final body = document.body!;
+  final menu = DivElement();
   menu.className = "menu";
   body.append(menu);
-  final plotElem = html.DivElement();
+  final plotElem = DivElement();
   plotElem.className = "plot_target";
   body.append(plotElem);
   final plot = QuadTreePlotter();
-  final svgPlot = PlotHtmlSvg(plotElem, plot.plotter);
+  final svgPlot = makePlotHtmlSvg(
+    targetDiv: plotElem,
+    plot: plot.plotter,
+  );
   final dvr = Driver(svgPlot, plot);
   addMenuView(menu, dvr);
   addMenuTools(menu, dvr);
 }
 
 void addMenuView(
-  final html.DivElement menu,
+  final DivElement menu,
   final Driver dvr,
 ) {
-  final dropDown = html.DivElement()..className = "dropdown";
+  final dropDown = DivElement()..className = "dropdown";
   menu.append(dropDown);
-  final text = html.DivElement()..text = "View";
+  final text = DivElement()..text = "View";
   dropDown.append(text);
-  final items = html.DivElement()..className = "dropdown-content";
+  final items = DivElement()..className = "dropdown-content";
   dropDown.append(items);
   addMenuItem(items, "Center View", dvr.centerView);
   addMenuItem(items, "Points", dvr.points);
@@ -54,14 +52,14 @@ void addMenuView(
 }
 
 void addMenuTools(
-  final html.DivElement menu,
+  final DivElement menu,
   final Driver dvr,
 ) {
-  final dropDown = html.DivElement()..className = "dropdown";
+  final dropDown = DivElement()..className = "dropdown";
   menu.append(dropDown);
-  final text = html.DivElement()..text = "Tools";
+  final text = DivElement()..text = "Tools";
   dropDown.append(text);
-  final items = html.DivElement()..className = "dropdown-content";
+  final items = DivElement()..className = "dropdown-content";
   dropDown.append(items);
   addMenuItem(items, "Pan View", dvr.panView);
   addMenuItem(items, "Add Points", dvr.addPoints);
@@ -75,11 +73,11 @@ void addMenuTools(
 }
 
 void addMenuItem(
-  final html.DivElement dropDownItems,
+  final DivElement dropDownItems,
   final String text,
   final BoolValue value,
 ) {
-  final item = html.DivElement()
+  final item = DivElement()
     ..text = text
     ..className = (() {
       if (value.value) {
@@ -217,8 +215,8 @@ class Driver {
     _printTree = BoolValue(false)..onChange.add(_onPrintTreeChange);
     _clearAll = BoolValue(false)..onChange.add(_onClearAllChange);
     _shiftPanViewTool = makeMousePan(
-      _plot.plotter.view,
-      _plot.plotter.setViewOffset,
+      _plot.plotter.windowToViewTransformer,
+      _plot.plotter.setOffsetOfTheViewTransformation,
       const PlotterMouseButtonStateImpl(
         button: 0,
         shiftKey: true,
@@ -227,7 +225,8 @@ class Driver {
     const leftMsButton = PlotterMouseButtonStateImpl(
       button: 0,
     );
-    _panViewTool = makeMousePan(_plot.plotter.view, _plot.plotter.setViewOffset, leftMsButton);
+    _panViewTool = makeMousePan(
+        _plot.plotter.windowToViewTransformer, _plot.plotter.setOffsetOfTheViewTransformation, leftMsButton);
     _pointAdderTool = PointAdder(_tree, _plot, _plotItem, leftMsButton);
     _pointRemoverTool = PointRemover(_tree, _plot, _plotItem, leftMsButton);
     _lineAdderTool = LineAdder(_tree, _plot, _plotItem, leftMsButton);
@@ -242,7 +241,7 @@ class Driver {
       ..add(_lineAdderTool)
       ..add(_lineRemoverTool)
       ..add(_lineRemoverAndTrimTool);
-    _plot.plotter.focusOnBounds(BoundsImpl(-100.0, -100.0, 100.0, 100.0));
+    _plot.plotter.focusViewOnGivenBounds(BoundsImpl(-100.0, -100.0, 100.0, 100.0));
     _setTool(Tool.AddPoints, true);
   }
 
@@ -287,11 +286,11 @@ class Driver {
   ) {
     if (value) {
       _centerView.value = false;
-      final bounds = _tree.boundary;
+      final bounds = _tree.tightBoundingBodyOfAllData;
       if (bounds.empty) {
-        _plot.plotter.focusOnBounds(BoundsImpl(-100.0, -100.0, 100.0, 100.0));
+        _plot.plotter.focusViewOnGivenBounds(BoundsImpl(-100.0, -100.0, 100.0, 100.0));
       } else {
-        _plot.plotter.focusOnBounds(
+        _plot.plotter.focusViewOnGivenBounds(
           BoundsImpl(
             bounds.xmin.toDouble(),
             bounds.ymin.toDouble(),
@@ -440,349 +439,9 @@ class Driver {
   ) {
     if (value) {
       _clearAll.value = false;
-      _tree.clear();
+      _tree.clearPointsEdgeNodesButAdditionalData();
       _plotItem.updateTree();
       _svgPlot.refresh();
-    }
-  }
-}
-
-/// A mouse handler for adding lines.
-class LineAdder implements PlotterMouseHandle {
-  final PlotterMouseButtonState _state;
-  final QuadTreePlotter _plot;
-  final QuadTreeGroup _plotItem;
-  final QuadTree _tree;
-  bool enabled;
-  bool _mouseDown;
-  late double _startX;
-  late double _startY;
-  final Lines _tempLine;
-
-  /// Creates a new mouse handler for adding lines.
-  LineAdder(
-    final this._tree,
-    final this._plot,
-    final this._plotItem,
-    final this._state,
-  )   : enabled = true,
-        _mouseDown = false,
-        _tempLine = _plot.plotter.addLines([])
-          ..addPointSize(5.0)
-          ..addDirected(true)
-          ..addColor(1.0, 0.0, 0.0);
-
-  /// Translates the mouse location into the tree space based on the view.
-  List<double> _transMouse(
-    final PlotterMouseEvent e,
-  ) {
-    final trans = e.projection.mul(_plot.plotter.view);
-    return [trans.untransformX(e.x), trans.untransformY(e.window.ymax - e.y)];
-  }
-
-  /// handles mouse down.
-  @override
-  void mouseDown(
-    final PlotterMouseEvent e,
-  ) {
-    if (enabled && e.state.equals(_state)) {
-      _mouseDown = true;
-      final loc = _transMouse(e);
-      _startX = loc[0].roundToDouble();
-      _startY = loc[1].roundToDouble();
-      _tempLine.add([_startX, _startY, _startX, _startY]);
-      e.redraw = true;
-    }
-  }
-
-  /// handles mouse moved.
-  @override
-  void mouseMove(
-    final PlotterMouseEvent e,
-  ) {
-    if (_mouseDown) {
-      final loc = _transMouse(e);
-      _tempLine.set(
-        0,
-        [
-          _startX,
-          _startY,
-          loc[0].roundToDouble(),
-          loc[1].roundToDouble(),
-        ],
-      );
-      e.redraw = true;
-    }
-  }
-
-  /// handles mouse up.
-  @override
-  void mouseUp(
-    final PlotterMouseEvent e,
-  ) {
-    if (_mouseDown) {
-      final loc = _transMouse(e);
-      final pnt1 = QTPointImpl(
-        _startX.round(),
-        _startY.round(),
-      );
-      final pnt2 = QTPointImpl(
-        loc[0].round(),
-        loc[1].round(),
-      );
-      _tree.insertEdge(
-        QTEdgeImpl(pnt1, pnt2, null),
-        null,
-      );
-      _mouseDown = false;
-      _tempLine.clear();
-      _plotItem.updateTree();
-      e.redraw = true;
-    }
-  }
-}
-
-/// A mouse handler for removing lines.
-class LineRemover implements PlotterMouseHandle {
-  final PlotterMouseButtonState _state;
-  final QuadTreePlotter _plot;
-  final QuadTreeGroup _plotItem;
-  final QuadTree _tree;
-  bool enabled;
-  bool _mouseDown;
-  final bool _trimTree;
-  final Lines _tempLine;
-
-  /// Creates a new mouse handler for removing lines.
-  LineRemover(
-    final this._tree,
-    final this._plot,
-    final this._plotItem,
-    final this._state,
-    final this._trimTree,
-  )   : enabled = true,
-        _mouseDown = false,
-        _tempLine = _plot.plotter.addLines([])
-          ..addPointSize(5.0)
-          ..addDirected(true)
-          ..addColor(1.0, 0.0, 0.0);
-
-  /// Finds the nearest edge for a point under the mouse.
-  QTEdgeNode? _findEdge(
-    final PlotterMouseEvent e,
-  ) {
-    final trans = e.projection.mul(_plot.plotter.view);
-    final x = trans.untransformX(e.x).round();
-    final y = trans.untransformY(e.window.ymax - e.y).round();
-    return _tree.findNearestEdge(QTPointImpl(x, y));
-  }
-
-  /// handles mouse down.
-  @override
-  void mouseDown(
-    final PlotterMouseEvent e,
-  ) {
-    if (enabled && e.state.equals(_state)) {
-      _mouseDown = true;
-      final edge = _findEdge(e);
-      if (edge != null) {
-        _tempLine.add([edge.start.x.toDouble(), edge.start.y.toDouble(), edge.end.x.toDouble(), edge.end.y.toDouble()]);
-      }
-      e.redraw = true;
-    }
-  }
-
-  /// handles mouse moved.
-  @override
-  void mouseMove(
-    final PlotterMouseEvent e,
-  ) {
-    if (_mouseDown) {
-      _tempLine.clear();
-      final edge = _findEdge(e);
-      if (edge != null) {
-        _tempLine.add([edge.start.x.toDouble(), edge.start.y.toDouble(), edge.end.x.toDouble(), edge.end.y.toDouble()]);
-      }
-      e.redraw = true;
-    }
-  }
-
-  /// handles mouse up.
-  @override
-  void mouseUp(
-    final PlotterMouseEvent e,
-  ) {
-    if (_mouseDown) {
-      final edge = _findEdge(e);
-      if (edge != null) _tree.removeEdge(edge, _trimTree);
-      _mouseDown = false;
-      _tempLine.clear();
-      _plotItem.updateTree();
-      e.redraw = true;
-    }
-  }
-}
-
-/// A mouse handler for adding points.
-class PointAdder implements PlotterMouseHandle {
-  final PlotterMouseButtonState _state;
-  final QuadTreePlotter _plot;
-  final QuadTreeGroup _plotItem;
-  final QuadTree _tree;
-  bool enabled;
-  bool _mouseDown;
-  final Points _tempPoint;
-
-  /// Creates a new mouse handler for adding points.
-  PointAdder(
-    final this._tree,
-    final this._plot,
-    final this._plotItem,
-    final this._state,
-  )   : enabled = true,
-        _mouseDown = false,
-        _tempPoint = _plot.plotter.addPoints([])
-          ..addPointSize(5.0)
-          ..addColor(1.0, 0.0, 0.0);
-
-  /// Translates the mouse location into the tree space based on the view.
-  List<double> _transMouse(
-    final PlotterMouseEvent e,
-  ) {
-    final trans = e.projection.mul(_plot.plotter.view);
-    return [trans.untransformX(e.x), trans.untransformY(e.window.ymax - e.y)];
-  }
-
-  /// handles mouse down.
-  @override
-  void mouseDown(
-    final PlotterMouseEvent e,
-  ) {
-    if (enabled && e.state.equals(_state)) {
-      _mouseDown = true;
-      final loc = _transMouse(e);
-      _tempPoint.add([loc[0].roundToDouble(), loc[1].roundToDouble()]);
-      e.redraw = true;
-    }
-  }
-
-  /// handles mouse moved.
-  @override
-  void mouseMove(
-    final PlotterMouseEvent e,
-  ) {
-    if (_mouseDown) {
-      final loc = _transMouse(e);
-      _tempPoint.set(0, [loc[0].roundToDouble(), loc[1].roundToDouble()]);
-      e.redraw = true;
-    }
-  }
-
-  /// handles mouse up.
-  @override
-  void mouseUp(
-    final PlotterMouseEvent e,
-  ) {
-    if (_mouseDown) {
-      final loc = _transMouse(e);
-      final msx = loc[0].round();
-      final msy = loc[1].round();
-      _tree.insertPoint(QTPointImpl(msx, msy));
-      _mouseDown = false;
-      _tempPoint.clear();
-      _plotItem.updateTree();
-      e.redraw = true;
-    }
-  }
-}
-
-/// A mouse handler for removing points.
-class PointRemover implements PlotterMouseHandle {
-  final PlotterMouseButtonState _state;
-  final QuadTreePlotter _plot;
-  final QuadTreeGroup _plotItem;
-  final QuadTree _tree;
-  bool enabled;
-  bool _mouseDown;
-  final Points _tempPoint;
-
-  /// Creates a new mouse handler for removing points.
-  PointRemover(
-    final this._tree,
-    final this._plot,
-    final this._plotItem,
-    final this._state,
-  )   : enabled = true,
-        _mouseDown = false,
-        _tempPoint = _plot.plotter.addPoints([])
-          ..addPointSize(5.0)
-          ..addColor(1.0, 0.0, 0.0);
-
-  /// Finds the point which has its node under the mouse.
-  QTNode? _findNearPoint(
-    final PlotterMouseEvent e,
-  ) {
-    final trans = e.projection.mul(_plot.plotter.view);
-    final msx = trans.untransformX(e.x).round();
-    final msy = trans.untransformY(e.window.ymax - e.y).round();
-    final node = _tree.nodeContaining(QTPointImpl(msx, msy));
-    if (node is QTNode) {
-      return node;
-    } else {
-      return null;
-    }
-  }
-
-  /// handles mouse down.
-  @override
-  void mouseDown(
-    final PlotterMouseEvent e,
-  ) {
-    if (enabled && e.state.equals(_state)) {
-      _mouseDown = true;
-      final node = _findNearPoint(e);
-      final _node = node;
-      if (_node != null) {
-        _node as PointNode;
-        _tempPoint.add([_node.point.x.toDouble(), _node.point.y.toDouble()]);
-      }
-      e.redraw = true;
-    }
-  }
-
-  /// handles mouse moved.
-  @override
-  void mouseMove(
-    final PlotterMouseEvent e,
-  ) {
-    if (_mouseDown) {
-      _tempPoint.clear();
-      final node = _findNearPoint(e);
-      final _node = node;
-      if (_node != null) {
-        _node as PointNode;
-        _tempPoint.add([_node.point.x.toDouble(), _node.point.y.toDouble()]);
-      }
-      e.redraw = true;
-    }
-  }
-
-  /// handles mouse up.
-  @override
-  void mouseUp(
-    final PlotterMouseEvent e,
-  ) {
-    if (_mouseDown) {
-      final node = _findNearPoint(e);
-      final _node = node;
-      if (_node != null) {
-        _node as PointNode;
-        _tree.removePoint(_node);
-      }
-      _mouseDown = false;
-      _tempPoint.clear();
-      _plotItem.updateTree();
-      e.redraw = true;
     }
   }
 }

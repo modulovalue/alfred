@@ -1,7 +1,5 @@
-import '../../edge/impl.dart';
-import '../../edge/interface.dart';
-import '../impl.dart';
-import '../interface.dart';
+import '../../basic/qt_edge.dart';
+import '../qt_point.dart';
 import 'equals.dart';
 
 /// Gets the intersection location of the given point on the edge.

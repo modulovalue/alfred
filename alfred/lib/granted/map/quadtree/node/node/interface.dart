@@ -1,11 +1,11 @@
+import '../../basic/first_left_edge_args.dart';
+import '../../basic/qt_edge.dart';
+import '../../basic/qt_edge_handler.dart';
+import '../../basic/qt_node_handler.dart';
+import '../../basic/qt_point_handler.dart';
 import '../../boundary.dart';
-import '../../edge/interface.dart';
-import '../../first_left_edge_args/interface.dart';
-import '../../handler_edge/interface.dart';
-import '../../handler_node/interface.dart';
-import '../../handler_point/interface.dart';
-import '../../point/interface.dart';
 import '../../point/ops/intersect.dart';
+import '../../point/qt_point.dart';
 
 /// The interface for all nodes in a quad-tree.
 abstract class QTNode {

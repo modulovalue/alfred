@@ -1,6 +1,6 @@
+import '../../basic/qt_point_handler.dart';
 import '../../boundary.dart';
-import '../../handler_point/interface.dart';
-import '../../point/interface.dart';
+import '../../point/qt_point.dart';
 import '../boundary/interface.dart';
 import '../node/interface.dart';
 import '../point/interface.dart';

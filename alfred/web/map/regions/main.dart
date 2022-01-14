@@ -1,17 +1,14 @@
 import 'dart:html';
 
-import 'package:alfred/granted/framework/events/events.dart';
-import 'package:alfred/granted/framework/events/events_impl.dart';
-import 'package:alfred/granted/framework/mouse/mouse_handle.dart';
-import 'package:alfred/granted/framework/mouse/mouse_handle_impl.dart';
-import 'package:alfred/granted/framework/plot/impl/html/svg.dart';
-import 'package:alfred/granted/framework/plotter/plotter_impl.dart';
-import 'package:alfred/granted/framework/plotter_item/plotter_item.dart';
-import 'package:alfred/granted/framework/plotter_item/plotter_item_impl.dart';
-import 'package:alfred/granted/framework/primitives/primitives_impl.dart';
+import 'package:alfred/granted/framework/basic/bounds.dart';
+import 'package:alfred/granted/framework/basic/mouse_button_state.dart';
+import 'package:alfred/granted/framework/mouse/impl/mouse_coordinates.dart';
+import 'package:alfred/granted/framework/mouse/impl/mouse_pan.dart';
+import 'package:alfred/granted/framework/mouse/impl/polygon_adder.dart';
+import 'package:alfred/granted/framework/mouse/impl/region_checker.dart';
+import 'package:alfred/granted/framework/plot/impl/html_svg.dart';
 import 'package:alfred/granted/map/maps/regions.dart';
 import 'package:alfred/granted/map/plotter.dart';
-import 'package:alfred/granted/map/quadtree/point/impl.dart';
 
 void main() {
   document.title = "Points & Lines";
@@ -23,7 +20,10 @@ void main() {
   plotElem.className = "plot_target";
   body.append(plotElem);
   final plot = QuadTreePlotter();
-  final svgPlot = PlotHtmlSvg(plotElem, plot.plotter);
+  final svgPlot = makePlotHtmlSvg(
+    targetDiv: plotElem,
+    plot: plot.plotter,
+  );
   final dvr = Driver(svgPlot, plot);
   addMenuView(menu, dvr);
   addMenuTools(menu, dvr);
@@ -184,7 +184,10 @@ class Driver {
   late PolygonAdder _polygonAdderTool;
   late RegionChecker _regionCheckTool;
 
-  Driver(final this._svgPlot, final this._plot,) {
+  Driver(
+    final this._svgPlot,
+    final this._plot,
+  ) {
     _regions = Regions();
     _plotItem = _plot.addTree(_regions.tree);
     _selectedTool = Tool.None;
@@ -208,29 +211,33 @@ class Driver {
     _printTree = BoolValue(false)..onChange.add(_onPrintTreeChange);
     _clearAll = BoolValue(false)..onChange.add(_onClearAllChange);
     _shiftPanViewTool = makeMousePan(
-      _plot.plotter.view,
-      _plot.plotter.setViewOffset,
+      _plot.plotter.windowToViewTransformer,
+      _plot.plotter.setOffsetOfTheViewTransformation,
       const PlotterMouseButtonStateImpl(
         button: 0,
         shiftKey: true,
       ),
     );
     _panViewTool = makeMousePan(
-      _plot.plotter.view,
-      _plot.plotter.setViewOffset,
-      const PlotterMouseButtonStateImpl(button: 0),
+      _plot.plotter.windowToViewTransformer,
+      _plot.plotter.setOffsetOfTheViewTransformation,
+      const PlotterMouseButtonStateImpl(
+        button: 0,
+      ),
     );
     _polygonAdderTool = PolygonAdder(
       _regions,
       _plot,
       _plotItem,
-      const PlotterMouseButtonStateImpl(button: 0),
+      const PlotterMouseButtonStateImpl(
+        button: 0,
+      ),
       const PlotterMouseButtonStateImpl(
         button: 0,
         ctrlKey: true,
       ),
     );
-    _regionCheckTool = RegionChecker(_regions, _plot, _plotItem);
+    _regionCheckTool = RegionChecker(_regions, _plot);
     _plot.plotter.mouseHandles
       ..clear()
       ..add(_shiftPanViewTool)
@@ -238,7 +245,7 @@ class Driver {
       ..add(_polygonAdderTool)
       ..add(_regionCheckTool)
       ..add(makeMouseCoords(_plot.plotter));
-    _plot.plotter.focusOnBounds(BoundsImpl(-100.0, -100.0, 100.0, 100.0));
+    _plot.plotter.focusViewOnGivenBounds(BoundsImpl(-100.0, -100.0, 100.0, 100.0));
     _setTool(Tool.AddPolygon, true, 1);
   }
 
@@ -283,11 +290,11 @@ class Driver {
   void _onCenterViewChange(bool value) {
     if (value) {
       _centerView.value = false;
-      final bounds = _regions.tree.boundary;
+      final bounds = _regions.tree.tightBoundingBodyOfAllData;
       if (bounds.empty) {
-        _plot.plotter.focusOnBounds(BoundsImpl(-100.0, -100.0, 100.0, 100.0));
+        _plot.plotter.focusViewOnGivenBounds(BoundsImpl(-100.0, -100.0, 100.0, 100.0));
       } else {
-        _plot.plotter.focusOnBounds(
+        _plot.plotter.focusViewOnGivenBounds(
           BoundsImpl(
             bounds.xmin.toDouble(),
             bounds.ymin.toDouble(),
@@ -408,240 +415,10 @@ class Driver {
   void _onClearAllChange(bool value) {
     if (value) {
       _clearAll.value = false;
-      _regions.tree.clear();
+      _regions.tree.clearPointsEdgeNodesButAdditionalData();
       _polygonAdderTool.reset();
       _plotItem.updateTree();
       _svgPlot.refresh();
     }
   }
-}
-
-/// A mouse handler for adding lines.
-class PolygonAdder implements PlotterMouseHandle {
-  final PlotterMouseButtonState _addPointState;
-  final PlotterMouseButtonState _finishRegionState;
-  final QuadTreePlotter _plot;
-  final QuadTreeGroup _plotItem;
-  final Regions _regions;
-  bool _enabled;
-  int regionId;
-  bool _mouseDown;
-  final List<QTPointImpl> _points;
-  final Lines _tempLines;
-
-  /// Creates a new mouse handler for adding lines.
-  PolygonAdder(this._regions, this._plot, this._plotItem, this._addPointState, this._finishRegionState)
-      : _enabled = true,
-        regionId = 1,
-        _mouseDown = false,
-        _points = <QTPointImpl>[],
-        _tempLines = _plot.plotter.addLines([])
-          ..addPointSize(5.0)
-          ..addDirected(true)
-          ..addColor(1.0, 0.0, 0.0);
-
-  /// Indicates of the point adder tool is enabled or not.
-  bool get enabled => _enabled;
-
-  set enabled(bool value) {
-    _enabled = value;
-    reset();
-  }
-
-  /// Prints the region in the buffer.
-  void _printRegion() {
-    String result = "";
-    bool first = true;
-    for (final pnt in _points) {
-      if (first) {
-        result += "{";
-        first = false;
-      } else {
-        result += ", ";
-      }
-      // ignore: use_string_buffers
-      result += "[${pnt.x}, ${pnt.y}]";
-    }
-    print(result + "}");
-  }
-
-  /// Resets the currently being created polygon.
-  void reset() {
-    _points.clear();
-    _tempLines.clear();
-  }
-
-  /// Finished and inserts a region.
-  void finishRegion() {
-    if (_points.isNotEmpty) {
-      _printRegion();
-      _regions.addRegion(regionId, _points);
-    }
-    _plotItem.updateTree();
-    _points.clear();
-    _tempLines.clear();
-  }
-
-  /// Translates the mouse location into the tree space based on the view.
-  List<double> _transMouse(PlotterMouseEvent e) {
-    final trans = e.projection.mul(_plot.plotter.view);
-    return [trans.untransformX(e.x), trans.untransformY(e.window.ymax - e.y)];
-  }
-
-  /// handles mouse down.
-  @override
-  void mouseDown(PlotterMouseEvent e) {
-    if (_enabled) {
-      if (e.state.equals(_finishRegionState)) {
-        finishRegion();
-        e.redraw = true;
-      } else if (e.state.equals(_addPointState)) {
-        _mouseDown = true;
-        final loc = _transMouse(e);
-        final x = loc[0].roundToDouble();
-        final y = loc[1].roundToDouble();
-        if (_tempLines.count > 0) {
-          final last = _tempLines.get(_tempLines.count - 1, 1);
-          _tempLines.add([last[2], last[3], x, y]);
-        } else {
-          _tempLines.add([x, y, x, y]);
-          _points.add(QTPointImpl(x.round(), y.round()));
-        }
-        e.redraw = true;
-      }
-    }
-  }
-
-  /// handles mouse moved.
-  @override
-  void mouseMove(PlotterMouseEvent e) {
-    if (_mouseDown) {
-      final loc = _transMouse(e);
-      final last = _tempLines.get(_tempLines.count - 1, 1);
-      _tempLines.set(_tempLines.count - 1, [last[0], last[1], loc[0].roundToDouble(), loc[1].roundToDouble()]);
-      e.redraw = true;
-    }
-  }
-
-  /// handles mouse up.
-  @override
-  void mouseUp(
-    final PlotterMouseEvent e,
-  ) {
-    if (_mouseDown) {
-      final loc = _transMouse(e);
-      final last = _tempLines.get(_tempLines.count - 1, 1);
-      _tempLines.set(_tempLines.count - 1, [last[0], last[1], loc[0].roundToDouble(), loc[1].roundToDouble()]);
-      if (_points.isNotEmpty) {
-        final lastPnt = _points[_points.length - 1];
-        final x = loc[0].round();
-        final y = loc[1].round();
-        if ((lastPnt.x != x) || (lastPnt.y != y)) {
-          _points.add(QTPointImpl(x, y));
-        }
-      } else {
-        _points.add(QTPointImpl(loc[0].round(), loc[1].round()));
-      }
-      e.redraw = true;
-      _mouseDown = false;
-    }
-  }
-}
-
-/// The colors to draw for different regions
-final _regionColors = [
-  ColorImpl(0.0, 0.0, 0.0),
-  ColorImpl(0.0, 0.0, 1.0),
-  ColorImpl(0.0, 1.0, 1.0),
-  ColorImpl(0.0, 1.0, 0.0),
-  ColorImpl(1.0, 1.0, 0.0),
-  ColorImpl(1.0, 0.0, 0.0),
-  ColorImpl(1.0, 0.0, 1.0),
-];
-
-/// A mouse handler for adding lines.
-class RegionChecker implements PlotterMouseHandle {
-  final QuadTreePlotter _plot;
-  final QuadTreeGroup _plotItem; // ignore: unused_field
-  final Regions _regions;
-  bool _enabled;
-  final Lines _lines;
-  final ColorAttr _pointColor;
-  final Points _points;
-
-  /// Creates a new mouse handler for adding lines.
-  RegionChecker(
-    final this._regions,
-    final this._plot,
-    final this._plotItem,
-  )   : _enabled = true,
-        _lines = _plot.plotter.addLines([])..addColor(1.0, 0.5, 0.5),
-        _pointColor = ColorAttrImpl.rgb(0.0, 0.0, 0.0),
-        _points = _plot.plotter.addPoints([]) {
-    _points
-      ..addPointSize(5.0)
-      ..addAttr(_pointColor);
-  }
-
-  /// Indicates of the point adder tool is enabled or not.
-  bool get enabled => _enabled;
-
-  set enabled(
-    final bool value,
-  ) {
-    _enabled = value;
-    _points.clear();
-    _lines.clear();
-  }
-
-  /// Translates the mouse location into the tree space based on the view.
-  List<double> _transMouse(
-    final PlotterMouseEvent e,
-  ) {
-    final trans = e.projection.mul(_plot.plotter.view);
-    return [trans.untransformX(e.x), trans.untransformY(e.window.ymax - e.y)];
-  }
-
-  @override
-  void mouseDown(
-    final PlotterMouseEvent e,
-  ) {
-    if (_enabled) {
-      final loc = _transMouse(e);
-      final x = loc[0].round();
-      final y = loc[1].round();
-      final pnt = QTPointImpl(x, y);
-      final region = _regions.getRegion(pnt);
-      print("[$x, $y] -> $region");
-    }
-  }
-
-  @override
-  void mouseMove(
-    final PlotterMouseEvent e,
-  ) {
-    if (_enabled) {
-      final loc = _transMouse(e);
-      final x = loc[0].round();
-      final y = loc[1].round();
-      final pnt = QTPointImpl(x, y);
-      _points.clear();
-      final region = _regions.getRegion(pnt);
-      _pointColor.color = _regionColors[region];
-      _points.add([x.toDouble(), y.toDouble()]);
-      _lines.clear();
-      final edge = _regions.tree.firstLeftEdge(pnt);
-      if (edge != null) {
-        _lines.add([edge.start.x.toDouble(), edge.start.y.toDouble(), edge.end.x.toDouble(), edge.end.y.toDouble()]);
-        final x = (pnt.y - edge.start.y) * edge.dx / edge.dy + edge.start.x;
-        _lines.add([pnt.x.toDouble(), pnt.y.toDouble(), x, pnt.y.toDouble()]);
-      }
-      e.redraw = true;
-    }
-  }
-
-  @override
-  void mouseUp(
-    final PlotterMouseEvent e,
-  ) {}
 }

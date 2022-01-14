@@ -1,7 +1,7 @@
 import 'dart:html' as html;
 
-import 'package:alfred/granted/framework/plot/impl/html/svg.dart';
-import 'package:alfred/granted/framework/plotter/plotter_impl.dart';
+import 'package:alfred/granted/framework/plot/impl/html_svg.dart';
+import 'package:alfred/granted/framework/plotter_item/impl/plotter.dart';
 import 'package:alfred/granted/map/quadtree/test_suite/tests.dart';
 
 void main() {
@@ -46,9 +46,9 @@ class QuadTreeTestSuiteHTML with QuadTreeTestSuite {
   void onPlot(
     final Plotter plotter,
   ) =>
-      PlotHtmlSvg(
-        args.addDiv(),
-        plotter,
+      makePlotHtmlSvg(
+        targetDiv: args.addDiv(),
+        plot: plotter,
       );
 }
 

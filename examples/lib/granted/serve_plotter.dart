@@ -1,5 +1,5 @@
 import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/alfred/impl_io/middleware/io_dir.dart';
+import 'package:alfred/alfred/impl/middleware/html.dart';
 import 'package:alfred/alfred/interface/http_route_factory.dart';
 import 'package:alfred/util/open.dart';
 
@@ -8,9 +8,41 @@ Future<void> main() async {
     routes: [
       AlfredRoute.get(
         path: "/*",
-        middleware: const ServeDirectoryStringPathImpl(
-          path: "/Users/valauskasmodestas/Desktop/alfred/plotter/build",
+        middleware: const ServeHtml(
+          html: r"""
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Plotter - Test</title>
+    <style>
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      #output {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="output"></div>
+    <script>
+</script>
+  </body>
+</html>
+""",
         ),
+        // middleware: const ServeDirectoryStringPathImpl(
+        //   path: "/Users/valauskasmodestas/Desktop/alfred/alfred/build",
+        // ),
       ),
     ],
   );

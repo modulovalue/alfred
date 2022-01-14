@@ -1,24 +1,21 @@
+import '../quadtree/basic/qt_edge.dart';
+import '../quadtree/basic/qt_edge_handler.dart';
+import '../quadtree/basic/qt_point_handler.dart';
 import '../quadtree/boundary.dart';
-import '../quadtree/edge/impl.dart';
-import '../quadtree/edge/interface.dart';
-import '../quadtree/handler_edge/impl.dart';
-import '../quadtree/handler_point/impl.dart';
 import '../quadtree/node/edge/interface.dart';
 import '../quadtree/node/point/interface.dart';
-import '../quadtree/point/interface.dart';
-import '../quadtree/quadtree/impl.dart';
-import '../quadtree/quadtree/interface.dart';
+import '../quadtree/point/qt_point.dart';
+import '../quadtree/quadtree/quadtree.dart';
 
 /// Cuts a complicated polygon wrapped in any order into
 /// CCW wrapped simpler set of polygons.
 List<List<QTPoint>> polygonClip(
   final List<QTPoint> points,
-) {
-  final clipper = PolygonClipper._();
-  clipper._setPolygon(points);
-  clipper._getPolygons();
-  return clipper._result;
-}
+) =>
+    (PolygonClipper._()
+          .._setPolygon(points)
+          .._getPolygons())
+        ._result;
 
 /// A tool for clipping polygons into simpler set of polygons.
 class PolygonClipper {
@@ -166,8 +163,8 @@ class PolygonClipper {
     final QTPoint pnt,
   ) {
     final result = _tree.tryInsertPoint(pnt);
-    if (result.existed) {
-      return result.point;
+    if (result.pointExistedElsePointNew) {
+      return result.insertedPoint;
     } else {
       // The point is new, check if any edges pass near it.
       final nearEdges = <QTEdgeNode>{};
@@ -183,13 +180,13 @@ class PolygonClipper {
         liftedEdges.add(
           QTEdgeImpl(
             edge.startNode,
-            result.point,
+            result.insertedPoint,
             edge.data,
           ),
         );
         liftedEdges.add(
           QTEdgeImpl(
-            result.point,
+            result.insertedPoint,
             edge.endNode,
             edge.data,
           ),
@@ -234,7 +231,7 @@ class PolygonClipper {
         )!;
         node.data = edge.data;
       }
-      return result.point;
+      return result.insertedPoint;
     }
   }
 }

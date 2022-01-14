@@ -1,14 +1,11 @@
-import '../quadtree/edge/impl.dart';
-import '../quadtree/edge/interface.dart';
-import '../quadtree/handler_edge/impl.dart';
-import '../quadtree/handler_point/impl.dart';
+import '../quadtree/basic/qt_edge.dart';
+import '../quadtree/basic/qt_edge_handler.dart';
+import '../quadtree/basic/qt_point_handler.dart';
 import '../quadtree/node/edge/interface.dart';
 import '../quadtree/node/point/interface.dart';
-import '../quadtree/point/impl.dart';
-import '../quadtree/point/interface.dart';
 import '../quadtree/point/ops/side.dart';
-import '../quadtree/quadtree/impl.dart';
-import '../quadtree/quadtree/interface.dart';
+import '../quadtree/point/qt_point.dart';
+import '../quadtree/quadtree/quadtree.dart';
 import 'polygon_clipper.dart';
 
 /// A map of regions.
@@ -22,9 +19,9 @@ class Regions {
   Regions() : tree = QuadTreeImpl();
 
   /// Determines the region that the point is inside of.
-  int getRegion(
-    final QTPoint pnt,
-  ) {
+  int quadTreeGetRegion({
+    required final QTPoint pnt,
+  }) {
     final node = tree.firstLeftEdge(pnt);
     if (node == null) {
       return 0;
@@ -42,14 +39,14 @@ class Regions {
   /// Note: The region will overwrite any region contained in it.
   /// The given [pntCoords] are the x and y pairs for the points of the
   /// simple polygon for the region.
-  void addRegionWithCoords(
-    final int regionId,
-    final List<int> pntCoords,
-  ) {
+  void quadTreeAddRegionWithCoords({
+    required final int regionId,
+    required final List<int> pntCoords,
+  }) {
     final count = pntCoords.length ~/ 2;
-    addRegion(
-      regionId,
-      List.generate(
+    quadTreeAddRegion(
+      regionId: regionId,
+      pnts: List.generate(
         count,
         (final i) => QTPointImpl(
           pntCoords[i * 2],
@@ -61,10 +58,10 @@ class Regions {
 
   /// Adds a region into the map.
   /// Note: The region will overwrite any region contained in it.
-  void addRegion(
-    final int regionId,
-    final List<QTPoint> pnts,
-  ) {
+  void quadTreeAddRegion({
+    required final int regionId,
+    required final List<QTPoint> pnts,
+  }) {
     final polys = polygonClip(pnts);
     for (final poly in polys) {
       _addRegion(regionId, poly);
@@ -167,7 +164,7 @@ class Regions {
     final QuadTree newRegion,
   ) {
     final pntRemover = QTPointHandlerPointRemoverImpl(newRegion);
-    tree.foreachPoint(pntRemover, newRegion.boundary);
+    tree.foreachPoint(pntRemover, newRegion.tightBoundingBodyOfAllData);
     // Remove all the inner edges and points.
     // ignore: prefer_foreach
     for (final node in pntRemover.remove) {
@@ -180,7 +177,7 @@ class Regions {
     final QuadTree newRegion,
   ) {
     final edgeRemover = QTEdgeHandlerEdgeRemoverImpl(newRegion);
-    tree.foreachEdge(edgeRemover, newRegion.boundary, true);
+    tree.foreachEdge(edgeRemover, newRegion.tightBoundingBodyOfAllData, true);
     // Remove all the inner edges and points.
     for (final node in edgeRemover.remove) {
       tree.removeEdge(node, true);
@@ -258,8 +255,8 @@ class Regions {
     final QTPoint pnt,
   ) {
     final result = tree.tryInsertPoint(pnt);
-    if (result.existed) {
-      return result.point;
+    if (result.pointExistedElsePointNew) {
+      return result.insertedPoint;
     } else {
       // The point is new, check if any edges pass near it.
       final nearEdges = <QTEdgeNode>{};
@@ -275,13 +272,13 @@ class Regions {
         liftedEdges.add(
           QTEdgeImpl(
             edge.startNode,
-            result.point,
+            result.insertedPoint,
             edge.data,
           ),
         );
         liftedEdges.add(
           QTEdgeImpl(
-            result.point,
+            result.insertedPoint,
             edge.endNode,
             edge.data,
           ),
@@ -332,7 +329,7 @@ class Regions {
           (edge.data as EdgeSide?)!,
         );
       }
-      return result.point;
+      return result.insertedPoint;
     }
   }
 

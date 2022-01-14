@@ -1,6 +1,5 @@
-import '../../edge/interface.dart';
-import '../impl.dart';
-import '../interface.dart';
+import '../../basic/qt_edge.dart';
+import '../qt_point.dart';
 import 'cross.dart';
 
 /// Gets the side of the edge the given point is on.
@@ -9,7 +8,10 @@ Side side(
   final QTPoint point,
 ) {
   final value = pointCross(
-    QTPointImpl(edge.dx, edge.dy),
+    QTPointImpl(
+      edge.dx,
+      edge.dy,
+    ),
     QTPointImpl(
       point.x - edge.x1,
       point.y - edge.y1,

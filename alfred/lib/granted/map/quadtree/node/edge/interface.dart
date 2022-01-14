@@ -1,7 +1,6 @@
-import '../../edge/impl.dart';
-import '../../edge/interface.dart';
-import '../../handler_edge/interface.dart';
-import '../../point/interface.dart';
+import '../../basic/qt_edge.dart';
+import '../../basic/qt_edge_handler.dart';
+import '../../point/qt_point.dart';
 import '../point/interface.dart';
 
 /// The edge node is a connection in the quad-tree

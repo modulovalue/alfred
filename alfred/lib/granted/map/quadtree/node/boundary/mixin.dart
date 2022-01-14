@@ -1,10 +1,10 @@
+import '../../basic/boundary_region.dart';
+import '../../basic/first_left_edge_args.dart';
+import '../../basic/qt_edge.dart';
+import '../../basic/qt_edge_handler.dart';
 import '../../boundary.dart';
-import '../../boundary_region/interface.dart';
-import '../../edge/interface.dart';
-import '../../first_left_edge_args/interface.dart';
-import '../../handler_edge/interface.dart';
-import '../../point/interface.dart';
 import '../../point/ops/intersect.dart';
+import '../../point/qt_point.dart';
 import '../branch/interface.dart';
 import '../edge/interface.dart';
 import 'interface.dart';

@@ -1,4 +1,4 @@
-import '../events/events.dart';
+import '../basic/mouse_event.dart';
 
 /// A mouse handler for managing user input.
 abstract class PlotterMouseHandle {

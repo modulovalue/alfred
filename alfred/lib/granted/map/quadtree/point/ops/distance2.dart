@@ -1,4 +1,4 @@
-import '../interface.dart';
+import '../qt_point.dart';
 
 /// Gets the distance squared between the two given points.
 double pointDistance2(

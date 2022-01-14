@@ -1,4 +1,4 @@
-import '../interface.dart';
+import '../qt_point.dart';
 
 /// Finds the origin based dot product for the given points.
 double pointDot(

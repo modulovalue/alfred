@@ -1,12 +1,19 @@
 import 'dart:html';
 import 'dart:math';
 
-import '../../primitives/primitives.dart';
-import '../../primitives/primitives_impl.dart';
+import '../../basic/bounds.dart';
+import '../../basic/color.dart';
+import '../../basic/transformer.dart';
 import '../interface.dart';
 
 /// A renderer for drawing canvas plots.
-class HtmlCanvasRenderer implements PlotterRenderer {
+class HtmlCanvasRenderer implements PlotterRenderer, PlotterDrawActions, PlotterDrawState {
+  @override
+  PlotterDrawActions get actions => this;
+
+  @override
+  PlotterDrawState get state => this;
+
   /// The context to render with.
   final CanvasRenderingContext2D _context;
 
@@ -23,11 +30,11 @@ class HtmlCanvasRenderer implements PlotterRenderer {
 
   /// The current point size.
   @override
-  double pointSize;
+  double currentPointSize;
 
   /// The current background color.
   @override
-  Color backgroundColor;
+  Color currentBackgroundColor;
 
   /// The current line color.
   Color? _lineClr;
@@ -43,20 +50,20 @@ class HtmlCanvasRenderer implements PlotterRenderer {
 
   /// The current font to draw text with.
   @override
-  String? font;
+  String? currentFont;
 
   /// Indicates if the lines should be drawn directed (with arrows), or not.
   @override
-  bool directedLines;
+  bool currentShouldDrawDirectedLines;
 
   /// Creates a new renderer.
   HtmlCanvasRenderer(
     final this._context,
   )   : dataSetBounds = BoundsImpl.empty(),
-        pointSize = 0.0,
-        backgroundColor = ColorImpl(1.0, 1.0, 1.0),
-        font = "Verdana",
-        directedLines = false {
+        currentPointSize = 0.0,
+        currentBackgroundColor = ColorImpl(1.0, 1.0, 1.0),
+        currentFont = "Verdana",
+        currentShouldDrawDirectedLines = false {
     color = ColorImpl(0.0, 0.0, 0.0);
     fillColor = null;
   }
@@ -68,7 +75,7 @@ class HtmlCanvasRenderer implements PlotterRenderer {
   ) {
     _window = window;
     transform = trans;
-    _context.fillStyle = _getColorString(backgroundColor);
+    _context.fillStyle = _getColorString(currentBackgroundColor);
     _context.fillRect(0, 0, window.width, window.height);
   }
 
@@ -125,7 +132,7 @@ class HtmlCanvasRenderer implements PlotterRenderer {
       // ignore: parameter_assignments
       size = (x2 - x).abs();
     }
-    _context.font = size.toString() + "px " + font!;
+    _context.font = size.toString() + "px " + currentFont!;
     if (_fillClr != null) {
       _context.fillText(text, x, y);
     }
@@ -141,10 +148,10 @@ class HtmlCanvasRenderer implements PlotterRenderer {
     final x = _transX(_x);
     final y = _transY(_y);
     final r = () {
-      if (pointSize <= 1.0) {
+      if (currentPointSize <= 1.0) {
         return 1.0;
       } else {
-        return pointSize;
+        return currentPointSize;
       }
     }();
     _writePoint(x, y, r);
@@ -175,7 +182,7 @@ class HtmlCanvasRenderer implements PlotterRenderer {
     final tx2 = _transX(x2);
     final ty2 = _transY(y2);
     _drawTransLine(x1, y1, x2, y2, tx1, ty1, tx2, ty2);
-    if (pointSize > 1.0) {
+    if (currentPointSize > 1.0) {
       drawPoint(x1, y1);
       drawPoint(x2, y2);
     }
@@ -197,7 +204,7 @@ class HtmlCanvasRenderer implements PlotterRenderer {
     _context.beginPath();
     _context.moveTo(tx1, ty1);
     _context.lineTo(tx2, ty2);
-    if (directedLines) {
+    if (currentShouldDrawDirectedLines) {
       double dx = x2 - x1;
       double dy = y2 - y1;
       final length = sqrt((dx * dx) + (dy * dy));
@@ -417,7 +424,7 @@ class HtmlCanvasRenderer implements PlotterRenderer {
         _context.fill();
       }
       _context.stroke();
-      if (directedLines) {
+      if (currentShouldDrawDirectedLines) {
         double x1 = xCoords[count - 1];
         double y1 = yCoords[count - 1];
         double tx1 = _transX(x1);
@@ -435,7 +442,7 @@ class HtmlCanvasRenderer implements PlotterRenderer {
         }
       }
     }
-    if (pointSize > 1.0) {
+    if (currentPointSize > 1.0) {
       drawPoints(xCoords, yCoords);
     }
   }
@@ -461,7 +468,7 @@ class HtmlCanvasRenderer implements PlotterRenderer {
         _context.lineTo(x, y);
       }
       _context.stroke();
-      if (directedLines) {
+      if (currentShouldDrawDirectedLines) {
         double x1 = xCoords[0];
         double y1 = yCoords[0];
         double tx1 = _transX(x1);
@@ -479,7 +486,7 @@ class HtmlCanvasRenderer implements PlotterRenderer {
         }
       }
     }
-    if (pointSize > 1.0) {
+    if (currentPointSize > 1.0) {
       drawPoints(xCoords, yCoords);
     }
   }

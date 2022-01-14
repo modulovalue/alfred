@@ -1,24 +1,32 @@
-import '../framework/mouse/mouse_handle_impl.dart';
-import '../framework/plotter/plotter_impl.dart';
+import '../framework/mouse/impl/mouse_coordinates.dart';
+import '../framework/plotter_item/impl/group.dart';
+import '../framework/plotter_item/impl/lines.dart';
+import '../framework/plotter_item/impl/plotter.dart';
+import '../framework/plotter_item/impl/points.dart';
+import '../framework/plotter_item/impl/rectangles.dart';
+import 'quadtree/basic/qt_edge.dart';
+import 'quadtree/basic/qt_edge_handler.dart';
+import 'quadtree/basic/qt_node_handler.dart';
+import 'quadtree/basic/qt_point_handler.dart';
 import 'quadtree/boundary.dart';
-import 'quadtree/edge/interface.dart';
-import 'quadtree/handler_edge/interface.dart';
-import 'quadtree/handler_node/interface.dart';
-import 'quadtree/handler_point/interface.dart';
 import 'quadtree/node/boundary/impl_pass.dart';
 import 'quadtree/node/branch/interface.dart';
 import 'quadtree/node/node/impl_empty.dart';
 import 'quadtree/node/node/interface.dart';
 import 'quadtree/node/point/interface.dart';
-import 'quadtree/point/interface.dart';
-import 'quadtree/quadtree/interface.dart';
+import 'quadtree/point/qt_point.dart';
+import 'quadtree/quadtree/quadtree.dart';
 
 /// A plotter customized to work with quad-trees.
 class QuadTreePlotter {
   final Plotter plotter;
 
   QuadTreePlotter() : plotter = makePlotter() {
-    plotter.mouseHandles.add(makeMouseCoords(plotter));
+    plotter.mouseHandles.add(
+      makeMouseCoords(
+        plotter,
+      ),
+    );
   }
 
   /// Adds a quad-tree plotter item with the given tree.
@@ -330,8 +338,8 @@ class QuadTreeGroup {
         points,
       ),
     );
-    addBound(boundaryRect, tree.boundary, 0.0);
-    addBound(rootBoundaryRect, tree.rootBoundary, 0.0);
+    addBound(boundaryRect, tree.tightBoundingBodyOfAllData, 0.0);
+    addBound(rootBoundaryRect, tree.boundaryContainingAllNodes, 0.0);
   }
 }
 

@@ -1,11 +1,11 @@
+import '../../basic/first_left_edge_args.dart';
+import '../../basic/qt_edge.dart';
+import '../../basic/qt_edge_handler.dart';
+import '../../basic/qt_node_handler.dart';
+import '../../basic/qt_point_handler.dart';
 import '../../boundary.dart';
-import '../../edge/interface.dart';
-import '../../first_left_edge_args/interface.dart';
-import '../../handler_edge/interface.dart';
-import '../../handler_node/interface.dart';
-import '../../handler_point/interface.dart';
-import '../../point/interface.dart';
 import '../../point/ops/intersect.dart';
+import '../../point/qt_point.dart';
 import '../boundary/impl_pass.dart';
 import '../boundary/mixin.dart';
 import '../edge/interface.dart';
@@ -184,7 +184,10 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
   /// Handles each point node reachable from this node in the boundary.
   /// Returns true if all points in the boundary were run, false if stopped.
   @override
-  bool foreachPoint(QTPointHandler handle, [QTBoundary? bounds]) {
+  bool foreachPoint(
+    QTPointHandler handle, [
+    QTBoundary? bounds,
+  ]) {
     if ((bounds == null) || overlapsBoundary(bounds)) {
       return _ne.foreachPoint(handle, bounds) &&
           _nw.foreachPoint(handle, bounds) &&
@@ -200,7 +203,11 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
   /// exists even partially in the region are collected.
   /// Returns true if all edges in the boundary were run, false if stopped.
   @override
-  bool foreachEdge(QTEdgeHandler<Object?> handle, [QTBoundary? bounds, bool exclusive = false]) {
+  bool foreachEdge(
+    QTEdgeHandler<Object?> handle, [
+    QTBoundary? bounds,
+    bool exclusive = false,
+  ]) {
     if ((bounds == null) || overlapsBoundary(bounds)) {
       return _ne.foreachEdge(handle, bounds, exclusive) &&
           _nw.foreachEdge(handle, bounds, exclusive) &&

@@ -1,9 +1,7 @@
-import 'boundary_region/impl.dart';
-import 'boundary_region/interface.dart';
-import 'edge/interface.dart';
-import 'point/impl.dart';
-import 'point/interface.dart';
+import 'basic/boundary_region.dart';
+import 'basic/qt_edge.dart';
 import 'point/ops/distance2.dart';
+import 'point/qt_point.dart';
 
 /// Determines if the given boundaries are equal.
 bool boundaryEquals(
@@ -243,7 +241,10 @@ class QTBoundaryImpl implements QTBoundary {
   bool overlapsBoundary(
     final QTBoundary boundary,
   ) =>
-      !((_xmax < boundary.xmin) || (_ymax < boundary.ymin) || (_xmin > boundary.xmax) || (_ymin > boundary.ymax));
+      !((_xmax < boundary.xmin) ||
+          (_ymax < boundary.ymin) ||
+          (_xmin > boundary.xmax) ||
+          (_ymin > boundary.ymax));
 
   /// Gets the distance squared from this boundary to the given point.
   @override

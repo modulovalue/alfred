@@ -1,116 +1,101 @@
 import 'dart:math';
 
-import '../../primitives/primitives.dart';
-import '../../primitives/primitives_impl.dart';
+import '../../basic/bounds.dart';
+import '../../basic/color.dart';
+import '../../basic/transformer.dart';
 import '../interface.dart';
 
+// TODO collect objects that are serialized to a string on finalize.
 /// A renderer for drawing SVG plots.
-class SvgRenderer implements PlotterRenderer {
-  /// The buffer to temporarily store SVG while drawing.
-  final StringBuffer _outputBuffer;
-
-  /// The bounds of the panel being drawn on.
+class SvgRenderer implements PlotterRenderer, PlotterDrawActions, PlotterDrawState {
+  final void Function(Bounds window, String backgroundColorString) renderReset;
+  final StringBuffer outputBuffer;
   @override
   Bounds? drawPanelBounds;
-
-  /// The bounds of the data.
   @override
   Bounds dataSetBounds;
-
-  /// The current transformer for the plot.
   @override
   Transformer? transform;
-
-  /// The current point size.
   @override
-  double pointSize;
+  double currentPointSize;
 
-  /// The current background color.
+  // TODO I should probably have an svg color that maintains the string itself?
   @override
-  Color backgroundColor;
-
-  /// The current line color.
-  Color? _lineClr;
-
-  /// The CSS draw color currently set.
-  String? _lineClrStr;
-
-  /// The CSS draw color currently set.
-  String? _pointClrStr;
-
-  /// The current fill color or null for no fill.
-  Color? _fillClr;
-
-  /// The CSS fill color currently set.
-  String? _fillClrStr;
-
-  /// The current font to draw text with.
+  Color currentBackgroundColor;
+  Color? currentLineClr;
+  String? currentLineClrStr;
+  String? currentPointClrStr;
+  Color? currentFillClr;
+  String? _currentFillClrStr;
   @override
-  String? font;
-
-  /// Indicates if the lines should be drawn directed (with arrows), or not.
+  String? currentFont;
   @override
-  bool directedLines;
+  bool currentShouldDrawDirectedLines;
 
-  final void Function(Bounds window, String backgroundColorString) renderReset;
-
-  /// Creates a new renderer.
-  SvgRenderer(
-    final this.renderReset,
-  )   : _outputBuffer = StringBuffer(),
+  SvgRenderer({
+    required final this.renderReset,
+  })  : outputBuffer = StringBuffer(),
         dataSetBounds = BoundsImpl.empty(),
-        pointSize = 0.0,
-        backgroundColor = ColorImpl(1.0, 1.0, 1.0),
-        font = "Verdana",
-        directedLines = false {
+        currentPointSize = 0.0,
+        currentBackgroundColor = ColorImpl(1.0, 1.0, 1.0),
+        currentFont = "Verdana",
+        currentShouldDrawDirectedLines = false {
     color = ColorImpl(0.0, 0.0, 0.0);
     fillColor = null;
   }
 
+  @override
+  PlotterDrawActions get actions => this;
+
+  @override
+  PlotterDrawState get state => this;
+
   /// Reset the renderer and clears the panel to white.
   void reset(
-    final Bounds _window,
+    final Bounds window,
     final Transformer trans,
   ) {
-    drawPanelBounds = _window;
+    drawPanelBounds = window;
     transform = trans;
-    final _backgroundColorString = _getColorString(backgroundColor);
-    renderReset(_window, _backgroundColorString);
-    _outputBuffer.clear();
+    final _backgroundColorString = _color_to_svg_string(
+      currentBackgroundColor,
+    );
+    renderReset(window, _backgroundColorString);
+    outputBuffer.clear();
   }
 
   @override
   Bounds get viewportIntoWindow => transform!.untransform(drawPanelBounds!);
 
   @override
-  Color? get color => _lineClr;
+  Color? get color => currentLineClr;
 
   @override
   set color(
     final Color? color,
   ) {
-    _lineClr = color;
-    final drawClr = _getColorString(color!);
-    _lineClrStr = "stroke=\"" + drawClr + "\" stroke-opacity=\"" + color.alpha.toString() + "\" ";
-    _pointClrStr = "fill=\"" + drawClr + "\" fill-opacity=\"" + color.alpha.toString() + "\" ";
+    currentLineClr = color;
+    final drawClr = _color_to_svg_string(color!);
+    currentLineClrStr = "stroke=\"" + drawClr + "\" stroke-opacity=\"" + color.alpha.toString() + "\" ";
+    currentPointClrStr = "fill=\"" + drawClr + "\" fill-opacity=\"" + color.alpha.toString() + "\" ";
   }
 
   @override
-  Color? get fillColor => _fillClr;
+  Color? get fillColor => currentFillClr;
 
   @override
   set fillColor(
     final Color? color,
   ) {
-    _fillClr = color;
+    currentFillClr = color;
     if (color != null) {
-      _fillClrStr = "fill=\"" + _getColorString(color) + "\" fill-opacity=\"" + color.alpha.toString() + "\" ";
+      _currentFillClrStr =
+          "fill=\"" + _color_to_svg_string(color) + "\" fill-opacity=\"" + color.alpha.toString() + "\" ";
     } else {
-      _fillClrStr = "fill=\"none\" ";
+      _currentFillClrStr = "fill=\"none\" ";
     }
   }
 
-  /// Draws text to the viewport.
   @override
   void drawText(
     double x,
@@ -120,43 +105,59 @@ class SvgRenderer implements PlotterRenderer {
     final bool scale,
   ) {
     if (scale) {
-      final x2 = _transX(x + size);
+      final x2 = transX(x + size);
       // ignore: parameter_assignments
-      x = _transX(x);
+      x = transX(x);
       // ignore: parameter_assignments
-      y = _transY(y);
+      y = transY(y);
       // ignore: parameter_assignments
       size = (x2 - x).abs();
     }
-    _outputBuffer.write(
-      "<text x=\"$x\" y=\"$y\" style=\"font-family: ${font}; font-size: ${size}px;\" ",
+    outputBuffer.write(
+      "<text x=\"" +
+          x.toString() +
+          "\" y=\"" +
+          y.toString() +
+          "\" style=\"font-family: " +
+          currentFont.toString() +
+          "; font-size: " +
+          size.toString() +
+          "px;\" ",
     );
-    _outputBuffer.writeln(
-      "${_lineClrStr}${_fillClrStr}>" + text + "</text>",
+    outputBuffer.writeln(
+      currentLineClrStr.toString() + _currentFillClrStr.toString() + ">" + text + "</text>",
     );
   }
 
-  /// Draws a point to the viewport.
   @override
   void drawPoint(
     double x,
     double y,
   ) {
     // ignore: parameter_assignments
-    x = _transX(x);
+    x = transX(x);
     // ignore: parameter_assignments
-    y = _transY(y);
+    y = transY(y);
     final r = () {
-      if (pointSize <= 1.0) {
+      if (currentPointSize <= 1.0) {
         return 1.0;
       } else {
-        return pointSize;
+        return currentPointSize;
       }
     }();
-    _writePoint(x, y, r);
+    outputBuffer.writeln(
+      "<circle cx=\"" +
+          x.toString() +
+          "\" cy=\"" +
+          y.toString() +
+          "\" r=\"" +
+          r.toString() +
+          "\" " +
+          currentPointClrStr! +
+          " />",
+    );
   }
 
-  /// Draws a set of points to the viewport.
   @override
   void drawPoints(
     final List<double> xCoords,
@@ -169,7 +170,6 @@ class SvgRenderer implements PlotterRenderer {
     }
   }
 
-  /// Draws a line to the viewport.
   @override
   void drawLine(
     final double x1,
@@ -177,10 +177,10 @@ class SvgRenderer implements PlotterRenderer {
     final double x2,
     final double y2,
   ) {
-    final tx1 = _transX(x1);
-    final ty1 = _transY(y1);
-    final tx2 = _transX(x2);
-    final ty2 = _transY(y2);
+    final tx1 = transX(x1);
+    final ty1 = transY(y1);
+    final tx2 = transX(x2);
+    final ty2 = transY(y2);
     _drawTransLine(
       x1,
       y1,
@@ -191,7 +191,7 @@ class SvgRenderer implements PlotterRenderer {
       tx2,
       ty2,
     );
-    if (pointSize > 1.0) {
+    if (currentPointSize > 1.0) {
       drawPoint(x1, y1);
       drawPoint(x2, y2);
     }
@@ -209,7 +209,7 @@ class SvgRenderer implements PlotterRenderer {
     final double ty2,
   ) {
     _writeLine(tx1, ty1, tx2, ty2);
-    if (directedLines) {
+    if (currentShouldDrawDirectedLines) {
       double dx = x2 - x1;
       double dy = y2 - y1;
       final length = sqrt((dx * dx) + (dy * dy));
@@ -228,7 +228,6 @@ class SvgRenderer implements PlotterRenderer {
     }
   }
 
-  /// Draws a set of lines to the viewport.
   @override
   void drawLines(
     final List<double> x1Coords,
@@ -247,7 +246,6 @@ class SvgRenderer implements PlotterRenderer {
     }
   }
 
-  /// Draws a rectangle to the viewport.
   @override
   void drawRect(
     double x1,
@@ -256,19 +254,31 @@ class SvgRenderer implements PlotterRenderer {
     double y2,
   ) {
     // ignore: parameter_assignments
-    x1 = _transX(x1);
+    x1 = transX(x1);
     // ignore: parameter_assignments
-    y1 = _transY(y1);
+    y1 = transY(y1);
     // ignore: parameter_assignments
-    x2 = _transX(x2);
+    x2 = transX(x2);
     // ignore: parameter_assignments
-    y2 = _transY(y2);
+    y2 = transY(y2);
     final width = x2 - x1;
     final height = y1 - y2;
-    _writeRect(x1, y2, width, height);
+    outputBuffer.writeln(
+      "<rect x=\"" +
+          x1.toString() +
+          "\" y=\"" +
+          y2.toString() +
+          "\" width=\"" +
+          width.toString() +
+          "\" height=\"" +
+          height.toString() +
+          "\" " +
+          _currentFillClrStr! +
+          currentLineClrStr! +
+          "/>",
+    );
   }
 
-  /// Draws a set of rectangles to the viewport.
   @override
   void drawRects(
     final List<double> xCoords,
@@ -289,7 +299,6 @@ class SvgRenderer implements PlotterRenderer {
     }
   }
 
-  /// Draws a set of rectangles to the viewport.
   @override
   void drawRectSet(
     final List<double> xCoords,
@@ -306,7 +315,6 @@ class SvgRenderer implements PlotterRenderer {
     }
   }
 
-  /// Draws an ellipse to the viewport.
   void _drawEllipse(
     double x1,
     double y1,
@@ -314,13 +322,13 @@ class SvgRenderer implements PlotterRenderer {
     double y2,
   ) {
     // ignore: parameter_assignments
-    x1 = _transX(x1);
+    x1 = transX(x1);
     // ignore: parameter_assignments
-    y1 = _transY(y1);
+    y1 = transY(y1);
     // ignore: parameter_assignments
-    x2 = _transX(x2);
+    x2 = transX(x2);
     // ignore: parameter_assignments
-    y2 = _transY(y2);
+    y2 = transY(y2);
     if (x1 > x2) {
       final temp = x1;
       // ignore: parameter_assignments
@@ -342,7 +350,6 @@ class SvgRenderer implements PlotterRenderer {
     _writeEllipse(cx, cy, rx, ry);
   }
 
-  /// Draws a set of ellipses to the viewport.
   @override
   void drawEllipse(
     final List<double> xCoords,
@@ -365,7 +372,6 @@ class SvgRenderer implements PlotterRenderer {
     }
   }
 
-  /// Draws a set of ellipses to the viewport.
   @override
   void drawEllipseSet(
     final List<double> xCoords,
@@ -382,7 +388,6 @@ class SvgRenderer implements PlotterRenderer {
     }
   }
 
-  /// Draws a set of circles to the viewport.
   @override
   void drawCircs(
     final List<double> xCoords,
@@ -397,17 +402,16 @@ class SvgRenderer implements PlotterRenderer {
       final r = radii[i];
       double cx = xCoords[i];
       double cy = yCoords[i];
-      final x2 = _transX(cx + r);
-      final y2 = _transY(cy + r);
-      cx = _transX(cx);
-      cy = _transY(cy);
+      final x2 = transX(cx + r);
+      final y2 = transY(cy + r);
+      cx = transX(cx);
+      cy = transY(cy);
       final rx = (x2 - cx).abs();
       final ry = (y2 - cy).abs();
       _writeEllipse(cx, cy, rx, ry);
     }
   }
 
-  /// Draws a set of circles to the viewport.
   @override
   void drawCircSet(
     final List<double> xCoords,
@@ -419,17 +423,16 @@ class SvgRenderer implements PlotterRenderer {
     for (int i = xCoords.length - 1; i >= 0; --i) {
       double cx = xCoords[i];
       double cy = yCoords[i];
-      final x2 = _transX(cx + radius);
-      final y2 = _transY(cy + radius);
-      cx = _transX(cx);
-      cy = _transY(cy);
+      final x2 = transX(cx + radius);
+      final y2 = transY(cy + radius);
+      cx = transX(cx);
+      cy = transY(cy);
       final rx = (x2 - cx).abs();
       final ry = (y2 - cy).abs();
       _writeEllipse(cx, cy, rx, ry);
     }
   }
 
-  /// Draws a polygon to the viewport.
   @override
   void drawPoly(
     final List<double> xCoords,
@@ -439,25 +442,25 @@ class SvgRenderer implements PlotterRenderer {
     assert(xCoords.length == yCoords.length);
     final int count = xCoords.length;
     if (count >= 3) {
-      double x = _transX(xCoords[0]);
-      double y = _transY(yCoords[0]);
-      _outputBuffer.write("<polygon points=\"$x,$y");
+      double x = transX(xCoords[0]);
+      double y = transY(yCoords[0]);
+      outputBuffer.write("<polygon points=\"$x,$y");
       for (int i = 1; i < count; ++i) {
-        x = _transX(xCoords[i]);
-        y = _transY(yCoords[i]);
-        _outputBuffer.write(" $x,$y");
+        x = transX(xCoords[i]);
+        y = transY(yCoords[i]);
+        outputBuffer.write(" $x,$y");
       }
-      _outputBuffer.writeln("\" $_fillClrStr$_lineClrStr/>");
-      if (directedLines) {
+      outputBuffer.writeln("\" $_currentFillClrStr$currentLineClrStr/>");
+      if (currentShouldDrawDirectedLines) {
         double x1 = xCoords[count - 1];
         double y1 = yCoords[count - 1];
-        double tx1 = _transX(x1);
-        double ty1 = _transY(y1);
+        double tx1 = transX(x1);
+        double ty1 = transY(y1);
         for (int i = 0; i < count; ++i) {
           final x2 = xCoords[i];
           final y2 = yCoords[i];
-          final tx2 = _transX(x2);
-          final ty2 = _transY(y2);
+          final tx2 = transX(x2);
+          final ty2 = transY(y2);
           _drawTransLine(x1, y1, x2, y2, tx1, ty1, tx2, ty2);
           x1 = x2;
           y1 = y2;
@@ -466,12 +469,11 @@ class SvgRenderer implements PlotterRenderer {
         }
       }
     }
-    if (pointSize > 1.0) {
+    if (currentPointSize > 1.0) {
       drawPoints(xCoords, yCoords);
     }
   }
 
-  /// Draws a line strip to the viewport.
   @override
   void drawStrip(
     final List<double> xCoords,
@@ -481,25 +483,25 @@ class SvgRenderer implements PlotterRenderer {
     assert(xCoords.length == yCoords.length);
     final count = xCoords.length;
     if (count >= 2) {
-      double x = _transX(xCoords[0]);
-      double y = _transY(yCoords[0]);
-      _outputBuffer.write("<polyline points=\"" + x.toString() + "," + y.toString());
+      double x = transX(xCoords[0]);
+      double y = transY(yCoords[0]);
+      outputBuffer.write("<polyline points=\"" + x.toString() + "," + y.toString());
       for (int i = 1; i < count; ++i) {
-        x = _transX(xCoords[i]);
-        y = _transY(yCoords[i]);
-        _outputBuffer.write(" $x,$y");
+        x = transX(xCoords[i]);
+        y = transY(yCoords[i]);
+        outputBuffer.write(" $x,$y");
       }
-      _outputBuffer.writeln("\" fill=\"none\" " + _lineClrStr! + "/>");
-      if (directedLines) {
+      outputBuffer.writeln("\" fill=\"none\" " + currentLineClrStr! + "/>");
+      if (currentShouldDrawDirectedLines) {
         double x1 = xCoords[0];
         double y1 = yCoords[0];
-        double tx1 = _transX(x1);
-        double ty1 = _transY(y1);
+        double tx1 = transX(x1);
+        double ty1 = transY(y1);
         for (int i = 1; i < count; ++i) {
           final x2 = xCoords[i];
           final y2 = yCoords[i];
-          final tx2 = _transX(x2);
-          final ty2 = _transY(y2);
+          final tx2 = transX(x2);
+          final ty2 = transY(y2);
           _drawTransLine(x1, y1, x2, y2, tx1, ty1, tx2, ty2);
           x1 = x2;
           y1 = y2;
@@ -508,7 +510,7 @@ class SvgRenderer implements PlotterRenderer {
         }
       }
     }
-    if (pointSize > 1.0) {
+    if (currentPointSize > 1.0) {
       drawPoints(
         xCoords,
         yCoords,
@@ -517,47 +519,19 @@ class SvgRenderer implements PlotterRenderer {
   }
 
   /// Finishes the render and applies the SVG.
-  String finalize() => _outputBuffer.toString();
+  String finalize() => outputBuffer.toString();
 
   /// Translates the given x value by the current transformer.
-  double _transX(
+  double transX(
     final double x,
   ) =>
       transform!.transformX(x);
 
   /// Translates the given y value by the current transformer.
-  double _transY(
+  double transY(
     final double y,
   ) =>
       drawPanelBounds!.ymax - transform!.transformY(y);
-
-  /// Gets the SVG color string for the given color.
-  String _getColorString(
-    final Color color,
-  ) {
-    final r = (color.red * 255.0).floor();
-    final g = (color.green * 255.0).floor();
-    final b = (color.blue * 255.0).floor();
-    return "rgb(" + r.toString() + ", " + g.toString() + ", " + b.toString() + ")";
-  }
-
-  /// Writes a point SVG to the buffer.
-  void _writePoint(
-    final double x,
-    final double y,
-    final double r,
-  ) =>
-      _outputBuffer.writeln(
-        "<circle cx=\"" +
-            x.toString() +
-            "\" cy=\"" +
-            y.toString() +
-            "\" r=\"" +
-            r.toString() +
-            "\" " +
-            _pointClrStr! +
-            " />",
-      );
 
   /// Writes a line SVG to the buffer.
   void _writeLine(
@@ -566,7 +540,7 @@ class SvgRenderer implements PlotterRenderer {
     final double x2,
     final double y2,
   ) =>
-      _outputBuffer.writeln(
+      outputBuffer.writeln(
         "<line x1=\"" +
             x1.toString() +
             "\" y1=\"" +
@@ -576,29 +550,7 @@ class SvgRenderer implements PlotterRenderer {
             "\" y2=\"" +
             y2.toString() +
             "\" " +
-            _lineClrStr! +
-            "/>",
-      );
-
-  /// Writes a rectangle SVG to the buffer.
-  void _writeRect(
-    final double x,
-    final double y,
-    final double width,
-    final double height,
-  ) =>
-      _outputBuffer.writeln(
-        "<rect x=\"" +
-            x.toString() +
-            "\" y=\"" +
-            y.toString() +
-            "\" width=\"" +
-            width.toString() +
-            "\" height=\"" +
-            height.toString() +
-            "\" " +
-            _fillClrStr! +
-            _lineClrStr! +
+            currentLineClrStr! +
             "/>",
       );
 
@@ -609,7 +561,7 @@ class SvgRenderer implements PlotterRenderer {
     final double rx,
     final double ry,
   ) =>
-      _outputBuffer.writeln(
+      outputBuffer.writeln(
         "<ellipse cx=\"" +
             cx.toString() +
             "\" cy=\"" +
@@ -619,8 +571,18 @@ class SvgRenderer implements PlotterRenderer {
             "\" ry=\"" +
             ry.toString() +
             "\" " +
-            _fillClrStr! +
-            _lineClrStr! +
+            _currentFillClrStr! +
+            currentLineClrStr! +
             "/>",
       );
+}
+
+/// Gets the SVG color string for the given color.
+String _color_to_svg_string(
+  final Color color,
+) {
+  final r = (color.red * 255.0).floor();
+  final g = (color.green * 255.0).floor();
+  final b = (color.blue * 255.0).floor();
+  return "rgb(" + r.toString() + ", " + g.toString() + ", " + b.toString() + ")";
 }
