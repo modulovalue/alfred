@@ -1,31 +1,6 @@
-library mime_type;
-
 import 'dart:collection';
 
-import '../alfred/impl/content_type.dart';
-import '../alfred/interface/serve_context.dart';
-
-/// Get the contentType header from the given file.
-AlfredContentType? fileContentType({
-  required final String filePath,
-}) {
-  // Get the mimeType as a string from the name of the given file.
-  final mimeType = mime(filePath);
-  if (mimeType != null) {
-    final split = mimeType.split('/');
-    return AlfredContentTypeImpl(
-      mimeType: mimeType,
-      primaryType: split[0],
-      subType: split[1],
-      charset: null,
-      getParam: (final _) => null,
-    );
-  } else {
-    return null;
-  }
-}
-
-// get MIME type from file name (returns null if there is no such extension)
+/// Get MIME type from file name (returns null if there is no such extension)
 String? mime(
   final String? fileName,
 ) {
@@ -42,13 +17,13 @@ String? mime(
   }
 }
 
-// get MIME type from extension (returns null if there is no such extension)
+/// Get MIME type from extension (returns null if there is no such extension)
 String? mimeFromExtension(
   final String extension,
 ) =>
     mimeMap[extension];
 
-// gets extension from MIME type (returns null if there is no such mime type)
+/// Gets extension from MIME type (returns null if there is no such mime type)
 String? extensionFromMime(
   final String mime,
 ) {
@@ -60,8 +35,9 @@ String? extensionFromMime(
   return null;
 }
 
-// Hash maps are faster.
-final HashMap<String, String> mimeMap = HashMap<String, String>.from(
+// Note: A hash map is used because a hash map is faster
+// than a linked hash map which is the default.
+final Map<String, String> mimeMap = HashMap<String, String>.from(
   <String, String>{
     '123': 'application/vnd.lotus-1-2-3',
     '3dml': 'text/vnd.in3d.3dml',

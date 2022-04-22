@@ -1,10 +1,9 @@
 import 'dart:io';
 
-import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/alfred/impl/middleware/json.dart';
-import 'package:alfred/alfred/impl_io/middleware/io_dir.dart';
-import 'package:alfred/alfred/interface/http_route_factory.dart';
-import 'package:alfred/alfred/interface/parse_http_body.dart';
+import 'package:alfred/alfred/alfred.dart';
+import 'package:alfred/alfred/interface.dart';
+import 'package:alfred/alfred/middleware/json.dart';
+import 'package:alfred/alfred/middleware_io/io_dir.dart';
 
 Future<void> main() async {
   final _uploadDirectory = Directory(
@@ -38,7 +37,8 @@ Future<void> main() async {
                 if (_content is List<int>) {
                   final fileBytes = _content;
                   // Create the local file name and save the file
-                  await File(_uploadDirectory.absolute.path + '/' + uploadedFile.filename).writeAsBytes(fileBytes);
+                  await File(_uploadDirectory.absolute.path + '/' + uploadedFile.filename)
+                      .writeAsBytes(fileBytes);
                   // Return the path to the user.
                   //
                   // The path is served from the /files route above.

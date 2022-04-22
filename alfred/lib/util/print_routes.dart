@@ -1,4 +1,4 @@
-import '../alfred/interface/alfred.dart';
+import '../alfred/interface.dart';
 
 // TODO adt that can then be interpreted into a bluffer widget.
 /// Print out the registered routes to the console.
@@ -23,7 +23,8 @@ void printRoutes({
             all: (final _) => '\x1B[37m' + _.description + '\x1B[0m',
             patch: (final _) => '\x1B[35m' + _.description + '\x1B[0m',
           ) +
-          ' ' + route.middleware.runtimeType.toString(),
+          ' ' +
+          route.middleware.runtimeType.toString(),
     );
   }
 }

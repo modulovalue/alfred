@@ -1,6 +1,5 @@
-import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/alfred/impl/middleware/string.dart';
-import 'package:alfred/alfred/interface/http_route_factory.dart';
+import 'package:alfred/alfred/alfred.dart';
+import 'package:alfred/alfred/middleware/string.dart';
 
 Future<void> main() async {
   await helloAlfred(

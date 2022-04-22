@@ -8,17 +8,8 @@ import 'package:alfred/bluffer/base/image.dart';
 import 'package:alfred/bluffer/base/locale.dart';
 import 'package:alfred/bluffer/base/text.dart';
 import 'package:alfred/bluffer/publish/publish.dart';
-import 'package:alfred/bluffer/publish/simple_serialize.dart';
+import 'package:alfred/bluffer/systems/flutter.dart';
 import 'package:alfred/bluffer/widget/widget.dart';
-import 'package:alfred/bluffer/widgets/click.dart';
-import 'package:alfred/bluffer/widgets/container.dart';
-import 'package:alfred/bluffer/widgets/flex.dart';
-import 'package:alfred/bluffer/widgets/image.dart';
-import 'package:alfred/bluffer/widgets/localizations.dart';
-import 'package:alfred/bluffer/widgets/padding.dart';
-import 'package:alfred/bluffer/widgets/sized_box.dart';
-import 'package:alfred/bluffer/widgets/text.dart';
-import 'package:alfred/bluffer/widgets/theme.dart';
 
 // Run 'dart main.dart' so that assets are located correctly.
 void main() {
@@ -99,7 +90,7 @@ void main() {
                           TextStyle(
                             color: () {
                               // if (state == ClickState.hover) {
-                                return const Color(0xFFFFFFFF);
+                              return const Color(0xFFFFFFFF);
                               // } else {
                               //   return const Color(0xFF0000FF);
                               // }
@@ -111,7 +102,7 @@ void main() {
                       decoration: BoxDecoration(
                         color: () {
                           // if (state == ClickState.hover) {
-                            return const Color(0xFF0000FF);
+                          return const Color(0xFF0000FF);
                           // } else {
                           //   return const Color(0x440000FF);
                           // }

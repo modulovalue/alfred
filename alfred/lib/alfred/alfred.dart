@@ -1,0 +1,1325 @@
+import 'dart:async';
+import 'dart:convert';
+
+// TODO centralize this dependency
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:mime/mime.dart' as m;
+
+// TODO remove this dependency.
+import 'package:queue/queue.dart';
+
+import '../base/header.dart';
+import '../base/http_status_code.dart';
+import '../base/method.dart';
+import '../base/mime.dart';
+import '../base/parse_method.dart';
+import '../util/compose_path.dart';
+
+// TODO don't depend on io.
+import 'alfred_io.dart';
+import 'interface.dart';
+import 'middleware/default_404.dart';
+import 'middleware/default_500.dart';
+
+Future<BuiltAlfred> helloAlfred({
+  required final Iterable<AlfredHttpRoute> routes,
+  final int? port,
+}) {
+  final _alfred = alfredWithRoutes(
+    routes: [
+      AlfredRoutes(
+        routes: routes,
+      ),
+    ],
+  );
+  return buildAlfred(
+    alfred: _alfred,
+    port: port,
+  );
+}
+
+Future<BuiltAlfred> helloAlfred2({
+  required final Iterable<AlfredRouted> routes,
+  final int? port,
+}) {
+  final _alfred = alfredWithRoutes(
+    routes: routes,
+  );
+  return buildAlfred(
+    alfred: _alfred,
+    port: port,
+  );
+}
+
+Future<BuiltAlfred> buildAlfred({
+  required final Alfred alfred,
+  final int? port,
+}) {
+  if (port == null) {
+    return alfred.build();
+  } else {
+    return alfred.build(
+      config: ServerConfigDefaultWithPort(
+        port: port,
+      ),
+    );
+  }
+}
+
+AlfredImpl alfredWithRoutes({
+  required final Iterable<AlfredRouted> routes,
+}) {
+  final alfred = makeSimpleAlfred();
+  for (final route in routes) {
+    alfred.add(
+      routes: route,
+    );
+  }
+  return alfred;
+}
+
+AlfredImpl makeSimpleAlfred({
+  final AlfredMiddleware? onNotFound,
+  final AlfredMiddleware Function(Object error)? onInternalError,
+}) =>
+    AlfredImpl.raw(
+      routes: <AlfredHttpRoute>[],
+      // TODO delegate for onNotFound and onInternalError with a default implementation.
+      onNotFound: onNotFound ?? const NotFound404Middleware(),
+      onInternalError: onInternalError ??
+          (final a) => InternalError500Middleware(
+                error: a,
+              ),
+    );
+
+Future<BuiltAlfredIOImpl> makeAlfredImpl({
+  required final ServerConfig config,
+  required final AlfredLoggingDelegate log,
+  required final Future<void> Function(HttpRequest request) requestHandler,
+  required final AlfredImpl alfred,
+}) async {
+  final requestQueue = Queue(
+    parallel: config.simultaneousProcessing,
+  );
+  final server = await HttpServer.bind(
+    config.bindIp,
+    config.port,
+    shared: config.shared,
+  )
+    ..idleTimeout = config.idleTimeout
+    ..autoCompress = true;
+  // ignore: cancel_subscriptions, unused_local_variable
+  final serverSubscription = server.listen(
+    (final request) => requestQueue.add(
+      () => requestHandler(request),
+    ),
+  );
+  log.onIsListening(
+    arguments: config,
+  );
+  return BuiltAlfredIOImpl(
+    requestQueue: requestQueue,
+    server: server,
+    args: config,
+    alfred: alfred,
+  );
+}
+
+class BuiltAlfredIOImpl implements BuiltAlfred {
+  final HttpServer server;
+  final Queue requestQueue;
+  bool closed = false;
+  @override
+  final ServerConfig args;
+  @override
+  final Alfred alfred;
+
+  BuiltAlfredIOImpl({
+    required final this.server,
+    required final this.requestQueue,
+    required final this.args,
+    required final this.alfred,
+  });
+
+  @override
+  Future<dynamic> close({
+    final bool force = true,
+  }) async {
+    if (!closed) {
+      await server.close(
+        force: force,
+      );
+      closed = true;
+    } else {
+      closed = false;
+    }
+  }
+}
+
+class AlfredImpl implements Alfred, AlfredHttpRouteFactory {
+  @override
+  final List<AlfredHttpRoute> routes;
+
+  final AlfredMiddleware onNotFound;
+
+  final AlfredMiddleware Function(Object error) onInternalError;
+
+  AlfredImpl.raw({
+    required final this.routes,
+    required final this.onNotFound,
+    required final this.onInternalError,
+  });
+
+  @override
+  AlfredHttpRouteFactory get router => this;
+
+  @override
+  Future<BuiltAlfredIOImpl> build({
+    final AlfredLoggingDelegate log = const AlfredLoggingDelegatePrintImpl(),
+    final ServerConfig config = const ServerConfigDefault(),
+  }) async =>
+      makeAlfredImpl(
+        config: config,
+        log: log,
+        alfred: this,
+        requestHandler: (final HttpRequest request) async {
+          // Variable to track the close of the response.
+          var isDone = false;
+          log.onIncomingRequest(
+            method: request.method,
+            uri: request.uri,
+          );
+          final res = AlfredResponseImpl(
+            res: request.response,
+          );
+          final c = ServeContextIOImpl(
+            alfred: this,
+            req: AlfredRequestImpl(
+              req: request,
+              response: res,
+            ),
+            res: res,
+          );
+          // We track if the response has been resolved in order to exit out early
+          // the list of routes (ie the middleware returned)
+          unawaited(
+            request.response.done.then(
+              (final dynamic _) {
+                isDone = true;
+                log.onResponseSent();
+              },
+            ),
+          );
+          // Work out all the routes we need to process
+          final matchedRoutes = matchRoute<AlfredHttpRoute>(
+            input: request.uri.toString(),
+            options: routes,
+            method: parseHttpMethod(str: request.method) ?? Methods.get,
+          );
+          try {
+            if (matchedRoutes.isEmpty) {
+              log.onNoMatchingRouteFound();
+              await onNotFound.process(c);
+              await c.res.res.close();
+            } else {
+              // Tracks if one route is using a wildcard.
+              var nonWildcardRouteMatch = false;
+              // Loop through the routes in the order they are in the routes list
+              for (final route in matchedRoutes) {
+                c.route = route;
+                if (!isDone) {
+                  log.onMatchingRoute(
+                    route: route.path,
+                  );
+                  nonWildcardRouteMatch = !route.usesWildcardMatcher || nonWildcardRouteMatch;
+                  // If the request has already completed, exit early, otherwise process
+                  // the primary route callback.
+                  // ignore: invariant_booleans, <- false positive
+                  if (isDone) {
+                    break;
+                  } else {
+                    log.onExecuteRouteCallbackFunction();
+                    await route.middleware.process(c);
+                  }
+                } else {
+                  break;
+                }
+              }
+              // If you got here and isDone is still false, you forgot to close
+              // the response, or you didn't return anything. Either way its an error,
+              // but instead of letting the whole server hang as most frameworks do,
+              // lets at least close the connection out.
+              if (!isDone) {
+                if (request.response.contentLength == -1) {
+                  if (nonWildcardRouteMatch == false) {
+                    await onNotFound.process(c);
+                    await c.res.res.close();
+                  }
+                }
+                await request.response.close();
+              }
+            }
+          } on AlfredException catch (e) {
+            await e.match(
+              notFound: (final e) async {
+                await onNotFound.process(c);
+                await c.res.res.close();
+              },
+            );
+          } on Object catch (e, s) {
+            log.onIncomingRequestException(
+              e: e,
+              s: s,
+            );
+            await onInternalError(e).process(c);
+            await request.response.close();
+          }
+        },
+      );
+
+  @override
+  HttpRouteFactoryImpl at({
+    required final String path,
+  }) =>
+      HttpRouteFactoryImpl(
+        alfred: this,
+        basePath: path,
+      );
+
+  @override
+  void add({
+    required final AlfredRouted routes,
+  }) =>
+      routes.match(
+        routes: (final a) => this.routes.addAll(a.routes),
+        at: (final a) => at(path: a.prefix).add(routes: a.routes),
+      );
+}
+
+List<T> matchRoute<T extends AlfredHttpRouteDirections>({
+  required final String input,
+  required final List<T> options,
+  required final Method method,
+}) {
+  final output = <T>[];
+  final inputUri = Uri.parse(input);
+  final inputPath = inputUri.path;
+  final normalizedInputPath = _normalizePath(
+    self: inputPath,
+  );
+  for (final option in options) {
+    // Check if http method matches.
+    if (option.method == method || option.method == Methods.all) {
+      if (RegExp(
+        [
+          '^',
+          ...() sync* {
+            // Split route path into segments.
+            final segments = Uri.parse(_normalizePath(self: option.path)).pathSegments;
+            for (final segment in segments) {
+              if (segment == '*' && segment != segments.first && segment == segments.last) {
+                // Generously match path if last segment is wildcard (*)
+                // Example: 'some/path/*' => should match 'some/path'.
+                yield '/?.*';
+              } else if (segment != segments.first) {
+                // Add path separators.
+                yield '/';
+              }
+              yield segment
+                  // Escape period character.
+                  .replaceAll('.', r'\.')
+                  // Parameter (':something') to anything but slash.
+                  .replaceAll(RegExp(':.+'), '[^/]+?')
+                  // Wildcard ('*') to anything.
+                  .replaceAll('*', '.*?');
+            }
+          }(),
+          '\$',
+        ].join(""),
+        caseSensitive: false,
+      ).hasMatch(normalizedInputPath)) {
+        output.add(option);
+      }
+    }
+  }
+  return output;
+}
+
+/// Trims all slashes at the start and end.
+String _normalizePath({
+  required final String self,
+}) {
+  if (self.startsWith('/')) {
+    return _normalizePath(
+      self: self.substring('/'.length),
+    );
+  } else if (self.endsWith('/')) {
+    return _normalizePath(
+      self: self.substring(0, self.length - '/'.length),
+    );
+  } else {
+    return self;
+  }
+}
+
+// TODO move back into separate subclasses.
+const AlfredRoute = AlfredRoutesMaker();
+
+class AlfredRoutesMaker {
+  const AlfredRoutesMaker();
+
+  AlfredHttpRouteImpl post({
+    required final String path,
+    required final AlfredMiddleware middleware,
+  }) =>
+      AlfredHttpRouteImpl(
+        path: path,
+        middleware: middleware,
+        method: Methods.post,
+      );
+
+  AlfredHttpRouteImpl get({
+    required final String path,
+    required final AlfredMiddleware middleware,
+  }) =>
+      AlfredHttpRouteImpl(
+        path: path,
+        middleware: middleware,
+        method: Methods.get,
+      );
+
+  AlfredHttpRouteImpl put({
+    required final String path,
+    required final AlfredMiddleware middleware,
+  }) =>
+      AlfredHttpRouteImpl(
+        path: path,
+        middleware: middleware,
+        method: Methods.put,
+      );
+
+  AlfredHttpRouteImpl delete({
+    required final String path,
+    required final AlfredMiddleware middleware,
+  }) =>
+      AlfredHttpRouteImpl(
+        path: path,
+        middleware: middleware,
+        method: Methods.delete,
+      );
+
+  AlfredHttpRouteImpl options({
+    required final String path,
+    required final AlfredMiddleware middleware,
+  }) =>
+      AlfredHttpRouteImpl(
+        path: path,
+        middleware: middleware,
+        method: Methods.options,
+      );
+
+  AlfredHttpRouteImpl patch({
+    required final String path,
+    required final AlfredMiddleware middleware,
+  }) =>
+      AlfredHttpRouteImpl(
+        path: path,
+        middleware: middleware,
+        method: Methods.patch,
+      );
+
+  AlfredHttpRouteImpl all({
+    required final String path,
+    required final AlfredMiddleware middleware,
+  }) =>
+      AlfredHttpRouteImpl(
+        path: path,
+        middleware: middleware,
+        method: Methods.all,
+      );
+
+  AlfredHttpRouteImpl head({
+    required final String path,
+    required final AlfredMiddleware middleware,
+  }) =>
+      AlfredHttpRouteImpl(
+        path: path,
+        middleware: middleware,
+        method: Methods.head,
+      );
+
+  AlfredHttpRouteImpl connect({
+    required final String path,
+    required final AlfredMiddleware middleware,
+  }) =>
+      AlfredHttpRouteImpl(
+        path: path,
+        middleware: middleware,
+        method: Methods.connect,
+      );
+
+  AlfredHttpRouteImpl trace({
+    required final String path,
+    required final AlfredMiddleware middleware,
+  }) =>
+      AlfredHttpRouteImpl(
+        path: path,
+        middleware: middleware,
+        method: Methods.trace,
+      );
+}
+
+class AlfredHttpRouteImpl with AlfredHttpRouteMixin {
+  @override
+  final String path;
+  @override
+  final BuiltinMethod method;
+  @override
+  final AlfredMiddleware middleware;
+
+  const AlfredHttpRouteImpl({
+    required final this.path,
+    required final this.method,
+    required final this.middleware,
+  });
+}
+
+mixin AlfredHttpRouteMixin implements AlfredHttpRoute, AlfredHttpRouteDirections {
+  @override
+  bool get usesWildcardMatcher => path.contains('*');
+}
+
+Map<String, String>? getParams({
+  required final String route,
+  required final String input,
+}) {
+  final routeParts = route.split('/')..remove('');
+  final inputParts = input.split('/')..remove('');
+  if (inputParts.length != routeParts.length) {
+    // TODO expose the reason for the empty map.
+    return null;
+  } else {
+    final output = <String, String>{};
+    for (var i = 0; i < routeParts.length; i++) {
+      final routePart = routeParts[i];
+      final inputPart = inputParts[i];
+      if (routePart.contains(':')) {
+        final routeParams = routePart.split(':')..remove('');
+        for (final item in routeParams) {
+          output[item] = Uri.decodeComponent(inputPart);
+        }
+      }
+    }
+    return output;
+  }
+}
+
+class AlfredContentTypeImpl implements AlfredContentType {
+  @override
+  final String primaryType;
+
+  @override
+  final String subType;
+
+  @override
+  final String mimeType;
+
+  @override
+  final String? charset;
+
+  final String? Function(String) getParam;
+
+  const AlfredContentTypeImpl({
+    required final this.primaryType,
+    required final this.subType,
+    required final this.charset,
+    required final this.mimeType,
+    required final this.getParam,
+  });
+
+  @override
+  String? getParameter(
+    final String key,
+  ) =>
+      getParam(key);
+}
+
+class ServerConfigImpl implements ServerConfig {
+  @override
+  final String bindIp;
+  @override
+  final bool shared;
+  @override
+  final int port;
+  @override
+  final int simultaneousProcessing;
+  @override
+  final Duration idleTimeout;
+
+  const ServerConfigImpl({
+    required final this.bindIp,
+    required final this.shared,
+    required final this.port,
+    required final this.simultaneousProcessing,
+    required final this.idleTimeout,
+  });
+}
+
+class ServerConfigDefault implements ServerConfig {
+  static const String defaultBindIp = '0.0.0.0';
+  static const int defaultPort = 80;
+  static const int defaultSimultaneousProcessing = 50;
+  static const bool defaultShared = true;
+  static const Duration defaultIdleTimeout = Duration(seconds: 1);
+
+  const ServerConfigDefault();
+
+  @override
+  String get bindIp => defaultBindIp;
+
+  @override
+  int get port => defaultPort;
+
+  @override
+  bool get shared => defaultShared;
+
+  @override
+  int get simultaneousProcessing => defaultSimultaneousProcessing;
+
+  @override
+  Duration get idleTimeout => defaultIdleTimeout;
+}
+
+class ServerConfigDefaultWithPort implements ServerConfig {
+  @override
+  final int port;
+
+  const ServerConfigDefaultWithPort({
+    required final this.port,
+  });
+
+  @override
+  String get bindIp => ServerConfigDefault.defaultBindIp;
+
+  @override
+  bool get shared => ServerConfigDefault.defaultShared;
+
+  @override
+  int get simultaneousProcessing => ServerConfigDefault.defaultSimultaneousProcessing;
+
+  @override
+  Duration get idleTimeout => ServerConfigDefault.defaultIdleTimeout;
+}
+
+class HttpRouteFactoryImpl implements AlfredHttpRouteFactory {
+  final Alfred alfred;
+  final String basePath;
+
+  const HttpRouteFactoryImpl({
+    required final this.alfred,
+    required final this.basePath,
+  });
+
+  @override
+  void add({
+    required final AlfredRouted routes,
+  }) {
+    routes.match(
+      routes: (final _routes) {
+        for (final route in _routes.routes) {
+          alfred.router.add(
+            routes: AlfredRoutes(
+              routes: [
+                AlfredHttpRouteImpl(
+                  method: route.method,
+                  path: composePath(
+                    first: basePath,
+                    second: route.path,
+                  ),
+                  middleware: route.middleware,
+                ),
+              ],
+            ),
+          );
+        }
+      },
+      at: (final _at) => at(
+        path: _at.prefix,
+      ).add(
+        routes: _at.routes,
+      ),
+    );
+  }
+
+  @override
+  AlfredHttpRouteFactory at({
+    required final String path,
+  }) =>
+      HttpRouteFactoryImpl(
+        alfred: alfred,
+        basePath: composePath(
+          first: basePath,
+          second: path,
+        ),
+      );
+}
+
+/// Indicates the severity of logged messages.
+abstract class LogType {
+  int get index;
+
+  String get description;
+}
+
+class LogTypeDebug implements LogType {
+  const LogTypeDebug();
+
+  @override
+  int get index => 1;
+
+  @override
+  String get description => "debug";
+
+  @override
+  String toString() => 'DebugLogType{}';
+}
+
+class LogTypeInfo implements LogType {
+  const LogTypeInfo();
+
+  @override
+  int get index => 2;
+
+  @override
+  String get description => "info";
+
+  @override
+  String toString() => 'InfoLogType{}';
+}
+
+class LogTypeWarn implements LogType {
+  const LogTypeWarn();
+
+  @override
+  int get index => 3;
+
+  @override
+  String get description => "warn";
+
+  @override
+  String toString() => 'WarnLogType{}';
+}
+
+class LogTypeError implements LogType {
+  const LogTypeError();
+
+  @override
+  int get index => 4;
+
+  @override
+  String get description => "error";
+
+  @override
+  String toString() => 'ErrorLogType{}';
+}
+
+/// Maps from notifications about certain events to a log method.
+mixin AlfredLoggingDelegateGeneralizingMixin implements AlfredLoggingDelegate {
+  LogType get logLevel;
+
+  void log({
+    required final String Function() messageFn,
+    required final LogType type,
+  });
+
+  @override
+  void onIsListening({
+    required final ServerConfig arguments,
+  }) =>
+      log(
+        messageFn: () =>
+            'HTTP Server listening on port: ' +
+            arguments.port.toString() +
+            " • boundIp: " +
+            arguments.bindIp +
+            " • shared: " +
+            arguments.shared.toString() +
+            " • simultaneousProcessing: " +
+            arguments.simultaneousProcessing.toString(),
+        type: const LogTypeInfo(),
+      );
+
+  @override
+  void onIncomingRequest({
+    required final String method,
+    required final Uri uri,
+  }) =>
+      log(
+        messageFn: () => method + ' - ' + uri.toString(),
+        type: const LogTypeInfo(),
+      );
+
+  @override
+  void onResponseSent() => log(
+        messageFn: () => 'Response sent to client',
+        type: const LogTypeDebug(),
+      );
+
+  @override
+  void onNoMatchingRouteFound() => log(
+        messageFn: () => 'No matching route found.',
+        type: const LogTypeDebug(),
+      );
+
+  @override
+  void onMatchingRoute({
+    required final String route,
+  }) =>
+      log(
+        messageFn: () => 'Match route: ' + route,
+        type: const LogTypeDebug(),
+      );
+
+  @override
+  void onExecuteRouteCallbackFunction() => log(
+        messageFn: () => 'Execute route callback function',
+        type: const LogTypeDebug(),
+      );
+
+  @override
+  void onIncomingRequestException({
+    required final Object e,
+    required final StackTrace s,
+  }) {
+    log(
+      messageFn: () => e.toString(),
+      type: const LogTypeError(),
+    );
+    log(
+      messageFn: () => s.toString(),
+      type: const LogTypeError(),
+    );
+  }
+
+  @override
+  void logTypeHandler({
+    required final String Function() msgFn,
+  }) =>
+      log(
+        messageFn: () => 'DirectoryTypeHandler: ' + msgFn(),
+        type: const LogTypeDebug(),
+      );
+}
+
+class AlfredLoggingDelegatePrintImpl with AlfredLoggingDelegateGeneralizingMixin {
+  @override
+  final LogType logLevel;
+
+  const AlfredLoggingDelegatePrintImpl([
+    final this.logLevel = const LogTypeDebug(),
+  ]);
+
+  @override
+  void log({
+    required final String Function() messageFn,
+    required final LogType type,
+  }) {
+    if (type.index >= logLevel.index) {
+      print(
+        DateTime.now().toString() + ' - ' + type.description + ' - ' + messageFn(),
+      );
+    }
+  }
+}
+
+/// Process and parse an incoming [HttpRequest].
+///
+/// The returned [AlfredHttpRequestBody] contains a `response` field for accessing the [HttpResponse].
+///
+/// See [AlfredHttpBodyHandler] for more info on [defaultEncoding].
+Future<AlfredHttpRequestBody<dynamic>> processRequest(
+  final AlfredRequest request,
+  final AlfredResponse response, {
+  final Encoding defaultEncoding = utf8,
+}) async {
+  try {
+    final body = await _process(
+      stream: request.stream,
+      headers: request.headers,
+      defaultEncoding: defaultEncoding,
+    );
+    return HttpRequestBodyImpl<dynamic>._(
+      request,
+      body,
+    );
+  } on Object catch (_) {
+    // Try to send BAD_REQUEST response.
+    response.setStatusCode(httpStatusBadRequest400);
+    await response.close();
+    rethrow;
+  }
+}
+
+/// Process and parse an incoming [HttpClientResponse].
+///
+/// See [AlfredHttpBodyHandler] for more info on [defaultEncoding].
+Future<AlfredHttpClientResponseBody<dynamic>> processResponse(
+  final HttpClientResponse response, {
+  final Encoding defaultEncoding = utf8,
+}) async {
+  final body = await _process(
+    stream: response,
+    headers: AlfredHttpHeadersImpl(
+      headers: response.headers,
+    ),
+    defaultEncoding: defaultEncoding,
+  );
+  return HttpClientResponseBodyImpl<dynamic>(
+    response: response,
+    httpBody: body,
+  );
+}
+
+class HttpBodyHandlerImpl extends StreamTransformerBase<AlfredRequest, AlfredHttpRequestBody<dynamic>>
+    implements AlfredHttpBodyHandler<dynamic> {
+  final Encoding defaultEncoding;
+
+  @override
+  StreamTransformerBase<AlfredRequest, AlfredHttpRequestBody<dynamic>> get handler => this;
+
+  /// Create a new [AlfredHttpBodyHandler] to be used with a [Stream]<[HttpRequest]>,
+  /// e.g. a [HttpServer].
+  ///
+  /// If the page is served using different encoding than UTF-8, set
+  /// [defaultEncoding] accordingly. This is required for parsing
+  /// `multipart/form-data` content correctly. See the class comment
+  /// for more information on `multipart/form-data`.
+  const HttpBodyHandlerImpl(
+    final this.defaultEncoding,
+  );
+
+  @override
+  Stream<AlfredHttpRequestBody<dynamic>> bind(
+    final Stream<AlfredRequest> stream,
+  ) {
+    var pending = 0;
+    var closed = false;
+    return stream.transform(
+      StreamTransformer.fromHandlers(
+        handleData: (final request, final sink) async {
+          pending++;
+          try {
+            final body = await processRequest(
+              request,
+              request.response,
+              defaultEncoding: defaultEncoding,
+            );
+            sink.add(body);
+          } on Object catch (e, st) {
+            sink.addError(e, st);
+          } finally {
+            pending--;
+            if (closed && pending == 0) {
+              sink.close();
+            }
+          }
+        },
+        handleDone: (final sink) {
+          closed = true;
+          if (pending == 0) {
+            sink.close();
+          }
+        },
+      ),
+    );
+  }
+}
+
+class HttpBodyImpl<T> implements AlfredHttpBody<T> {
+  @override
+  final String type;
+
+  @override
+  final T body;
+
+  const HttpBodyImpl({
+    required final this.type,
+    required final this.body,
+  });
+}
+
+class HttpClientResponseBodyImpl<T> implements AlfredHttpClientResponseBody<T> {
+  @override
+  final HttpClientResponse response;
+
+  @override
+  final AlfredHttpBody<T> httpBody;
+
+  const HttpClientResponseBodyImpl({
+    required final this.response,
+    required final this.httpBody,
+  });
+}
+
+class HttpRequestBodyImpl<T> implements AlfredHttpRequestBody<T> {
+  @override
+  final AlfredRequest request;
+  @override
+  final AlfredHttpBody<T> httpBody;
+
+  const HttpRequestBodyImpl._(
+    final this.request,
+    final this.httpBody,
+  );
+}
+
+class HttpBodyFileUploadImpl<T> implements AlfredHttpBodyFileUpload<T> {
+  @override
+  final String filename;
+  @override
+  final AlfredContentType? contentType;
+  @override
+  final T content;
+
+  const HttpBodyFileUploadImpl._({
+    required final this.contentType,
+    required final this.filename,
+    required final this.content,
+  });
+}
+
+Future<AlfredHttpBody<Object?>> _process({
+  required final Stream<List<int>> stream,
+  required final AlfredHttpHeaders headers,
+  required final Encoding defaultEncoding,
+}) async {
+  Future<AlfredHttpBody<Uint8List>> asBinary() async {
+    final builder = await stream.fold<BytesBuilder>(
+      BytesBuilder(),
+      (final builder, final data) => builder..add(data),
+    );
+    return HttpBodyImpl(
+      type: 'binary',
+      body: builder.takeBytes(),
+    );
+  }
+
+  final contentType = headers.contentType;
+  if (contentType == null) {
+    return asBinary();
+  } else {
+    Future<AlfredHttpBody<String>> asText(
+      final Encoding defaultEncoding,
+    ) async {
+      Encoding? encoding;
+      final charset = contentType.charset;
+      if (charset != null) {
+        encoding = Encoding.getByName(charset);
+      }
+      encoding ??= defaultEncoding;
+      final dynamic buffer = await encoding.decoder.bind(stream).fold<dynamic>(
+            // ignore: avoid_dynamic_calls
+            StringBuffer(), (final dynamic buffer, final data) => buffer..write(data),
+          );
+      return HttpBodyImpl(
+        type: 'text',
+        body: buffer.toString(),
+      );
+    }
+
+    Future<AlfredHttpBody<Map<String, dynamic>>> asFormData() async {
+      final values = await m.MimeMultipartTransformer(contentType.getParameter('boundary')!).bind(stream).map(
+        (final part) async {
+          final multipart = parseHttpMultipartFormData(
+            part,
+            defaultEncoding: defaultEncoding,
+          );
+          Future<dynamic> make() async {
+            if (multipart.isText) {
+              final buffer = StringBuffer();
+              // ignore: prefer_foreach
+              await for (final dynamic val in multipart) {
+                buffer.write(val);
+              }
+              return buffer.toString();
+            } else {
+              final builder = BytesBuilder();
+              await for (final val in multipart) {
+                if (val is List<int>) {
+                  return builder.add(val);
+                } else {
+                  throw Exception("Expected d to be a list of integers.");
+                }
+              }
+              return builder.takeBytes();
+            }
+          }
+
+          final dynamic dataFirst = await make();
+          final filename = multipart.contentDisposition.parameters['filename'];
+          if (filename != null) {
+            final _contentType = multipart.contentType;
+            return <dynamic>[
+              multipart.contentDisposition.parameters['name'],
+              HttpBodyFileUploadImpl<dynamic>._(
+                contentType: () {
+                  if (_contentType != null) {
+                    return AlfredContentTypeFromContentTypeImpl(
+                      contentType: _contentType,
+                    );
+                  } else {
+                    return null;
+                  }
+                }(),
+                filename: filename,
+                content: dataFirst,
+              ),
+            ];
+          } else {
+            return <dynamic>[
+              multipart.contentDisposition.parameters['name'],
+              dataFirst,
+            ];
+          }
+        },
+      ).toList();
+      final parts = await Future.wait<List<dynamic>>(values);
+      final body = <String, dynamic>{
+        for (final part in parts) //
+          () {
+            final dynamic firstPart = part[0];
+            if (firstPart is String) {
+              return firstPart;
+            } else {
+              throw Exception("Expected first part to be of type String.");
+            }
+          }(): part[1], // Override existing entries.
+      };
+      return HttpBodyImpl(
+        type: 'form',
+        body: body,
+      );
+    }
+
+    // TODO centralize primary type constants.
+    switch (contentType.primaryType) {
+      case 'text':
+        return asText(defaultEncoding);
+      case 'application':
+        switch (contentType.subType) {
+          case 'json':
+            final body = await asText(utf8);
+            return HttpBodyImpl(
+              type: 'json',
+              body: jsonDecode(body.body),
+            );
+          case 'x-www-form-urlencoded':
+            final body = await asText(ascii);
+            final map = Uri.splitQueryString(
+              body.body,
+              encoding: defaultEncoding,
+            );
+            final result = <dynamic, dynamic>{};
+            for (final key in map.keys) {
+              result[key] = map[key];
+            }
+            return HttpBodyImpl(
+              type: 'form',
+              body: result,
+            );
+          default:
+            break;
+        }
+        break;
+      case 'multipart':
+        switch (contentType.subType) {
+          case 'form-data':
+            return asFormData();
+          default:
+            break;
+        }
+        break;
+      default:
+        break;
+    }
+    return asBinary();
+  }
+}
+
+/// The data in a `multipart/form-data` part.
+///
+/// ## Example
+///
+/// ```dart
+/// HttpServer server = ...;
+/// server.listen((request) {
+///   var boundary = request.headers.contentType.parameters['boundary'];
+///   request
+///       .transform(MimeMultipartTransformer(boundary))
+///       .map(HttpMultipartFormData.parse)
+///       .map((HttpMultipartFormData formData) {
+///         // form data object available here.
+///       });
+/// ```
+///
+/// [HttpMultipartFormData] is a Stream, serving either bytes or decoded
+/// Strings. Use [isText] or [isBinary] to see what type of data is provided.
+class HttpMultipartFormData extends Stream<dynamic> {
+  /// The parsed `Content-Type` header value.
+  ///
+  /// `null` if not present.
+  final ContentType? contentType;
+
+  /// The parsed `Content-Disposition` header value.
+  ///
+  /// This field is always present. Use this to extract e.g. name (form field
+  /// name) and filename (client provided name of uploaded file) parameters.
+  final HeaderValue contentDisposition;
+
+  /// The parsed `Content-Transfer-Encoding` header value.
+  ///
+  /// This field is used to determine how to decode the data. Returns `null`
+  /// if not present.
+  final HeaderValue? contentTransferEncoding;
+
+  /// Whether the data is decoded as [String].
+  final bool isText;
+
+  /// Whether the data is raw bytes.
+  bool get isBinary => !isText;
+
+  final m.MimeMultipart mimeMultipart;
+
+  final Stream<dynamic> stream;
+
+  HttpMultipartFormData({
+    required final this.contentType,
+    required final this.contentDisposition,
+    required final this.contentTransferEncoding,
+    required final this.mimeMultipart,
+    required final this.stream,
+    required final this.isText,
+  });
+
+  @override
+  StreamSubscription<dynamic> listen(
+    final void Function(dynamic)? onData, {
+    final void Function()? onDone,
+    final Function? onError,
+    final bool? cancelOnError,
+  }) =>
+      stream.listen(
+        onData,
+        onDone: onDone,
+        onError: onError,
+        cancelOnError: cancelOnError,
+      );
+
+  /// Returns the value for the header named [name].
+  ///
+  /// If there is no header with the provided name, `null` will be returned.
+  ///
+  /// Use this method to index other headers available in the original
+  /// MimeMultipart.
+  String? value(
+    final String name,
+  ) =>
+      mimeMultipart.headers[name];
+}
+
+/// Parse a MimeMultipart and return a [HttpMultipartFormData].
+///
+/// If the `Content-Disposition` header is missing or invalid, an
+/// [HttpException] is thrown.
+///
+/// If the MimeMultipart is identified as text, and the `Content-Type`
+/// header is missing, the data is decoded using [defaultEncoding]. See more
+/// information in the
+/// [HTML5 spec](http://dev.w3.org/html5/spec-preview/
+/// constraints.html#multipart-form-data).
+HttpMultipartFormData parseHttpMultipartFormData(
+  final m.MimeMultipart multipart, {
+  final Encoding defaultEncoding = utf8,
+}) {
+  // The values which indicate that no encoding was performed.
+  //
+  // https://www.w3.org/Protocols/rfc1341/5_Content-Transfer-Encoding.html
+  const _transparentEncodings = ['7bit', '8bit', 'binary'];
+
+  ContentType? contentType;
+  HeaderValue? encoding;
+  HeaderValue? disposition;
+  for (final key in multipart.headers.keys) {
+    switch (key) {
+      case httpHeaderContentType:
+        contentType = ContentType.parse(
+          multipart.headers[key]!,
+        );
+        break;
+      case 'content-transfer-encoding':
+        encoding = HeaderValue.parse(
+          multipart.headers[key]!,
+        );
+        break;
+      case 'content-disposition':
+        disposition = HeaderValue.parse(
+          multipart.headers[key]!,
+          preserveBackslash: true,
+        );
+        break;
+      default:
+        break;
+    }
+  }
+  if (disposition == null) {
+    throw const HttpException("Mime Multipart doesn't contain a Content-Disposition header value");
+  } else {
+    if (encoding != null && !_transparentEncodings.contains(encoding.value.toLowerCase())) {
+      // TODO(ajohnsen): Support BASE64, etc.
+      throw HttpException('Unsupported contentTransferEncoding: ' + encoding.value);
+    } else {
+      Stream<dynamic> stream = multipart;
+      final isText = contentType == null ||
+          contentType.primaryType == 'text' ||
+          contentType.mimeType == 'application/json';
+      if (isText) {
+        Encoding? encoding;
+        if (contentType?.charset != null) {
+          encoding = Encoding.getByName(contentType!.charset);
+        }
+        encoding ??= defaultEncoding;
+        stream = stream.transform<dynamic>(encoding.decoder);
+      }
+      return HttpMultipartFormData(
+        contentType: contentType,
+        contentDisposition: disposition,
+        contentTransferEncoding: encoding,
+        mimeMultipart: multipart,
+        stream: stream,
+        isText: isText,
+      );
+    }
+  }
+}
+
+/// Get the contentType header from the given file.
+AlfredContentType? fileContentType({
+  required final String filePath,
+}) {
+  // Get the mimeType as a string from the name of the given file.
+  final mimeType = mime(filePath);
+  if (mimeType != null) {
+    final split = mimeType.split('/');
+    return AlfredContentTypeImpl(
+      mimeType: mimeType,
+      primaryType: split[0],
+      subType: split[1],
+      charset: null,
+      getParam: (final _) => null,
+    );
+  } else {
+    return null;
+  }
+}

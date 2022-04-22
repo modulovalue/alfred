@@ -1,11 +1,6 @@
-import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/alfred/impl/config.dart';
-import 'package:alfred/alfred/impl/logging/log_type.dart';
-import 'package:alfred/alfred/impl/logging/print.dart';
-import 'package:alfred/alfred/impl/middleware/default_404.dart';
-import 'package:alfred/alfred/interface/alfred.dart';
-import 'package:alfred/alfred/interface/logging_delegate.dart';
-import 'package:alfred/alfred/interface/middleware.dart';
+import 'package:alfred/alfred/alfred.dart';
+import 'package:alfred/alfred/interface.dart';
+import 'package:alfred/alfred/middleware/default_404.dart';
 
 Future<void> runTest({
   required final Future<void> Function(Alfred app, BuiltAlfred built, int port) fn,

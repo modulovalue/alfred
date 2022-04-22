@@ -3,11 +3,10 @@ import 'dart:io';
 import '../base/app.dart';
 import '../base/assets.dart';
 import '../base/locale.dart';
+import '../base/media_query_data.dart';
 import '../html/html.dart';
-import '../widget/build_context.dart';
+import '../systems/flutter.dart';
 import '../widget/widget.dart';
-import '../widgets/localizations.dart';
-import 'print_log.dart';
 
 void publishRaw({
   required final PublishAppContext publishContext,
@@ -255,4 +254,131 @@ void processRoutes({
       element: result,
     );
   }
+}
+
+/// Writes the given element to the given path.
+void serializeToDisk(
+  final String path,
+  final HtmlElement element,
+) {
+  final file = File(path);
+  final serializedHtml = htmlElementToString(
+    element: element,
+  );
+  file.writeAsStringSync(
+    serializedHtml,
+  );
+}
+
+String singlePage({
+  required final Widget Function(BuildContext) builder,
+  final Assets assets = const AssetsDefaultSinglePageImpl(),
+}) =>
+    constructSinglePageWithMediaQuery(
+      child: Builder(
+        builder: (final context) => Theme(
+          data: ThemeData.base(context),
+          child: builder(context),
+        ),
+      ),
+      assets: assets,
+    );
+
+String constructSinglePageWithMediaQuery({
+  required final Widget child,
+  required final Assets assets,
+}) =>
+    constructSinglePage(
+      child: MediaQuery(
+        data: const MediaQueryDataImpl(
+          size: MediaSize.medium,
+        ),
+        child: child,
+      ),
+      assets: assets,
+    );
+
+String constructSinglePage({
+  required final Widget child,
+  required final Assets assets,
+}) {
+  final buildContext = BuildContextImpl(
+    assets: assets,
+    styles: {},
+  );
+  final element = child.renderElement(
+    context: buildContext,
+  );
+  return htmlElementToString(
+    element: element,
+  );
+}
+
+class AssetsDefaultSinglePageImpl implements Assets {
+  static const String dir = 'assets';
+
+  const AssetsDefaultSinglePageImpl();
+
+  @override
+  String get local => dir;
+}
+
+/// A [PublishingLog] that exposes log messages using [print].
+class PublishingLogPrintImpl
+    implements PublishingLog, PublishingLocaleLog, PublishingAssetLog, PublishingRouteLog {
+  final void Function(String) output;
+
+  const PublishingLogPrintImpl({
+    required final this.output,
+  });
+
+  @override
+  void processingLocale({
+    required final Locale locale,
+  }) =>
+      output(
+        'Processing ' + locale.localeDebugToString() + '...',
+      );
+
+  @override
+  void processingAssets({
+    required final String assetsDirectory,
+  }) =>
+      output(
+        'Processing Assets ' + assetsDirectory + '...',
+      );
+
+  @override
+  void processingAssetFile({
+    required final String itemFilePath,
+    required final String destinationFilePath,
+  }) =>
+      output(
+        "  - '" + itemFilePath + "' into > '" + destinationFilePath + "'",
+      );
+
+  @override
+  void processingRoute({
+    required final UrlWidgetRoute route,
+  }) =>
+      output(
+        '  [Route(' + route.relativeUrl + ")]",
+      );
+
+  @override
+  void processingRouteFile({
+    required final String filePath,
+  }) =>
+      output(
+        "   - '" + filePath + "'",
+      );
+
+  @override
+  PublishingAssetLog get assetLog => this;
+
+  @override
+  PublishingLocaleLog get localeLog => this;
+
+  @override
+  PublishingRouteLog get routeLog => this;
 }

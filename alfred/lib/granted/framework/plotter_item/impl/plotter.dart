@@ -11,13 +11,10 @@ import 'data_bounds.dart';
 import 'grid.dart';
 import 'group.dart';
 
-Plotter makePlotter([
-  final String label = "",
-]) {
-  final bounds = BoundsImpl.empty();
+Plotter makePlotter() {
   final view = TransformerImpl.identity();
   return Plotter(
-    dataBounds: bounds,
+    dataBounds: BoundsImpl.empty(),
     windowToViewTransformer: view,
     mouseHandles: <PlotterMouseHandle>[
       makeMousePan(
@@ -28,7 +25,6 @@ Plotter makePlotter([
         ),
       ),
     ],
-    label: label,
   )
     ..addItems(
       [
@@ -52,8 +48,7 @@ class Plotter extends Group {
     required final this.dataBounds,
     required final this.windowToViewTransformer,
     required final this.mouseHandles,
-    required final String label,
-  }) : super(label);
+  });
 
   /// Note: May need to call updateBounds before this if the data has changed.
   void focusOnData() => focusViewOnGivenBounds(dataBounds);

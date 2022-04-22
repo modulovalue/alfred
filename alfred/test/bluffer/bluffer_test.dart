@@ -1,6 +1,5 @@
-import 'package:alfred/bluffer/publish/single_file.dart';
-import 'package:alfred/bluffer/widgets/table.dart';
-import 'package:alfred/bluffer/widgets/text.dart';
+import 'package:alfred/bluffer/publish/publish.dart';
+import 'package:alfred/bluffer/systems/flutter.dart';
 import 'package:test/test.dart';
 
 void main() {

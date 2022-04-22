@@ -4,11 +4,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:alfred/alfred/impl/parse_http_body.dart';
-import 'package:alfred/alfred/impl_io/request.dart';
-import 'package:alfred/alfred/impl_io/response.dart';
-import 'package:alfred/alfred/interface/parse_http_body.dart';
-import 'package:alfred/alfred/interface/serve_context.dart';
+import 'package:alfred/alfred/alfred.dart';
+import 'package:alfred/alfred/alfred_io.dart';
+import 'package:alfred/alfred/interface.dart';
 import 'package:test/test.dart';
 
 void main() {

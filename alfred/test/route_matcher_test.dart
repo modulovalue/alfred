@@ -1,7 +1,6 @@
-import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/alfred/impl/get_params.dart';
-import 'package:alfred/alfred/impl/middleware/closing.dart';
-import 'package:alfred/alfred/interface/http_route_factory.dart';
+import 'package:alfred/alfred/alfred.dart';
+import 'package:alfred/alfred/interface.dart';
+import 'package:alfred/alfred/middleware/closing.dart';
 import 'package:alfred/base/method.dart';
 import 'package:test/test.dart';
 

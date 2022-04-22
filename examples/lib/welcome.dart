@@ -1,30 +1,25 @@
-import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/alfred/impl/logging/print.dart';
-import 'package:alfred/alfred/impl/middleware/closing.dart';
-import 'package:alfred/alfred/impl/middleware/cors.dart';
-import 'package:alfred/alfred/impl/middleware/html.dart';
-import 'package:alfred/alfred/impl/middleware/json.dart';
-import 'package:alfred/alfred/impl/middleware/middleware.dart';
-import 'package:alfred/alfred/impl/middleware/string.dart';
-import 'package:alfred/alfred/impl/middleware/websocket.dart';
-import 'package:alfred/alfred/impl/middleware/widget.dart';
-import 'package:alfred/alfred/impl_io/middleware/io_dir.dart';
-import 'package:alfred/alfred/impl_io/middleware/io_download.dart';
-import 'package:alfred/alfred/impl_io/middleware/io_file.dart';
-import 'package:alfred/alfred/interface/http_route_factory.dart';
-import 'package:alfred/alfred/interface/middleware.dart';
-import 'package:alfred/alfred/interface/serve_context.dart';
+import 'package:alfred/alfred/alfred.dart';
+import 'package:alfred/alfred/interface.dart';
+import 'package:alfred/alfred/middleware/closing.dart';
+import 'package:alfred/alfred/middleware/cors.dart';
+import 'package:alfred/alfred/middleware/html.dart';
+import 'package:alfred/alfred/middleware/json.dart';
+import 'package:alfred/alfred/middleware/middleware.dart';
+import 'package:alfred/alfred/middleware/string.dart';
+import 'package:alfred/alfred/middleware/websocket.dart';
+import 'package:alfred/alfred/middleware/widget.dart';
+import 'package:alfred/alfred/middleware_io/io_dir.dart';
+import 'package:alfred/alfred/middleware_io/io_download.dart';
+import 'package:alfred/alfred/middleware_io/io_file.dart';
+import 'package:alfred/alfred/recipes/websocket_chatclient.dart';
+import 'package:alfred/alfred/recipes/websocket_users.dart';
 import 'package:alfred/base/http_status_code.dart';
 import 'package:alfred/bluffer/base/edge_insets.dart';
-import 'package:alfred/bluffer/widgets/builder.dart';
-import 'package:alfred/bluffer/widgets/flex.dart';
-import 'package:alfred/bluffer/widgets/padding.dart';
-import 'package:alfred/bluffer/widgets/sized_box.dart';
-import 'package:alfred/bluffer/widgets/text.dart';
+import 'package:alfred/bluffer/systems/flutter.dart';
 
 // TODO split examples back into separate files.
 Future<void> main() async {
-  final session = MyWebSocketSession();
+  final session = WebSocketSessionUsersImpl();
   final app = makeSimpleAlfred(
     onInternalError: (final e) => MiddlewareBuilder(
       process: (final c) {
@@ -205,13 +200,20 @@ Future<void> main() async {
           ),
         ),
         // Deliver chat client for the user.
-        webSocketClientRoute(
+        AlfredRoute.get(
           path: "/websocket",
+          middleware: const ServeHtml(
+            html: websocket_chatclient,
+          ),
         ),
         // Deliver chat server for the client.
-        webSocketServerRoute(
-          session: session,
-        ),
+        // TODO why does this crash the server when accessed via browser?
+        AlfredRoute.get(
+          path: '/ws',
+          middleware: ServeWebSocket(
+            webSocketSession: session,
+          ),
+        )
       ],
     ),
   );
@@ -234,131 +236,6 @@ class ExampleAuthorizationMiddleware implements AlfredMiddleware {
     } else {
       print("success");
     }
-  }
-}
-
-AlfredHttpRoute webSocketServerRoute({
-  required final WebSocketSession session,
-}) =>
-    AlfredRoute.get(
-      path: '/ws',
-      middleware: ServeWebSocket(
-        webSocketSession: session,
-      ),
-    );
-
-// TODO it would be great if the javascript portion could come from a dart file that was dart2js'ed
-AlfredHttpRoute webSocketClientRoute({
-  required final String path,
-}) =>
-    AlfredRoute.get(
-      path: path,
-      middleware: const ServeHtml(
-        html: r"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>WebSocket</title>
-    <style>
-        body {font-family: sans-serif;}
-        #messages {background: #d8edf5; border-radius: 8px; min-height: 100px; margin-bottom: 8px; display: flex; flex-direction: column;}
-        #messages div {background: #eff6f8; border-radius: 8px;  margin: 8px; padding: 6px 12px; display: inline-block; width: fit-content}
-    </style>
-</head>
-<body>
-<div id="messages"></div>
-<div class="panel">
-    <label>Type message and hit <i>&lt;Enter&gt;</i>: <input autofocus id="input" type="text"></label>
-</div>
-<script type="module">
-    document.addEventListener('DOMContentLoaded', () => {
-        const input = document.querySelector('#input');
-        const messages = document.querySelector('#messages');
-        const socket = new WebSocket(`ws://${location.host}/ws`);
-        socket.onopen = () => {
-            console.log('WebSocket connection established.');
-        }
-        socket.onmessage = (e) => {
-            const el = document.createElement('div');
-            el.innerText = e.data;
-            messages.appendChild(el);
-        }
-        socket.onclose = () => {
-            console.log('WebSocket connection closed');
-        }
-        socket.onerror = () => {
-            location.reload();
-        }
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && input.value.length > 0) {
-                socket.send(input.value);
-                input.value = '';
-            }
-        });
-    })
-</script>
-</body>
-</html>
-""",
-      ),
-    );
-
-class MyWebSocketSession with WebSocketSessionStartMixin implements InitiatedWebSocketSession {
-  final List<AlfredWebSocket> users = [];
-
-  MyWebSocketSession();
-
-  @override
-  void onClose(
-    final AlfredWebSocket ws,
-  ) {
-    users.remove(ws);
-    users.forEach(
-      (final user) => user.addString('A user has left.'),
-    );
-  }
-
-  @override
-  void onError(
-    final AlfredWebSocket ws,
-    final dynamic error,
-  ) {
-    // Do nothing. this is an example.
-  }
-
-  @override
-  void onMessageString(
-    final AlfredWebSocket ws,
-    final String data,
-  ) {
-    users.forEach(
-      (final user) => user.addString(data),
-    );
-  }
-
-  @override
-  void onMessageBytes(
-    final AlfredWebSocket ws,
-    final List<int> data,
-  ) {
-    users.forEach(
-      (final user) => user.addBytes(data),
-    );
-  }
-
-  @override
-  InitiatedWebSocketSession onOpen(
-    final AlfredWebSocket ws,
-  ) {
-    users.add(ws);
-    users
-        .where(
-          (final user) => user != ws,
-        )
-        .forEach(
-          (final user) => user.addString('A new user joined the chat.'),
-        );
-    return this;
   }
 }
 

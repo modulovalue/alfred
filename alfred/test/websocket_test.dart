@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:alfred/alfred/impl/middleware/websocket.dart';
-import 'package:alfred/alfred/interface/http_route_factory.dart';
-import 'package:alfred/alfred/interface/serve_context.dart';
+import 'package:alfred/alfred/alfred.dart';
+import 'package:alfred/alfred/interface.dart';
+import 'package:alfred/alfred/middleware/websocket.dart';
 import 'package:test/test.dart';
 import 'package:web_socket_channel/io.dart';
 

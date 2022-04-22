@@ -1,10 +1,7 @@
-import 'package:alfred/alfred/impl/alfred.dart';
-import 'package:alfred/alfred/impl/middleware/widget.dart';
-import 'package:alfred/alfred/interface/http_route_factory.dart';
+import 'package:alfred/alfred/alfred.dart';
+import 'package:alfred/alfred/middleware/widget.dart';
 import 'package:alfred/bluffer/base/edge_insets.dart';
-import 'package:alfred/bluffer/widgets/padding.dart';
-import 'package:alfred/bluffer/widgets/table.dart';
-import 'package:alfred/bluffer/widgets/text.dart';
+import 'package:alfred/bluffer/systems/flutter.dart';
 import 'package:alfred/util/open.dart';
 
 Future<void> main() async {
