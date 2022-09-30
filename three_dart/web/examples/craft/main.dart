@@ -5,59 +5,59 @@ import 'dart:html' as html;
 import 'dart:math' as math;
 import 'dart:typed_data' as data;
 
-import 'package:three_dart/audio/audio.dart';
-import 'package:three_dart/collisions/collisions.dart';
-import 'package:three_dart/core/core.dart' as three_dart;
-import 'package:three_dart/data/data.dart';
-import 'package:three_dart/events/events.dart';
-import 'package:three_dart/input/input.dart';
-import 'package:three_dart/intersections/intersections.dart';
-import 'package:three_dart/lights/lights.dart';
-import 'package:three_dart/math/math.dart';
-import 'package:three_dart/math/open_simplex_noise.dart' as simplex;
-import 'package:three_dart/movers/movers.dart';
-import 'package:three_dart/scenes/scenes.dart';
-import 'package:three_dart/shapes/shapes.dart';
-import 'package:three_dart/techniques/techniques.dart';
-import 'package:three_dart/textures/textures.dart';
+import 'package:three_dart/audio.dart';
+import 'package:three_dart/collisions.dart';
+import 'package:three_dart/core.dart' as three_dart;
+import 'package:three_dart/data.dart';
+import 'package:three_dart/events.dart';
+import 'package:three_dart/input.dart';
+import 'package:three_dart/intersections.dart';
+import 'package:three_dart/lights.dart';
+import 'package:three_dart/math.dart';
+import 'package:three_dart/math.dart' as simplex;
+import 'package:three_dart/movers.dart';
+import 'package:three_dart/scenes.dart';
+import 'package:three_dart/shapes.dart';
+import 'package:three_dart/techniques.dart';
+import 'package:three_dart/textures.dart';
 
 import '../../common/common.dart' as common;
 
 /// Starts up the 3Dart Craft example
 void main() {
   common.ShellPage('3Dart Craft')
-    ..addPar(['This example is in development and may still have a few issues and glitches.'])
+    ..add_par(['This example is in development and may still have a few issues and glitches.'])
     ..addLargeCanvas('targetCanvas')
     ..addControlBoxes(['buttons'])
-    ..addHeader(1, 'About')
-    ..addPar([
+    ..add_header(1, 'About')
+    ..add_par([
       '3Dart Craft is an example of how [3Dart|https://github.com/Grant-Nelson/three_dart] can be used ',
       'to create a [voxel|https://en.wikipedia.org/wiki/Voxel] environment for browser driven video games. ',
       'This example has no server backing it so none of the changes are persisted. It would take very little ',
       'to turn this into a simple online game.'
     ])
-    ..addPar(['«[Back to Examples List|../../]'])
-    ..addHeader(1, 'Controls')
-    ..addPar(['• _Currently there are no controls for mobile browsers_'])
-    ..addPar(['• *Esc* to release the mouse capture'])
-    ..addPar(['• *W* or *Up arrow* to move forward'])
-    ..addPar(['• *S* or *Down arrow* to move backward'])
-    ..addPar(['• *A* or *Left arrow* to strife left'])
-    ..addPar(['• *D* or *Right arrow* to strife right'])
-    ..addPar(['• *Space bar* to jump'])
-    ..addPar(['• *Tab* cycles the block selected which can be placed'])
-    ..addPar(['• *Shift-Tab* cycles the selection in the reverse direction'])
-    ..addPar(['• *Left click* or *Q* removes the currently highlighted block'])
-    ..addPar(['• *Right click* or *E* places the selected block on the highlighted block'])
-    ..addPar(['• *O* to return the starting location'])
-    ..addHeader(1, 'Help wanted')
-    ..addPar([
+    ..add_par(['«[Back to Examples List|../../]'])
+    ..add_header(1, 'Controls')
+    ..add_par(['• _Currently there are no controls for mobile browsers_'])
+    ..add_par(['• *Esc* to release the mouse capture'])
+    ..add_par(['• *W* or *Up arrow* to move forward'])
+    ..add_par(['• *S* or *Down arrow* to move backward'])
+    ..add_par(['• *A* or *Left arrow* to strife left'])
+    ..add_par(['• *D* or *Right arrow* to strife right'])
+    ..add_par(['• *Space bar* to jump'])
+    ..add_par(['• *Tab* cycles the block selected which can be placed'])
+    ..add_par(['• *Shift-Tab* cycles the selection in the reverse direction'])
+    ..add_par(['• *Left click* or *Q* removes the currently highlighted block'])
+    ..add_par(['• *Right click* or *E* places the selected block on the highlighted block'])
+    ..add_par(['• *O* to return the starting location'])
+    ..add_header(1, 'Help wanted')
+    ..add_par([
       'There is still much to be done, many cool new features, and several little bugs. ',
       'If you would like to contribute to this example, have an idea, find a bug, or just want to learn more about it, ',
       'check out the [project page|https://github.com/Grant-Nelson/three_dart/projects/1] or ',
       '[source code|https://github.com/Grant-Nelson/three_dart/tree/master/web/examples/craft].'
     ])
-    ..addPar([
+    ..add_par([
       'There are tons of ways to contribute. You could even start your own example. ',
       'See the [3Dart Project|https://github.com/Grant-Nelson/three_dart] for more.'
     ]);

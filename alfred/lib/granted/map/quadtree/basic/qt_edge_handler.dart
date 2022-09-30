@@ -165,10 +165,8 @@ class QTEdgeHandlerBorderNeighborImpl implements QTEdgeHandler<Object?> {
     final QTEdgeNode edge,
   ) {
     if (_matcher != null) {
-      if (edge is QTEdgeNode) {
-        if (!_matcher!.handle(edge)) {
-          return true;
-        }
+      if (!_matcher!.handle(edge)) {
+        return true;
       }
     }
     final adjusted = _adjustedNeighbor(edge);

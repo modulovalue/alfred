@@ -41,11 +41,11 @@ Future<void> _serveFile(
     final contentType = fileContentType(
       filePath: file.path,
     );
-    final c_ = c.res.mimeType;
+    final c_ = c.res.mime_type;
     if (c_ == null || c_ == 'text/plain') {
-      c.res.setContentType(contentType);
+      c.res.set_content_type(contentType);
     }
-    await c.res.writeByteStream(file.openRead());
+    await c.res.write_byte_stream(file.openRead());
     return c.res.close();
   } else {
     throw AlfredFileNotFoundExceptionImpl(
@@ -69,7 +69,7 @@ class AlfredFileNotFoundExceptionImpl implements AlfredNotFoundException {
 
   @override
   Z match<Z>({
-    required final Z Function(AlfredNotFoundException p1) notFound,
+    required final Z Function(AlfredNotFoundException p1) NotFound,
   }) =>
-      notFound(this);
+      NotFound(this);
 }

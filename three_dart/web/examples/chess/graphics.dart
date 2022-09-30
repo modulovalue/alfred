@@ -2,17 +2,17 @@ library graphics;
 
 import 'dart:html' as html;
 
-import 'package:three_dart/core/core.dart';
-import 'package:three_dart/events/events.dart';
-import 'package:three_dart/io/io.dart';
-import 'package:three_dart/lights/lights.dart';
-import 'package:three_dart/math/math.dart';
-import 'package:three_dart/movers/movers.dart';
-import 'package:three_dart/scenes/scenes.dart';
-import 'package:three_dart/shapes/shapes.dart';
-import 'package:three_dart/techniques/techniques.dart';
-import 'package:three_dart/textures/textures.dart';
-import 'package:three_dart/views/views.dart';
+import 'package:three_dart/core.dart';
+import 'package:three_dart/events.dart';
+import 'package:three_dart/io.dart';
+import 'package:three_dart/lights.dart';
+import 'package:three_dart/math.dart';
+import 'package:three_dart/movers.dart';
+import 'package:three_dart/scenes.dart';
+import 'package:three_dart/shapes.dart';
+import 'package:three_dart/techniques.dart';
+import 'package:three_dart/textures.dart';
+import 'package:three_dart/views.dart';
 
 import '../../common/common.dart';
 import 'game.dart';
@@ -77,7 +77,7 @@ void startGraphics(
       (final _) => td.fullscreen = true,
     );
   elem?.children.add(button);
-  showFPS(td);
+  show_fps(td);
 }
 
 /// Bishop is a piece which the player starts with two of.

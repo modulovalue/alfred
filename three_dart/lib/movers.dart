@@ -3,11 +3,11 @@
 // around in a scene.
 import 'dart:math' as math;
 
-import '../collections/collections.dart';
-import '../core/core.dart';
-import '../events/events.dart';
-import '../input/input.dart';
-import '../math/math.dart' as math2;
+import 'collections.dart';
+import 'core.dart';
+import 'events.dart';
+import 'input.dart';
+import 'math.dart' as math2;
 
 /// The interface for a moving an object.
 abstract class Mover extends Changeable {

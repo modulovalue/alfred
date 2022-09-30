@@ -3,12 +3,12 @@
 // with lights to setup an effect for an object.
 import 'dart:math' as math;
 
-import '../collections/collections.dart';
-import '../core/core.dart';
-import '../events/events.dart';
-import '../math/math.dart';
-import '../movers/movers.dart';
-import '../textures/textures.dart';
+import 'collections.dart';
+import 'core.dart';
+import 'events.dart';
+import 'math.dart';
+import 'movers.dart';
+import 'textures.dart';
 
 /// A collection of lights.
 class LightCollection extends Collection<Light> {

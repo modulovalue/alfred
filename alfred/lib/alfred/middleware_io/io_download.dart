@@ -15,7 +15,7 @@ class ServeDownload implements AlfredMiddleware {
     final ServeContext c,
   ) async {
     // TODO extract and centralise headers.
-    c.res.setHeaderString(
+    c.res.set_header_string(
       'Content-Disposition',
       'attachment; filename=' + filename,
     );

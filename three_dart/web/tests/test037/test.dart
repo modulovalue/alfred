@@ -1,26 +1,26 @@
 library three_dart.test.test037;
 
-import 'package:three_dart/core/core.dart' as three_dart;
-import 'package:three_dart/data/data.dart';
-import 'package:three_dart/lights/lights.dart';
-import 'package:three_dart/math/math.dart';
-import 'package:three_dart/movers/movers.dart';
-import 'package:three_dart/scenes/scenes.dart';
-import 'package:three_dart/shapes/shapes.dart';
-import 'package:three_dart/techniques/techniques.dart';
-import 'package:three_dart/textures/textures.dart';
+import 'package:three_dart/core.dart' as three_dart;
+import 'package:three_dart/data.dart';
+import 'package:three_dart/lights.dart';
+import 'package:three_dart/math.dart';
+import 'package:three_dart/movers.dart';
+import 'package:three_dart/scenes.dart';
+import 'package:three_dart/shapes.dart';
+import 'package:three_dart/techniques.dart';
+import 'package:three_dart/textures.dart';
 
 import '../../common/common.dart' as common;
 
 void main() {
   common.ShellPage("Test 037")
     ..addLargeCanvas("testCanvas")
-    ..addPar([
+    ..add_par([
       "A test of applying a height map to an image. ",
       "Some shapes will take a bit to calculate depending on quality of mapping."
     ])
     ..addControlBoxes(["heightMaps", "shapes", "scalars"])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["«[Back to Tests|../]"]);
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
   final MaterialLight tech = MaterialLight()
     ..lights.add(Directional(mover: Constant.vectorTowards(1.0, 1.0, -3.0), color: Color3.white()))
@@ -119,5 +119,5 @@ void main() {
     ..add("1.0", () {
       setScalar(1.0);
     });
-  common.showFPS(td);
+  common.show_fps(td);
 }

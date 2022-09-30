@@ -3,19 +3,19 @@ import 'dart:html';
 import 'dart:js';
 import 'dart:web_gl';
 
-import '../audio/audio.dart';
-import '../collections/collections.dart';
-import '../data/data.dart';
-import '../debug/debug.dart';
-import '../events/events.dart';
-import '../input/input.dart';
-import '../math/math.dart';
-import '../movers/movers.dart';
-import '../scenes/scenes.dart';
-import '../shaders/shaders.dart';
-import '../shapes/shapes.dart';
-import '../techniques/techniques.dart';
-import '../textures/textures.dart';
+import 'audio.dart';
+import 'collections.dart';
+import 'data.dart';
+import 'debug.dart';
+import 'events.dart';
+import 'input.dart';
+import 'math.dart';
+import 'movers.dart';
+import 'scenes.dart';
+import 'shaders.dart';
+import 'shapes.dart';
+import 'techniques.dart';
+import 'textures.dart';
 
 /// The interface for a class which can bind and unbind state while rendering.
 ///

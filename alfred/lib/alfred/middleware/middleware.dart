@@ -12,6 +12,7 @@ class MiddlewareBuilder implements AlfredMiddleware {
   @override
   Future<void> process(
     final ServeContext c,
-  ) =>
-      process_(c);
+  ) {
+    return process_(c);
+  }
 }

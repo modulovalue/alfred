@@ -561,30 +561,26 @@ class TextStyle {
     if (other is! TextStyle) {
       return false;
     }
-    if (other is TextStyle) {
-      if (fontFamily != other.fontFamily ||
-          fontSize != other.fontSize ||
-          letterSpacing != other.letterSpacing ||
-          wordSpacing != other.wordSpacing ||
-          height != other.height ||
-          decorationThickness != other.decorationThickness ||
-          locale != other.locale ||
-          color != other.color ||
-          fontStyle != other.fontStyle ||
-          decorationColor != other.decorationColor ||
-          decoration != other.decoration ||
-          decorationStyle != other.decorationStyle ||
-          fontWeight != other.fontWeight) {
+    if (fontFamily != other.fontFamily ||
+        fontSize != other.fontSize ||
+        letterSpacing != other.letterSpacing ||
+        wordSpacing != other.wordSpacing ||
+        height != other.height ||
+        decorationThickness != other.decorationThickness ||
+        locale != other.locale ||
+        color != other.color ||
+        fontStyle != other.fontStyle ||
+        decorationColor != other.decorationColor ||
+        decoration != other.decoration ||
+        decorationStyle != other.decorationStyle ||
+        fontWeight != other.fontWeight) {
+      return false;
+    } else {
+      if (!_listEquals<String>(fontFamilyFallback, other.fontFamilyFallback)) {
         return false;
       } else {
-        if (!_listEquals<String>(fontFamilyFallback, other.fontFamilyFallback)) {
-          return false;
-        } else {
-          return true;
-        }
+        return true;
       }
-    } else {
-      return false;
     }
   }
 
@@ -1441,11 +1437,11 @@ class TextRange {
   bool operator ==(dynamic other) {
     if (identical(this, other)) {
       return true;
-    }
-    if (other is! TextRange) {
+    } else if (other is! TextRange) {
       return false;
+    } else {
+      return other.start == start && other.end == end;
     }
-    return other is TextRange && other.start == start && other.end == end;
   }
 
   @override

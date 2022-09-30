@@ -1,24 +1,24 @@
 library three_dart.test.test028;
 
-import 'package:three_dart/core/core.dart' as three_dart;
-import 'package:three_dart/lights/lights.dart';
-import 'package:three_dart/math/math.dart';
-import 'package:three_dart/movers/movers.dart';
-import 'package:three_dart/scenes/scenes.dart' as scenes;
-import 'package:three_dart/shaders/shaders.dart' as shaders;
-import 'package:three_dart/shapes/shapes.dart';
-import 'package:three_dart/techniques/techniques.dart';
-import 'package:three_dart/textures/textures.dart';
-import 'package:three_dart/views/views.dart';
+import 'package:three_dart/core.dart' as three_dart;
+import 'package:three_dart/lights.dart';
+import 'package:three_dart/math.dart';
+import 'package:three_dart/movers.dart';
+import 'package:three_dart/scenes.dart' as scenes;
+import 'package:three_dart/shaders.dart' as shaders;
+import 'package:three_dart/shapes.dart';
+import 'package:three_dart/techniques.dart';
+import 'package:three_dart/textures.dart';
+import 'package:three_dart/views.dart';
 
 import '../../common/common.dart' as common;
 
 void main() {
   common.ShellPage("Test 028")
     ..addLargeCanvas("testCanvas")
-    ..addPar(
+    ..add_par(
         ["Test of a Gaussian blur cover pass. ", "Notice the depth of field causing things further away to be blurry."])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["«[Back to Tests|../]"]);
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
   final Group secondMover = Group()
     ..add(UserRotator(input: td.userInput))
@@ -82,5 +82,5 @@ void main() {
     ..target = FrontTarget(clearColor: false)
     ..technique = layoutTech;
   td.scene = scenes.Compound(passes: [skybox, colorPass, depthPass, blurPass, layout]);
-  common.showFPS(td);
+  common.show_fps(td);
 }

@@ -1,28 +1,28 @@
 library three_dart.test.test038;
 
-import 'package:three_dart/core/core.dart' as three_dart;
-import 'package:three_dart/events/events.dart' as events;
-import 'package:three_dart/lights/lights.dart' as lights;
-import 'package:three_dart/math/math.dart' as math;
-import 'package:three_dart/movers/movers.dart' as movers;
-import 'package:three_dart/scenes/scenes.dart' as scenes;
-import 'package:three_dart/shapes/shapes.dart' as shapes;
-import 'package:three_dart/techniques/techniques.dart' as techniques;
-import 'package:three_dart/textures/textures.dart' as textures;
+import 'package:three_dart/core.dart' as three_dart;
+import 'package:three_dart/events.dart' as events;
+import 'package:three_dart/lights.dart' as lights;
+import 'package:three_dart/math.dart' as math;
+import 'package:three_dart/movers.dart' as movers;
+import 'package:three_dart/scenes.dart' as scenes;
+import 'package:three_dart/shapes.dart' as shapes;
+import 'package:three_dart/techniques.dart' as techniques;
+import 'package:three_dart/textures.dart' as textures;
 
 import '../../common/common.dart' as common;
 
 void main() {
   common.ShellPage("Test 038")
     ..addLargeCanvas("testCanvas")
-    ..addPar([
+    ..add_par([
       "A test of basic 3D movement around a room similar to a first person view. ",
       "A and D (left and right arrow keys) strifes left and right. ",
       "W and S (up and down arrow keys) moves forward and backward. ",
       "Q and E moves up and down. Mouse looks around with left mouse button pressed."
     ])
     ..addControlBoxes(["options"])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["«[Back to Tests|../]"]);
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
   final three_dart.Entity group = three_dart.Entity()..children.add(createFloor(td))..children.add(createObjects(td));
   // Setup the First person camera
@@ -38,7 +38,7 @@ void main() {
   common.CheckGroup("options").add("Mouse Locking", (bool enable) {
     td.userInput.lockOnClick = enable;
   }, false);
-  common.showFPS(td);
+  common.show_fps(td);
 }
 
 three_dart.Entity createFloor(three_dart.ThreeDart td) {

@@ -48,14 +48,14 @@ abstract class ServerConfig {
   /// time. If the amount of unprocessed incoming
   /// requests exceed this number, the requests will
   /// be queued.
-  int get simultaneousProcessing;
+  int get simultaneous_processing;
 
-  Duration get idleTimeout;
+  Duration get idle_timeout;
 
   int get port;
 
   // TODO replace with [InternetAddress]?
-  String get bindIp;
+  String get bind_ip;
 
   bool get shared;
 }
@@ -63,7 +63,7 @@ abstract class ServerConfig {
 /// A base exception for this package.
 abstract class AlfredException implements Exception {
   Z match<Z>({
-    required final Z Function(AlfredNotFoundException) notFound,
+    required final Z Function(AlfredNotFoundException) NotFound,
   });
 }
 
@@ -95,7 +95,7 @@ abstract class AlfredHttpRoute implements AlfredHttpRouteDirections {
 
   /// Returns `true` if route can match multiple
   /// routes due to usage of wildcards (`*`).
-  bool get usesWildcardMatcher;
+  bool get uses_wildcard_matcher;
 }
 
 abstract class AlfredMiddleware {
@@ -122,7 +122,7 @@ abstract class ServeContext {
 }
 
 abstract class AlfredRequest {
-  Future<AlfredWebSocket> upgradeToWebsocket();
+  Future<AlfredWebSocket> upgrade_to_websocket();
 
   Stream<List<int>> get stream;
 
@@ -134,48 +134,48 @@ abstract class AlfredRequest {
 
   AlfredHttpHeaders get headers;
 
-  String? get mimeType;
+  String? get mime_type;
 }
 
 abstract class AlfredHttpHeaders {
-  String? get contentTypeMimeType;
+  String? get content_type_mime_type;
 
-  AlfredContentType? get contentType;
+  AlfredContentType? get content_type;
 
   String? get host;
 
-  String? getValue(
+  String? get_value(
     final String key,
   );
 }
 
 abstract class AlfredContentType {
-  String get primaryType;
+  String get primary_type;
 
-  String get subType;
+  String get sub_type;
 
   String? get charset;
 
-  String get mimeType;
+  String get mime_type;
 
-  String? getParameter(
+  String? get_parameter(
     final String key,
   );
 }
 
 abstract class AlfredWebSocket {
   StreamSubscription<dynamic> listen({
-    required final void Function(dynamic event)? onData,
-    required final Function? onError,
-    required void Function()? onDone,
-    required final bool? cancelOnError,
+    required final void Function(dynamic event)? on_data,
+    required final Function? on_error,
+    required void Function()? on_done,
+    required final bool? cancel_on_error,
   });
 
-  void addString(
+  void add_string(
     final String string,
   );
 
-  void addBytes(
+  void add_bytes(
     final List<int> bytes,
   );
 
@@ -186,33 +186,33 @@ abstract class AlfredWebSocket {
 }
 
 abstract class AlfredResponse {
-  void setStatusCode(
-    final int statusCode,
+  void set_status_code(
+    final int status_code,
   );
 
-  void setHeaderString(
+  void set_header_string(
     final String key,
     final String value,
   );
 
-  void setHeaderInteger(
+  void set_header_integer(
     final String key,
     final int value,
   );
 
   Future<void> close();
 
-  String? get mimeType;
+  String? get mime_type;
 
-  void writeString(
+  void write_string(
     final String s,
   );
 
-  void writeBytes(
+  void write_bytes(
     final List<int> bytes,
   );
 
-  Future<void> writeByteStream(
+  Future<void> write_byte_stream(
     final Stream<List<int>> stream,
   );
 
@@ -220,37 +220,37 @@ abstract class AlfredResponse {
     final Uri uri,
   );
 
-  void setContentType(
-    final AlfredContentType? detectedContentType,
+  void set_content_type(
+    final AlfredContentType? detected_content_type,
   );
 
-  void setContentTypeBinary();
+  void set_content_type_binary();
 
-  void setContentTypeJson();
+  void set_content_type_json();
 
-  void setContentTypeHtml();
+  void set_content_type_html();
 }
 
 abstract class AlfredRouted {
   Z match<Z>({
-    required final Z Function(AlfredRoutes) routes,
-    required final Z Function(AlfredRoutesAt) at,
+    required final Z Function(AlfredRoutedRoutes) Routes,
+    required final Z Function(AlfredRoutesAt) At,
   });
 }
 
-class AlfredRoutes implements AlfredRouted {
+class AlfredRoutedRoutes implements AlfredRouted {
   final Iterable<AlfredHttpRoute> routes;
 
-  const AlfredRoutes({
+  const AlfredRoutedRoutes({
     required final this.routes,
   });
 
   @override
   Z match<Z>({
-    required final Z Function(AlfredRoutes p1) routes,
-    required final Z Function(AlfredRoutesAt p1) at,
+    required final Z Function(AlfredRoutedRoutes p1) Routes,
+    required final Z Function(AlfredRoutesAt p1) At,
   }) =>
-      routes(this);
+      Routes(this);
 }
 
 class AlfredRoutesAt implements AlfredRouted {
@@ -264,10 +264,10 @@ class AlfredRoutesAt implements AlfredRouted {
 
   @override
   Z match<Z>({
-    required final Z Function(AlfredRoutes p1) routes,
-    required final Z Function(AlfredRoutesAt p1) at,
+    required final Z Function(AlfredRoutedRoutes p1) Routes,
+    required final Z Function(AlfredRoutesAt p1) At,
   }) =>
-      at(this);
+      At(this);
 }
 
 /// A handler for processing and collecting HTTP message data in to an
@@ -399,7 +399,7 @@ abstract class AlfredHttpBodyFileUpload<T> {
   /// The [AlfredContentType] of the uploaded file.
   ///
   /// For `text/*` and `application/json` the [content] field will a String.
-  AlfredContentType? get contentType;
+  AlfredContentType? get content_type;
 
   /// The content of the file.
   ///
@@ -408,32 +408,32 @@ abstract class AlfredHttpBodyFileUpload<T> {
 }
 
 abstract class AlfredLoggingDelegate {
-  void onIsListening({
+  void on_is_listening({
     required final ServerConfig arguments,
   });
 
-  void onIncomingRequest({
+  void on_incoming_request({
     required final String method,
     required final Uri uri,
   });
 
-  void onMatchingRoute({
+  void on_matching_route({
     required final String route,
   });
 
 
-  void onIncomingRequestException({
+  void on_incoming_request_exception({
     required final Object e,
     required final StackTrace s,
   });
 
-  void logTypeHandler({
+  void log_type_handler({
     required final String Function() msgFn,
   });
 
-  void onResponseSent();
+  void on_response_sent();
 
-  void onNoMatchingRouteFound();
+  void on_no_matching_route_found();
 
-  void onExecuteRouteCallbackFunction();
+  void on_execute_route_callback_function();
 }

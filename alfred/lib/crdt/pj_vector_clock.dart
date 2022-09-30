@@ -1,11 +1,9 @@
-import 'dart:collection';
-import 'dart:math';
+import 'dart:math' show max;
 
-// TODO remove this.
-import 'package:collection/collection.dart';
+import 'package:collection/collection.dart' show ListEquality, UnmodifiableListView;
 
 class DistributedClock implements Comparable<DistributedClock> {
-  final VectorClock _vectorClock;
+  final VectorClock _vector_clock;
   final int _timestamp;
   final String _node;
 
@@ -13,12 +11,12 @@ class DistributedClock implements Comparable<DistributedClock> {
     final VectorClock clock,
     final this._timestamp,
     final this._node,
-  ) : _vectorClock = VectorClock.from(clock);
+  ) : _vector_clock = VectorClock.from(clock);
 
   DistributedClock.from(
     final DistributedClock other,
   ) : this(
-          VectorClock.from(other._vectorClock),
+          VectorClock.from(other._vector_clock),
           other._timestamp,
           other._node,
         );
@@ -32,20 +30,20 @@ class DistributedClock implements Comparable<DistributedClock> {
           node,
         );
 
-  VectorClock get vectorClock => _vectorClock;
+  VectorClock get vectorClock => _vector_clock;
 
   int get timestamp => _timestamp;
 
   String get node => _node;
 
   @override
-  String toString() => '$_vectorClock:$_timestamp:$_node';
+  String toString() => '$_vector_clock:$_timestamp:$_node';
 
   // TODO inline hash
   @override
   int get hashCode => const ListEquality<dynamic>().hash(
         <dynamic>[
-          _vectorClock,
+          _vector_clock,
           _timestamp,
           _node,
         ],
@@ -58,7 +56,7 @@ class DistributedClock implements Comparable<DistributedClock> {
     if (!(other is DistributedClock)) {
       return false;
     } else {
-      return other._vectorClock == _vectorClock && other._timestamp == _timestamp && other._node == _node;
+      return other._vector_clock == _vector_clock && other._timestamp == _timestamp && other._node == _node;
     }
   }
 
@@ -66,7 +64,7 @@ class DistributedClock implements Comparable<DistributedClock> {
   int compareTo(
     final DistributedClock other,
   ) {
-    final vectorClockCmp = _vectorClock.partialCompareTo(other._vectorClock);
+    final vectorClockCmp = _vector_clock.partialCompareTo(other._vector_clock);
     if (vectorClockCmp != null && vectorClockCmp != 0) {
       return vectorClockCmp;
     }
@@ -115,19 +113,20 @@ class DistributedClock implements Comparable<DistributedClock> {
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'clock': List<int>.from(_vectorClock.value),
+        'clock': List<int>.from(_vector_clock.value),
         'timestamp': _timestamp,
         'node': _node,
       };
 }
 
+// TODO https://ferd.ca/interval-tree-clocks.html
 class VectorClock {
   final List<int> _value;
 
   VectorClock(
-    final int numNodes,
+    final int num_nodes,
   ) : _value = List.filled(
-          numNodes,
+          num_nodes,
           0,
           growable: true,
         );
@@ -140,7 +139,7 @@ class VectorClock {
     final VectorClock other,
   ) : this.fromList(other._value);
 
-  int get numNodes => _value.length;
+  int get num_nodes => _value.length;
 
   UnmodifiableListView<int> get value => UnmodifiableListView(_value);
 
@@ -176,10 +175,10 @@ class VectorClock {
   void merge(
     final VectorClock other,
   ) {
-    if (numNodes != other.numNodes) {
+    if (num_nodes != other.num_nodes) {
       throw ArgumentError.value(
         other,
-        'Cannot merge clock with different numbers of nodes (this != other): $numNodes != ${other.numNodes}',
+        'Cannot merge clock with different numbers of nodes (this != other): $num_nodes != ${other.num_nodes}',
       );
     }
     for (var i = 0; i < _value.length; i++) {
@@ -191,7 +190,7 @@ class VectorClock {
   int? partialCompareTo(
     final VectorClock other,
   ) {
-    if (other.numNodes != numNodes) {
+    if (other.num_nodes != num_nodes) {
       return null;
     } else {
       var vectorCmp = 0;

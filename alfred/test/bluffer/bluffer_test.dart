@@ -6,7 +6,7 @@ void main() {
   group("bluffer tests", () {
     test("smoketest", () {
       expect(
-        singlePage(
+        single_page(
           builder: (final context) => const TableImpl(
             children: [
               TableRowImpl(

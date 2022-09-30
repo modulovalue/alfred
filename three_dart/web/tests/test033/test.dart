@@ -1,20 +1,20 @@
-import 'package:three_dart/core/core.dart';
-import 'package:three_dart/lights/lights.dart';
-import 'package:three_dart/math/math.dart';
-import 'package:three_dart/movers/movers.dart';
-import 'package:three_dart/scenes/scenes.dart';
-import 'package:three_dart/shapes/shapes.dart';
-import 'package:three_dart/techniques/techniques.dart';
-import 'package:three_dart/textures/textures.dart';
-import 'package:three_dart/views/views.dart';
+import 'package:three_dart/core.dart';
+import 'package:three_dart/lights.dart';
+import 'package:three_dart/math.dart';
+import 'package:three_dart/movers.dart';
+import 'package:three_dart/scenes.dart';
+import 'package:three_dart/shapes.dart';
+import 'package:three_dart/techniques.dart';
+import 'package:three_dart/textures.dart';
+import 'package:three_dart/views.dart';
 
 import '../../common/common.dart' as common;
 
 void main() {
   common.ShellPage("Test 033")
     ..addLargeCanvas("testCanvas")
-    ..addPar(["Test of a Stereoscopic scene."])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["Test of a Stereoscopic scene."])
+    ..add_par(["«[Back to Tests|../]"]);
   final ThreeDart td = ThreeDart.fromId("testCanvas");
   final Entity cubeEntity = Entity(shape: cube());
   final Entity shapeEntity = Entity();
@@ -54,5 +54,5 @@ void main() {
     ..technique = colorTech
     ..children.add(shapeEntity);
   td.scene = Stereoscopic(mover: mover, passes: [skybox, pass], target: target);
-  common.showFPS(td);
+  common.show_fps(td);
 }

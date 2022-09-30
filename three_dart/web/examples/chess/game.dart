@@ -1,4 +1,4 @@
-import 'package:three_dart/events/events.dart';
+import 'package:three_dart/events.dart';
 
 /// This is a handler for returning possible movements for a piece.
 typedef MovementCallback = void Function(Movement move);

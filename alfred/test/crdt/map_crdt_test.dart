@@ -1,14 +1,13 @@
 import 'dart:io';
 
 import 'package:alfred/crdt/cachapa_crdt.dart';
-import 'package:alfred/crdt/cachapa_crdt_serialize.dart';
 import 'package:alfred/crdt/cachapa_hlc.dart';
 import 'package:test/test.dart';
 
 import 'crdt_test_suite.dart';
 
 void main() {
-  final hlcNow = nowHlc('abc');
+  final hlcNow = now_hlc('abc');
   crdtTests<MapCrdt<String, int>>(
     'abc',
     syncSetup: () => MapCrdt('abc'),
@@ -47,7 +46,7 @@ void main() {
     test('Merge newer', () async {
       crdt.put('x', 1);
       await Future<Object?>.delayed(const Duration(milliseconds: 1));
-      crdt.merge({'x': RecordImpl<Object>(nowHlc('xyz'), 2, hlcNow)});
+      crdt.merge({'x': RecordImpl<Object>(now_hlc('xyz'), 2, hlcNow)});
       expect(crdt.get('x'), 2);
     });
     test('Disambiguate using node id', () {
@@ -57,7 +56,7 @@ void main() {
     });
     test('Merge same', () {
       crdt.put('x', 2);
-      final remoteTs = crdt.getRecord('x')!.hlc;
+      final remoteTs = crdt.get_record('x')!.hlc;
       crdt.merge({'x': RecordImpl<Object>(remoteTs, 1, hlcNow)});
       expect(crdt.get('x'), 2);
     });
@@ -68,20 +67,20 @@ void main() {
     });
     test('Merge same, newer counter', () {
       crdt.put('x', 1);
-      final remoteTs = HlcImpl(crdt.getRecord('x')!.hlc.millis, 2, 'xyz');
+      final remoteTs = HlcImpl(crdt.get_record('x')!.hlc.millis, 2, 'xyz');
       crdt.merge({'x': RecordImpl<Object>(remoteTs, 2, hlcNow)});
       expect(crdt.get('x'), 2);
     });
     test('Merge new item', () {
-      final map = {'x': RecordImpl<Object>(nowHlc('xyz'), 2, hlcNow)};
+      final map = {'x': RecordImpl<Object>(now_hlc('xyz'), 2, hlcNow)};
       crdt.merge(map);
-      expect(crdt.recordMap(), map);
+      expect(crdt.record_map(), map);
     });
     test('Merge deleted item', () async {
       crdt.put('x', 1);
       await Future<Object?>.delayed(const Duration(milliseconds: 1));
-      crdt.merge({'x': RecordImpl<Object>(nowHlc('xyz'), null, hlcNow)});
-      expect(crdt.isDeleted('x'), isTrue);
+      crdt.merge({'x': RecordImpl<Object>(now_hlc('xyz'), null, hlcNow)});
+      expect(crdt.is_deleted('x'), isTrue);
     });
     test('Update HLC on merge', () {
       crdt.put('x', 1);
@@ -95,7 +94,7 @@ void main() {
         'x': RecordImpl<Object>(HlcImpl(_millis, 0, 'abc'), 1, hlcNow),
       });
       expect(
-        crdt.recordMap(),
+        crdt.record_map(),
         {'x': RecordImpl<Object>(HlcImpl(_millis, 0, 'abc'), 1, hlcNow)},
       );
     });
@@ -103,72 +102,72 @@ void main() {
       final crdt = MapCrdt<String, Object>('abc', {
         'x': RecordImpl<Object>(HlcImpl(_millis, 0, 'abc'), 1, hlcNow),
       });
-      expect(crdt.toJson(), '{"x":{"hlc":"$_isoTime-0000-abc","value":1}}');
+      expect(crdt.to_json(), '{"x":{"hlc":"$_isoTime-0000-abc","value":1}}');
     });
     test('jsonEncodeIntKey', () {
       final crdt = MapCrdt<int, Object>('abc', {
         1: RecordImpl<Object>(HlcImpl(_millis, 0, 'abc'), 1, hlcNow),
       });
-      expect(crdt.toJson(), '{"1":{"hlc":"$_isoTime-0000-abc","value":1}}');
+      expect(crdt.to_json(), '{"1":{"hlc":"$_isoTime-0000-abc","value":1}}');
     });
     test('jsonEncodeDateTimeKey', () {
       final crdt = MapCrdt<DateTime, Object>('abc', {
         DateTime(2000, 01, 01, 01, 20): RecordImpl<Object>(HlcImpl(_millis, 0, 'abc'), 1, hlcNow),
       });
-      expect(crdt.toJson(), '{"2000-01-01 01:20:00.000":{"hlc":"$_isoTime-0000-abc","value":1}}');
+      expect(crdt.to_json(), '{"2000-01-01 01:20:00.000":{"hlc":"$_isoTime-0000-abc","value":1}}');
     });
     test('jsonEncodeCustomClassValue', () {
       final crdt = MapCrdt<String, Object>('abc', {
         'x': RecordImpl<Object>(HlcImpl(_millis, 0, 'abc'), TestClass('test'), hlcNow),
       });
-      expect(crdt.toJson(), '{"x":{"hlc":"$_isoTime-0000-abc","value":{"test":"test"}}}');
+      expect(crdt.to_json(), '{"x":{"hlc":"$_isoTime-0000-abc","value":{"test":"test"}}}');
     });
     test('jsonEncodeCustomNodeId', () {
       final crdt = MapCrdt<String, Object>('abc', {
         'x': RecordImpl<Object>(HlcImpl(_millis, 0, "1"), 0, hlcNow),
       });
-      expect(crdt.toJson(), '{"x":{"hlc":"$_isoTime-0000-1","value":0}}');
+      expect(crdt.to_json(), '{"x":{"hlc":"$_isoTime-0000-1","value":0}}');
     });
     test('jsonDecodeStringKey', () {
       final crdt = MapCrdt<String, Object>('abc');
-      final map = crdtToJson<String, Object>(
+      final map = crdt_to_json<String, Object>(
         '{"x":{"hlc":"$_isoTime-0000-abc","value":1}}',
         hlcNow,
       );
-      crdt.putRecords(map);
-      expect(crdt.recordMap(), {'x': RecordImpl<Object>(HlcImpl(_millis, 0, 'abc'), 1, hlcNow)});
+      crdt.put_records(map);
+      expect(crdt.record_map(), {'x': RecordImpl<Object>(HlcImpl(_millis, 0, 'abc'), 1, hlcNow)});
     });
     test('jsonDecodeIntKey', () {
       final crdt = MapCrdt<int, Object>('abc');
-      final map = crdtToJson<int, Object>(
+      final map = crdt_to_json<int, Object>(
         '{"1":{"hlc":"$_isoTime-0000-abc","value":1}}',
         hlcNow,
-        keyDecoder: (final key) => int.parse(key),
+        key_decoder: (final key) => int.parse(key),
       );
-      crdt.putRecords(map);
-      expect(crdt.recordMap(), {1: RecordImpl<Object>(HlcImpl(_millis, 0, 'abc'), 1, hlcNow)});
+      crdt.put_records(map);
+      expect(crdt.record_map(), {1: RecordImpl<Object>(HlcImpl(_millis, 0, 'abc'), 1, hlcNow)});
     });
     test('jsonDecodeDateTimeKey', () {
       final crdt = MapCrdt<DateTime, Object>('abc');
-      final map = crdtToJson<DateTime, Object>(
+      final map = crdt_to_json<DateTime, Object>(
         '{"2000-01-01 01:20:00.000":{"hlc":"$_isoTime-0000-abc","value":1}}',
         hlcNow,
-        keyDecoder: (final key) => DateTime.parse(key),
+        key_decoder: (final key) => DateTime.parse(key),
       );
-      crdt.putRecords(map);
-      expect(crdt.recordMap(),
+      crdt.put_records(map);
+      expect(crdt.record_map(),
           {DateTime(2000, 01, 01, 01, 20): RecordImpl<Object>(HlcImpl(_millis, 0, 'abc'), 1, hlcNow)});
     });
     test('jsonDecodeCustomClassValue', () {
       final crdt = MapCrdt<String, Object>('abc');
-      final map = crdtToJson<String, Object>(
+      final map = crdt_to_json<String, Object>(
         '{"x":{"hlc":"$_isoTime-0000-abc","value":{"test":"test"}}}',
         hlcNow,
-        valueDecoder: (final key, final dynamic value) => TestClass.fromJson(value),
+        value_decoder: (final key, final dynamic value) => TestClass.fromJson(value),
       );
-      crdt.putRecords(map);
+      crdt.put_records(map);
       expect(
-        crdt.recordMap(),
+        crdt.record_map(),
         {
           'x': RecordImpl<Object>(HlcImpl(_millis, 0, 'abc'), TestClass('test'), hlcNow),
         },
@@ -176,14 +175,14 @@ void main() {
     });
     test('jsonDecodeCustomNodeId', () {
       final crdt = MapCrdt<String, Object>('abc');
-      final map = crdtToJson<String, Object>(
+      final map = crdt_to_json<String, Object>(
         '{"x":{"hlc":"$_isoTime-0000-1","value":0}}',
         hlcNow,
-        nodeIdDecoder: (final a) => a,
+        node_id_decoder: (final a) => a,
       );
-      crdt.putRecords(map);
+      crdt.put_records(map);
       expect(
-        crdt.recordMap(),
+        crdt.record_map(),
         {
           'x': RecordImpl<Object>(HlcImpl(_millis, 0, "1"), 0, hlcNow),
         },
@@ -202,19 +201,19 @@ void main() {
       });
     });
     test('null modifiedSince', () {
-      final map = crdt.recordMap();
+      final map = crdt.record_map();
       expect(map.length, 2);
     });
     test('modifiedSince hlc1', () {
-      final map = crdt.recordMap(modifiedSince: hlc1);
+      final map = crdt.record_map(modified_since: hlc1);
       expect(map.length, 2);
     });
     test('modifiedSince hlc2', () {
-      final map = crdt.recordMap(modifiedSince: hlc2);
+      final map = crdt.record_map(modified_since: hlc2);
       expect(map.length, 1);
     });
     test('modifiedSince hlc3', () {
-      final map = crdt.recordMap(modifiedSince: hlc3);
+      final map = crdt.record_map(modified_since: hlc3);
       expect(map.length, 0);
     });
   });
@@ -252,10 +251,10 @@ void _sync(
   final Crdt<String, Object> local,
   final Crdt<String, Object> remote,
 ) {
-  final time = local.canonicalTime;
-  final l = local.recordMap();
+  final time = local.canonical_time;
+  final l = local.record_map();
   remote.merge(l);
-  final r = remote.recordMap(modifiedSince: time);
+  final r = remote.record_map(modified_since: time);
   local.merge(r);
 }
 

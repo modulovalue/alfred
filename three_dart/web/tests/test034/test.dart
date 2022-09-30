@@ -2,21 +2,21 @@ library three_dart.test.test034;
 
 import 'dart:html';
 
-import 'package:three_dart/core/core.dart' as three_dart;
-import 'package:three_dart/math/math.dart';
-import 'package:three_dart/movers/movers.dart';
-import 'package:three_dart/scenes/scenes.dart';
-import 'package:three_dart/shapes/shapes.dart';
-import 'package:three_dart/techniques/techniques.dart';
-import 'package:three_dart/views/views.dart';
+import 'package:three_dart/core.dart' as three_dart;
+import 'package:three_dart/math.dart';
+import 'package:three_dart/movers.dart';
+import 'package:three_dart/scenes.dart';
+import 'package:three_dart/shapes.dart';
+import 'package:three_dart/techniques.dart';
+import 'package:three_dart/views.dart';
 
 import '../../common/common.dart' as common;
 
 void main() {
   common.ShellPage("Test 034")
     ..addLargeCanvas("testCanvas")
-    ..addPar(["Test of resizing the render target. ", "Resizing the canvas works better in Chrome."])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["Test of resizing the render target. ", "Resizing the canvas works better in Chrome."])
+    ..add_par(["«[Back to Tests|../]"]);
   final Element? canvas = document.getElementById("testCanvas");
   if (canvas == null) {
     throw Exception('Failed to find test canvas');
@@ -56,5 +56,5 @@ void main() {
         ..target = target
         ..camera = userCamera;
   td.scene = Compound(passes: [skybox, pass]);
-  common.showFPS(td);
+  common.show_fps(td);
 }

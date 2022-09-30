@@ -7,12 +7,12 @@ import 'common/common.dart';
 /// TODO split units in lib into separate files.
 void main() {
   ShellPage("3Dart", false,)
-    ..addHeader(2, "Examples")
-    ..addPar(["[3Dart Craft|./examples/craft/]"])
-    ..addPar(["[3Dart Chess|./examples/chess/]"])
-    ..addPar(["[Hypersphere|./examples/hypersphere/]"])
-    ..addHeader(2, "Tutorials")
-    ..addPar(["[Tutorial 1|./tutorials/tutorial1/]"])
-    ..addHeader(2, "Tests")
-    ..addPar(["[Tests|./tests/]"]);
+    ..add_header(2, "Examples")
+    ..add_par(["[3Dart Craft|./examples/craft/]"])
+    ..add_par(["[3Dart Chess|./examples/chess/]"])
+    ..add_par(["[Hypersphere|./examples/hypersphere/]"])
+    ..add_header(2, "Tutorials")
+    ..add_par(["[Tutorial 1|./tutorials/tutorial1/]"])
+    ..add_header(2, "Tests")
+    ..add_par(["[Tests|./tests/]"]);
 }

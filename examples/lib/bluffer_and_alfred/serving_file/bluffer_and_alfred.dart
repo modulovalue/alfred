@@ -16,7 +16,7 @@ Future<void> main() async {
   const dartLogoRelativePath = "/dartlogo.svg";
   final app = makeSimpleAlfred()
     ..add(
-      routes: AlfredRoutes(
+      routes: AlfredRoutedRoutes(
         routes: [
           AlfredRoute.get(
             path: dartLogoRelativePath,

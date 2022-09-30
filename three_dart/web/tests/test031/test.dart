@@ -1,19 +1,19 @@
-import 'package:three_dart/core/core.dart' as three_dart;
-import 'package:three_dart/lights/lights.dart';
-import 'package:three_dart/math/math.dart';
-import 'package:three_dart/movers/movers.dart';
-import 'package:three_dart/scenes/scenes.dart';
-import 'package:three_dart/shaders/shaders.dart' as shaders;
-import 'package:three_dart/shapes/shapes.dart';
-import 'package:three_dart/techniques/techniques.dart';
-import 'package:three_dart/views/views.dart';
+import 'package:three_dart/core.dart' as three_dart;
+import 'package:three_dart/lights.dart';
+import 'package:three_dart/math.dart';
+import 'package:three_dart/movers.dart';
+import 'package:three_dart/scenes.dart';
+import 'package:three_dart/shaders.dart' as shaders;
+import 'package:three_dart/shapes.dart';
+import 'package:three_dart/techniques.dart';
+import 'package:three_dart/views.dart';
 
 import '../../common/common.dart' as common;
 
 void main() {
   common.ShellPage("Test 031")
     ..addLargeCanvas("testCanvas")
-    ..addPar([
+    ..add_par([
       "A test of the Distortion cover with a dynamic normal map. ",
       "The distortion map is generated into one back buffer. ",
       "The scene is generated into another back buffer. ",
@@ -21,7 +21,7 @@ void main() {
       "Use mouse to rotate cube in normal map and Ctrl plus mouse ",
       "to rotate scene."
     ])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["«[Back to Tests|../]"]);
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
   final three_dart.Entity normalObj = three_dart.Entity()
     ..shape = cube()
@@ -71,5 +71,5 @@ void main() {
     ..target = FrontTarget(clearColor: false)
     ..technique = layoutTech;
   td.scene = Compound(passes: [skybox, colorPass, normalPass, distortPass, layout]);
-  common.showFPS(td);
+  common.show_fps(td);
 }

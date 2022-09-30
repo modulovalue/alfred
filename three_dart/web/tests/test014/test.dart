@@ -2,15 +2,15 @@ library three_dart.test.test014;
 
 import 'dart:math';
 
-import 'package:three_dart/core/core.dart';
-import 'package:three_dart/lights/lights.dart';
-import 'package:three_dart/math/math.dart';
-import 'package:three_dart/movers/movers.dart';
-import 'package:three_dart/scenes/scenes.dart';
-import 'package:three_dart/shapes/shapes.dart';
-import 'package:three_dart/techniques/techniques.dart';
-import 'package:three_dart/textures/textures.dart';
-import 'package:three_dart/views/views.dart';
+import 'package:three_dart/core.dart';
+import 'package:three_dart/lights.dart';
+import 'package:three_dart/math.dart';
+import 'package:three_dart/movers.dart';
+import 'package:three_dart/scenes.dart';
+import 'package:three_dart/shapes.dart';
+import 'package:three_dart/techniques.dart';
+import 'package:three_dart/textures.dart';
+import 'package:three_dart/views.dart';
 
 import '../../common/common.dart';
 
@@ -19,12 +19,12 @@ void main() {
     "Test 014",
   )
     ..addLargeCanvas("testCanvas")
-    ..addPar([
+    ..add_par([
       "Test of Material Lighting shader with different reflections and refractions. " +
           "No alpha is being used. The background cube map is being painted onto the object."
     ])
     ..addControlBoxes(["controls", "shapes"])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["«[Back to Tests|../]"]);
   final ThreeDart td = ThreeDart.fromId("testCanvas");
   final FrontTarget target = FrontTarget()..clearColor = false;
   final Entity obj = Entity()..shape = toroid();
@@ -181,5 +181,5 @@ void main() {
       ..addCode("Vertex Shader", "glsl", 0, tech.vertexSourceCode.split("\n"))
       ..addCode("Fragment Shader", "glsl", 0, tech.fragmentSourceCode.split("\n"));
   });
-  showFPS(td);
+  show_fps(td);
 }

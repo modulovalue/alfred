@@ -23,7 +23,7 @@ Future<void> main() async {
   final app = makeSimpleAlfred(
     onInternalError: (final e) => MiddlewareBuilder(
       process: (final c) {
-        c.res.setStatusCode(httpStatusInternalServerError500);
+        c.res.set_status_code(httpStatusInternalServerError500);
         return const ServeJson.map(
           map: {
             'message': 'error not handled',
@@ -33,7 +33,7 @@ Future<void> main() async {
     ),
     onNotFound: MiddlewareBuilder(
       process: (final c) {
-        c.res.setStatusCode(httpStatusNotFound404);
+        c.res.set_status_code(httpStatusNotFound404);
         return const ServeJson.map(
           map: {'message': 'not found'},
         ).process(c);
@@ -41,7 +41,7 @@ Future<void> main() async {
     ),
   );
   app.add(
-    routes: AlfredRoutes(
+    routes: AlfredRoutedRoutes(
       routes: [
         // Bluffer.
         AlfredRoute.get(
@@ -62,7 +62,7 @@ Future<void> main() async {
                           const SizedBox(width: 12.0),
                           Text(route.path),
                           const SizedBox(width: 12.0),
-                          if (route.usesWildcardMatcher) //
+                          if (route.uses_wildcard_matcher) //
                             const Text("(Uses a wildcard matcher)"),
                         ],
                       ),
@@ -83,7 +83,7 @@ Future<void> main() async {
           middleware: MiddlewareBuilder(
             process: (final c) async {
               // Perform action
-              c.res.setHeaderString(
+              c.res.set_header_string(
                 'x-custom-header',
                 "Alfred isn't bad",
               );
@@ -211,7 +211,7 @@ Future<void> main() async {
         AlfredRoute.get(
           path: '/ws',
           middleware: ServeWebSocket(
-            webSocketSession: session,
+            web_socket_session: session,
           ),
         )
       ],
@@ -228,10 +228,10 @@ class ExampleAuthorizationMiddleware implements AlfredMiddleware {
   Future<dynamic> process(
     final ServeContext context,
   ) async {
-    if (context.req.headers.getValue('Authorization') != 'apikey') {
+    if (context.req.headers.get_value('Authorization') != 'apikey') {
       print("Failure");
-      context.res.setStatusCode(httpStatusUnauthorized401);
-      context.res.writeString('authentication failed.');
+      context.res.set_status_code(httpStatusUnauthorized401);
+      context.res.write_string('authentication failed.');
       await context.res.close();
     } else {
       print("success");
@@ -244,7 +244,7 @@ List<AlfredHttpRoute> resourceBlocking() => [
         path: '/resource*',
         middleware: MiddlewareBuilder(
           process: (final c) async {
-            c.res.setStatusCode(httpStatusUnauthorized401);
+            c.res.set_status_code(httpStatusUnauthorized401);
             await c.res.close();
           },
         ),

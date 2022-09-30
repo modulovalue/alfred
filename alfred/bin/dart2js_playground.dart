@@ -1,14 +1,14 @@
 import 'dart:io';
 
 void main() {
-  _runCommand(
+  _run_command(
     command: "dart2js main.dart -O3 -o main.dart.js -m",
   );
 }
 
 /// Runs a command via Process from a string, the
 /// same way that a terminal would.
-void _runCommand({
+void _run_command({
   required final String command,
 }) {
   final separated = command.split(" ");
@@ -16,13 +16,13 @@ void _runCommand({
     separated.first,
     separated.sublist(1),
   );
-  _debugProcessResult(
+  _debug_process_result(
     result: result,
   );
 }
 
 /// Prints out the contents of a [ProcessResult].
-void _debugProcessResult({
+void _debug_process_result({
   required final ProcessResult result,
 }) {
   print(result.exitCode);

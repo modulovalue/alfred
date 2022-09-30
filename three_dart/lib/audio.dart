@@ -1,7 +1,7 @@
 import 'dart:html' as html;
 
-import '../events/events.dart';
-import '../math/math.dart';
+import 'events.dart';
+import 'math.dart';
 
 /// A loader for loading sounds.
 class AudioLoader {

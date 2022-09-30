@@ -7,30 +7,30 @@ import 'graphics.dart' as graphics;
 /// Starts up the 3Dart Chess example
 void main() {
   common.ShellPage("3Dart Chess")
-    ..addPar(["This example is in development and may still have a few issues and glitches."])
+    ..add_par(["This example is in development and may still have a few issues and glitches."])
     ..addLargeCanvas("targetCanvas")
     ..addControlBoxes(["buttons"])
-    ..addHeader(1, "About")
-    ..addPar([
+    ..add_header(1, "About")
+    ..add_par([
       "Click and drag to see the board from different angles. ",
       "Click without dragging to select a piece, unselect a piece, or pick which movement should be made. ",
       "The game will start with white's turn."
     ])
-    ..addPar([
+    ..add_par([
       "3Dart Chess is an example of how [3Dart|https://github.com/Grant-Nelson/three_dart] can be used ",
       "to create simple browser driven video games. ",
       "This example has no server backing it so currently there is no networked two player mode. ",
       "It would take very little to turn this into a simple online game."
     ])
-    ..addPar(["«[Back to Examples List|../../]"])
-    ..addHeader(1, "Help wanted")
-    ..addPar([
+    ..add_par(["«[Back to Examples List|../../]"])
+    ..add_header(1, "Help wanted")
+    ..add_par([
       "There is still much to be done, many cool new features, and several little bugs. ",
       "If you would like to contribute to this example, have an idea, find a bug, or just want ",
       "to learn more about it, check out the ",
       "[source code|https://github.com/Grant-Nelson/three_dart/tree/master/web/examples/chess]."
     ])
-    ..addPar([
+    ..add_par([
       "There are tons of ways to contribute. You could even start your own example. ",
       "See the [3Dart Project|https://github.com/Grant-Nelson/three_dart] for more."
     ]);

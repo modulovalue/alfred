@@ -13,7 +13,7 @@ class ServeString implements AlfredMiddleware {
   Future<void> process(
     final ServeContext c,
   ) async {
-    c.res.writeString(string);
+    c.res.write_string(string);
     await c.res.close();
   }
 }

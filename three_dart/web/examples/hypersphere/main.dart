@@ -1,34 +1,34 @@
 import 'dart:math';
 
-import 'package:three_dart/core/core.dart' as three_dart;
-import 'package:three_dart/events/events.dart';
-import 'package:three_dart/input/input.dart';
-import 'package:three_dart/math/math.dart';
-import 'package:three_dart/movers/movers.dart';
-import 'package:three_dart/scenes/scenes.dart';
-import 'package:three_dart/shapes/shapes.dart' as shapes;
-import 'package:three_dart/techniques/techniques.dart';
-import 'package:three_dart/views/views.dart';
+import 'package:three_dart/core.dart' as three_dart;
+import 'package:three_dart/events.dart';
+import 'package:three_dart/input.dart';
+import 'package:three_dart/math.dart';
+import 'package:three_dart/movers.dart';
+import 'package:three_dart/scenes.dart';
+import 'package:three_dart/shapes.dart' as shapes;
+import 'package:three_dart/techniques.dart';
+import 'package:three_dart/views.dart';
 
 import '../../common/common.dart' as common;
 
 void main() {
   common.ShellPage("Hypersphere")
-    ..addPar([
+    ..add_par([
       "This is a simple example to help demonstrate why a hypersphere takes up ",
       "so little space of the hypercube."
     ])
-    ..addHeader(3, "2D: circle and square")
-    ..addPar([
+    ..add_header(3, "2D: circle and square")
+    ..add_par([
       "Imagine taking slices out of a circle inscribed in a square. Each slice is ",
       "two lines, one from the circle and one from the square. When the slices ",
       "are near the top, the line caused by the circle is small compared to the square. ",
       "The corners of the square aren't covered by the circle."
     ])
     ..addLargeCanvas("target2D")
-    ..addPar(["_Click and drag to move the location of the slice._"])
-    ..addHeader(3, "3D: sphere and cube")
-    ..addPar([
+    ..add_par(["_Click and drag to move the location of the slice._"])
+    ..add_header(3, "3D: sphere and cube")
+    ..add_par([
       "Now imagine taking slices out of a sphere inscribed in a cube. Each slice is ",
       "a circle inside a square. When the slice is in the middle, the circle touches ",
       "the sides of the square. When the slice is near a side, the circle is almost a ",
@@ -36,9 +36,9 @@ void main() {
       "for the square not used by the circle."
     ])
     ..addLargeCanvas("target3D")
-    ..addPar(["_Click and drag to move the location of the slice._"])
-    ..addHeader(3, "4D: hypersphere and hypercube")
-    ..addPar([
+    ..add_par(["_Click and drag to move the location of the slice._"])
+    ..add_header(3, "4D: hypersphere and hypercube")
+    ..add_par([
       "Now imagine taking a slice out of a hypersphere inscribed in a hypercube. ",
       "Each slice is a sphere and a cube (as shown in the graphics below). ",
       "When the slice is near the edges, the sphere is a small point in the middle ",
@@ -47,16 +47,16 @@ void main() {
       "space in the cube not filled by the sphere."
     ])
     ..addLargeCanvas("target4D")
-    ..addPar([
+    ..add_par([
       "_The shape on the left is an artistic representation of a 4D hypercube._ ",
       "_Click and drag on the left to move the location of the slice._",
       "_Click and drag on the right to rotate the resulting 3D slice._"
     ])
-    ..addPar([
+    ..add_par([
       "With each new dimension the hypersphere is small near the edges and only touching ",
       "the sides of the hypersphere in the very middle."
     ])
-    ..addPar(["«[Back to Examples|../]"]);
+    ..add_par(["«[Back to Examples|../]"]);
   startup2D("target2D");
   startup3D("target3D");
   startup4D("target4D");

@@ -3,8 +3,8 @@
 import 'dart:typed_data';
 import 'dart:web_gl' as web_gl;
 
-import '../core/core.dart';
-import '../math/math.dart';
+import 'core.dart';
+import 'math.dart';
 
 /// A buffer is a special type of bindable designed to
 /// store cached shape information for rendering.

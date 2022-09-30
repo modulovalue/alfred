@@ -3,12 +3,12 @@
 import 'dart:async';
 import 'dart:html';
 
-import '../core/core.dart';
-import '../events/events.dart';
-import '../math/math.dart';
-import '../shapes/shapes.dart';
-import '../techniques/techniques.dart';
-import '../textures/textures.dart';
+import 'core.dart';
+import 'events.dart';
+import 'math.dart';
+import 'shapes.dart';
+import 'techniques.dart';
+import 'textures.dart';
 
 /// Gets the path without the file name from the given path with a file name.
 String getPathTo(

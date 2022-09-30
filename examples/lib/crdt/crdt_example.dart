@@ -9,17 +9,17 @@ void main() {
   String sendToRemoteAndReceiveUpdatedBack({
     required final String json,
   }) {
-    final merged = remoteCrdt..mergeJson(json);
+    final merged = remoteCrdt..merge_json(json);
     merged.put(firstKey, "Remote Update First");
     merged.put(secondKey, "Remote Update Second");
-    return merged.toJson();
+    return merged.to_json();
   }
 
   clientCrdt.put(firstKey, "First");
   final remoteJson = sendToRemoteAndReceiveUpdatedBack(
-    json: clientCrdt.toJson(),
+    json: clientCrdt.to_json(),
   );
   clientCrdt.put(secondKey, "Second");
-  clientCrdt.mergeJson(remoteJson);
-  print('Record after merging: ' + clientCrdt.toJson());
+  clientCrdt.merge_json(remoteJson);
+  print('Record after merging: ' + clientCrdt.to_json());
 }

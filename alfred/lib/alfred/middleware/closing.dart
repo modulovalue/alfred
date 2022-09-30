@@ -6,6 +6,7 @@ class ClosingMiddleware implements AlfredMiddleware {
   @override
   Future<void> process(
     final ServeContext c,
-  ) async =>
-      c.res.close();
+  ) async {
+    return c.res.close();
+  }
 }

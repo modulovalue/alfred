@@ -2,26 +2,26 @@ library three_dart.test.test047;
 
 import 'dart:math' as math;
 
-import 'package:three_dart/audio/audio.dart' as audio;
-import 'package:three_dart/core/core.dart' as three_dart;
-import 'package:three_dart/events/events.dart' as events;
-import 'package:three_dart/lights/lights.dart' as lights;
-import 'package:three_dart/math/math.dart' as math;
-import 'package:three_dart/movers/movers.dart' as movers;
-import 'package:three_dart/scenes/scenes.dart' as scenes;
-import 'package:three_dart/shapes/shapes.dart' as shapes;
-import 'package:three_dart/techniques/techniques.dart' as techniques;
-import 'package:three_dart/textures/textures.dart' as textures;
-import 'package:three_dart/views/views.dart' as views;
+import 'package:three_dart/audio.dart' as audio;
+import 'package:three_dart/core.dart' as three_dart;
+import 'package:three_dart/events.dart' as events;
+import 'package:three_dart/lights.dart' as lights;
+import 'package:three_dart/math.dart' as math;
+import 'package:three_dart/movers.dart' as movers;
+import 'package:three_dart/scenes.dart' as scenes;
+import 'package:three_dart/shapes.dart' as shapes;
+import 'package:three_dart/techniques.dart' as techniques;
+import 'package:three_dart/textures.dart' as textures;
+import 'package:three_dart/views.dart' as views;
 
 import '../../common/common.dart' as common;
 
 void main() {
   common.ShellPage("Test 047")
     ..addLargeCanvas("testCanvas")
-    ..addPar(["Test of the audio player. When you click on a cube it will ",
+    ..add_par(["Test of the audio player. When you click on a cube it will ",
       "play the same audio at slightly different rate and volume."])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["«[Back to Tests|../]"]);
 
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
 
@@ -130,5 +130,5 @@ void main() {
 
   td.scene = scenes.Compound(passes: [pickerPass, skybox, colorPass]);
 
-  common.showFPS(td);
+  common.show_fps(td);
 }

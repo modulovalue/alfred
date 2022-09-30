@@ -456,6 +456,8 @@ class _DecoratedBoxCSS with CssStyleDeclarationNullMixin {
         pathSeparator: Platform.pathSeparator,
       );
       return 'url(' + resolvedUrl + ')';
+    } else {
+      return null;
     }
   }
 

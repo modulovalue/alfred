@@ -18,23 +18,23 @@ void crdtTests<T extends Crdt<String, int>>(
       }
     });
     test('Node ID', () {
-      expect(crdt.nodeId, nodeId);
+      expect(crdt.node_id, nodeId);
     });
     test('Empty', () {
-      expect(crdt.isEmpty, isTrue);
+      expect(crdt.is_empty, isTrue);
       expect(crdt.length, 0);
       expect(crdt.map, <String, int>{});
     });
     test('One record', () {
       crdt.put('x', 1);
-      expect(crdt.isEmpty, isFalse);
+      expect(crdt.is_empty, isFalse);
       expect(crdt.length, 1);
       expect(crdt.map, {'x': 1});
     });
     test('Empty after deleted record', () {
       crdt.put('x', 1);
       crdt.delete('x');
-      expect(crdt.isEmpty, isTrue);
+      expect(crdt.is_empty, isTrue);
       expect(crdt.length, 0);
       expect(crdt.map, <String, int>{});
     });
@@ -48,7 +48,7 @@ void crdtTests<T extends Crdt<String, int>>(
       expect(crdt.get('x'), 2);
     });
     test('Put many', () {
-      crdt.putAll({'x': 2, 'y': 3});
+      crdt.put_all({'x': 2, 'y': 3});
       expect(crdt.get('x'), 2);
       expect(crdt.get('y'), 3);
     });
@@ -56,8 +56,8 @@ void crdtTests<T extends Crdt<String, int>>(
       crdt.put('x', 1);
       crdt.put('y', 2);
       crdt.delete('x');
-      expect(crdt.isDeleted('x'), isTrue);
-      expect(crdt.isDeleted('y'), isFalse);
+      expect(crdt.is_deleted('x'), isTrue);
+      expect(crdt.is_deleted('y'), isFalse);
       expect(crdt.get('x'), null);
       expect(crdt.get('y'), 2);
     });
@@ -65,8 +65,8 @@ void crdtTests<T extends Crdt<String, int>>(
       crdt.put('x', 1);
       crdt.put('y', 2);
       crdt.clear();
-      expect(crdt.isDeleted('x'), isTrue);
-      expect(crdt.isDeleted('y'), isTrue);
+      expect(crdt.is_deleted('x'), isTrue);
+      expect(crdt.is_deleted('y'), isTrue);
       expect(crdt.get('x'), null);
       expect(crdt.get('y'), null);
     });

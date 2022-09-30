@@ -69,10 +69,10 @@ import 'dart:math';
 import 'dart:typed_data' as typed;
 import 'dart:web_gl' as webgl;
 
-import '../data/data.dart';
-import '../events/events.dart';
-import '../math/math.dart';
-import '../textures/textures.dart';
+import 'data.dart';
+import 'events.dart';
+import 'math.dart';
+import 'textures.dart';
 
 /// A function handler for processing a single value for a new value.
 typedef func1Handle = double Function(double a);
@@ -1048,7 +1048,6 @@ class Line {
   /// same vertices as this line.
   bool same(Line other) {
     if (identical(this, other)) return true;
-    if (other is! Line) return false;
     if (this._ver1 != other._ver1) return false;
     if (this._ver2 != other._ver2) return false;
     return true;
@@ -1161,7 +1160,6 @@ class Point {
   /// same vertices as this point.
   bool same(Point other) {
     if (identical(this, other)) return true;
-    if (other is! Point) return false;
     if (this._ver != other._ver) return false;
     return true;
   }

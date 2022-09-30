@@ -5,15 +5,15 @@
 import 'dart:math' as math;
 import 'dart:web_gl' as webgl;
 
-import '../collections/collections.dart';
-import '../core/core.dart';
-import '../data/data.dart';
-import '../events/events.dart' as events;
-import '../lights/lights.dart' as lights_;
-import '../math/math.dart';
-import '../shaders/shaders.dart' as shaders;
-import '../shapes/shapes.dart';
-import '../textures/textures.dart';
+import 'collections.dart';
+import 'core.dart';
+import 'data.dart';
+import 'events.dart' as events;
+import 'lights.dart' as lights_;
+import 'math.dart';
+import 'shaders.dart' as shaders;
+import 'shapes.dart';
+import 'textures.dart';
 
 /// A technique for debugging entities with by writing strings to a buffer
 /// which can be compared against instead of rendering to the target.

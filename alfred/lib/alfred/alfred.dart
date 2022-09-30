@@ -23,13 +23,14 @@ import 'interface.dart';
 import 'middleware/default_404.dart';
 import 'middleware/default_500.dart';
 
+// TODO rename to children.
 Future<BuiltAlfred> helloAlfred({
   required final Iterable<AlfredHttpRoute> routes,
   final int? port,
 }) {
   final _alfred = alfredWithRoutes(
     routes: [
-      AlfredRoutes(
+      AlfredRoutedRoutes(
         routes: routes,
       ),
     ],
@@ -101,14 +102,14 @@ Future<BuiltAlfredIOImpl> makeAlfredImpl({
   required final AlfredImpl alfred,
 }) async {
   final requestQueue = Queue(
-    parallel: config.simultaneousProcessing,
+    parallel: config.simultaneous_processing,
   );
   final server = await HttpServer.bind(
-    config.bindIp,
+    config.bind_ip,
     config.port,
     shared: config.shared,
   )
-    ..idleTimeout = config.idleTimeout
+    ..idleTimeout = config.idle_timeout
     ..autoCompress = true;
   // ignore: cancel_subscriptions, unused_local_variable
   final serverSubscription = server.listen(
@@ -116,7 +117,7 @@ Future<BuiltAlfredIOImpl> makeAlfredImpl({
       () => requestHandler(request),
     ),
   );
-  log.onIsListening(
+  log.on_is_listening(
     arguments: config,
   );
   return BuiltAlfredIOImpl(
@@ -187,7 +188,7 @@ class AlfredImpl implements Alfred, AlfredHttpRouteFactory {
         requestHandler: (final HttpRequest request) async {
           // Variable to track the close of the response.
           var isDone = false;
-          log.onIncomingRequest(
+          log.on_incoming_request(
             method: request.method,
             uri: request.uri,
           );
@@ -208,7 +209,7 @@ class AlfredImpl implements Alfred, AlfredHttpRouteFactory {
             request.response.done.then(
               (final dynamic _) {
                 isDone = true;
-                log.onResponseSent();
+                log.on_response_sent();
               },
             ),
           );
@@ -220,7 +221,7 @@ class AlfredImpl implements Alfred, AlfredHttpRouteFactory {
           );
           try {
             if (matchedRoutes.isEmpty) {
-              log.onNoMatchingRouteFound();
+              log.on_no_matching_route_found();
               await onNotFound.process(c);
               await c.res.res.close();
             } else {
@@ -230,17 +231,17 @@ class AlfredImpl implements Alfred, AlfredHttpRouteFactory {
               for (final route in matchedRoutes) {
                 c.route = route;
                 if (!isDone) {
-                  log.onMatchingRoute(
+                  log.on_matching_route(
                     route: route.path,
                   );
-                  nonWildcardRouteMatch = !route.usesWildcardMatcher || nonWildcardRouteMatch;
+                  nonWildcardRouteMatch = !route.uses_wildcard_matcher || nonWildcardRouteMatch;
                   // If the request has already completed, exit early, otherwise process
                   // the primary route callback.
                   // ignore: invariant_booleans, <- false positive
                   if (isDone) {
                     break;
                   } else {
-                    log.onExecuteRouteCallbackFunction();
+                    log.on_execute_route_callback_function();
                     await route.middleware.process(c);
                   }
                 } else {
@@ -263,13 +264,13 @@ class AlfredImpl implements Alfred, AlfredHttpRouteFactory {
             }
           } on AlfredException catch (e) {
             await e.match(
-              notFound: (final e) async {
+              NotFound: (final e) async {
                 await onNotFound.process(c);
                 await c.res.res.close();
               },
             );
           } on Object catch (e, s) {
-            log.onIncomingRequestException(
+            log.on_incoming_request_exception(
               e: e,
               s: s,
             );
@@ -293,8 +294,8 @@ class AlfredImpl implements Alfred, AlfredHttpRouteFactory {
     required final AlfredRouted routes,
   }) =>
       routes.match(
-        routes: (final a) => this.routes.addAll(a.routes),
-        at: (final a) => at(path: a.prefix).add(routes: a.routes),
+        Routes: (final a) => this.routes.addAll(a.routes),
+        At: (final a) => at(path: a.prefix).add(routes: a.routes),
       );
 }
 
@@ -367,6 +368,7 @@ String _normalizePath({
 // TODO move back into separate subclasses.
 const AlfredRoute = AlfredRoutesMaker();
 
+// TODO rename middleware to child.
 class AlfredRoutesMaker {
   const AlfredRoutesMaker();
 
@@ -488,7 +490,7 @@ class AlfredHttpRouteImpl with AlfredHttpRouteMixin {
 
 mixin AlfredHttpRouteMixin implements AlfredHttpRoute, AlfredHttpRouteDirections {
   @override
-  bool get usesWildcardMatcher => path.contains('*');
+  bool get uses_wildcard_matcher => path.contains('*');
 }
 
 Map<String, String>? getParams({
@@ -518,13 +520,13 @@ Map<String, String>? getParams({
 
 class AlfredContentTypeImpl implements AlfredContentType {
   @override
-  final String primaryType;
+  final String primary_type;
 
   @override
-  final String subType;
+  final String sub_type;
 
   @override
-  final String mimeType;
+  final String mime_type;
 
   @override
   final String? charset;
@@ -532,15 +534,15 @@ class AlfredContentTypeImpl implements AlfredContentType {
   final String? Function(String) getParam;
 
   const AlfredContentTypeImpl({
-    required final this.primaryType,
-    required final this.subType,
+    required final this.primary_type,
+    required final this.sub_type,
     required final this.charset,
-    required final this.mimeType,
+    required final this.mime_type,
     required final this.getParam,
   });
 
   @override
-  String? getParameter(
+  String? get_parameter(
     final String key,
   ) =>
       getParam(key);
@@ -548,22 +550,22 @@ class AlfredContentTypeImpl implements AlfredContentType {
 
 class ServerConfigImpl implements ServerConfig {
   @override
-  final String bindIp;
+  final String bind_ip;
   @override
   final bool shared;
   @override
   final int port;
   @override
-  final int simultaneousProcessing;
+  final int simultaneous_processing;
   @override
-  final Duration idleTimeout;
+  final Duration idle_timeout;
 
   const ServerConfigImpl({
-    required final this.bindIp,
+    required final this.bind_ip,
     required final this.shared,
     required final this.port,
-    required final this.simultaneousProcessing,
-    required final this.idleTimeout,
+    required final this.simultaneous_processing,
+    required final this.idle_timeout,
   });
 }
 
@@ -577,7 +579,7 @@ class ServerConfigDefault implements ServerConfig {
   const ServerConfigDefault();
 
   @override
-  String get bindIp => defaultBindIp;
+  String get bind_ip => defaultBindIp;
 
   @override
   int get port => defaultPort;
@@ -586,10 +588,10 @@ class ServerConfigDefault implements ServerConfig {
   bool get shared => defaultShared;
 
   @override
-  int get simultaneousProcessing => defaultSimultaneousProcessing;
+  int get simultaneous_processing => defaultSimultaneousProcessing;
 
   @override
-  Duration get idleTimeout => defaultIdleTimeout;
+  Duration get idle_timeout => defaultIdleTimeout;
 }
 
 class ServerConfigDefaultWithPort implements ServerConfig {
@@ -601,16 +603,16 @@ class ServerConfigDefaultWithPort implements ServerConfig {
   });
 
   @override
-  String get bindIp => ServerConfigDefault.defaultBindIp;
+  String get bind_ip => ServerConfigDefault.defaultBindIp;
 
   @override
   bool get shared => ServerConfigDefault.defaultShared;
 
   @override
-  int get simultaneousProcessing => ServerConfigDefault.defaultSimultaneousProcessing;
+  int get simultaneous_processing => ServerConfigDefault.defaultSimultaneousProcessing;
 
   @override
-  Duration get idleTimeout => ServerConfigDefault.defaultIdleTimeout;
+  Duration get idle_timeout => ServerConfigDefault.defaultIdleTimeout;
 }
 
 class HttpRouteFactoryImpl implements AlfredHttpRouteFactory {
@@ -627,10 +629,10 @@ class HttpRouteFactoryImpl implements AlfredHttpRouteFactory {
     required final AlfredRouted routes,
   }) {
     routes.match(
-      routes: (final _routes) {
+      Routes: (final _routes) {
         for (final route in _routes.routes) {
           alfred.router.add(
-            routes: AlfredRoutes(
+            routes: AlfredRoutedRoutes(
               routes: [
                 AlfredHttpRouteImpl(
                   method: route.method,
@@ -645,7 +647,7 @@ class HttpRouteFactoryImpl implements AlfredHttpRouteFactory {
           );
         }
       },
-      at: (final _at) => at(
+      At: (final _at) => at(
         path: _at.prefix,
       ).add(
         routes: _at.routes,
@@ -735,7 +737,7 @@ mixin AlfredLoggingDelegateGeneralizingMixin implements AlfredLoggingDelegate {
   });
 
   @override
-  void onIsListening({
+  void on_is_listening({
     required final ServerConfig arguments,
   }) =>
       log(
@@ -743,16 +745,16 @@ mixin AlfredLoggingDelegateGeneralizingMixin implements AlfredLoggingDelegate {
             'HTTP Server listening on port: ' +
             arguments.port.toString() +
             " • boundIp: " +
-            arguments.bindIp +
+            arguments.bind_ip +
             " • shared: " +
             arguments.shared.toString() +
             " • simultaneousProcessing: " +
-            arguments.simultaneousProcessing.toString(),
+            arguments.simultaneous_processing.toString(),
         type: const LogTypeInfo(),
       );
 
   @override
-  void onIncomingRequest({
+  void on_incoming_request({
     required final String method,
     required final Uri uri,
   }) =>
@@ -762,19 +764,19 @@ mixin AlfredLoggingDelegateGeneralizingMixin implements AlfredLoggingDelegate {
       );
 
   @override
-  void onResponseSent() => log(
+  void on_response_sent() => log(
         messageFn: () => 'Response sent to client',
         type: const LogTypeDebug(),
       );
 
   @override
-  void onNoMatchingRouteFound() => log(
+  void on_no_matching_route_found() => log(
         messageFn: () => 'No matching route found.',
         type: const LogTypeDebug(),
       );
 
   @override
-  void onMatchingRoute({
+  void on_matching_route({
     required final String route,
   }) =>
       log(
@@ -783,13 +785,13 @@ mixin AlfredLoggingDelegateGeneralizingMixin implements AlfredLoggingDelegate {
       );
 
   @override
-  void onExecuteRouteCallbackFunction() => log(
+  void on_execute_route_callback_function() => log(
         messageFn: () => 'Execute route callback function',
         type: const LogTypeDebug(),
       );
 
   @override
-  void onIncomingRequestException({
+  void on_incoming_request_exception({
     required final Object e,
     required final StackTrace s,
   }) {
@@ -804,7 +806,7 @@ mixin AlfredLoggingDelegateGeneralizingMixin implements AlfredLoggingDelegate {
   }
 
   @override
-  void logTypeHandler({
+  void log_type_handler({
     required final String Function() msgFn,
   }) =>
       log(
@@ -856,7 +858,7 @@ Future<AlfredHttpRequestBody<dynamic>> processRequest(
     );
   } on Object catch (_) {
     // Try to send BAD_REQUEST response.
-    response.setStatusCode(httpStatusBadRequest400);
+    response.set_status_code(httpStatusBadRequest400);
     await response.close();
     rethrow;
   }
@@ -979,12 +981,12 @@ class HttpBodyFileUploadImpl<T> implements AlfredHttpBodyFileUpload<T> {
   @override
   final String filename;
   @override
-  final AlfredContentType? contentType;
+  final AlfredContentType? content_type;
   @override
   final T content;
 
   const HttpBodyFileUploadImpl._({
-    required final this.contentType,
+    required final this.content_type,
     required final this.filename,
     required final this.content,
   });
@@ -1006,7 +1008,7 @@ Future<AlfredHttpBody<Object?>> _process({
     );
   }
 
-  final contentType = headers.contentType;
+  final contentType = headers.content_type;
   if (contentType == null) {
     return asBinary();
   } else {
@@ -1030,7 +1032,7 @@ Future<AlfredHttpBody<Object?>> _process({
     }
 
     Future<AlfredHttpBody<Map<String, dynamic>>> asFormData() async {
-      final values = await m.MimeMultipartTransformer(contentType.getParameter('boundary')!).bind(stream).map(
+      final values = await m.MimeMultipartTransformer(contentType.get_parameter('boundary')!).bind(stream).map(
         (final part) async {
           final multipart = parseHttpMultipartFormData(
             part,
@@ -1064,7 +1066,7 @@ Future<AlfredHttpBody<Object?>> _process({
             return <dynamic>[
               multipart.contentDisposition.parameters['name'],
               HttpBodyFileUploadImpl<dynamic>._(
-                contentType: () {
+                content_type: () {
                   if (_contentType != null) {
                     return AlfredContentTypeFromContentTypeImpl(
                       contentType: _contentType,
@@ -1104,11 +1106,11 @@ Future<AlfredHttpBody<Object?>> _process({
     }
 
     // TODO centralize primary type constants.
-    switch (contentType.primaryType) {
+    switch (contentType.primary_type) {
       case 'text':
         return asText(defaultEncoding);
       case 'application':
-        switch (contentType.subType) {
+        switch (contentType.sub_type) {
           case 'json':
             final body = await asText(utf8);
             return HttpBodyImpl(
@@ -1134,7 +1136,7 @@ Future<AlfredHttpBody<Object?>> _process({
         }
         break;
       case 'multipart':
-        switch (contentType.subType) {
+        switch (contentType.sub_type) {
           case 'form-data':
             return asFormData();
           default:
@@ -1313,9 +1315,9 @@ AlfredContentType? fileContentType({
   if (mimeType != null) {
     final split = mimeType.split('/');
     return AlfredContentTypeImpl(
-      mimeType: mimeType,
-      primaryType: split[0],
-      subType: split[1],
+      mime_type: mimeType,
+      primary_type: split[0],
+      sub_type: split[1],
       charset: null,
       getParam: (final _) => null,
     );

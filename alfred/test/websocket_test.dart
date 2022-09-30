@@ -14,12 +14,12 @@ void main() {
       await runTest(fn: (final alfred, final built, final port) async {
         final ws = WebSocketSessionTest2Impl();
         alfred.router.add(
-          routes: AlfredRoutes(
+          routes: AlfredRoutedRoutes(
             routes: [
               AlfredRoute.get(
                 path: '/ws',
                 middleware: ServeWebSocket(
-                  webSocketSession: ws,
+                  web_socket_session: ws,
                 ),
               ),
             ],
@@ -36,12 +36,12 @@ void main() {
       await runTest(fn: (final alfred, final built, final port) async {
         final ws = WebSocketSessionTest1Impl();
         alfred.router.add(
-          routes: AlfredRoutes(
+          routes: AlfredRoutedRoutes(
             routes: [
               AlfredRoute.get(
                 path: '/ws',
                 middleware: ServeWebSocket(
-                  webSocketSession: ws,
+                  web_socket_session: ws,
                 ),
               ),
             ],
@@ -72,21 +72,21 @@ class WebSocketSessionTest2Impl with WebSocketSessionStartMixin implements Initi
   WebSocketSessionTest2Impl();
 
   @override
-  InitiatedWebSocketSession onOpen(
+  InitiatedWebSocketSession on_open(
     final AlfredWebSocket _,
   ) {
     return this;
   }
 
   @override
-  void onClose(
+  void on_close(
     final AlfredWebSocket _,
   ) {
     // Do nothing.
   }
 
   @override
-  void onMessageString(
+  void on_message_string(
     final AlfredWebSocket _,
     final String data,
   ) {
@@ -94,7 +94,7 @@ class WebSocketSessionTest2Impl with WebSocketSessionStartMixin implements Initi
   }
 
   @override
-  void onMessageBytes(
+  void on_message_bytes(
     final AlfredWebSocket _,
     final List<int> data,
   ) {
@@ -102,7 +102,7 @@ class WebSocketSessionTest2Impl with WebSocketSessionStartMixin implements Initi
   }
 
   @override
-  void onError(
+  void on_error(
     final AlfredWebSocket _,
     final dynamic error,
   ) =>
@@ -119,7 +119,7 @@ class WebSocketSessionTest1Impl with WebSocketSessionStartMixin implements Initi
   WebSocketSessionTest1Impl();
 
   @override
-  InitiatedWebSocketSession onOpen(
+  InitiatedWebSocketSession on_open(
     final AlfredWebSocket _,
   ) {
     opened = true;
@@ -127,13 +127,13 @@ class WebSocketSessionTest1Impl with WebSocketSessionStartMixin implements Initi
   }
 
   @override
-  void onClose(
+  void on_close(
     final AlfredWebSocket socket,
   ) =>
       closed = true;
 
   @override
-  void onError(
+  void on_error(
     final AlfredWebSocket socket,
     final dynamic error,
   ) {
@@ -141,16 +141,16 @@ class WebSocketSessionTest1Impl with WebSocketSessionStartMixin implements Initi
   }
 
   @override
-  void onMessageString(
+  void on_message_string(
     final AlfredWebSocket socket,
     final String data,
   ) {
     message = data;
-    socket.addString('echo ' + data);
+    socket.add_string('echo ' + data);
   }
 
   @override
-  void onMessageBytes(
+  void on_message_bytes(
     final AlfredWebSocket socket,
     final List<int> data,
   ) {

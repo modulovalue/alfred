@@ -1,13 +1,13 @@
 library three_dart.test.test041;
 
-import 'package:three_dart/core/core.dart' as three_dart;
-import 'package:three_dart/lights/lights.dart' as lights;
-import 'package:three_dart/math/math.dart';
-import 'package:three_dart/movers/movers.dart';
-import 'package:three_dart/scenes/scenes.dart';
-import 'package:three_dart/shapes/shapes.dart';
-import 'package:three_dart/techniques/techniques.dart' as techniques;
-import 'package:three_dart/views/views.dart';
+import 'package:three_dart/core.dart' as three_dart;
+import 'package:three_dart/lights.dart' as lights;
+import 'package:three_dart/math.dart';
+import 'package:three_dart/movers.dart';
+import 'package:three_dart/scenes.dart';
+import 'package:three_dart/shapes.dart';
+import 'package:three_dart/techniques.dart' as techniques;
+import 'package:three_dart/views.dart';
 
 import '../../common/common.dart' as common;
 
@@ -29,9 +29,9 @@ void addLightBall(techniques.MaterialLight tech, EntityPass pass, double r, doub
 void main() {
   final common.ShellPage page = common.ShellPage("Test 041")
     ..addLargeCanvas("testCanvas")
-    ..addPar(["Test of the Gaussian blur technique with a solid blur value for the whole image."])
+    ..add_par(["Test of the Gaussian blur technique with a solid blur value for the whole image."])
     ..addControlBoxes(["blurValue"])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["«[Back to Tests|../]"]);
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
   final Group mover = Group()
     ..add(UserRotator(input: td.userInput))
@@ -97,5 +97,5 @@ void main() {
       ..addCode("Vertex Shader", "glsl", 0, blurPass.vertexSourceCode.split("\n"))
       ..addCode("Fragment Shader", "glsl", 0, blurPass.fragmentSourceCode.split("\n"));
   });
-  common.showFPS(td);
+  common.show_fps(td);
 }

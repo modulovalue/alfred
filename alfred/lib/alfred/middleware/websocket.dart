@@ -1,81 +1,82 @@
 import '../interface.dart';
 
 class ServeWebSocket implements AlfredMiddleware {
-  final WebSocketSession webSocketSession;
+  final WebSocketSession web_socket_session;
 
   const ServeWebSocket({
-    required final this.webSocketSession,
+    required final this.web_socket_session,
   });
 
   @override
   Future<void> process(
     final ServeContext c,
   ) async {
-    webSocketSession.start(
-      await c.req.upgradeToWebsocket(),
+    web_socket_session.start(
+      await c.req.upgrade_to_websocket(),
     );
   }
 }
 
 class ServeWebSocketFactory implements AlfredMiddleware {
-  final Future<WebSocketSession> Function(ServeContext) webSocketSessionFactory;
+  final Future<WebSocketSession> Function(ServeContext) web_socket_session_factory;
 
   const ServeWebSocketFactory({
-    required final this.webSocketSessionFactory,
+    required final this.web_socket_session_factory,
   });
 
   @override
   Future<void> process(
     final ServeContext c,
   ) async {
-    (await webSocketSessionFactory(c)).start(
-      await c.req.upgradeToWebsocket(),
+    (await web_socket_session_factory(c)).start(
+      await c.req.upgrade_to_websocket(),
     );
   }
 }
 
 class WebSocketSessionAnonymousImpl with WebSocketSessionStartMixin {
-  final InitiatedWebSocketSession Function(AlfredWebSocket webSocket) open;
+  final InitiatedWebSocketSession Function(AlfredWebSocket web_socket) open;
 
   WebSocketSessionAnonymousImpl({
     required final this.open,
   });
 
   @override
-  InitiatedWebSocketSession onOpen(
-    final AlfredWebSocket webSocket,
-  ) =>
-      open.call(webSocket);
+  InitiatedWebSocketSession on_open(
+    final AlfredWebSocket web_socket,
+  ) {
+    return open.call(web_socket);
+  }
 }
 
 /// Convenience wrapper around Dart IO WebSocket implementation.
 mixin WebSocketSessionStartMixin implements WebSocketSession {
   @override
   void start(
-    final AlfredWebSocket webSocket,
+    final AlfredWebSocket web_socket,
   ) {
-    final socket = webSocket;
+    final socket = web_socket;
     try {
-      final delegate = onOpen(socket);
+      final delegate = on_open(socket);
       socket.listen(
-        onData: (final dynamic data) {
+        on_data: (final dynamic data) {
           try {
             if (data is String) {
-              delegate.onMessageString(socket, data);
+              delegate.on_message_string(socket, data);
             } else if (data is List<int>) {
-              delegate.onMessageBytes(socket, data);
+              delegate.on_message_bytes(socket, data);
             } else {
               throw Exception(
                 "Unknown data type emitted by socket. " + data.runtimeType.toString(),
               );
             }
           } on Object catch (e) {
-            delegate.onError(socket, e);
+            delegate.on_error(socket, e);
           }
         },
-        onDone: () => delegate.onClose(socket),
-        onError: (dynamic error) => delegate.onError(socket, error),
-        cancelOnError: true,
+        on_done: () => delegate.on_close(socket),
+        on_error: (dynamic error) => delegate.on_error(socket, error),
+        cancel_on_error: true,
       );
     } on Object catch (e) {
       print('WebSocket Error: ' + e.toString());
@@ -93,73 +94,77 @@ mixin WebSocketSessionStartMixin implements WebSocketSession {
 
 /// Convenience wrapper around Dart IO WebSocket implementation
 abstract class WebSocketSession {
-  InitiatedWebSocketSession onOpen(
-    final AlfredWebSocket webSocket,
+  InitiatedWebSocketSession on_open(
+    final AlfredWebSocket web_socket,
   );
 
   void start(
-    final AlfredWebSocket webSocket,
+    final AlfredWebSocket web_socket,
   );
 }
 
 class InitiatedWebSocketSessionAnonymousImpl implements InitiatedWebSocketSession {
-  final void Function(AlfredWebSocket webSocket, String data)? messageString;
-  final void Function(AlfredWebSocket webSocket, List<int> data)? messageBytes;
-  final void Function(AlfredWebSocket webSocket, dynamic error)? error;
-  final void Function(AlfredWebSocket webSocket)? close;
+  final void Function(AlfredWebSocket web_socket, String data)? message_string;
+  final void Function(AlfredWebSocket web_socket, List<int> data)? message_bytes;
+  final void Function(AlfredWebSocket web_socket, dynamic error)? error;
+  final void Function(AlfredWebSocket web_socket)? close;
 
   const InitiatedWebSocketSessionAnonymousImpl({
-    final this.messageString,
-    final this.messageBytes,
+    final this.message_string,
+    final this.message_bytes,
     final this.error,
     final this.close,
   });
 
   @override
-  void onMessageString(
-    final AlfredWebSocket webSocket,
+  void on_message_string(
+    final AlfredWebSocket web_socket,
     final String data,
-  ) =>
-      messageString?.call(webSocket, data);
+  ) {
+    message_string?.call(web_socket, data);
+  }
 
   @override
-  void onMessageBytes(
-    final AlfredWebSocket webSocket,
+  void on_message_bytes(
+    final AlfredWebSocket web_socket,
     final List<int> bytes,
-  ) =>
-      messageBytes?.call(webSocket, bytes);
+  ) {
+    message_bytes?.call(web_socket, bytes);
+  }
 
   @override
-  void onError(
-    final AlfredWebSocket webSocket,
+  void on_error(
+    final AlfredWebSocket web_socket,
     final dynamic err,
-  ) =>
-      error?.call(webSocket, err);
+  ) {
+    error?.call(web_socket, err);
+  }
 
   @override
-  void onClose(
-    final AlfredWebSocket webSocket,
-  ) =>
-      close?.call(webSocket);
+  void on_close(
+    final AlfredWebSocket web_socket,
+  ) {
+    close?.call(web_socket);
+  }
 }
 
 abstract class InitiatedWebSocketSession {
-  void onMessageString(
-    final AlfredWebSocket webSocket,
+  void on_message_string(
+    final AlfredWebSocket web_socket,
     final String data,
   );
 
-  void onMessageBytes(
-    final AlfredWebSocket webSocket,
+  void on_message_bytes(
+    final AlfredWebSocket web_socket,
     final List<int> data,
   );
 
-  void onError(
-    final AlfredWebSocket webSocket,
+  void on_error(
+    final AlfredWebSocket web_socket,
     final dynamic error,
   );
 
-  void onClose(
-    final AlfredWebSocket webSocket,
+  void on_close(
+    final AlfredWebSocket web_socket,
   );
 }

@@ -107,19 +107,19 @@ void main() {
             expect(body.httpBody.type, equals(type));
             switch (type) {
               case 'text':
-                expect(body.request.mimeType, equals('text/plain'));
+                expect(body.request.mime_type, equals('text/plain'));
                 expect(body.httpBody.body, equals(expectedBody));
                 break;
               case 'json':
-                expect(body.request.mimeType, equals('application/json'));
+                expect(body.request.mime_type, equals('application/json'));
                 expect(body.httpBody.body, equals(expectedBody));
                 break;
               case 'binary':
-                expect(body.request.mimeType, isNull);
+                expect(body.request.mime_type, isNull);
                 expect(body.httpBody.body, equals(expectedBody));
                 break;
               case 'form':
-                final mimeType = body.request.mimeType;
+                final mimeType = body.request.mime_type;
                 expect(mimeType, anyOf(equals('multipart/form-data'), equals('application/x-www-form-urlencoded')));
                 // ignore: avoid_dynamic_calls
                 expect(body.httpBody.body.keys.toSet(), equals(expectedBody.keys.toSet()));
@@ -132,7 +132,7 @@ void main() {
                   if (found is AlfredHttpBodyFileUpload) {
                     // ignore: avoid_dynamic_calls
                     expect(
-                      found.contentType!.primaryType + "/" + found.contentType!.subType,
+                      found.content_type!.primary_type + "/" + found.content_type!.sub_type,
                       // ignore: avoid_dynamic_calls
                       equals(expected['contentType']),
                     );

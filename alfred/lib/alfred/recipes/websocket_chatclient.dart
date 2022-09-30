@@ -1,5 +1,5 @@
 // TODO it would be great if the javascript portion could come from a dart file that was dart2js'ed
-// TODO use mela to by typesafe.
+// TODO use mela to be typesafe.
 const String websocket_chatclient = r"""<!DOCTYPE html>
 <html lang="en">
 <head>

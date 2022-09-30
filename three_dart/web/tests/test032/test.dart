@@ -2,24 +2,24 @@ library three_dart.test.test032;
 
 import 'dart:async';
 
-import 'package:three_dart/core/core.dart' as three_dart;
-import 'package:three_dart/io/io.dart';
-import 'package:three_dart/movers/movers.dart';
-import 'package:three_dart/scenes/scenes.dart';
-import 'package:three_dart/techniques/techniques.dart';
+import 'package:three_dart/core.dart' as three_dart;
+import 'package:three_dart/io.dart';
+import 'package:three_dart/movers.dart';
+import 'package:three_dart/scenes.dart';
+import 'package:three_dart/techniques.dart';
 
 import '../../common/common.dart' as common;
 
 void main() {
   common.ShellPage("Test 032")
     ..addLargeCanvas("testCanvas")
-    ..addPar([
+    ..add_par([
       "The inspection test for shapes loaders. ",
       "For generated shapes see test002. ",
       "Note: Some shapes will take time to load."
     ])
     ..addControlBoxes(["controls", "shapes", "scalars"])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["«[Back to Tests|../]"]);
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
   bool showMtrl = true;
   final three_dart.Entity obj = three_dart.Entity()
@@ -144,5 +144,5 @@ void main() {
     ..add("1.0", () {
       tech.vectorScale = 1.0;
     });
-  common.showFPS(td);
+  common.show_fps(td);
 }

@@ -451,17 +451,17 @@ void main() {
   test('add node empty map', () {
     final crdt = MapCrdtRoot<String, String>('node1');
     expect(crdt.nodes, ['node1']);
-    expect(crdt.vectorClock.numNodes, 1);
+    expect(crdt.vectorClock.num_nodes, 1);
     crdt.addNode('node2');
     expect(crdt.nodes, ['node1', 'node2']);
-    expect(crdt.vectorClock.numNodes, 2);
+    expect(crdt.vectorClock.num_nodes, 2);
   });
   test('add node with record', () {
     final crdt = MapCrdtRoot<String, String>('node1');
     crdt.put('key', 'value');
     final record = crdt.getRecord('key');
     expect(record, isNot(null));
-    expect(record!.clock.vectorClock.numNodes, 1);
+    expect(record!.clock.vectorClock.num_nodes, 1);
     crdt.addNode('node2');
     expect(crdt.vectorClock, VectorClock.fromList([1, 0]));
     expect(record.clock.vectorClock, VectorClock.fromList([1, 0]));
@@ -475,10 +475,10 @@ void main() {
   test('add node existing', () {
     final crdt = MapCrdtRoot<String, String>('node1');
     expect(crdt.nodes, ['node1']);
-    expect(crdt.vectorClock.numNodes, 1);
+    expect(crdt.vectorClock.num_nodes, 1);
     crdt.addNode('node1');
     expect(crdt.nodes, ['node1']);
-    expect(crdt.vectorClock.numNodes, 1);
+    expect(crdt.vectorClock.num_nodes, 1);
   });
   test('map', () {
     final crdt1 = MapCrdtRoot<String, String>('node1');

@@ -261,13 +261,12 @@ abstract class EdgeInsetsGeometry {
     if (other is! EdgeInsetsGeometry) {
       return false;
     }
-    return other is EdgeInsetsGeometry &&
-        _left == other._left &&
-        _right == other._right &&
-        _start == other._start &&
-        _end == other._end &&
-        _top == other._top &&
-        _bottom == other._bottom;
+    return _left == other._left &&
+    _right == other._right &&
+    _start == other._start &&
+    _end == other._end &&
+    _top == other._top &&
+    _bottom == other._bottom;
   }
 
   @override

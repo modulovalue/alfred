@@ -7,17 +7,17 @@ class WebSocketSessionUsersImpl with WebSocketSessionStartMixin implements Initi
   WebSocketSessionUsersImpl();
 
   @override
-  void onClose(
+  void on_close(
     final AlfredWebSocket ws,
   ) {
     active_users.remove(ws);
     active_users.forEach(
-      (final user) => user.addString('A user has left.'),
+      (final user) => user.add_string('A user has left.'),
     );
   }
 
   @override
-  void onError(
+  void on_error(
     final AlfredWebSocket ws,
     final dynamic error,
   ) {
@@ -25,37 +25,37 @@ class WebSocketSessionUsersImpl with WebSocketSessionStartMixin implements Initi
   }
 
   @override
-  void onMessageString(
+  void on_message_string(
     final AlfredWebSocket ws,
     final String data,
   ) {
     active_users.forEach(
       (final user) {
-        user.addString(data);
+        user.add_string(data);
       },
     );
   }
 
   @override
-  void onMessageBytes(
+  void on_message_bytes(
     final AlfredWebSocket ws,
     final List<int> data,
   ) {
     for (final user in active_users) {
-      user.addBytes(data);
+      user.add_bytes(data);
     }
   }
 
   @override
-  InitiatedWebSocketSession onOpen(
+  InitiatedWebSocketSession on_open(
     final AlfredWebSocket ws,
   ) {
     active_users.add(ws);
     for (final user in active_users) {
       if (user == ws) {
-        user.addString('You have joined the chat.');
+        user.add_string('You have joined the chat.');
       } else {
-        user.addString('A new user joined the chat.');
+        user.add_string('A new user joined the chat.');
       }
     }
     return this;
@@ -65,7 +65,7 @@ class WebSocketSessionUsersImpl with WebSocketSessionStartMixin implements Initi
     final String message,
   ) {
     for (final user in active_users) {
-      user.addString(message);
+      user.add_string(message);
     }
   }
 }

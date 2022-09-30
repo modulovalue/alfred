@@ -1,23 +1,23 @@
 library three_dart.test.test036;
 
-import 'package:three_dart/core/core.dart';
-import 'package:three_dart/lights/lights.dart';
-import 'package:three_dart/math/math.dart';
-import 'package:three_dart/movers/movers.dart';
-import 'package:three_dart/scenes/scenes.dart';
-import 'package:three_dart/shaders/shaders.dart';
-import 'package:three_dart/shapes/shapes.dart';
-import 'package:three_dart/techniques/techniques.dart' as techniques;
-import 'package:three_dart/views/views.dart';
+import 'package:three_dart/core.dart';
+import 'package:three_dart/lights.dart';
+import 'package:three_dart/math.dart';
+import 'package:three_dart/movers.dart';
+import 'package:three_dart/scenes.dart';
+import 'package:three_dart/shaders.dart';
+import 'package:three_dart/shapes.dart';
+import 'package:three_dart/techniques.dart' as techniques;
+import 'package:three_dart/views.dart';
 
 import '../../common/common.dart';
 
 void main() {
   ShellPage("Test 036")
     ..addLargeCanvas("testCanvas")
-    ..addPar(["Test of the texture layout cover technique."])
+    ..add_par(["Test of the texture layout cover technique."])
     ..addControlBoxes(["blends"])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["«[Back to Tests|../]"]);
   final td = ThreeDart.fromId("testCanvas");
   final secondMover = Group()
     ..add(UserRotator(input: td.userInput))
@@ -79,5 +79,5 @@ void main() {
       "Overwrite",
       () => layout.blend = ColorBlendType.Overwrite,
     );
-  showFPS(td);
+  show_fps(td);
 }

@@ -8,8 +8,8 @@ class NotFound404Middleware implements AlfredMiddleware {
   Future<void> process(
     final ServeContext c,
   ) async {
-    c.res.setStatusCode(httpStatusNotFound404);
-    c.res.writeString('404 not found');
+    c.res.set_status_code(httpStatusNotFound404);
+    c.res.write_string('404 not found');
     await c.res.close();
   }
 }

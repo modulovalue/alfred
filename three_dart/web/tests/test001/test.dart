@@ -1,17 +1,17 @@
 library three_dart.test.test001;
 
-import 'package:three_dart/core/core.dart' as three_dart;
-import 'package:three_dart/movers/movers.dart';
-import 'package:three_dart/scenes/scenes.dart';
-import 'package:three_dart/shapes/shapes.dart';
-import 'package:three_dart/techniques/techniques.dart';
+import 'package:three_dart/core.dart' as three_dart;
+import 'package:three_dart/movers.dart';
+import 'package:three_dart/scenes.dart';
+import 'package:three_dart/shapes.dart';
+import 'package:three_dart/techniques.dart';
 
 import '../../common/common.dart' as common;
 
 void main() {
   final page = common.ShellPage("Test 001")
     ..addLargeCanvas("testCanvas")
-    ..addPar([
+    ..add_par([
       "Test of the Depth shader with a single auto-rotating shape. ",
       "The striations are caused by the depth being stored across the RGB channels. ",
       "Depth can also be sent to all the channels causing a grey scale but at ",
@@ -19,7 +19,7 @@ void main() {
       "be used for light shadow depth texture."
     ])
     ..addControlBoxes(["controls"])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["«[Back to Tests|../]"]);
   final obj = three_dart.Entity()
     ..shape = toroid()
     ..mover = Rotator();
@@ -41,5 +41,5 @@ void main() {
       ..addCode("Vertex Shader", "glsl", 0, tech.vertexSourceCode.split("\n"))
       ..addCode("Fragment Shader", "glsl", 0, tech.fragmentSourceCode.split("\n"));
   });
-  common.showFPS(td);
+  common.show_fps(td);
 }

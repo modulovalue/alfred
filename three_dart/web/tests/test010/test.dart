@@ -1,23 +1,23 @@
 library three_dart.test.test010;
 
-import 'package:three_dart/core/core.dart' as three_dart;
-import 'package:three_dart/lights/lights.dart' as lights;
-import 'package:three_dart/math/math.dart' as math;
-import 'package:three_dart/movers/movers.dart' as movers;
-import 'package:three_dart/scenes/scenes.dart' as scenes;
-import 'package:three_dart/shapes/shapes.dart' as shapes;
-import 'package:three_dart/techniques/techniques.dart' as techniques;
+import 'package:three_dart/core.dart' as three_dart;
+import 'package:three_dart/lights.dart' as lights;
+import 'package:three_dart/math.dart' as math;
+import 'package:three_dart/movers.dart' as movers;
+import 'package:three_dart/scenes.dart' as scenes;
+import 'package:three_dart/shapes.dart' as shapes;
+import 'package:three_dart/techniques.dart' as techniques;
 
 import '../../common/common.dart' as common;
 
 void main() {
   final common.ShellPage page = common.ShellPage("Test 010")
     ..addLargeCanvas("testCanvas")
-    ..addPar([
+    ..add_par([
       "A test of the Material Lighting shader with solid color and ",
       "a directional light with a cube texture bump map."
     ])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["«[Back to Tests|../]"]);
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
   final three_dart.Entity obj = three_dart.Entity()
     ..shape = shapes.cube()
@@ -41,5 +41,5 @@ void main() {
       ..addCode("Vertex Shader", "glsl", 0, tech.vertexSourceCode.split("\n"))
       ..addCode("Fragment Shader", "glsl", 0, tech.fragmentSourceCode.split("\n"));
   });
-  common.showFPS(td);
+  common.show_fps(td);
 }

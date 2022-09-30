@@ -2,8 +2,7 @@
 // TODO add title.
 // TODO add description.
 
-// Informative
-
+// region Informative
 const int httpStatusContinue100 = 100;
 
 const int httpStatusSwitchingProtocols101 = 101;
@@ -11,9 +10,9 @@ const int httpStatusSwitchingProtocols101 = 101;
 const int httpStatusProcessing102 = 102;
 
 const int httpStatusEarlyHints103 = 103;
+// endregion
 
-// Success
-
+// region Success
 const int httpStatusOk200 = 200;
 
 const int httpStatusCreated201 = 201;
@@ -33,9 +32,9 @@ const int httpStatusMultiStatus207 = 207;
 const int httpStatusAlreadyReported208 = 208;
 
 const int httpStatusIMUsed226 = 226;
+// endregion
 
-// Redirection
-
+// region Redirection
 const int httpStatusMultipleChoices300 = 300;
 
 const int httpStatusMovedPermanently301 = 301;
@@ -53,9 +52,9 @@ const int httpStatusSwitchProxy306 = 306;
 const int httpStatusTemporaryRedirect307 = 307;
 
 const int httpStatusPermanentRedirect308 = 308;
+// endregion
 
-// Client error
-
+// region Client error
 const int httpStatusBadRequest400 = 400;
 
 const int httpStatusUnauthorized401 = 401;
@@ -111,9 +110,9 @@ const int httpStatusTooManyRequests429 = 429;
 const int httpStatusRequestHeaderFieldsTooLarge431 = 431;
 
 const int httpStatusUnavailableForLegalReasons451 = 451;
+// endregion
 
-// Server error
-
+// region Server error
 const int httpStatusInternalServerError500 = 500;
 
 const int httpStatusNotImplemented501 = 501;
@@ -135,9 +134,9 @@ const int httpStatusLoopDetected508 = 508;
 const int httpStatusNotExtended510 = 510;
 
 const int httpStatusNetworkAuthenticationRequired511 = 511;
+// endregion
 
-// Caching warning
-
+// region Caching warning
 const int httpStatusResponseIsStale110 = 110;
 
 const int httpStatusRevalidationFailed111 = 111;
@@ -151,9 +150,9 @@ const int httpStatusMiscellaneousWarning199 = 199;
 const int httpStatusTransformationApplied214 = 214;
 
 const int httpStatusMiscellaneousPersistWarning299 = 299;
+// endregion
 
-// Unofficial codes.
-
+// region Unofficial codes
 const int httpStatusCheckpoint103 = 103;
 
 const int httpStatusThisIsFine218 = 218;
@@ -177,17 +176,17 @@ const int httpStatusSiteIsOverloaded529 = 529;
 const int httpStatusSiteIsFrozen530 = 530;
 
 const int httpStatusNetworkReadTimeoutError598 = 598;
+// endregion
 
-// Internet information services
-
+// region Internet information services
 const int httpStatusLoginTimeout440 = 440;
 
 const int httpStatusRetryWith449 = 449;
 
 const int httpStatusRedirect451 = 451;
+// endregion
 
-// nginx
-
+// region Nginx
 const int httpStatusNoResponse444 = 444;
 
 const int httpStatusRequestHeaderTooLarge494 = 494;
@@ -197,9 +196,9 @@ const int httpStatusSSLCertificateRequired496 = 496;
 const int httpStatusHTTPRequestSentToHTTPSPort497 = 497;
 
 const int httpStatusClientClosedRequest499 = 499;
+// endregion
 
-// Cloudflare
-
+// region Cloudflare
 const int httpStatusWebServerReturnedAnUnknownError520 = 520;
 
 const int httpStatusWebServerIsDown521 = 521;
@@ -215,3 +214,4 @@ const int httpStatusSSLHandshakeFailed525 = 525;
 const int httpStatusInvalidSSLCertificate526 = 526;
 
 const int httpStatusRailgunError527 = 527;
+// endregion

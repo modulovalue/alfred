@@ -16,8 +16,8 @@ class InternalError500Middleware implements AlfredMiddleware {
     final ServeContext c,
   ) async {
     try {
-      c.res.setStatusCode(httpStatusInternalServerError500);
-      c.res.writeString(error.toString());
+      c.res.set_status_code(httpStatusInternalServerError500);
+      c.res.write_string(error.toString());
       await c.res.close();
     } on Object catch (_) {}
   }

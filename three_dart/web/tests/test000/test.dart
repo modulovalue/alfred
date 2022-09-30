@@ -3,15 +3,15 @@ import 'dart:convert';
 import 'dart:html';
 import 'dart:typed_data';
 
-import 'package:three_dart/collisions/collisions.dart';
-import 'package:three_dart/core/core.dart';
-import 'package:three_dart/data/data.dart';
-import 'package:three_dart/debug/debug.dart';
-import 'package:three_dart/math/math.dart';
-import 'package:three_dart/movers/movers.dart';
-import 'package:three_dart/scenes/scenes.dart';
-import 'package:three_dart/shapes/shapes.dart';
-import 'package:three_dart/techniques/techniques.dart';
+import 'package:three_dart/collisions.dart';
+import 'package:three_dart/core.dart';
+import 'package:three_dart/data.dart';
+import 'package:three_dart/debug.dart';
+import 'package:three_dart/math.dart';
+import 'package:three_dart/movers.dart';
+import 'package:three_dart/scenes.dart';
+import 'package:three_dart/shapes.dart';
+import 'package:three_dart/techniques.dart';
 
 import '../../common/common.dart';
 import '../../examples/chess/game.dart' as chess;
@@ -33,7 +33,7 @@ void main() {
   addChessTests(tests);
   ShellPage("Unit-tests", false)
     ..addElem(elem)
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["«[Back to Tests|../]"]);
 }
 
 void addBench(TestManager tests) {

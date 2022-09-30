@@ -314,8 +314,7 @@ class Border extends BoxBorder {
     if (other is! Border) {
       return null;
     } else {
-      if (other is Border &&
-          BorderSide.canMerge(top, other.top) &&
+      if (BorderSide.canMerge(top, other.top) &&
           BorderSide.canMerge(right, other.right) &&
           BorderSide.canMerge(bottom, other.bottom) &&
           BorderSide.canMerge(left, other.left)) {
@@ -514,8 +513,7 @@ class BorderDirectional extends BoxBorder {
   @override
   BoxBorder? add(ShapeBorder other, {bool reversed = false}) {
     if (other is BorderDirectional) {
-      if (other is BorderDirectional &&
-          BorderSide.canMerge(top, other.top) &&
+      if (BorderSide.canMerge(top, other.top) &&
           BorderSide.canMerge(start, other.start) &&
           BorderSide.canMerge(end, other.end) &&
           BorderSide.canMerge(bottom, other.bottom)) {

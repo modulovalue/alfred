@@ -2,16 +2,16 @@ library three_dart.test.test046;
 
 import 'dart:html' as html;
 
-import 'package:three_dart/core/core.dart' as three_dart;
-import 'package:three_dart/input/input.dart';
-import 'package:three_dart/lights/lights.dart';
-import 'package:three_dart/math/math.dart';
-import 'package:three_dart/movers/movers.dart';
-import 'package:three_dart/scenes/scenes.dart';
-import 'package:three_dart/shapes/shapes.dart';
-import 'package:three_dart/techniques/techniques.dart';
-import 'package:three_dart/textures/textures.dart';
-import 'package:three_dart/views/views.dart';
+import 'package:three_dart/core.dart' as three_dart;
+import 'package:three_dart/input.dart';
+import 'package:three_dart/lights.dart';
+import 'package:three_dart/math.dart';
+import 'package:three_dart/movers.dart';
+import 'package:three_dart/scenes.dart';
+import 'package:three_dart/shapes.dart';
+import 'package:three_dart/techniques.dart';
+import 'package:three_dart/textures.dart';
+import 'package:three_dart/views.dart';
 
 import '../../common/common.dart' as common;
 
@@ -19,12 +19,12 @@ void main() {
   common.ShellPage("Test 046")
     ..addLargeCanvas("testCanvas")
     ..addControlBoxes(["buttons"])
-    ..addPar([
+    ..add_par([
       "Test of the fullscreen function of the three_dart. ",
       "Use the above button and press escape to exit ",
       "or use the spacebar to toggle fullscreen."
     ])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["«[Back to Tests|../]"]);
 
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
 
@@ -78,5 +78,5 @@ void main() {
     }
   });
 
-  common.showFPS(td);
+  common.show_fps(td);
 }

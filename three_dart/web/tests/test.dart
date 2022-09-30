@@ -10,7 +10,7 @@ void main() {
   }
   ShellPage("3Dart Tests")
     ..addElem(elem)
-    ..addPar(["«[Back to Home|../]"]);
+    ..add_par(["«[Back to Home|../]"]);
 }
 
 void addTest(

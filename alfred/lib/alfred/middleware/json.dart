@@ -17,8 +17,8 @@ class ServeJson implements AlfredMiddleware {
   Future<dynamic> process(
     final ServeContext c,
   ) {
-    c.res.setContentTypeJson();
-    c.res.writeString(jsonEncode(value));
+    c.res.set_content_type_json();
+    c.res.write_string(jsonEncode(value));
     return c.res.close();
   }
 }
@@ -38,8 +38,8 @@ class ServeJsonBuilder implements AlfredMiddleware {
   Future<void> process(
     final ServeContext c,
   ) async {
-    c.res.setContentTypeJson();
-    c.res.writeString(jsonEncode(await value(c)));
+    c.res.set_content_type_json();
+    c.res.write_string(jsonEncode(await value(c)));
     return c.res.close();
   }
 }

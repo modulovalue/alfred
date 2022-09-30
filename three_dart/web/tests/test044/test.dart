@@ -1,21 +1,21 @@
 library three_dart.test.test044;
 
-import 'package:three_dart/core/core.dart' as three_dart;
-import 'package:three_dart/lights/lights.dart' as lights;
-import 'package:three_dart/math/math.dart' as math;
-import 'package:three_dart/movers/movers.dart' as movers;
-import 'package:three_dart/scenes/scenes.dart' as scenes;
-import 'package:three_dart/shapes/shapes.dart' as shapes;
-import 'package:three_dart/techniques/techniques.dart' as techniques;
-import 'package:three_dart/textures/textures.dart' as textures;
+import 'package:three_dart/core.dart' as three_dart;
+import 'package:three_dart/lights.dart' as lights;
+import 'package:three_dart/math.dart' as math;
+import 'package:three_dart/movers.dart' as movers;
+import 'package:three_dart/scenes.dart' as scenes;
+import 'package:three_dart/shapes.dart' as shapes;
+import 'package:three_dart/techniques.dart' as techniques;
+import 'package:three_dart/textures.dart' as textures;
 
 import '../../common/common.dart' as common;
 
 void main() {
   final common.ShellPage page = common.ShellPage("Test 044")
     ..addLargeCanvas("testCanvas")
-    ..addPar(["A test of the Material Lighting shader with fog. ", "This test is similar to test 005 except with fog."])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["A test of the Material Lighting shader with fog. ", "This test is similar to test 005 except with fog."])
+    ..add_par(["«[Back to Tests|../]"]);
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
   final three_dart.Entity obj = three_dart.Entity()
     ..shape = (shapes.cube()..adjustNormals())
@@ -42,5 +42,5 @@ void main() {
       ..addCode("Vertex Shader", "glsl", 0, tech.vertexSourceCode.split("\n"))
       ..addCode("Fragment Shader", "glsl", 0, tech.fragmentSourceCode.split("\n"));
   });
-  common.showFPS(td);
+  common.show_fps(td);
 }

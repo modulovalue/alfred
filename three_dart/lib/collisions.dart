@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import '../math/math.dart';
+import 'math.dart';
 
 // FUTURE: Add the following:
 // - TwoRegion2

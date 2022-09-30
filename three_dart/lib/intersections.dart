@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import '../math/math.dart';
+import 'math.dart';
 
 /// The common shared result of a intersection test between shapes.
 class BaseResult {

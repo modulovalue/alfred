@@ -1,47 +1,50 @@
 import 'dart:math';
 
-HlcImpl fromDateHlc(
-  final DateTime dateTime,
-  final String nodeId,
-) =>
-    HlcImpl(
-      dateTime.millisecondsSinceEpoch,
-      0,
-      nodeId,
-    );
+HlcImpl from_date_hlc(
+  final DateTime date_time,
+  final String node_id,
+) {
+  return HlcImpl(
+    date_time.millisecondsSinceEpoch,
+    0,
+    node_id,
+  );
+}
 
-HlcImpl fromLogicalTimeHlc(
-  final int logicalTime,
-  final String nodeId,
-) =>
-    HlcImpl(
-      logicalTime >> hlcShift,
-      logicalTime & hlcMaxCounter,
-      nodeId,
-    );
+HlcImpl from_logical_time_hlc(
+  final int logical_time,
+  final String node_id,
+) {
+  return HlcImpl(
+    logical_time >> hlc_shift,
+    logical_time & hlc_max_counter,
+    node_id,
+  );
+}
 
-HlcImpl nowHlc(
-  final String nodeId,
-) =>
-    fromDateHlc(DateTime.now(), nodeId);
+HlcImpl now_hlc(
+  final String node_id,
+) {
+  return from_date_hlc(DateTime.now(), node_id);
+}
 
-Hlc parseHlc(
+Hlc parse_hlc(
   final String timestamp, [
-  final String Function(String nodeId)? idDecoder,
+  final String Function(String nodeId)? id_decoder,
 ]) {
-  final counterDash = timestamp.indexOf('-', timestamp.lastIndexOf(':'));
-  final nodeIdDash = timestamp.indexOf('-', counterDash + 1);
-  final millis = DateTime.parse(timestamp.substring(0, counterDash)).millisecondsSinceEpoch;
-  final counter = int.parse(timestamp.substring(counterDash + 1, nodeIdDash), radix: 16);
-  final nodeId = timestamp.substring(nodeIdDash + 1);
+  final counter_dash = timestamp.indexOf('-', timestamp.lastIndexOf(':'));
+  final node_id_dash = timestamp.indexOf('-', counter_dash + 1);
+  final millis = DateTime.parse(timestamp.substring(0, counter_dash)).millisecondsSinceEpoch;
+  final counter = int.parse(timestamp.substring(counter_dash + 1, node_id_dash), radix: 16);
+  final node_id = timestamp.substring(node_id_dash + 1);
   return HlcImpl(
     millis,
     counter,
     () {
-      if (idDecoder != null) {
-        return idDecoder(nodeId);
+      if (id_decoder != null) {
+        return id_decoder(node_id);
       } else {
-        return nodeId;
+        return node_id;
       }
     }(),
   );
@@ -51,7 +54,7 @@ Hlc parseHlc(
 /// canonical timestamp to preserve monotonicity.
 /// Returns an updated canonical timestamp instance.
 /// Local wall time will be used if [millis] isn't supplied.
-Hlc receiveHlc(
+Hlc receive_hlc(
   final Hlc canonical,
   final Hlc remote, {
   int? millis,
@@ -60,23 +63,23 @@ Hlc receiveHlc(
   // ignore: parameter_assignments
   millis = millis ?? DateTime.now().millisecondsSinceEpoch;
   // No need to do any more work if the remote logical time is lower
-  if (canonical.logicalTime >= remote.logicalTime) {
+  if (canonical.logical_time >= remote.logical_time) {
     return canonical;
-  } else if (canonical.nodeId == remote.nodeId) {
+  } else if (canonical.node_id == remote.node_id) {
     // Assert the node id
-    throw DuplicateNodeException(canonical.nodeId.toString());
-  } else if (remote.millis - millis > hlcMaxDrift) {
+    throw DuplicateNodeException(canonical.node_id.toString());
+  } else if (remote.millis - millis > hlc_max_drift) {
     // Assert the remote clock drift
     throw ClockDriftException(remote.millis - millis);
   } else {
-    return fromLogicalTimeHlc(remote.logicalTime, canonical.nodeId);
+    return from_logical_time_hlc(remote.logical_time, canonical.node_id);
   }
 }
 
 /// Generates a unique, monotonic timestamp suitable for transmission to
 /// another system in string format. Local wall time will be used if
 /// [millis] isn't supplied.
-Hlc sendHlc(
+Hlc send_hlc(
   final Hlc canonical, {
   int? millis,
 }) {
@@ -84,37 +87,42 @@ Hlc sendHlc(
   // ignore: parameter_assignments
   millis = millis ?? DateTime.now().millisecondsSinceEpoch;
   // Unpack the canonical time and counter
-  final millisOld = canonical.millis;
-  final counterOld = canonical.counter;
+  final millis_old = canonical.millis;
+  final counter_old = canonical.counter;
   // Calculate the next time and counter
   // * ensure that the logical time never goes backward
   // * increment the counter if time does not advance
-  final millisNew = max(millisOld, millis);
-  final counterNew = () {
-    if (millisOld == millisNew) {
-      return counterOld + 1;
+  final millis_new = max(millis_old, millis);
+  final counter_new = () {
+    if (millis_old == millis_new) {
+      return counter_old + 1;
     } else {
       return 0;
     }
   }();
   // Check the result for drift and counter overflow
-  if (millisNew - millis > hlcMaxDrift) {
-    throw ClockDriftException(millisNew - millis);
-  } else if (counterNew > hlcMaxCounter) {
-    throw OverflowException(counterNew);
+  if (millis_new - millis > hlc_max_drift) {
+    throw ClockDriftException(millis_new - millis);
+  } else if (counter_new > hlc_max_counter) {
+    throw OverflowException(counter_new);
   } else {
-    return HlcImpl(millisNew, counterNew, canonical.nodeId);
+    return HlcImpl(
+      millis_new,
+      counter_new,
+      canonical.node_id,
+    );
   }
 }
 
-HlcImpl zeroHlc(
+HlcImpl zero_hlc(
   final String nodeId,
-) =>
-    HlcImpl(
-      0,
-      0,
-      nodeId,
-    );
+) {
+  return HlcImpl(
+    0,
+    0,
+    nodeId,
+  );
+}
 
 /// A Hybrid Logical Clock implementation.
 /// This class trades time precision for a guaranteed monotonically increasing
@@ -126,14 +134,14 @@ class HlcImpl implements Hlc {
   @override
   final int counter;
   @override
-  final String nodeId;
+  final String node_id;
 
   HlcImpl(
     final int millis,
     final this.counter,
-    final this.nodeId,
+    final this.node_id,
   )   : assert(
-          counter <= hlcMaxCounter,
+          counter <= hlc_max_counter,
           "Counter can't go beyond max counter.",
         ),
         // Detect microseconds and convert to millis
@@ -147,22 +155,22 @@ class HlcImpl implements Hlc {
         }());
 
   @override
-  int get logicalTime => (millis << hlcShift) + counter;
+  int get logical_time => (millis << hlc_shift) + counter;
 
   @override
   Hlc apply({
     final int? millis,
     final int? counter,
-    final String? nodeId,
+    final String? node_id,
   }) =>
       HlcImpl(
         millis ?? this.millis,
         counter ?? this.counter,
-        nodeId ?? this.nodeId,
+        node_id ?? this.node_id,
       );
 
   @override
-  String toJson() => toString();
+  String to_json() => toString();
 
   @override
   String toString() =>
@@ -170,7 +178,7 @@ class HlcImpl implements Hlc {
       '-' +
       counter.toRadixString(16).toUpperCase().padLeft(4, '0') +
       '-' +
-      nodeId.toString();
+      node_id.toString();
 
   @override
   int get hashCode => toString().hashCode;
@@ -197,7 +205,7 @@ class HlcImpl implements Hlc {
   bool operator >(
     final Hlc other,
   ) =>
-      other is Hlc && compareTo(other) > 0;
+      compareTo(other) > 0;
 
   @override
   bool operator >=(
@@ -209,11 +217,11 @@ class HlcImpl implements Hlc {
   int compareTo(
     final Hlc other,
   ) {
-    final time = logicalTime.compareTo(other.logicalTime);
+    final time = logical_time.compareTo(other.logical_time);
     if (time != 0) {
       return time;
     } else {
-      return nodeId.compareTo(other.nodeId);
+      return node_id.compareTo(other.node_id);
     }
   }
 }
@@ -227,14 +235,14 @@ abstract class Hlc implements Comparable<Hlc> {
 
   int get counter;
 
-  String get nodeId;
+  String get node_id;
 
-  int get logicalTime;
+  int get logical_time;
 
   Hlc apply({
     final int? millis,
     final int? counter,
-    final String? nodeId,
+    final String? node_id,
   });
 
   bool operator <(
@@ -253,19 +261,19 @@ abstract class Hlc implements Comparable<Hlc> {
     final Hlc other,
   );
 
+  String to_json();
+
   @override
   int compareTo(
     final Hlc other,
   );
-
-  String toJson();
 }
 
-const int hlcShift = 16;
+const int hlc_shift = 16;
 
-const int hlcMaxCounter = 0xFFFF;
+const int hlc_max_counter = 0xFFFF;
 
-const int hlcMaxDrift = 60000; // 1 minute in ms
+const int hlc_max_drift = 60000; // 1 minute in ms
 
 class ClockDriftException implements Exception {
   final int drift;
@@ -275,7 +283,8 @@ class ClockDriftException implements Exception {
   );
 
   @override
-  String toString() => 'Clock drift of ' + drift.toString() + ' ms exceeds maximum (' + hlcMaxDrift.toString() + ')';
+  String toString() =>
+      'Clock drift of ' + drift.toString() + ' ms exceeds maximum (' + hlc_max_drift.toString() + ')';
 }
 
 class OverflowException implements Exception {
@@ -290,12 +299,12 @@ class OverflowException implements Exception {
 }
 
 class DuplicateNodeException implements Exception {
-  final String nodeId;
+  final String node_id;
 
   const DuplicateNodeException(
-    final this.nodeId,
+    final this.node_id,
   );
 
   @override
-  String toString() => 'Duplicate node: ' + nodeId;
+  String toString() => 'Duplicate node: ' + node_id;
 }

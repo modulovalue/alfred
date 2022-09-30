@@ -1,9 +1,4 @@
-import 'package:three_dart/parser/calculator.dart';
-import 'package:three_dart/parser/diff.dart';
-import 'package:three_dart/parser/grammar.dart';
-import 'package:three_dart/parser/parser.dart';
-import 'package:three_dart/parser/simple.dart';
-import 'package:three_dart/parser/tokenizer.dart';
+import 'package:three_dart/parser.dart';
 
 // TODO fix test
 void main() {

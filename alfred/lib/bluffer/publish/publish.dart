@@ -270,7 +270,7 @@ void serializeToDisk(
   );
 }
 
-String singlePage({
+String single_page({
   required final Widget Function(BuildContext) builder,
   final Assets assets = const AssetsDefaultSinglePageImpl(),
 }) =>

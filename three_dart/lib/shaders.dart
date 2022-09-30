@@ -3,10 +3,10 @@
 import 'dart:typed_data' as typed;
 import 'dart:web_gl' as webgl;
 
-import '../core/core.dart';
-import '../data/data.dart';
-import '../math/math.dart';
-import '../textures/textures.dart';
+import 'core.dart';
+import 'data.dart';
+import 'math.dart';
+import 'textures.dart';
 
 /// The type of blending of multiple colors together.
 enum ColorBlendType {

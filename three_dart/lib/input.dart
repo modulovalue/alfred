@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:html' as html;
 
-import '../collections/collections.dart';
-import '../core/core.dart';
-import '../events/events.dart';
-import '../math/math.dart';
+import 'collections.dart';
+import 'core.dart';
+import 'events.dart';
+import 'math.dart';
 
 /// The user input object for changing HTML Element events
 /// into 3Dart events for user input.

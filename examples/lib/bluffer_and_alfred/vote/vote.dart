@@ -13,7 +13,7 @@ import 'package:alfred/util/open.dart';
 Future<void> main() async {
   final app = alfredWithRoutes(
     routes: [
-      AlfredRoutes(
+      AlfredRoutedRoutes(
         routes: [
           AlfredRoute.get(
             path: "/yes",

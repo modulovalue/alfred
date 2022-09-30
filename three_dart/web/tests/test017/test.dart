@@ -1,27 +1,27 @@
 library three_dart.test.test017;
 
-import 'package:three_dart/core/core.dart' as three_dart;
-import 'package:three_dart/lights/lights.dart';
-import 'package:three_dart/math/math.dart';
-import 'package:three_dart/movers/movers.dart';
-import 'package:three_dart/scenes/scenes.dart';
-import 'package:three_dart/shapes/shapes.dart';
-import 'package:three_dart/techniques/techniques.dart';
-import 'package:three_dart/textures/textures.dart';
-import 'package:three_dart/views/views.dart';
+import 'package:three_dart/core.dart' as three_dart;
+import 'package:three_dart/lights.dart';
+import 'package:three_dart/math.dart';
+import 'package:three_dart/movers.dart';
+import 'package:three_dart/scenes.dart';
+import 'package:three_dart/shapes.dart';
+import 'package:three_dart/techniques.dart';
+import 'package:three_dart/textures.dart';
+import 'package:three_dart/views.dart';
 
 import '../../common/common.dart' as common;
 
 void main() {
   final common.ShellPage page = common.ShellPage("Test 017")
     ..addLargeCanvas("testCanvas")
-    ..addPar([
+    ..add_par([
       "A test of the Material Lighting shader with solid color directional " +
           "light, cube mapped textures, and a reflection map. The specular map is " +
           "also used to define where reflections are painted."
     ])
     ..addControlBoxes(["shapes"])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["«[Back to Tests|../]"]);
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
   final three_dart.Entity obj = three_dart.Entity()..shape = sphere();
   final FrontTarget target = FrontTarget()..clearColor = false;
@@ -87,5 +87,5 @@ void main() {
       ..addCode("Vertex Shader", "glsl", 0, tech.vertexSourceCode.split("\n"))
       ..addCode("Fragment Shader", "glsl", 0, tech.fragmentSourceCode.split("\n"));
   });
-  common.showFPS(td);
+  common.show_fps(td);
 }

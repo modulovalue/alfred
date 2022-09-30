@@ -11,13 +11,13 @@ class StreamOfBytesMiddleware implements AlfredMiddleware {
   Future<void> process(
     final ServeContext c,
   ) async {
-    final headerContentType = c.res.mimeType;
-    if (headerContentType == null) {
-      c.res.setContentTypeBinary();
-    } else if (headerContentType == 'text/plain') {
-      c.res.setContentTypeBinary();
+    final header_content_type = c.res.mime_type;
+    if (header_content_type == null) {
+      c.res.set_content_type_binary();
+    } else if (header_content_type == 'text/plain') {
+      c.res.set_content_type_binary();
     }
-    await c.res.writeByteStream(bytes);
+    await c.res.write_byte_stream(bytes);
     await c.res.close();
   }
 }

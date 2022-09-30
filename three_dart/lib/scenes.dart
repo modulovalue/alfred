@@ -4,15 +4,15 @@
 
 import 'dart:math' as math;
 
-import '../collections/collections.dart';
-import '../core/core.dart';
-import '../events/events.dart';
-import '../math/math.dart';
-import '../movers/movers.dart';
-import '../shapes/shapes.dart';
-import '../techniques/techniques.dart' as techniques;
-import '../textures/textures.dart';
-import '../views/views.dart';
+import 'collections.dart';
+import 'core.dart';
+import 'events.dart';
+import 'math.dart';
+import 'movers.dart';
+import 'shapes.dart';
+import 'techniques.dart' as techniques;
+import 'textures.dart';
+import 'views.dart';
 
 /// A scene which is a composite of several other scenes used as passes.
 class Compound extends Collection<Scene> implements Scene {

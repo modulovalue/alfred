@@ -1,12 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
-// TODO remove this dependency, ...serialize.dart should be selfcontained.
-import 'cachapa_crdt_serialize.dart';
 import 'cachapa_hlc.dart';
 
 // https://github.com/cachapa/crdt 4.0.2 @ 84b4b2880e889b40a2d0674d6eaca1d241fe3fa9
 
+// region ds
 /// A CRDT backed by a in-memory map.
 /// Useful for testing, or for applications which
 /// only require temporary datasets.
@@ -14,29 +14,29 @@ class MapCrdt<K, V extends Object> extends CrdtBase<K, V> {
   final Map<K, Record<V>> _map = <K, Record<V>>{};
   final StreamController<MapEntry<K, V?>> _controller = StreamController<MapEntry<K, V?>>.broadcast();
   @override
-  final String nodeId;
+  final String node_id;
 
   MapCrdt(
-    final this.nodeId, [
+    final this.node_id, [
     final Map<K, Record<V>> seed = const {},
   ]) {
     _map.addAll(seed);
   }
 
   @override
-  bool containsKey(
+  bool contains_key(
     final K key,
   ) =>
       _map.containsKey(key);
 
   @override
-  Record<V>? getRecord(
+  Record<V>? get_record(
     final K key,
   ) =>
       _map[key];
 
   @override
-  void putRecord(
+  void put_record(
     final K key,
     final Record<V> value,
   ) {
@@ -46,7 +46,7 @@ class MapCrdt<K, V extends Object> extends CrdtBase<K, V> {
   }
 
   @override
-  void putRecords(
+  void put_records(
     final Map<K, Record<V>> recordMap,
   ) {
     _map.addAll(recordMap);
@@ -59,12 +59,12 @@ class MapCrdt<K, V extends Object> extends CrdtBase<K, V> {
   }
 
   @override
-  Map<K, Record<V>> recordMap({
-    final Hlc? modifiedSince,
+  Map<K, Record<V>> record_map({
+    final Hlc? modified_since,
   }) =>
       Map<K, Record<V>>.from(_map)
         ..removeWhere(
-          (final _, final record) => record.modified.logicalTime < (modifiedSince?.logicalTime ?? 0),
+          (final _, final record) => record.modified.logical_time < (modified_since?.logical_time ?? 0),
         );
 
   @override
@@ -80,25 +80,25 @@ class MapCrdt<K, V extends Object> extends CrdtBase<K, V> {
 }
 
 abstract class CrdtBase<K, V extends Object> implements Crdt<K, V> {
-  late Hlc _canonicalTime;
+  late Hlc _canonical_time;
 
   @override
-  Hlc get canonicalTime => _canonicalTime;
+  Hlc get canonical_time => _canonical_time;
 
   @override
-  String get nodeId;
+  String get node_id;
 
   @override
-  bool get isEmpty => map.isEmpty;
+  bool get is_empty => map.isEmpty;
 
   @override
   int get length => map.length;
 
   @override
   Map<K, V> get map {
-    final map = recordMap();
+    final map = record_map();
     map.removeWhere(
-      (final _, final record) => record.isDeleted,
+      (final _, final record) => record.is_deleted,
     );
     return map.map(
       (final key, final record) => MapEntry(
@@ -118,16 +118,16 @@ abstract class CrdtBase<K, V extends Object> implements Crdt<K, V> {
   /// Should be overridden if the implementation
   /// can do it more efficiently.
   void _refreshCanonicalTime() {
-    final map = recordMap();
-    _canonicalTime = fromLogicalTimeHlc(
+    final map = record_map();
+    _canonical_time = from_logical_time_hlc(
       () {
         if (map.isEmpty) {
           return 0;
         } else {
-          return map.values.map((final record) => record.hlc.logicalTime).reduce(max);
+          return map.values.map((final record) => record.hlc.logical_time).reduce(max);
         }
       }(),
-      nodeId,
+      node_id,
     );
   }
 
@@ -135,36 +135,36 @@ abstract class CrdtBase<K, V extends Object> implements Crdt<K, V> {
   V? get(
     final K key,
   ) =>
-      getRecord(key)?.value;
+      get_record(key)?.value;
 
   @override
   void put(
     final K key,
     final V? value,
   ) {
-    _canonicalTime = sendHlc(_canonicalTime);
-    final record = RecordImpl<V>(_canonicalTime, value, _canonicalTime);
-    putRecord(key, record);
+    _canonical_time = send_hlc(_canonical_time);
+    final record = RecordImpl<V>(_canonical_time, value, _canonical_time);
+    put_record(key, record);
   }
 
   @override
-  void putAll(
+  void put_all(
     final Map<K, V?> values,
   ) {
     // Avoid touching the canonical time if no data is inserted
     if (values.isNotEmpty) {
-      _canonicalTime = sendHlc(_canonicalTime);
+      _canonical_time = send_hlc(_canonical_time);
       final records = values.map<K, RecordImpl<V>>(
         (final key, final value) => MapEntry(
           key,
           RecordImpl(
-            _canonicalTime,
+            _canonical_time,
             value,
-            _canonicalTime,
+            _canonical_time,
           ),
         ),
       );
-      putRecords(records);
+      put_records(records);
     }
   }
 
@@ -178,10 +178,10 @@ abstract class CrdtBase<K, V extends Object> implements Crdt<K, V> {
       );
 
   @override
-  bool? isDeleted(
+  bool? is_deleted(
     final K key,
   ) =>
-      getRecord(key)?.isDeleted;
+      get_record(key)?.is_deleted;
 
   @override
   void clear({
@@ -190,7 +190,7 @@ abstract class CrdtBase<K, V extends Object> implements Crdt<K, V> {
     if (purge) {
       this.purge();
     } else {
-      putAll(
+      put_all(
         map.map(
           (final key, final _) => MapEntry(key, null),
         ),
@@ -202,10 +202,10 @@ abstract class CrdtBase<K, V extends Object> implements Crdt<K, V> {
   void merge(
     final Map<K, Record<V>> remoteRecords,
   ) {
-    final localRecords = recordMap();
+    final localRecords = record_map();
     remoteRecords.removeWhere(
       (final key, final value) {
-        _canonicalTime = receiveHlc(_canonicalTime, value.hlc);
+        _canonical_time = receive_hlc(_canonical_time, value.hlc);
         return localRecords[key] != null && localRecords[key]!.hlc >= value.hlc;
       },
     );
@@ -215,45 +215,45 @@ abstract class CrdtBase<K, V extends Object> implements Crdt<K, V> {
         RecordImpl<V>(
           value.hlc,
           value.value,
-          _canonicalTime,
+          _canonical_time,
         ),
       ),
     );
     // Store updated records.
-    putRecords(updatedRecords);
+    put_records(updatedRecords);
     // Increment canonical time.
-    _canonicalTime = sendHlc(_canonicalTime);
+    _canonical_time = send_hlc(_canonical_time);
   }
 
   @override
-  void mergeJson(
+  void merge_json(
     final String json, {
-    final K Function(String key)? keyDecoder,
-    final V Function(String key, dynamic value)? valueDecoder,
+    final K Function(String key)? key_decoder,
+    final V Function(String key, dynamic value)? value_decoder,
   }) =>
       merge(
-        crdtToJson<K, V>(
+        crdt_to_json<K, V>(
           json,
-          _canonicalTime,
-          keyDecoder: keyDecoder,
-          valueDecoder: valueDecoder,
+          _canonical_time,
+          key_decoder: key_decoder,
+          value_decoder: value_decoder,
         ),
       );
 
   @override
-  String toJson({
-    final Hlc? modifiedSince,
-    final String Function(K key)? keyEncoder,
-    final dynamic Function(K key, V? value)? valueEncoder,
+  String to_json({
+    final Hlc? modified_since,
+    final String Function(K key)? key_encoder,
+    final dynamic Function(K key, V? value)? value_encoder,
   }) =>
-      crdtFromJson(
-        recordMap(modifiedSince: modifiedSince),
-        keyEncoder: keyEncoder,
-        valueEncoder: valueEncoder,
+      crdt_from_json(
+        record_map(modified_since: modified_since),
+        key_encoder: key_encoder,
+        value_encoder: value_encoder,
       );
 
   @override
-  String toString() => recordMap().toString();
+  String toString() => record_map().toString();
 }
 
 class RecordImpl<V extends Object> implements Record<V> {
@@ -271,7 +271,7 @@ class RecordImpl<V extends Object> implements Record<V> {
   );
 
   @override
-  bool get isDeleted => value == null;
+  bool get is_deleted => value == null;
 
   @override
   // ignore: hash_and_equals
@@ -281,24 +281,24 @@ class RecordImpl<V extends Object> implements Record<V> {
       other is Record<V> && hlc == other.hlc && value == other.value;
 
   @override
-  String toString() => recordToJson(this, '').toString();
+  String toString() => record_to_json(this, '').toString();
 }
 
 abstract class Crdt<K, V> {
   /// Represents the latest logical time seen in the stored data
-  Hlc get canonicalTime;
+  Hlc get canonical_time;
 
-  String get nodeId;
+  String get node_id;
 
   /// Returns true if CRDT has any non-deleted records.
-  bool get isEmpty;
+  bool get is_empty;
 
   /// Get size of dataset excluding deleted records.
   int get length;
 
   /// Returns a simple key-value map without HLCs
   /// or deleted records.
-  /// See [recordMap].
+  /// See [record_map].
   Map<K, V> get map;
 
   V? get(
@@ -314,7 +314,7 @@ abstract class Crdt<K, V> {
 
   /// Inserts or updates all values in the CRDT and
   /// increments the canonical time accordingly.
-  void putAll(
+  void put_all(
     final Map<K, V?> values,
   );
 
@@ -328,7 +328,7 @@ abstract class Crdt<K, V> {
 
   /// Checks if a record is marked as deleted
   /// Returns null if record does not exist
-  bool? isDeleted(
+  bool? is_deleted(
     final K key,
   );
 
@@ -345,37 +345,37 @@ abstract class Crdt<K, V> {
   /// Merges two CRDTs and updates record and canonical clocks accordingly.
   /// See also [mergeJson()].
   void merge(
-    final Map<K, Record<V>> remoteRecords,
+    final Map<K, Record<V>> remote_records,
   );
 
   /// Merges two CRDTs and updates record and
   /// canonical clocks accordingly.
-  /// Use [keyDecoder] to convert non-string keys.
-  /// Use [valueDecoder] to convert non-native value types.
+  /// Use [key_decoder] to convert non-string keys.
+  /// Use [value_decoder] to convert non-native value types.
   /// See also [merge()].
-  void mergeJson(
+  void merge_json(
     final String json, {
-    final K Function(String key)? keyDecoder,
-    final V Function(String key, dynamic value)? valueDecoder,
+    final K Function(String key)? key_decoder,
+    final V Function(String key, dynamic value)? value_decoder,
   });
 
   /// Outputs the contents of this CRDT in Json format.
-  /// Use [modifiedSince] to encode only the most
+  /// Use [modified_since] to encode only the most
   /// recently modified records.
-  /// Use [keyEncoder] to convert non-string keys.
-  /// Use [valueEncoder] to convert non-native value types.
-  String toJson({
-    final Hlc? modifiedSince,
-    final String Function(K key)? keyEncoder,
-    final dynamic Function(K key, V? value)? valueEncoder,
+  /// Use [key_encoder] to convert non-string keys.
+  /// Use [value_encoder] to convert non-native value types.
+  String to_json({
+    final Hlc? modified_since,
+    final String Function(K key)? key_encoder,
+    final dynamic Function(K key, V? value)? value_encoder,
   });
 
-  bool containsKey(
+  bool contains_key(
     final K key,
   );
 
   /// Gets record containing value and HLC.
-  Record<V>? getRecord(
+  Record<V>? get_record(
     final K key,
   );
 
@@ -384,7 +384,7 @@ abstract class Crdt<K, V> {
   /// [put()] instead.
   /// Make sure to call [refreshCanonicalTime()]
   /// if using this method directly.
-  void putRecord(
+  void put_record(
     final K key,
     final Record<V> value,
   );
@@ -394,17 +394,17 @@ abstract class Crdt<K, V> {
   /// [putAll()] instead.
   /// Make sure to call [refreshCanonicalTime()]
   /// if using this method directly.
-  void putRecords(
-    final Map<K, Record<V>> recordMap,
+  void put_records(
+    final Map<K, Record<V>> record_map,
   );
 
   /// Retrieves CRDT map including HLCs. Useful
   /// for merging with other CRDTs.
-  /// Use [modifiedSince] to get only the most
+  /// Use [modified_since] to get only the most
   /// recently modified records.
   /// See also [toJson()].
-  Map<K, Record<V>> recordMap({
-    final Hlc? modifiedSince,
+  Map<K, Record<V>> record_map({
+    final Hlc? modified_since,
   });
 
   /// Watch for changes to this CRDT.
@@ -428,5 +428,97 @@ abstract class Record<V> {
 
   Hlc get modified;
 
-  bool get isDeleted;
+  bool get is_deleted;
 }
+// endregion
+
+// region serialize
+String crdt_from_json<K, V extends Object>(
+    final Map<K, Record<V>> map, {
+      final String Function(K key)? key_encoder,
+      final dynamic Function(K key, V? value)? value_encoder,
+    }) {
+  return jsonEncode(
+    map.map(
+          (final key, final value) => MapEntry(
+        key_encoder == null ? key.toString() : key_encoder(key),
+        record_to_json(
+          value,
+          key,
+          value_encoder: value_encoder,
+        ),
+      ),
+    ),
+  );
+}
+
+Map<K, Record<V>> crdt_to_json<K, V extends Object>(
+    final String json,
+    final Hlc canonical_time, {
+      final K Function(String key)? key_decoder,
+      final V Function(String key, dynamic value)? value_decoder,
+      final String Function(String)? node_id_decoder,
+    }) {
+  final now = now_hlc(canonical_time.node_id);
+  final modified = canonical_time >= now ? canonical_time : now;
+  return (jsonDecode(json) as Map<String, dynamic>).map(
+        (final key, dynamic value) => MapEntry(
+          () {
+        if (key_decoder == null) {
+          return key as K;
+        } else {
+          return key_decoder(key);
+        }
+      }(),
+      record_from_json<V>(
+        key,
+        value as Map<String, dynamic>,
+        modified,
+        value_decoder: value_decoder,
+        node_id_decoder: node_id_decoder,
+      ),
+    ),
+  );
+}
+
+RecordImpl<V> record_from_json<V extends Object>(
+    final dynamic key,
+    final Map<String, dynamic> map,
+    final Hlc modified, {
+      final V Function(String key, dynamic value)? value_decoder,
+      final String Function(String nodeId)? node_id_decoder,
+    }) {
+  return RecordImpl<V>(
+    parse_hlc(map['hlc'] as String, node_id_decoder),
+        () {
+      if (value_decoder == null || map['value'] == null) {
+        return map['value'] as V;
+      } else {
+        return value_decoder(key as String, map['value']);
+      }
+    }(),
+    modified,
+  );
+}
+
+@override
+Map<String, dynamic> record_to_json<V extends Object, O>(
+    final Record<V> record,
+    final O key, {
+      final dynamic Function(O key, V? value)? value_encoder,
+    }) {
+  return <String, dynamic>{
+    'hlc': record.hlc.to_json(),
+    'value': () {
+      if (value_encoder == null) {
+        return record.value;
+      } else {
+        return value_encoder(
+          key,
+          record.value,
+        );
+      }
+    }(),
+  };
+}
+// endregion

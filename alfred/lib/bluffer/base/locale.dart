@@ -235,7 +235,7 @@ class Locale {
     if (other is! Locale) {
       return false;
     }
-    return other is Locale && languageCode == other.languageCode && scriptCode == other.scriptCode && countryCode == other.countryCode;
+    return languageCode == other.languageCode && scriptCode == other.scriptCode && countryCode == other.countryCode;
   }
 
   @override

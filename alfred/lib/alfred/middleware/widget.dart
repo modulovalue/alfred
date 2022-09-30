@@ -17,7 +17,7 @@ class ServeWidgetBuilder implements AlfredMiddleware {
   Future<void> process(
     final ServeContext c,
   ) {
-    final html = singlePage(
+    final html = single_page(
       builder: (final context) => builder(c, context),
     );
     return ServeHtml(
@@ -37,7 +37,7 @@ class ServeWidgetImpl implements ServeWidget {
   Future<void> process(
     final ServeContext c,
   ) {
-    final html = singlePage(
+    final html = single_page(
       builder: (final context) => child,
     );
     return ServeHtml(
@@ -62,7 +62,7 @@ class ServeWidgetAppImpl implements ServeWidget {
     final ServeContext c,
   ) {
     onProcess?.call();
-    final html = singlePage(
+    final html = single_page(
       builder: (final context) => AppWidget(
         route: WidgetRouteSimpleImpl(
           title: title,
@@ -79,27 +79,27 @@ class ServeWidgetAppImpl implements ServeWidget {
 class ServeWidgetAppBuilderImpl implements ServeWidget {
   final Widget Function(ServeContext, BuildContext) builder;
   final String title;
-  final void Function()? onProcess;
+  final void Function()? on_process;
   final AppIncludes includes;
-  final bool enableCssReset;
+  final bool enable_css_reset;
 
   const ServeWidgetAppBuilderImpl({
     required final this.title,
     required final this.builder,
     final this.includes = const AppIncludesEmptyImpl(),
-    final this.enableCssReset = true,
-    final this.onProcess,
+    final this.enable_css_reset = true,
+    final this.on_process,
   });
 
   @override
   Future<void> process(
     final ServeContext c,
   ) {
-    onProcess?.call();
-    final html = singlePage(
+    on_process?.call();
+    final html = single_page(
       builder: (final context) => AppWidget(
         includes: includes,
-        enableCssReset: enableCssReset,
+        enableCssReset: enable_css_reset,
         route: WidgetRouteSimpleImpl(
           title: title,
           child: builder(c, context),

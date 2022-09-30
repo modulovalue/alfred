@@ -41,53 +41,53 @@ class AlfredResponseImpl implements AlfredResponse {
   Future<void> close() => res.close();
 
   @override
-  void setHeaderInteger(
+  void set_header_integer(
     final String key,
     final int value,
   ) =>
       res.headers.add(key, value);
 
   @override
-  void setHeaderString(
+  void set_header_string(
     final String key,
     final String value,
   ) =>
       res.headers.add(key, value);
 
   @override
-  void setStatusCode(
+  void set_status_code(
     final int statusCode,
   ) =>
       res.statusCode = statusCode;
 
   @override
-  void setContentType(
+  void set_content_type(
     final AlfredContentType? type,
   ) {
     if (type == null) {
       res.headers.contentType = null;
     } else {
       res.headers.contentType = ContentType(
-        type.primaryType,
-        type.subType,
+        type.primary_type,
+        type.sub_type,
       );
     }
   }
 
   @override
-  void writeString(
+  void write_string(
     final String s,
   ) =>
       res.write(s);
 
   @override
-  void writeBytes(
+  void write_bytes(
     final List<int> bytes,
   ) =>
       res.add(bytes);
 
   @override
-  Future<void> writeByteStream(
+  Future<void> write_byte_stream(
     final Stream<List<int>> stream,
   ) =>
       res.addStream(stream);
@@ -99,16 +99,16 @@ class AlfredResponseImpl implements AlfredResponse {
       res.redirect(uri);
 
   @override
-  void setContentTypeBinary() => res.headers.contentType = ContentType.binary;
+  void set_content_type_binary() => res.headers.contentType = ContentType.binary;
 
   @override
-  void setContentTypeHtml() => res.headers.contentType = ContentType.html;
+  void set_content_type_html() => res.headers.contentType = ContentType.html;
 
   @override
-  void setContentTypeJson() => res.headers.contentType = ContentType.json;
+  void set_content_type_json() => res.headers.contentType = ContentType.json;
 
   @override
-  String? get mimeType => res.headers.contentType?.mimeType;
+  String? get mime_type => res.headers.contentType?.mimeType;
 }
 
 class AlfredRequestImpl implements AlfredRequest {
@@ -136,12 +136,12 @@ class AlfredRequestImpl implements AlfredRequest {
   Uri get uri => req.uri;
 
   @override
-  Future<AlfredWebSocket> upgradeToWebsocket() async => AlfredWebSocketImpl(
+  Future<AlfredWebSocket> upgrade_to_websocket() async => AlfredWebSocketImpl(
         socket: await WebSocketTransformer.upgrade(req),
       );
 
   @override
-  String? get mimeType => headers.contentTypeMimeType;
+  String? get mime_type => headers.content_type_mime_type;
 }
 
 class AlfredHttpHeadersImpl implements AlfredHttpHeaders {
@@ -152,10 +152,10 @@ class AlfredHttpHeadersImpl implements AlfredHttpHeaders {
   });
 
   @override
-  String? get contentTypeMimeType => headers.contentType?.mimeType;
+  String? get content_type_mime_type => headers.contentType?.mimeType;
 
   @override
-  AlfredContentType? get contentType {
+  AlfredContentType? get content_type {
     final contentType = headers.contentType;
     if (contentType == null) {
       return null;
@@ -167,7 +167,7 @@ class AlfredHttpHeadersImpl implements AlfredHttpHeaders {
   }
 
   @override
-  String? getValue(
+  String? get_value(
     final String key,
   ) =>
       headers.value(key);
@@ -184,22 +184,22 @@ class AlfredContentTypeFromContentTypeImpl implements AlfredContentType {
   });
 
   @override
-  String get primaryType => contentType.primaryType;
+  String get primary_type => contentType.primaryType;
 
   @override
-  String get subType => contentType.subType;
+  String get sub_type => contentType.subType;
 
   @override
   String? get charset => contentType.charset;
 
   @override
-  String? getParameter(
+  String? get_parameter(
     final String key,
   ) =>
       contentType.parameters[key];
 
   @override
-  String get mimeType => contentType.mimeType;
+  String get mime_type => contentType.mimeType;
 }
 
 // TODO inline mime type dependency.
@@ -229,13 +229,13 @@ class AlfredWebSocketImpl implements AlfredWebSocket {
   });
 
   @override
-  void addString(
+  void add_string(
     final String string,
   ) =>
       socket.add(string);
 
   @override
-  void addBytes(
+  void add_bytes(
     final List<int> bytes,
   ) =>
       socket.add(bytes);
@@ -249,15 +249,15 @@ class AlfredWebSocketImpl implements AlfredWebSocket {
 
   @override
   StreamSubscription<dynamic> listen({
-    required final void Function(dynamic event)? onData,
-    required final Function? onError,
-    required final void Function()? onDone,
-    required final bool? cancelOnError,
+    required final void Function(dynamic event)? on_data,
+    required final Function? on_error,
+    required final void Function()? on_done,
+    required final bool? cancel_on_error,
   }) =>
       socket.listen(
-        onData,
-        onError: onError,
-        onDone: onDone,
-        cancelOnError: cancelOnError,
+        on_data,
+        onError: on_error,
+        onDone: on_done,
+        cancelOnError: cancel_on_error,
       );
 }

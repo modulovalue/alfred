@@ -2,34 +2,35 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:html';
 
-import 'package:three_dart/core/core.dart';
-import 'package:three_dart/parser/tokenizer.dart';
+import 'package:three_dart/core.dart';
+import 'package:three_dart/parser.dart';
 
 /// Prints an FPS output for the given TreeDart object ot the console.
-void showFPS(
+void show_fps(
   final ThreeDart td,
-) =>
-    Timer.periodic(
-      const Duration(milliseconds: 5000),
-      (final time) {
-        final fps = td.fps.toStringAsFixed(2);
-        if (fps != "0.00") {
-          print("$fps fps");
-        }
-      },
-    );
+) {
+  Timer.periodic(
+    const Duration(milliseconds: 5000),
+    (final time) {
+      final fps = td.fps.toStringAsFixed(2);
+      if (fps != "0.00") {
+        print("$fps fps");
+      }
+    },
+  );
+}
 
 typedef Texture2DSelectedHndl = void Function(
-  String fileName,
+  String file_name,
 );
 
 /// A radio button group for selecting a texture.
 class Texture2DGroup {
   /// The name of the element for the radio button group.
-  String _elemId;
+  String _elem_id;
 
   /// Indicates if the group should be kept in the URL.
-  bool _keepInURL;
+  bool _keep_in_url;
 
   /// The element to fill with radio buttons.
   Element _elem;
@@ -38,59 +39,76 @@ class Texture2DGroup {
   Texture2DSelectedHndl _hndl;
 
   /// Creates a new radio button group for selecting a texture.
-  factory Texture2DGroup(String elemId, Texture2DSelectedHndl hndl, [bool keepInURL = true]) {
-    final Element? elem = document.getElementById(elemId);
-    if (elem == null) throw Exception('Failed to find $elemId for Texture2DGroup');
-    return Texture2DGroup._(elemId, hndl, keepInURL, elem);
+  factory Texture2DGroup(
+    String elem_id,
+    Texture2DSelectedHndl hndl, [
+    bool keep_in_url = true,
+  ]) {
+    final elem = document.getElementById(elem_id);
+    if (elem == null) {
+      throw Exception('Failed to find $elem_id for Texture2DGroup');
+    } else {
+      return Texture2DGroup._(elem_id, hndl, keep_in_url, elem);
+    }
   }
 
   /// Creates a new radio button group for selecting a texture.
   Texture2DGroup._(
-    this._elemId,
-    this._hndl,
-    this._keepInURL,
-    this._elem,
+    final this._elem_id,
+    final this._hndl,
+    final this._keep_in_url,
+    final this._elem,
   );
 
   /// Adds a new texture radio button.
-  void add(String fileName, [bool checkedByDefault = false]) {
-    final ImageElement imgElem = ImageElement()
+  void add(
+    String file_name, [
+    bool checked_by_default = false,
+  ]) {
+    final img_elem = ImageElement()
       // ignore: unsafe_html
-      ..src = fileName
+      ..src = file_name
       ..width = 64
       ..height = 64
       ..style.border = 'solid 2px white';
-    final int index = this._elem.children.length;
-    imgElem.onClick.listen((_) {
+    final index = this._elem.children.length;
+    img_elem.onClick.listen((_) {
       this._elem.children.forEach((Element elem) {
-        if (elem is ImageElement) elem.style.border = 'solid 2px white';
+        if (elem is ImageElement) {
+          elem.style.border = 'solid 2px white';
+        }
       });
-      imgElem.style.border = 'solid 2px black';
-      this._hndl(fileName);
-      this._updateUrl(index);
+      img_elem.style.border = 'solid 2px black';
+      this._hndl(file_name);
+      this._update_url(index);
     });
-    this._elem.children.add(imgElem);
+    this._elem.children.add(img_elem);
     this._elem.children.add(BRElement());
-    bool itemIsChecked = false;
-    final String? urlText = Uri.base.queryParameters[this._elemId];
-    if (urlText == null) {
-      itemIsChecked = checkedByDefault;
-      this._updateUrl(index);
+    bool item_is_checked = false;
+    final url_text = Uri.base.queryParameters[this._elem_id];
+    if (url_text == null) {
+      item_is_checked = checked_by_default;
+      this._update_url(index);
     } else {
-      final int selectedIndex = int.parse(urlText);
-      itemIsChecked = selectedIndex == index;
+      final selectedIndex = int.parse(url_text);
+      item_is_checked = selectedIndex == index;
     }
-    if (itemIsChecked) imgElem.click();
+    if (item_is_checked) img_elem.click();
   }
 
   /// Updates the URL for changes in the radio group.
-  void _updateUrl(int index) {
-    if (!this._keepInURL) return;
-    final Uri current = Uri.base;
-    final Map<String, String> parameters = Map<String, String>.from(current.queryParameters);
-    parameters[this._elemId] = '$index';
-    final Uri newUrl = current.replace(queryParameters: parameters);
-    window.history.replaceState('', '', newUrl.toString());
+  void _update_url(
+    final int index,
+  ) {
+    if (this._keep_in_url) {
+      final current = Uri.base;
+      final parameters = Map<String, String>.from(current.queryParameters);
+      parameters[this._elem_id] = '$index';
+      final newUrl = current.replace(queryParameters: parameters);
+      window.history.replaceState('', '', newUrl.toString());
+    } else {
+      // Do nothing.
+    }
   }
 }
 
@@ -98,7 +116,7 @@ class Texture2DGroup {
 /// easily which will have a consistent look and feel.
 class ShellPage {
   DivElement _page;
-  Tokenizer? _parTokenizer;
+  Tokenizer? _par_tokenizer;
 
   // TODO this should have a declarative api.
   /// Creates a new shell page with an optional [title].
@@ -110,28 +128,28 @@ class ShellPage {
     if (body == null) {
       throw Exception('The html document body was null.');
     } else {
-      final scrollTop = DivElement()..className = "scrollTop";
-      body.append(scrollTop);
-      final scrollPage = DivElement()..className = "scrollPage";
-      body.append(scrollPage);
-      final pageCenter = DivElement()..className = "pageCenter";
-      scrollPage.append(pageCenter);
+      final scroll_top = DivElement()..className = "scrollTop";
+      body.append(scroll_top);
+      final scroll_page = DivElement()..className = "scrollPage";
+      body.append(scroll_page);
+      final page_center = DivElement()..className = "pageCenter";
+      scroll_page.append(page_center);
       if (title.isNotEmpty) {
         document.title = title;
         if (showTopTitle) {
           final titleElem = DivElement()
             ..className = "pageTitle"
             ..text = title;
-          pageCenter.append(titleElem);
+          page_center.append(titleElem);
         }
       }
       final page = DivElement();
-      pageCenter.append(page);
+      page_center.append(page);
       document.onScroll.listen(
         (final e) => Timer.run(
           () {
             final offset = document.documentElement?.scrollTop ?? 0;
-            scrollTop.style.top = "${-0.01 * offset}px";
+            scroll_top.style.top = "${-0.01 * offset}px";
           },
         ),
       );
@@ -145,33 +163,44 @@ class ShellPage {
   );
 
   /// The page element to append new data to.
-  DivElement get page => this._page;
+  DivElement get page {
+    return this._page;
+  }
 
   /// Adds a section header with the give [text] into the page.
   /// The [level] defines its weight where it is 0, largest to 4, smallest.
   /// The optional [id] is a custom link identifier for this header,
   /// if left blank the id will be auto-generated.
-  void addHeader(int level, String text, [String id = ""]) {
+  void add_header(
+    int level,
+    String text, [
+    String id = "",
+  ]) {
     // ignore: parameter_assignments
     level = level.clamp(0, 4);
-    // ignore: parameter_assignments
-    if (id.isEmpty) id = Uri.encodeFull(text);
-    final DivElement textHeaderElem = DivElement()
+    if (id.isEmpty) {
+      // ignore: parameter_assignments
+      id = Uri.encodeFull(text);
+    }
+    final text_header_elem = DivElement()
       ..className = "textHeader"
       ..id = id
       ..style.fontSize = "${28 - level * 3}px";
-    final AnchorElement anchor = AnchorElement()
+    final anchor = AnchorElement()
       // ignore: unsafe_html
       ..href = "#$id"
       ..text = text;
-    textHeaderElem.append(anchor);
-    this._page.append(textHeaderElem);
+    text_header_elem.append(anchor);
+    this._page.append(text_header_elem);
   }
 
   /// Adds a div element with an identifier for outputting custom output to.
-  void addDiv(String id, [String className = "codePar"]) {
-    final DivElement div = DivElement()
-      ..className = className
+  void add_div(
+    String id, [
+    String class_name = "codePar",
+  ]) {
+    final div = DivElement()
+      ..className = class_name
       ..id = id;
     this._page.append(div);
   }
@@ -183,28 +212,30 @@ class ShellPage {
   /// If the text is wrapped by back ticks the text will be syled like code.
   /// If the text has square brackets around the text it will be a link.
   /// The link can have a custom location after a vertical bar.
-  void addPar(List<String> text) {
+  void add_par(
+    final List<String> text,
+  ) {
     final tok = this._setupParTokenizer();
-    final DivElement parElem = DivElement()..className = "textPar";
+    final par_elem = DivElement()..className = "textPar";
     for (final Token token in tok.tokenize(text.join())) {
       switch (token.name) {
         case "Bold":
           final DivElement textElem = DivElement()
             ..className = "boldPar"
             ..text = token.text;
-          parElem.append(textElem);
+          par_elem.append(textElem);
           break;
         case "Italic":
           final DivElement textElem = DivElement()
             ..className = "italicPar"
             ..text = token.text;
-          parElem.append(textElem);
+          par_elem.append(textElem);
           break;
         case "Code":
           final DivElement textElem = DivElement()
             ..className = "codePar"
             ..text = token.text;
-          parElem.append(textElem);
+          par_elem.append(textElem);
           break;
         case "Link":
           if (token.text.contains("|")) {
@@ -214,7 +245,7 @@ class ShellPage {
               // ignore: unsafe_html
               ..href = parts[1]
               ..text = parts[0];
-            parElem.append(anchor);
+            par_elem.append(anchor);
           } else {
             final String id = Uri.encodeFull(token.text);
             final AnchorElement anchor = AnchorElement()
@@ -222,18 +253,18 @@ class ShellPage {
               // ignore: unsafe_html
               ..href = "#${id}"
               ..text = token.text;
-            parElem.append(anchor);
+            par_elem.append(anchor);
           }
           break;
         case "Other":
           final DivElement textElem = DivElement()
             ..className = "normalPar"
             ..text = token.text;
-          parElem.append(textElem);
+          par_elem.append(textElem);
           break;
       }
     }
-    this._page.append(parElem);
+    this._page.append(par_elem);
   }
 
   /// Gets the code parser for the given [lang].
@@ -471,7 +502,7 @@ class ShellPage {
   /// - For code use: "`Code`"
   ///   (This code is not color coded and for short snippets like identifiers)
   Tokenizer _setupParTokenizer() {
-    Tokenizer? tok = this._parTokenizer;
+    Tokenizer? tok = this._par_tokenizer;
     if (tok != null) return tok;
     tok = Tokenizer();
     tok.start("Start");
@@ -515,7 +546,7 @@ class ShellPage {
     tok.setToken("CodeEnd", "Code");
     tok.setToken("LinkEnd", "Link");
     tok.setToken("Other", "Other");
-    this._parTokenizer = tok;
+    this._par_tokenizer = tok;
     return tok;
   }
 }
@@ -1200,7 +1231,9 @@ class CheckGroup {
   void _updateUrl(int index, bool checked) {
     if (!this._keepInURL) return;
     String selectedItems = Uri.base.queryParameters[this._elemId] ?? '';
-    if (selectedItems.length < index) selectedItems = selectedItems.padRight(index - selectedItems.length + 1, '0');
+    if (selectedItems.length < index) {
+      selectedItems = selectedItems.padRight(index - selectedItems.length + 1, '0');
+    }
     String result = '';
     if (index > 0) result += selectedItems.substring(0, index);
     result += () {

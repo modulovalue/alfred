@@ -4,10 +4,10 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'dart:web_gl' as webgl;
 
-import '../core/core.dart';
-import '../events/events.dart';
-import '../input/input.dart';
-import '../math/math.dart';
+import 'core.dart';
+import 'events.dart';
+import 'input.dart';
+import 'math.dart';
 
 /// A roller which rotates an object in response to user input.
 class ColorPicker implements Interactable, Changeable {

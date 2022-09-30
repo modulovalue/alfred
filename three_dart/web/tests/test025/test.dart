@@ -1,24 +1,24 @@
 library three_dart.test.test025;
 
-import 'package:three_dart/core/core.dart' as three_dart;
-import 'package:three_dart/lights/lights.dart' as lights;
-import 'package:three_dart/math/math.dart' as math;
-import 'package:three_dart/movers/movers.dart' as movers;
-import 'package:three_dart/scenes/scenes.dart' as scenes;
-import 'package:three_dart/shapes/shapes.dart' as shapes;
-import 'package:three_dart/techniques/techniques.dart' as techniques;
+import 'package:three_dart/core.dart' as three_dart;
+import 'package:three_dart/lights.dart' as lights;
+import 'package:three_dart/math.dart' as math;
+import 'package:three_dart/movers.dart' as movers;
+import 'package:three_dart/scenes.dart' as scenes;
+import 'package:three_dart/shapes.dart' as shapes;
+import 'package:three_dart/techniques.dart' as techniques;
 
 import '../../common/common.dart' as common;
 
 void main() {
   final common.ShellPage page = common.ShellPage("Test 025")
     ..addLargeCanvas("testCanvas")
-    ..addPar([
+    ..add_par([
       "Test of the Material Lighting shader with a textured spot light. ",
       "Use Ctrl plus the mouse to move the light."
     ])
     ..addControlBoxes(["shapes"])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["«[Back to Tests|../]"]);
 
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
 
@@ -92,5 +92,5 @@ void main() {
       ..addCode("Vertex Shader", "glsl", 0, tech.vertexSourceCode.split("\n"))
       ..addCode("Fragment Shader", "glsl", 0, tech.fragmentSourceCode.split("\n"));
   });
-  common.showFPS(td);
+  common.show_fps(td);
 }

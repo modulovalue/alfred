@@ -1,22 +1,22 @@
 library three_dart.test.test004;
 
-import 'package:three_dart/core/core.dart' as three_dart;
-import 'package:three_dart/movers/movers.dart';
-import 'package:three_dart/scenes/scenes.dart';
-import 'package:three_dart/shapes/shapes.dart';
-import 'package:three_dart/techniques/techniques.dart';
+import 'package:three_dart/core.dart' as three_dart;
+import 'package:three_dart/movers.dart';
+import 'package:three_dart/scenes.dart';
+import 'package:three_dart/shapes.dart';
+import 'package:three_dart/techniques.dart';
 
 import '../../common/common.dart' as common;
 
 void main() {
   final common.ShellPage page = common.ShellPage("Test 004")
     ..addLargeCanvas("testCanvas")
-    ..addPar([
+    ..add_par([
       "Test of repeat use of a single mover and shape. There are 9 rings ",
       "moving at the same speed, however the second one is attached to ",
       "the first, the third to the second, and so on."
     ])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["«[Back to Tests|../]"]);
   final Rotator rotator = Rotator()
     ..deltaYaw = 0.51
     ..deltaPitch = 0.71
@@ -43,5 +43,5 @@ void main() {
       ..addCode("Vertex Shader", "glsl", 0, tech.vertexSourceCode.split("\n"))
       ..addCode("Fragment Shader", "glsl", 0, tech.fragmentSourceCode.split("\n"));
   });
-  common.showFPS(td);
+  common.show_fps(td);
 }

@@ -2,26 +2,26 @@ library three_dart.test.test002;
 
 import 'dart:math';
 
-import 'package:three_dart/core/core.dart' as three_dart;
-import 'package:three_dart/math/math.dart';
-import 'package:three_dart/movers/movers.dart';
-import 'package:three_dart/scenes/scenes.dart';
-import 'package:three_dart/shapes/shapes.dart';
-import 'package:three_dart/techniques/techniques.dart';
+import 'package:three_dart/core.dart' as three_dart;
+import 'package:three_dart/math.dart';
+import 'package:three_dart/movers.dart';
+import 'package:three_dart/scenes.dart';
+import 'package:three_dart/shapes.dart';
+import 'package:three_dart/techniques.dart';
 
 import '../../common/common.dart';
 
 void main() {
   ShellPage("Test 002")
     ..addLargeCanvas("testCanvas")
-    ..addPar([
+    ..add_par([
       "The inspection test is used to check that shapes are built correctly ",
       "and for checking the data provided by the shapes. ",
       "Also it is useful for testing out new generated shape configurations. ",
       "For loaded shape testing see test032."
     ])
     ..addControlBoxes(["controls", "shapes", "scalars"])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["«[Back to Tests|../]"]);
   final td = three_dart.ThreeDart.fromId("testCanvas");
   final obj = three_dart.Entity()
     ..mover = (Group()
@@ -223,5 +223,5 @@ void main() {
     ..add("1.0", () {
       tech.vectorScale = 1.0;
     });
-  showFPS(td);
+  show_fps(td);
 }

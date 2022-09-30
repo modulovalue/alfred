@@ -5,11 +5,11 @@
 // to. Together they create the view into a scene.
 import 'dart:web_gl' as webgl;
 
-import '../core/core.dart';
-import '../events/events.dart';
-import '../math/math.dart';
-import '../movers/movers.dart';
-import '../textures/textures.dart';
+import 'core.dart';
+import 'events.dart';
+import 'math.dart';
+import 'movers.dart';
+import 'textures.dart';
 
 /// A rendering target which renders to a texture instead of the screen.
 class BackTarget extends Target {

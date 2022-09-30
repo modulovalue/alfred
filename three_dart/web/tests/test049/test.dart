@@ -1,16 +1,16 @@
 library three_dart.test.test049;
 
-import 'package:three_dart/collisions/collisions.dart';
-import 'package:three_dart/core/core.dart' as three_dart;
-import 'package:three_dart/events/events.dart';
-import 'package:three_dart/input/input.dart';
-import 'package:three_dart/lights/lights.dart';
-import 'package:three_dart/math/math.dart';
-import 'package:three_dart/movers/movers.dart';
-import 'package:three_dart/scenes/scenes.dart';
-import 'package:three_dart/shapes/shapes.dart';
-import 'package:three_dart/techniques/techniques.dart';
-import 'package:three_dart/textures/textures.dart';
+import 'package:three_dart/collisions.dart';
+import 'package:three_dart/core.dart' as three_dart;
+import 'package:three_dart/events.dart';
+import 'package:three_dart/input.dart';
+import 'package:three_dart/lights.dart';
+import 'package:three_dart/math.dart';
+import 'package:three_dart/movers.dart';
+import 'package:three_dart/scenes.dart';
+import 'package:three_dart/shapes.dart';
+import 'package:three_dart/techniques.dart';
+import 'package:three_dart/textures.dart';
 
 import '../../common/common.dart' as common;
 
@@ -231,13 +231,13 @@ class Collider extends Mover {
 void main() {
   common.ShellPage("Test 049")
     ..addLargeCanvas("testCanvas")
-    ..addPar([
+    ..add_par([
       "This is an initial test (still has bugs) of a basic sphere physics collision. ",
       "This has sphere/sphere collision and sphere/plane collision. Some of the bugs is that ",
       "the spheres will still pass through eachother and the plane and there are no rotations yet."
     ])
     ..addControlBoxes(["options"])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["«[Back to Tests|../]"]);
 
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
 
@@ -286,5 +286,5 @@ void main() {
       td.userInput.lockOnClick = enable;
     }, false);
 
-  common.showFPS(td);
+  common.show_fps(td);
 }

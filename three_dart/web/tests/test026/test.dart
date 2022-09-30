@@ -1,27 +1,27 @@
 library three_dart.test.test026;
 
-import 'package:three_dart/core/core.dart' as three_dart;
-import 'package:three_dart/events/events.dart';
-import 'package:three_dart/lights/lights.dart';
-import 'package:three_dart/math/math.dart';
-import 'package:three_dart/movers/movers.dart';
-import 'package:three_dart/scenes/scenes.dart';
-import 'package:three_dart/shapes/shapes.dart';
-import 'package:three_dart/techniques/techniques.dart';
+import 'package:three_dart/core.dart' as three_dart;
+import 'package:three_dart/events.dart';
+import 'package:three_dart/lights.dart';
+import 'package:three_dart/math.dart';
+import 'package:three_dart/movers.dart';
+import 'package:three_dart/scenes.dart';
+import 'package:three_dart/shapes.dart';
+import 'package:three_dart/techniques.dart';
 
 import '../../common/common.dart' as common;
 
 void main() {
   final common.ShellPage page = common.ShellPage("Test 026")
     ..addLargeCanvas("testCanvas")
-    ..addPar([
+    ..add_par([
       "Test of the Material Lighting shader with a textured directional light. ",
       "The texturing of the directional light is being modified with a matrix. ",
       "The texture matrix is updated using the pre-update methods. ",
       "Use Ctrl plus the mouse to move the center object."
     ])
     ..addControlBoxes(["shapes"])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["«[Back to Tests|../]"]);
   final three_dart.ThreeDart td = three_dart.ThreeDart.fromId("testCanvas");
   final Directional dir1 = Directional()..mover = Constant.vectorTowards(0.3, 0.4, 1.0);
   final Directional dir2 = Directional()
@@ -82,5 +82,5 @@ void main() {
       ..addCode("Vertex Shader", "glsl", 0, tech.vertexSourceCode.split("\n"))
       ..addCode("Fragment Shader", "glsl", 0, tech.fragmentSourceCode.split("\n"));
   });
-  common.showFPS(td);
+  common.show_fps(td);
 }

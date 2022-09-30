@@ -11,8 +11,8 @@ class ServeHtml implements AlfredMiddleware {
   Future<void> process(
     final ServeContext c,
   ) async {
-    c.res.setContentTypeHtml();
-    c.res.writeString(html);
+    c.res.set_content_type_html();
+    c.res.write_string(html);
     await c.res.close();
   }
 }
@@ -28,8 +28,8 @@ class ServeHtmlBuilder implements AlfredMiddleware {
   Future<void> process(
     final ServeContext c,
   ) async {
-    c.res.setContentTypeHtml();
-    c.res.writeString(builder(c));
+    c.res.set_content_type_html();
+    c.res.write_string(builder(c));
     await c.res.close();
   }
 }

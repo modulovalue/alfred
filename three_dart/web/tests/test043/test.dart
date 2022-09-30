@@ -1,28 +1,28 @@
 library three_dart.test.test043;
 
-import 'package:three_dart/core/core.dart';
-import 'package:three_dart/events/events.dart';
-import 'package:three_dart/lights/lights.dart';
-import 'package:three_dart/math/math.dart';
-import 'package:three_dart/movers/movers.dart';
-import 'package:three_dart/scenes/scenes.dart';
-import 'package:three_dart/shapes/shapes.dart';
-import 'package:three_dart/techniques/techniques.dart';
-import 'package:three_dart/textures/textures.dart';
-import 'package:three_dart/views/views.dart';
+import 'package:three_dart/core.dart';
+import 'package:three_dart/events.dart';
+import 'package:three_dart/lights.dart';
+import 'package:three_dart/math.dart';
+import 'package:three_dart/movers.dart';
+import 'package:three_dart/scenes.dart';
+import 'package:three_dart/shapes.dart';
+import 'package:three_dart/techniques.dart';
+import 'package:three_dart/textures.dart';
+import 'package:three_dart/views.dart';
 
 import '../../common/common.dart' as common;
 
 void main() {
   common.ShellPage("Test 043")
     ..addLargeCanvas("testCanvas")
-    ..addPar([
+    ..add_par([
       "Test of the color picker, used to read the color of a pixel from a texture. " +
           "It uses a back buffer with solid colored entities to pick which one to move. " +
           "Also testing out the ability to screen shot a back buffer."
     ])
     ..addControlBoxes(["buttons"])
-    ..addPar(["«[Back to Tests|../]"]);
+    ..add_par(["«[Back to Tests|../]"]);
   final ThreeDart td = ThreeDart.fromId("testCanvas");
   final Group mover = Group()
     ..add(UserRotator(input: td.userInput))
@@ -116,5 +116,5 @@ void main() {
   common.ButtonGroup("buttons").add("Back target snapshot", () {
     td.textureLoader.readAll(backTarget.colorTexture, true).savePng("backBuffer.png");
   });
-  common.showFPS(td);
+  common.show_fps(td);
 }

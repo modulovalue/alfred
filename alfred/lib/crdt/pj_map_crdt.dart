@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 // TODO remove this.
 import 'package:collection/collection.dart';
 
@@ -162,7 +160,7 @@ abstract class _MapCrdtBase<K, V> implements MapCrdt<K, V> {
       throw ArgumentError(
         'node list doesn\'t contain the node of the record',
       );
-    } else if (record.clock.vectorClock.numNodes != vectorClock.numNodes) {
+    } else if (record.clock.vectorClock.num_nodes != vectorClock.num_nodes) {
       throw ArgumentError(
         'record vector clock does not have the same number of nodes as this crdt',
       );
@@ -219,7 +217,7 @@ class MapCrdtRoot<K, V> extends _MapCrdtBase<K, V> {
           }
         }()),
         super(records ?? {}) {
-    if (_vectorClock.numNodes != _nodes.length) {
+    if (_vectorClock.num_nodes != _nodes.length) {
       throw ArgumentError('vector clock has invalid number of nodes');
     } else {
       _nodes.sort();
