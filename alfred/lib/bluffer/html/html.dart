@@ -267,7 +267,7 @@ class HtmlEntityNodeImpl implements HtmlEntityNode {
   final String text;
 
   const HtmlEntityNodeImpl({
-    required final this.text,
+    required this.text,
   });
 
   @override
@@ -283,7 +283,7 @@ class HtmlEntityElementImpl implements HtmlEntityElement {
   final HtmlElement element;
 
   const HtmlEntityElementImpl({
-    required final this.element,
+    required this.element,
   });
 
   @override
@@ -463,47 +463,47 @@ class CssStyleDeclarationImpl implements CssStyleDeclaration {
   final String? css_textDecoration;
 
   const CssStyleDeclarationImpl({
-    final this.css_margin,
-    final this.css_maxHeight,
-    final this.css_maxWidth,
-    final this.css_minHeight,
-    final this.css_minWidth,
-    final this.css_display,
-    final this.css_backgroundColor,
-    final this.css_backgroundImage,
-    final this.css_backgroundPosition,
-    final this.css_backgroundSize,
-    final this.css_borderTopLeftRadius,
-    final this.css_borderTopRightRadius,
-    final this.css_borderBottomLeftRadius,
-    final this.css_borderBottomRightRadius,
-    final this.css_boxShadow,
-    final this.css_flexDirection,
-    final this.css_justifyContent,
-    final this.css_alignItems,
-    final this.css_flexGrow,
-    final this.css_flexShrink,
-    final this.css_flexBasis,
-    final this.css_objectFit,
-    final this.css_width,
-    final this.css_height,
-    final this.css_textAlign,
-    final this.css_lineHeight,
-    final this.css_fontSize,
-    final this.css_color,
-    final this.css_fontWeight,
-    final this.css_fontFamily,
-    final this.css_cursor,
-    final this.css_padding,
-    final this.css_border,
-    final this.css_font,
-    final this.css_verticalAlign,
-    final this.css_listStyle,
-    final this.css_quotes,
-    final this.css_content,
-    final this.css_borderCollapse,
-    final this.css_spacing,
-    final this.css_textDecoration,
+    this.css_margin,
+    this.css_maxHeight,
+    this.css_maxWidth,
+    this.css_minHeight,
+    this.css_minWidth,
+    this.css_display,
+    this.css_backgroundColor,
+    this.css_backgroundImage,
+    this.css_backgroundPosition,
+    this.css_backgroundSize,
+    this.css_borderTopLeftRadius,
+    this.css_borderTopRightRadius,
+    this.css_borderBottomLeftRadius,
+    this.css_borderBottomRightRadius,
+    this.css_boxShadow,
+    this.css_flexDirection,
+    this.css_justifyContent,
+    this.css_alignItems,
+    this.css_flexGrow,
+    this.css_flexShrink,
+    this.css_flexBasis,
+    this.css_objectFit,
+    this.css_width,
+    this.css_height,
+    this.css_textAlign,
+    this.css_lineHeight,
+    this.css_fontSize,
+    this.css_color,
+    this.css_fontWeight,
+    this.css_fontFamily,
+    this.css_cursor,
+    this.css_padding,
+    this.css_border,
+    this.css_font,
+    this.css_verticalAlign,
+    this.css_listStyle,
+    this.css_quotes,
+    this.css_content,
+    this.css_borderCollapse,
+    this.css_spacing,
+    this.css_textDecoration,
   });
 }
 
@@ -520,8 +520,8 @@ class IdClassImpl implements IdClass {
   final String? id;
 
   const IdClassImpl({
-    required final this.className,
-    required final this.id,
+    required this.className,
+    required this.id,
   });
 }
 
@@ -530,8 +530,8 @@ class Attribute {
   final String value;
 
   const Attribute({
-    required final this.key,
-    required final this.value,
+    required this.key,
+    required this.value,
   });
 }
 
@@ -539,6 +539,7 @@ abstract class HtmlElement {}
 
 extension HtmlElementMatch on HtmlElement {
   Z match<Z>({
+    required final Z Function(HtmlElementRaw) raw,
     required final Z Function(HtmlElementCopy) copy,
     required final Z Function(HtmlElementBr) br,
     required final Z Function(HtmlElementHtml) html,
@@ -554,39 +555,45 @@ extension HtmlElementMatch on HtmlElement {
     required final Z Function(HtmlElementAnchor) anchor,
     required final Z Function(HtmlElementHead) head,
   }) {
-    final _ = this;
-    if (_ is HtmlElementCopy) {
-      return copy(_);
-    } else if (_ is HtmlElementBr) {
-      return br(_);
-    } else if (_ is HtmlElementHtml) {
-      return html(_);
-    } else if (_ is HtmlElementMeta) {
-      return meta(_);
-    } else if (_ is HtmlElementBody) {
-      return body(_);
-    } else if (_ is HtmlElementCustom) {
-      return custom(_);
-    } else if (_ is HtmlElementScript) {
-      return script(_);
-    } else if (_ is HtmlElementLink) {
-      return link(_);
-    } else if (_ is HtmlElementTitle) {
-      return title(_);
-    } else if (_ is HtmlElementStyle) {
-      return style(_);
-    } else if (_ is HtmlElementImage) {
-      return image(_);
-    } else if (_ is HtmlElementDiv) {
-      return div(_);
-    } else if (_ is HtmlElementAnchor) {
-      return anchor(_);
-    } else if (_ is HtmlElementHead) {
-      return head(_);
+    final self = this;
+    if (self is HtmlElementRaw) {
+      return raw(self);
+    } else if (self is HtmlElementCopy) {
+      return copy(self);
+    } else if (self is HtmlElementBr) {
+      return br(self);
+    } else if (self is HtmlElementHtml) {
+      return html(self);
+    } else if (self is HtmlElementMeta) {
+      return meta(self);
+    } else if (self is HtmlElementBody) {
+      return body(self);
+    } else if (self is HtmlElementCustom) {
+      return custom(self);
+    } else if (self is HtmlElementScript) {
+      return script(self);
+    } else if (self is HtmlElementLink) {
+      return link(self);
+    } else if (self is HtmlElementTitle) {
+      return title(self);
+    } else if (self is HtmlElementStyle) {
+      return style(self);
+    } else if (self is HtmlElementImage) {
+      return image(self);
+    } else if (self is HtmlElementDiv) {
+      return div(self);
+    } else if (self is HtmlElementAnchor) {
+      return anchor(self);
+    } else if (self is HtmlElementHead) {
+      return head(self);
     } else {
       throw Exception("Invalid State");
     }
   }
+}
+
+abstract class HtmlElementRaw implements HtmlElement {
+  String get html;
 }
 
 abstract class HtmlElementCopy implements HtmlElement {
@@ -699,6 +706,15 @@ abstract class HtmlElementHead implements HtmlElement {
   List<HtmlEntity> get childNodes;
 }
 
+class HtmlElementRawImpl implements HtmlElementRaw {
+  @override
+  final String html;
+
+  const HtmlElementRawImpl({
+    required this.html,
+  });
+}
+
 class HtmlElementCopyImpl implements HtmlElementCopy {
   @override
   final HtmlElement other;
@@ -706,8 +722,8 @@ class HtmlElementCopyImpl implements HtmlElementCopy {
   final IdClass? idClass;
 
   const HtmlElementCopyImpl({
-    required final this.other,
-    required final this.idClass,
+    required this.other,
+    required this.idClass,
   });
 }
 
@@ -716,7 +732,7 @@ class HtmlElementBrImpl implements HtmlElementBr {
   final IdClass? idClass;
 
   const HtmlElementBrImpl({
-    required final this.idClass,
+    required this.idClass,
   });
 }
 
@@ -727,8 +743,8 @@ class HtmlElementHtmlImpl implements HtmlElementHtml {
   final List<HtmlEntity> childNodes;
 
   const HtmlElementHtmlImpl({
-    required final this.childNodes,
-    required final this.idClass,
+    required this.childNodes,
+    required this.idClass,
   });
 }
 
@@ -739,8 +755,8 @@ class HtmlElementMetaImpl implements HtmlElementMeta {
   final List<Attribute> attributes;
 
   const HtmlElementMetaImpl({
-    required final this.attributes,
-    required final this.idClass,
+    required this.attributes,
+    required this.idClass,
   });
 }
 
@@ -751,8 +767,8 @@ class HtmlElementBodyImpl implements HtmlElementBody {
   final List<HtmlEntity> childNodes;
 
   const HtmlElementBodyImpl({
-    required final this.childNodes,
-    required final this.idClass,
+    required this.childNodes,
+    required this.idClass,
   });
 }
 
@@ -767,10 +783,10 @@ class HtmlElementCustomImpl implements HtmlElementCustom {
   final List<Attribute> attributes;
 
   const HtmlElementCustomImpl({
-    required final this.tag,
-    required final this.attributes,
-    required final this.childNodes,
-    required final this.idClass,
+    required this.tag,
+    required this.attributes,
+    required this.childNodes,
+    required this.idClass,
   });
 }
 
@@ -791,13 +807,13 @@ class HtmlElementScriptImpl implements HtmlElementScript {
   final String? rel;
 
   const HtmlElementScriptImpl({
-    required final this.async,
-    required final this.defer,
-    required final this.src,
-    required final this.idClass,
-    required final this.integrity,
-    required final this.crossorigin,
-    required final this.rel,
+    required this.async,
+    required this.defer,
+    required this.src,
+    required this.idClass,
+    required this.integrity,
+    required this.crossorigin,
+    required this.rel,
   });
 }
 
@@ -810,9 +826,9 @@ class HtmlElementLinkImpl implements HtmlElementLink {
   final String? rel;
 
   const HtmlElementLinkImpl({
-    required final this.href,
-    required final this.rel,
-    required final this.idClass,
+    required this.href,
+    required this.rel,
+    required this.idClass,
   });
 }
 
@@ -823,8 +839,8 @@ class HtmlElementTitleImpl implements HtmlElementTitle {
   final String text;
 
   const HtmlElementTitleImpl({
-    required final this.text,
-    required final this.idClass,
+    required this.text,
+    required this.idClass,
   });
 }
 
@@ -835,8 +851,8 @@ class HtmlElementStyleImpl implements HtmlElementStyle {
   final List<StyleContent> styles;
 
   const HtmlElementStyleImpl({
-    required final this.styles,
-    required final this.idClass,
+    required this.styles,
+    required this.idClass,
   });
 }
 
@@ -851,10 +867,10 @@ class HtmlElementImageImpl implements HtmlElementImage {
   final String? src;
 
   const HtmlElementImageImpl({
-    required final this.alt,
-    required final this.src,
-    required final this.childNodes,
-    required final this.idClass,
+    required this.alt,
+    required this.src,
+    required this.childNodes,
+    required this.idClass,
   });
 }
 
@@ -867,9 +883,9 @@ class HtmlElementDivImpl implements HtmlElementDiv {
   final List<Attribute> attributes;
 
   const HtmlElementDivImpl({
-    required final this.childNodes,
-    required final this.attributes,
-    required final this.idClass,
+    required this.childNodes,
+    required this.attributes,
+    required this.idClass,
   });
 }
 
@@ -886,11 +902,11 @@ class HtmlElementAnchorImpl implements HtmlElementAnchor {
   final List<Attribute> attributes;
 
   const HtmlElementAnchorImpl({
-    required final this.href,
-    required final this.childNodes,
-    required final this.target,
-    required final this.idClass,
-    required final this.attributes,
+    required this.href,
+    required this.childNodes,
+    required this.target,
+    required this.idClass,
+    required this.attributes,
   });
 }
 
@@ -901,8 +917,8 @@ class HtmlElementHeadImpl implements HtmlElementHead {
   final List<HtmlEntity> childNodes;
 
   const HtmlElementHeadImpl({
-    required final this.childNodes,
-    required final this.idClass,
+    required this.childNodes,
+    required this.idClass,
   });
 }
 
@@ -928,7 +944,7 @@ class StyleContentStyleImpl implements StyleContentStyle {
   final HtmlStyle content;
 
   const StyleContentStyleImpl({
-    required final this.content,
+    required this.content,
   });
 
   @override
@@ -946,8 +962,8 @@ class StyleContentStructureImpl implements StyleContentStructure {
   final List<HtmlStyle> style;
 
   const StyleContentStructureImpl({
-    required final this.key,
-    required final this.style,
+    required this.key,
+    required this.style,
   });
 
   @override
@@ -971,8 +987,8 @@ class HtmlStyleImpl implements HtmlStyle {
   final CssStyleDeclaration css;
 
   const HtmlStyleImpl({
-    required final this.key,
-    required final this.css,
+    required this.key,
+    required this.css,
   });
 }
 
@@ -999,7 +1015,7 @@ class CssKeyRawImpl implements CssKeyRaw {
   final String key;
 
   const CssKeyRawImpl({
-    required final this.key,
+    required this.key,
   });
 
   @override
@@ -1015,7 +1031,7 @@ class CssKeyCompositeImpl implements CssKeyComposite {
   final List<CssKey> keys;
 
   const CssKeyCompositeImpl({
-    required final this.keys,
+    required this.keys,
   });
 
   @override
@@ -1029,313 +1045,353 @@ class CssKeyCompositeImpl implements CssKeyComposite {
 String htmlElementToString({
   required final HtmlElement element,
 }) {
-  String? elementId({
-    required final HtmlElement element,
-  }) =>
-      element.match(
-        copy: (final a) => a.idClass?.id,
-        br: (final a) => a.idClass?.id,
-        html: (final a) => a.idClass?.id,
-        meta: (final a) => a.idClass?.id,
-        body: (final a) => a.idClass?.id,
-        custom: (final a) => a.idClass?.id,
-        script: (final a) => a.idClass?.id,
-        link: (final a) => a.idClass?.id,
-        title: (final a) => a.idClass?.id,
-        style: (final a) => a.idClass?.id,
-        image: (final a) => a.idClass?.id,
-        div: (final a) => a.idClass?.id,
-        anchor: (final a) => a.idClass?.id,
-        head: (final a) => a.idClass?.id,
-      );
-
-  final tag = () {
-    String _elementTag({
+  if (element is HtmlElementRaw) {
+    return element.html;
+  } else {
+    String? elementId({
       required final HtmlElement element,
     }) =>
         element.match(
-          custom: (final a) => a.tag,
-          copy: (final a) => _elementTag(
-            element: a.other,
-          ),
-          br: (final a) => "br",
-          html: (final a) => "html",
-          meta: (final a) => "meta",
-          body: (final a) => "body",
-          script: (final a) => "script",
-          link: (final a) => "link",
-          title: (final a) => "title",
-          style: (final a) => "style",
-          image: (final a) => "img",
-          div: (final a) => "div",
-          anchor: (final a) => "a",
-          head: (final a) => "head",
-        );
-    return _elementTag(
-      element: element,
-    );
-  }();
-  return "<" +
-          () {
-        final className = elementClassname(
-          element: element,
-        );
-        final id = elementId(
-          element: element,
-        );
-        return [
-          tag,
-          if (className != null) //
-            'class="' + className + '"',
-          if (id != null) //
-            'id="' + id + '"',
-          ...() {
-            List<String> _elementAdditionalAttributes({
-              required final HtmlElement element,
-            }) =>
-                element.match(
-                  copy: (final a) => _elementAdditionalAttributes(
-                    element: a.other,
-                  ),
-                  br: (final a) => [],
-                  html: (final a) => [],
-                  meta: (final a) => [
-                    for (final a in a.attributes) a.key + '="' + a.value + '"',
-                  ],
-                  body: (final a) => [],
-                  custom: (final a) => [
-                    for (final a in a.attributes) a.key + '="' + a.value + '"',
-                  ],
-                  script: (final a) {
-                    final _src = a.src;
-                    final _async = a.async;
-                    final _defer = a.defer;
-                    final _integrity = a.integrity;
-                    final _crossorigin = a.crossorigin;
-                    final _rel = a.rel;
-                    return [
-                      if (_src != null) 'src="' + _src + '"',
-                      if (_async != null) 'async="' + _async.toString() + '"',
-                      if (_defer != null) 'defer="' + _defer.toString() + '"',
-                      if (_integrity != null) 'integrity="' + _integrity.toString() + '"',
-                      if (_crossorigin != null) 'crossorigin="' + _crossorigin.toString() + '"',
-                      if (_rel != null) 'rel="' + _rel.toString() + '"',
-                    ];
-                  },
-                  link: (final a) {
-                    final _href = a.href;
-                    final _rel = a.rel;
-                    return [
-                      if (_href != null) 'href="' + _href + '"',
-                      if (_rel != null) 'rel="' + _rel + '"',
-                    ];
-                  },
-                  title: (final a) => [],
-                  style: (final a) => [],
-                  image: (final a) {
-                    final _src = a.src;
-                    final _alt = a.alt;
-                    return [
-                      if (_src != null) 'src="' + _src + '"',
-                      if (_alt != null) 'alt="' + _alt + '"',
-                    ];
-                  },
-                  div: (final a) {
-                    return [
-                      for (final a in a.attributes) a.key + '="' + a.value + '"',
-                    ];
-                  },
-                  anchor: (final a) {
-                    final _href = a.href;
-                    final _target = a.target;
-                    return [
-                      if (_href != null) 'href="' + _href + '"',
-                      if (_target != null) 'target="' + _target + '"',
-                      for (final a in a.attributes) a.key + '="' + a.value + '"',
-                    ];
-                  },
-                  head: (final a) => [],
-                );
-            return _elementAdditionalAttributes(
-              element: element,
-            );
-          }(),
-        ].join(" ");
-      }() +
-      ">" +
-          () {
-        final elements = <HtmlEntityElement>[];
-        final attributes = <HtmlEntityNode>[];
-        final styles = <StyleContent>[];
-
-        final children = elementChildNodes(
-          element: element,
-        );
-        for (final child in children) {
-          child.match(
-            node: attributes.add,
-            element: elements.add,
-          );
-        }
-        element.match(
-          copy: (final a) {},
-          br: (final a) {},
-          html: (final a) {},
-          meta: (final a) {},
-          body: (final a) {},
-          custom: (final a) {},
-          script: (final a) {},
-          link: (final a) {},
-          title: (final a) {},
-          style: (final a) => styles.addAll(a.styles),
-          image: (final a) {},
-          div: (final a) {},
-          anchor: (final a) {},
-          head: (final a) {},
+          raw: (final a) => throw Exception("Invalid State."),
+          copy: (final a) => a.idClass?.id,
+          br: (final a) => a.idClass?.id,
+          html: (final a) => a.idClass?.id,
+          meta: (final a) => a.idClass?.id,
+          body: (final a) => a.idClass?.id,
+          custom: (final a) => a.idClass?.id,
+          script: (final a) => a.idClass?.id,
+          link: (final a) => a.idClass?.id,
+          title: (final a) => a.idClass?.id,
+          style: (final a) => a.idClass?.id,
+          image: (final a) => a.idClass?.id,
+          div: (final a) => a.idClass?.id,
+          anchor: (final a) => a.idClass?.id,
+          head: (final a) => a.idClass?.id,
         );
 
-        String serializeKey({
-          required final CssKey key,
-        }) =>
-            key.match(
-              raw: (final a) => a.key,
-              composite: (final a) => a.keys.map((final a) => serializeKey(key: a)).join(", "),
-            );
-        String _styleContent({
-          required final StyleContent content,
-        }) =>
-            content.match(
-              style: (final a) =>
-              serializeKey(
-                key: a.content.key,
-              ) +
-                  " { " +
-                      () {
-                    final css = a.content.css;
-                    final margin = css.css_margin;
-                    final maxHeight = css.css_maxHeight;
-                    final maxWidth = css.css_maxWidth;
-                    final display = css.css_display;
-                    final backgroundColor = css.css_backgroundColor;
-                    final backgroundImage = css.css_backgroundImage;
-                    final backgroundPosition = css.css_backgroundPosition;
-                    final backgroundSize = css.css_backgroundSize;
-                    final borderTopLeftRadius = css.css_borderTopLeftRadius;
-                    final borderTopRightRadius = css.css_borderTopRightRadius;
-                    final borderBottomLeftRadius = css.css_borderBottomLeftRadius;
-                    final borderBottomRightRadius = css.css_borderBottomRightRadius;
-                    final boxShadow = css.css_boxShadow;
-                    final flexDirection = css.css_flexDirection;
-                    final justifyContent = css.css_justifyContent;
-                    final alignItems = css.css_alignItems;
-                    final flexGrow = css.css_flexGrow;
-                    final flexShrink = css.css_flexShrink;
-                    final flexBasis = css.css_flexBasis;
-                    final objectFit = css.css_objectFit;
-                    final width = css.css_width;
-                    final height = css.css_height;
-                    final textAlign = css.css_textAlign;
-                    final lineHeight = css.css_lineHeight;
-                    final fontSize = css.css_fontSize;
-                    final color = css.css_color;
-                    final fontWeight = css.css_fontWeight;
-                    final fontFamily = css.css_fontFamily;
-                    final cursor = css.css_cursor;
-                    final padding = css.css_padding;
-                    final border = css.css_border;
-                    final font = css.css_font;
-                    final verticalAlign = css.css_verticalAlign;
-                    final listStyle = css.css_listStyle;
-                    final quotes = css.css_quotes;
-                    final content = css.css_content;
-                    final borderCollapse = css.css_borderCollapse;
-                    final spacing = css.css_spacing;
-                    final textDecoration = css.css_textDecoration;
-                    return [
-                      if (margin != null) "margin: " + margin + ";",
-                      if (maxHeight != null) "max-height: " + maxHeight + ";",
-                      if (maxWidth != null) "max-width: " + maxWidth + ";",
-                      if (display != null) "display: " + display + ";",
-                      if (backgroundColor != null) "background-color: " + backgroundColor + ";",
-                      if (backgroundImage != null) "background-image: " + backgroundImage + ";",
-                      if (backgroundPosition != null) "background-position: " + backgroundPosition + ";",
-                      if (backgroundSize != null) "background-size: " + backgroundSize + ";",
-                      if (borderTopLeftRadius != null) "border-top-left-radius: " + borderTopLeftRadius + ";",
-                      if (borderTopRightRadius != null)
-                        "border-top-right-radius: " + borderTopRightRadius + ";",
-                      if (borderBottomLeftRadius != null)
-                        "border-bottom-left-radius: " + borderBottomLeftRadius + ";",
-                      if (borderBottomRightRadius != null)
-                        "border-bottom-right-radius: " + borderBottomRightRadius + ";",
-                      if (boxShadow != null) "box-shadow: " + boxShadow + ";",
-                      if (flexDirection != null) "flex-direction: " + flexDirection + ";",
-                      if (justifyContent != null) "justify-content: " + justifyContent + ";",
-                      if (alignItems != null) "align-items: " + alignItems + ";",
-                      if (flexGrow != null) "flex-grow: " + flexGrow + ";",
-                      if (flexShrink != null) "flex-shrink: " + flexShrink + ";",
-                      if (flexBasis != null) "flex-basis: " + flexBasis + ";",
-                      if (objectFit != null) "object-fit: " + objectFit + ";",
-                      if (width != null) "width: " + width + ";",
-                      if (height != null) "height: " + height + ";",
-                      if (textAlign != null) "text-align: " + textAlign + ";",
-                      if (lineHeight != null) "line-height: " + lineHeight + ";",
-                      if (fontSize != null) "font-size: " + fontSize + ";",
-                      if (color != null) "color: " + color + ";",
-                      if (fontWeight != null) "font-weight: " + fontWeight + ";",
-                      if (fontFamily != null) "font-family: " + fontFamily + ";",
-                      if (cursor != null) "cursor: " + cursor + ";",
-                      if (padding != null) "padding: " + padding + ";",
-                      if (border != null) "border: " + border + ";",
-                      if (font != null) "font: " + font + ";",
-                      if (verticalAlign != null) "vertical-align: " + verticalAlign + ";",
-                      if (listStyle != null) "list-style: " + listStyle + ";",
-                      if (quotes != null) "quotes: " + quotes + ";",
-                      if (content != null) "content: " + content + ";",
-                      if (borderCollapse != null) "border-collapse: " + borderCollapse + ";",
-                      if (spacing != null) "spacing: " + spacing + ";",
-                      if (textDecoration != null) "text-decoration: " + textDecoration + ";",
-                    ].join("");
-                  }() +
-                  " }\n",
-              structure: (final a) =>
-              serializeKey(
-                key: a.key,
-              ) +
-                  " { " +
-                  <String>[
-                    for (final a in a.style)
-                      _styleContent(
-                        content: StyleContentStyleImpl(
-                          content: a,
-                        ),
-                      )
-                  ].join("\n") +
-                  " }\n",
-            );
-
-        return [
-          for (final style in styles)
-            _styleContent(
-              content: style,
+    final tag = () {
+      String _elementTag({
+        required final HtmlElement element,
+      }) =>
+          element.match(
+            raw: (final a) => throw Exception("Invalid State."),
+            custom: (final a) => a.tag,
+            copy: (final a) => _elementTag(
+              element: a.other,
             ),
-          for (final a in attributes) a.text,
-          <String>[
-            for (final a in elements)
-              htmlElementToString(
-                element: a.element,
+            br: (final a) => "br",
+            html: (final a) => "html",
+            meta: (final a) => "meta",
+            body: (final a) => "body",
+            script: (final a) => "script",
+            link: (final a) => "link",
+            title: (final a) => "title",
+            style: (final a) => "style",
+            image: (final a) => "img",
+            div: (final a) => "div",
+            anchor: (final a) => "a",
+            head: (final a) => "head",
+          );
+      return _elementTag(
+        element: element,
+      );
+    }();
+    return "<" + () {
+          final className = elementClassname(
+            element: element,
+          );
+          final id = elementId(
+            element: element,
+          );
+          return [
+            tag,
+            if (className != null) //
+              'class="' + className + '"',
+            if (id != null) //
+              'id="' + id + '"',
+            ...() {
+              List<String> _elementAdditionalAttributes({
+                required final HtmlElement element,
+              }) =>
+                  element.match(
+                    raw: (final a) => throw Exception("Invalid State"),
+                    copy: (final a) =>
+                        _elementAdditionalAttributes(
+                          element: a.other,
+                        ),
+                    br: (final a) => [],
+                    html: (final a) => [],
+                    meta: (final a) =>
+                    [
+                      for (final a in a.attributes) a.key + '="' + a.value +
+                          '"',
+                    ],
+                    body: (final a) => [],
+                    custom: (final a) =>
+                    [
+                      for (final a in a.attributes) a.key + '="' + a.value +
+                          '"',
+                    ],
+                    script: (final a) {
+                      final _src = a.src;
+                      final _async = a.async;
+                      final _defer = a.defer;
+                      final _integrity = a.integrity;
+                      final _crossorigin = a.crossorigin;
+                      final _rel = a.rel;
+                      return [
+                        if (_src != null) 'src="' + _src + '"',
+                        if (_async != null) 'async="' + _async.toString() + '"',
+                        if (_defer != null) 'defer="' + _defer.toString() + '"',
+                        if (_integrity != null) 'integrity="' +
+                            _integrity.toString() + '"',
+                        if (_crossorigin != null) 'crossorigin="' +
+                            _crossorigin.toString() + '"',
+                        if (_rel != null) 'rel="' + _rel.toString() + '"',
+                      ];
+                    },
+                    link: (final a) {
+                      final _href = a.href;
+                      final _rel = a.rel;
+                      return [
+                        if (_href != null) 'href="' + _href + '"',
+                        if (_rel != null) 'rel="' + _rel + '"',
+                      ];
+                    },
+                    title: (final a) => [],
+                    style: (final a) => [],
+                    image: (final a) {
+                      final _src = a.src;
+                      final _alt = a.alt;
+                      return [
+                        if (_src != null) 'src="' + _src + '"',
+                        if (_alt != null) 'alt="' + _alt + '"',
+                      ];
+                    },
+                    div: (final a) {
+                      return [
+                        for (final a in a.attributes) a.key + '="' + a.value +
+                            '"',
+                      ];
+                    },
+                    anchor: (final a) {
+                      final _href = a.href;
+                      final _target = a.target;
+                      return [
+                        if (_href != null) 'href="' + _href + '"',
+                        if (_target != null) 'target="' + _target + '"',
+                        for (final a in a.attributes) a.key + '="' + a.value +
+                            '"',
+                      ];
+                    },
+                    head: (final a) => [],
+                  );
+              return _elementAdditionalAttributes(
+                element: element,
+              );
+            }(),
+          ].join(" ");
+        }() +
+        ">" +
+            () {
+          final elements = <HtmlEntityElement>[];
+          final attributes = <HtmlEntityNode>[];
+          final styles = <StyleContent>[];
+
+          final children = elementChildNodes(
+            element: element,
+          );
+          for (final child in children) {
+            child.match(
+              node: attributes.add,
+              element: elements.add,
+            );
+          }
+          element.match(
+            raw: (final a) => throw Exception("Invalid State."),
+            copy: (final a) {},
+            br: (final a) {},
+            html: (final a) {},
+            meta: (final a) {},
+            body: (final a) {},
+            custom: (final a) {},
+            script: (final a) {},
+            link: (final a) {},
+            title: (final a) {},
+            style: (final a) => styles.addAll(a.styles),
+            image: (final a) {},
+            div: (final a) {},
+            anchor: (final a) {},
+            head: (final a) {},
+          );
+
+          String serializeKey({
+            required final CssKey key,
+          }) =>
+              key.match(
+                raw: (final a) => a.key,
+                composite: (final a) =>
+                    a.keys.map((final a) => serializeKey(key: a)).join(", "),
+              );
+          String _styleContent({
+            required final StyleContent content,
+          }) =>
+              content.match(
+                style: (final a) =>
+                serializeKey(
+                  key: a.content.key,
+                ) +
+                    " { " +
+                        () {
+                      final css = a.content.css;
+                      final margin = css.css_margin;
+                      final maxHeight = css.css_maxHeight;
+                      final maxWidth = css.css_maxWidth;
+                      final display = css.css_display;
+                      final backgroundColor = css.css_backgroundColor;
+                      final backgroundImage = css.css_backgroundImage;
+                      final backgroundPosition = css.css_backgroundPosition;
+                      final backgroundSize = css.css_backgroundSize;
+                      final borderTopLeftRadius = css.css_borderTopLeftRadius;
+                      final borderTopRightRadius = css.css_borderTopRightRadius;
+                      final borderBottomLeftRadius = css
+                          .css_borderBottomLeftRadius;
+                      final borderBottomRightRadius = css
+                          .css_borderBottomRightRadius;
+                      final boxShadow = css.css_boxShadow;
+                      final flexDirection = css.css_flexDirection;
+                      final justifyContent = css.css_justifyContent;
+                      final alignItems = css.css_alignItems;
+                      final flexGrow = css.css_flexGrow;
+                      final flexShrink = css.css_flexShrink;
+                      final flexBasis = css.css_flexBasis;
+                      final objectFit = css.css_objectFit;
+                      final width = css.css_width;
+                      final height = css.css_height;
+                      final textAlign = css.css_textAlign;
+                      final lineHeight = css.css_lineHeight;
+                      final fontSize = css.css_fontSize;
+                      final color = css.css_color;
+                      final fontWeight = css.css_fontWeight;
+                      final fontFamily = css.css_fontFamily;
+                      final cursor = css.css_cursor;
+                      final padding = css.css_padding;
+                      final border = css.css_border;
+                      final font = css.css_font;
+                      final verticalAlign = css.css_verticalAlign;
+                      final listStyle = css.css_listStyle;
+                      final quotes = css.css_quotes;
+                      final content = css.css_content;
+                      final borderCollapse = css.css_borderCollapse;
+                      final spacing = css.css_spacing;
+                      final textDecoration = css.css_textDecoration;
+                      return [
+                        if (margin != null) "margin: " + margin + ";",
+                        if (maxHeight != null) "max-height: " + maxHeight + ";",
+                        if (maxWidth != null) "max-width: " + maxWidth + ";",
+                        if (display != null) "display: " + display + ";",
+                        if (backgroundColor != null) "background-color: " +
+                            backgroundColor + ";",
+                        if (backgroundImage != null) "background-image: " +
+                            backgroundImage + ";",
+                        if (backgroundPosition !=
+                            null) "background-position: " + backgroundPosition +
+                            ";",
+                        if (backgroundSize != null) "background-size: " +
+                            backgroundSize + ";",
+                        if (borderTopLeftRadius !=
+                            null) "border-top-left-radius: " +
+                            borderTopLeftRadius + ";",
+                        if (borderTopRightRadius != null)
+                          "border-top-right-radius: " + borderTopRightRadius +
+                              ";",
+                        if (borderBottomLeftRadius != null)
+                          "border-bottom-left-radius: " +
+                              borderBottomLeftRadius + ";",
+                        if (borderBottomRightRadius != null)
+                          "border-bottom-right-radius: " +
+                              borderBottomRightRadius + ";",
+                        if (boxShadow != null) "box-shadow: " + boxShadow + ";",
+                        if (flexDirection != null) "flex-direction: " +
+                            flexDirection + ";",
+                        if (justifyContent != null) "justify-content: " +
+                            justifyContent + ";",
+                        if (alignItems != null) "align-items: " + alignItems +
+                            ";",
+                        if (flexGrow != null) "flex-grow: " + flexGrow + ";",
+                        if (flexShrink != null) "flex-shrink: " + flexShrink +
+                            ";",
+                        if (flexBasis != null) "flex-basis: " + flexBasis + ";",
+                        if (objectFit != null) "object-fit: " + objectFit + ";",
+                        if (width != null) "width: " + width + ";",
+                        if (height != null) "height: " + height + ";",
+                        if (textAlign != null) "text-align: " + textAlign + ";",
+                        if (lineHeight != null) "line-height: " + lineHeight +
+                            ";",
+                        if (fontSize != null) "font-size: " + fontSize + ";",
+                        if (color != null) "color: " + color + ";",
+                        if (fontWeight != null) "font-weight: " + fontWeight +
+                            ";",
+                        if (fontFamily != null) "font-family: " + fontFamily +
+                            ";",
+                        if (cursor != null) "cursor: " + cursor + ";",
+                        if (padding != null) "padding: " + padding + ";",
+                        if (border != null) "border: " + border + ";",
+                        if (font != null) "font: " + font + ";",
+                        if (verticalAlign != null) "vertical-align: " +
+                            verticalAlign + ";",
+                        if (listStyle != null) "list-style: " + listStyle + ";",
+                        if (quotes != null) "quotes: " + quotes + ";",
+                        if (content != null) "content: " + content + ";",
+                        if (borderCollapse != null) "border-collapse: " +
+                            borderCollapse + ";",
+                        if (spacing != null) "spacing: " + spacing + ";",
+                        if (textDecoration != null) "text-decoration: " +
+                            textDecoration + ";",
+                      ].join("");
+                    }() +
+                    " }\n",
+                structure: (final a) =>
+                serializeKey(
+                  key: a.key,
+                ) +
+                    " { " +
+                    <String>[
+                      for (final a in a.style)
+                        _styleContent(
+                          content: StyleContentStyleImpl(
+                            content: a,
+                          ),
+                        )
+                    ].join("\n") +
+                    " }\n",
+              );
+
+          return [
+            for (final style in styles)
+              _styleContent(
+                content: style,
               ),
-          ].join("\n"),
-        ].join();
-      }() +
-      "</" +
-      tag +
-      ">";
+            for (final a in attributes) a.text,
+            <String>[
+              for (final a in elements)
+                htmlElementToString(
+                  element: a.element,
+                ),
+            ].join("\n"),
+          ].join();
+        }() +
+        "</" +
+        tag +
+        ">";
+  }
 }
 
 List<HtmlEntity> elementChildNodes({
   required final HtmlElement element,
 }) =>
     element.match(
+      raw: (final a) => [],
       copy: (final a) => elementChildNodes(
         element: a.other,
       ),
@@ -1362,6 +1418,7 @@ String? elementClassname({
   required final HtmlElement element,
 }) =>
     element.match(
+      raw: (final a) => null,
       copy: (final a) => a.idClass?.className,
       br: (final a) => a.idClass?.className,
       html: (final a) => a.idClass?.className,

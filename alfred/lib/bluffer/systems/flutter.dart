@@ -1472,6 +1472,30 @@ mixin NoKeyMixin implements Widget {
   Key? get key => null;
 }
 
+class RawHtml with RenderElementMixin {
+  final String html;
+
+  const RawHtml(this.html);
+
+  @override
+  Key? get key => null;
+
+  @override
+  CssStyleDeclaration? renderCss({
+    required BuildContext context,
+  }) {
+    return null;
+  }
+
+  @override
+  HtmlElement renderHtml({
+    required BuildContext context,
+  }) {
+    return HtmlElementRawImpl(
+      html: html,
+    );
+  }
+}
 class Text with RenderElementMixin {
   @override
   final Key? key;

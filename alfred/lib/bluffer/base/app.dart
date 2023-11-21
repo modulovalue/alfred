@@ -535,6 +535,7 @@ class AppWidget<ROUTE extends WidgetRoute> with NoCSSMixin implements Widget {
     for (final child in children) {
       final stop = child.match(
         element: (final a) => a.element.match(
+          raw: (final a) => false,
           copy: (final a) => false,
           br: (final a) => false,
           html: (final a) => false,
