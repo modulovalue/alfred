@@ -62,5 +62,19 @@ void main() {
         '<td><p class="_w8">c</p></td></tr></table>',
       );
     });
+    test("smoketest2", () {
+      expect(
+        single_page(
+          builder: (final context) => const Row(
+            children: [
+              Text("a"),
+              Text("b"),
+            ],
+          ),
+        ),
+        '<div><p>a</p>\n'
+        '<p>b</p></div>'
+      );
+    });
   });
 }

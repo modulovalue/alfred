@@ -302,9 +302,10 @@ String constructSinglePage({
   required final Widget child,
   required final Assets assets,
 }) {
+  final style = <String, CssStyleDeclaration>{};
   final buildContext = BuildContextImpl(
     assets: assets,
-    styles: {},
+    styles: style,
   );
   final element = child.renderElement(
     context: buildContext,

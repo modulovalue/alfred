@@ -23,7 +23,10 @@ import 'interface.dart';
 import 'middleware/default_404.dart';
 import 'middleware/default_500.dart';
 
-// TODO rename to children.
+// TODO • rename to children.
+// TODO • warn about duplicate URLs
+// TODO   - compile to DFA and find ambiguities
+// TODO   - handle patterns properly.
 Future<BuiltAlfred> helloAlfred({
   required final Iterable<AlfredHttpRoute> routes,
   final int? port,

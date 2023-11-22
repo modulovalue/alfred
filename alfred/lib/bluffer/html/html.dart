@@ -1048,7 +1048,7 @@ String htmlElementToString({
   if (element is HtmlElementRaw) {
     return element.html;
   } else {
-    String? elementId({
+    String? element_id({
       required final HtmlElement element,
     }) =>
         element.match(
@@ -1069,38 +1069,37 @@ String htmlElementToString({
           head: (final a) => a.idClass?.id,
         );
 
-    final tag = () {
-      String _elementTag({
-        required final HtmlElement element,
-      }) =>
-          element.match(
-            raw: (final a) => throw Exception("Invalid State."),
-            custom: (final a) => a.tag,
-            copy: (final a) => _elementTag(
-              element: a.other,
-            ),
-            br: (final a) => "br",
-            html: (final a) => "html",
-            meta: (final a) => "meta",
-            body: (final a) => "body",
-            script: (final a) => "script",
-            link: (final a) => "link",
-            title: (final a) => "title",
-            style: (final a) => "style",
-            image: (final a) => "img",
-            div: (final a) => "div",
-            anchor: (final a) => "a",
-            head: (final a) => "head",
-          );
-      return _elementTag(
-        element: element,
-      );
-    }();
+    String _element_tag({
+      required final HtmlElement element,
+    }) =>
+        element.match(
+          raw: (final a) => throw Exception("Invalid State."),
+          custom: (final a) => a.tag,
+          copy: (final a) => _element_tag(
+            element: a.other,
+          ),
+          br: (final a) => "br",
+          html: (final a) => "html",
+          meta: (final a) => "meta",
+          body: (final a) => "body",
+          script: (final a) => "script",
+          link: (final a) => "link",
+          title: (final a) => "title",
+          style: (final a) => "style",
+          image: (final a) => "img",
+          div: (final a) => "div",
+          anchor: (final a) => "a",
+          head: (final a) => "head",
+        );
+
+    final tag = _element_tag(
+      element: element,
+    );
     return "<" + () {
           final className = elementClassname(
             element: element,
           );
-          final id = elementId(
+          final id = element_id(
             element: element,
           );
           return [
@@ -1115,10 +1114,9 @@ String htmlElementToString({
               }) =>
                   element.match(
                     raw: (final a) => throw Exception("Invalid State"),
-                    copy: (final a) =>
-                        _elementAdditionalAttributes(
-                          element: a.other,
-                        ),
+                    copy: (final a) => _elementAdditionalAttributes(
+                        element: a.other,
+                      ),
                     br: (final a) => [],
                     html: (final a) => [],
                     meta: (final a) =>
@@ -1191,13 +1189,10 @@ String htmlElementToString({
               );
             }(),
           ].join(" ");
-        }() +
-        ">" +
-            () {
+        }() + ">" + () {
           final elements = <HtmlEntityElement>[];
           final attributes = <HtmlEntityNode>[];
           final styles = <StyleContent>[];
-
           final children = elementChildNodes(
             element: element,
           );
@@ -1233,6 +1228,7 @@ String htmlElementToString({
                 composite: (final a) =>
                     a.keys.map((final a) => serializeKey(key: a)).join(", "),
               );
+
           String _styleContent({
             required final StyleContent content,
           }) =>

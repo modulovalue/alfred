@@ -24,7 +24,7 @@ class Builder extends StatelessWidgetBase with NoCSSMixin {
   final Widget Function(BuildContext context) builder;
 
   Builder({
-    required final this.builder,
+    required this.builder,
     final Key? key,
   }) : super(
     key: key,
@@ -45,10 +45,10 @@ class Click with NoCSSMixin, RenderElementMixin implements Widget {
   final Key? key;
 
   const Click({
-    required final this.url,
-    required final this.builder,
-    required final this.newTab,
-    final this.key,
+    required this.url,
+    required this.builder,
+    required this.newTab,
+    this.key,
   });
 
   @override
@@ -85,7 +85,7 @@ class Click with NoCSSMixin, RenderElementMixin implements Widget {
       );
 }
 
-class ConstrainedBox with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMixin implements Widget {
+class ConstrainedBox with CssStyleDeclarationNullMixin, RenderElementMixin implements Widget {
   /// The additional constraints to impose on the child.
   final BoxConstraints? constraints;
   final Widget? child;
@@ -93,10 +93,16 @@ class ConstrainedBox with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderEle
   final Key? key;
 
   const ConstrainedBox({
-    required final this.child,
-    final this.constraints,
-    final this.key,
+    required this.child,
+    this.constraints,
+    this.key,
   });
+  
+  @override
+  CssStyleDeclaration? renderCss({
+    required final BuildContext context,
+  }) =>
+      this;
 
   @override
   String? get css_margin {
@@ -182,10 +188,10 @@ class BoxConstraints {
   final double maxHeight;
 
   const BoxConstraints({
-    required final this.minWidth,
-    required final this.maxWidth,
-    required final this.minHeight,
-    required final this.maxHeight,
+    required this.minWidth,
+    required this.maxWidth,
+    required this.minHeight,
+    required this.maxHeight,
   });
 }
 
@@ -198,12 +204,12 @@ class Container extends StatelessWidgetBase with NoCSSMixin {
   final BoxConstraints? constraints;
 
   const Container({
-    final this.child,
-    final this.width,
-    final this.height,
-    final this.decoration,
-    final this.constraints,
-    final this.padding,
+    this.child,
+    this.width,
+    this.height,
+    this.decoration,
+    this.constraints,
+    this.padding,
     final Key? key,
   }) : super(
     key: key,
@@ -395,9 +401,9 @@ class DecoratedBox with RenderElementMixin implements Widget {
   final Key? key;
 
   const DecoratedBox({
-    final this.child,
-    final this.decoration,
-    final this.key,
+    this.child,
+    this.decoration,
+    this.key,
   });
 
   @override
@@ -436,8 +442,8 @@ class _DecoratedBoxCSS with CssStyleDeclarationNullMixin {
   final BuildContext context;
 
   const _DecoratedBoxCSS({
-    required final this.decoration,
-    required final this.context,
+    required this.decoration,
+    required this.context,
   });
 
   @override
@@ -628,7 +634,7 @@ class Row extends Flex {
   );
 }
 
-class Flex with CssStyleDeclarationNullMixin, WidgetSelfCSS, MultiRenderElementMixin implements Widget {
+class Flex with CssStyleDeclarationNullMixin, MultiRenderElementMixin implements Widget {
   final Axis direction;
   final MainAxisAlignment mainAxisAlignment;
   final MainAxisSize mainAxisSize;
@@ -639,12 +645,12 @@ class Flex with CssStyleDeclarationNullMixin, WidgetSelfCSS, MultiRenderElementM
   final Key? key;
 
   const Flex({
-    required final this.direction,
-    final this.mainAxisAlignment = MainAxisAlignment.start,
-    final this.mainAxisSize = MainAxisSize.max,
-    final this.crossAxisAlignment = CrossAxisAlignment.center,
-    final this.children = const <Widget>[],
-    final this.key,
+    required this.direction,
+    this.mainAxisAlignment = MainAxisAlignment.start,
+    this.mainAxisSize = MainAxisSize.max,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.children = const <Widget>[],
+    this.key,
   });
 
   @override
@@ -663,6 +669,12 @@ class Flex with CssStyleDeclarationNullMixin, WidgetSelfCSS, MultiRenderElementM
             ),
         ],
       );
+
+  @override
+  CssStyleDeclaration? renderCss({
+    required final BuildContext context,
+  }) =>
+      this;
 
   @override
   String get css_display => 'flex';
@@ -716,7 +728,7 @@ class Flex with CssStyleDeclarationNullMixin, WidgetSelfCSS, MultiRenderElementM
   }
 }
 
-class Flexible with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMixin implements Widget {
+class Flexible with CssStyleDeclarationNullMixin, RenderElementMixin implements Widget {
   final Widget child;
 
   /// The flex factor to use for this child
@@ -739,10 +751,10 @@ class Flexible with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMi
   final Key? key;
 
   const Flexible({
-    required final this.child,
-    final this.flex = 1,
-    final this.fit = FlexFit.loose,
-    final this.key,
+    required this.child,
+    this.flex = 1,
+    this.fit = FlexFit.loose,
+    this.key,
   });
 
   @override
@@ -750,6 +762,12 @@ class Flexible with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMi
     required final BuildContext context,
   }) =>
       child.renderElement(context: context);
+
+  @override
+  CssStyleDeclaration? renderCss({
+    required final BuildContext context,
+  }) =>
+      this;
 
   @override
   String? get css_flexBasis {
@@ -961,11 +979,11 @@ class TextLink extends StatelessWidgetBase with NoCSSMixin {
   final TextStyle? hoverStyle;
 
   TextLink({
-    required final this.url,
-    required final this.title,
-    required final this.inactiveStyle,
-    final this.activeStyle,
-    final this.hoverStyle,
+    required this.url,
+    required this.title,
+    required this.inactiveStyle,
+    this.activeStyle,
+    this.hoverStyle,
   });
 
   @override
@@ -996,7 +1014,7 @@ class TextLink extends StatelessWidgetBase with NoCSSMixin {
       );
 }
 
-class Image with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMixin implements Widget {
+class Image with CssStyleDeclarationNullMixin, RenderElementMixin implements Widget {
   final ImageProvider image;
   final double? width;
   final double? height;
@@ -1006,12 +1024,12 @@ class Image with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMixin
   final Key? key;
 
   const Image({
-    required final this.image,
-    final this.key,
-    final this.fit = BoxFit.cover,
-    final this.width,
-    final this.height,
-    final this.semanticsLabel,
+    required this.image,
+    this.key,
+    this.fit = BoxFit.cover,
+    this.width,
+    this.height,
+    this.semanticsLabel,
   });
 
   Image.network(
@@ -1047,6 +1065,12 @@ class Image with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMixin
       name,
     ),
   );
+
+  @override
+  CssStyleDeclaration? renderCss({
+    required final BuildContext context,
+  }) =>
+      this;
 
   @override
   String? get css_display => "flex";
@@ -1111,8 +1135,8 @@ class Localizations extends StatelessWidgetBase with NoCSSMixin {
   /// Create a widget from which localizations (like translated strings) can be obtained.
   const Localizations({
     required this.locale,
-    required final this.delegates,
-    required final this.child,
+    required this.delegates,
+    required this.child,
     Key? key,
   }) : super(key: key);
 
@@ -1248,23 +1272,29 @@ class _LocalizationsScope with InheritedWidgetMixin {
   final Key? key = null;
 
   const _LocalizationsScope({
-    required final this.locale,
-    required final this.typeToResources,
-    required final this.child,
+    required this.locale,
+    required this.typeToResources,
+    required this.child,
   });
 }
 
-class Padding with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMixin implements Widget {
+class Padding with CssStyleDeclarationNullMixin, RenderElementMixin implements Widget {
   final Widget? child;
   final EdgeInsets? padding;
   @override
   final Key? key;
 
   const Padding({
-    final this.child,
-    final this.padding,
-    final this.key,
+    this.child,
+    this.padding,
+    this.key,
   });
+
+  @override
+  CssStyleDeclaration? renderCss({
+    required final BuildContext context,
+  }) =>
+      this;
 
   @override
   String get css_display => "flex";
@@ -1309,8 +1339,8 @@ class Provider<T> extends StatelessWidgetBase with NoCSSMixin {
   final Widget child;
 
   const Provider({
-    required final this.create,
-    required final this.child,
+    required this.create,
+    required this.child,
     final Key? key,
   }) : super(
     key: key,
@@ -1347,13 +1377,13 @@ class ValueProvider<T> with InheritedWidgetMixin {
   }
 
   const ValueProvider({
-    required final this.child,
-    required final this.value,
-    final this.key,
+    required this.child,
+    required this.value,
+    this.key,
   });
 }
 
-class SizedBox with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMixin implements Widget {
+class SizedBox with CssStyleDeclarationNullMixin, RenderElementMixin implements Widget {
   final Widget? child;
   final double? width;
   final double? height;
@@ -1361,11 +1391,17 @@ class SizedBox with CssStyleDeclarationNullMixin, WidgetSelfCSS, RenderElementMi
   final Key? key;
 
   const SizedBox({
-    final this.child,
-    final this.width,
-    final this.height,
-    final this.key,
+    this.child,
+    this.width,
+    this.height,
+    this.key,
   });
+
+  @override
+  CssStyleDeclaration? renderCss({
+    required final BuildContext context,
+  }) =>
+      this;
 
   @override
   String? get css_flexShrink => "0";
@@ -1419,7 +1455,7 @@ abstract class StatelessWidgetBase with RenderElementMixin implements StatelessW
   final Key? key;
 
   const StatelessWidgetBase({
-    final this.key,
+    this.key,
   });
 
   @override
@@ -1580,17 +1616,17 @@ class Text with RenderElementMixin {
   ///
   /// The [data] parameter must not be null.
   const Text(
-      final this.data, {
-        final this.style,
-        final this.strutStyle,
-        final this.textAlign,
-        final this.textDirection,
-        final this.locale,
-        final this.softWrap,
-        final this.overflow,
-        final this.textScaleFactor,
-        final this.maxLines,
-        final this.key,
+      this.data, {
+        this.style,
+        this.strutStyle,
+        this.textAlign,
+        this.textDirection,
+        this.locale,
+        this.softWrap,
+        this.overflow,
+        this.textScaleFactor,
+        this.maxLines,
+        this.key,
       });
 
   @override
@@ -1648,8 +1684,8 @@ class _TextCSS with CssStyleDeclarationNullMixin {
   final TextStyle textStyles;
 
   const _TextCSS({
-    required final this.text,
-    required final this.textStyles,
+    required this.text,
+    required this.textStyles,
   });
 
   @override
@@ -1723,8 +1759,8 @@ class TableImpl with MultiRenderElementMixin, NoKeyMixin, NoCSSMixin {
   final Iterable<TableRowImpl> children;
 
   const TableImpl({
-    required final this.children,
-    final this.clazz,
+    required this.children,
+    this.clazz,
   });
 
   @override
@@ -1754,7 +1790,7 @@ class TableRowImpl with MultiRenderElementMixin, NoKeyMixin, NoCSSMixin {
   final Iterable<Widget> children;
 
   const TableRowImpl({
-    required final this.children,
+    required this.children,
   });
 
   @override
@@ -1789,7 +1825,7 @@ class TableHeadImpl extends TableRowContent {
   final Widget child;
 
   const TableHeadImpl({
-    required final this.child,
+    required this.child,
   });
 
   @override
@@ -1821,7 +1857,7 @@ class TableDataImpl extends TableRowContent {
   final Widget child;
 
   const TableDataImpl({
-    required final this.child,
+    required this.child,
   });
 
   @override
@@ -1854,22 +1890,22 @@ class Theme extends StatelessWidgetBase with NoCSSMixin {
   final Widget child;
 
   const Theme({
-    required final this.child,
-    final this.data,
+    required this.child,
+    this.data,
     final Key? key,
   }) : super(
     key: key,
   );
 
   static ThemeData? of(
-      final BuildContext context,
-      ) =>
+    final BuildContext context,
+  ) =>
       Provider.of<ThemeData>(context);
 
   @override
   Widget build(
-      final BuildContext context,
-      ) =>
+    final BuildContext context,
+  ) =>
       ValueProvider<ThemeData>(
         value: data ?? ThemeData.base(context),
         child: child,
@@ -1880,12 +1916,12 @@ class ThemeData {
   final ThemeTextData text;
 
   const ThemeData({
-    required final this.text,
+    required this.text,
   });
 
   static ThemeData base(
-      final BuildContext context,
-      ) {
+    final BuildContext context,
+  ) {
     final size = MediaQuery.of(context)!.size;
     return ThemeData(
       text: ThemeTextData(
@@ -1911,13 +1947,13 @@ class ThemeTextData {
   final TextStyle hoverLink;
 
   const ThemeTextData({
-    required final this.paragraph,
-    required final this.header1,
-    required final this.header2,
-    required final this.header3,
-    required final this.inactiveLink,
-    required final this.activeLink,
-    required final this.hoverLink,
+    required this.paragraph,
+    required this.header1,
+    required this.header2,
+    required this.header3,
+    required this.inactiveLink,
+    required this.activeLink,
+    required this.hoverLink,
   });
 }
 

@@ -3,14 +3,6 @@ import '../base/keys.dart';
 import '../base/media_query_data.dart';
 import '../html/html.dart';
 
-mixin WidgetSelfCSS implements Widget, CssStyleDeclaration {
-  @override
-  CssStyleDeclaration? renderCss({
-    required final BuildContext context,
-  }) =>
-      this;
-}
-
 abstract class BuildContext {
   Map<String, CssStyleDeclaration> get styles;
 
@@ -57,8 +49,8 @@ class BuildContextImpl implements BuildContext {
   final Assets assets;
 
   BuildContextImpl({
-    required final this.assets,
-    required final this.styles,
+    required this.assets,
+    required this.styles,
   });
 
   @override
@@ -116,14 +108,14 @@ HtmlElement renderWidget({
     other: renderedChildHtml,
     idClass: IdClassImpl(
       className: () {
-        final renderedChildCss = child.renderCss(
+        final rendered_child_css = child.renderCss(
           context: context,
         );
-        if (renderedChildCss != null) {
+        if (rendered_child_css != null) {
           final newClass = context.createDefaultKey().className;
           context.setStyle(
             newClass,
-            renderedChildCss,
+            rendered_child_css,
           );
           final currentClass = elementClassname(
             element: renderedChildHtml,
@@ -193,9 +185,9 @@ class MediaQuery with InheritedWidgetMixin {
   final Widget child;
 
   const MediaQuery({
-    required final this.child,
-    required final this.data,
-    final this.key,
+    required this.child,
+    required this.data,
+    this.key,
   });
 
   static MediaQueryData? of(

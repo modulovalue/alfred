@@ -142,8 +142,8 @@ class Location {
 
   /// Constructs a new board location.
   const Location(
-    final this.row,
-    final this.column,
+    this.row,
+    this.column,
   );
 
   /// Gets a new location with the row and column offset with the given deltas.
@@ -1028,8 +1028,8 @@ class StringGrid {
 
   /// Constructs a new empty string grid tool.
   StringGrid([
-    final this.rows = 8,
-    final this.columns = 8,
+    this.rows = 8,
+    this.columns = 8,
   ])  : this._content = List.filled(
           rows * columns,
           '',

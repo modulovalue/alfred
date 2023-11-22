@@ -2277,10 +2277,10 @@ class TestBlock implements TestArgs {
 
   /// Creates a new test block for the given test.
   TestBlock(
-    final this._man,
-    final this._skip,
-    final this._test,
-    final this._testName,
+    this._man,
+    this._skip,
+    this._test,
+    this._testName,
   )   : this._body = DivElement()..className = "test_body body_hidden",
         this._title = DivElement()..className = "running top_header",
         this._start = null,
@@ -2486,7 +2486,7 @@ class TestManager {
 
   /// Creates new test manager attached to the given element.
   TestManager(
-    final this._elem,
+    this._elem,
   )   : this._escape = const HtmlEscape(HtmlEscapeMode.element),
         this._header = DivElement(),
         this._start = DateTime.now(),
