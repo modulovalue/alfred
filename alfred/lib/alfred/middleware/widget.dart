@@ -102,7 +102,10 @@ class ServeWidgetAppBuilderImpl implements ServeWidget {
         enableCssReset: enable_css_reset,
         route: WidgetRouteSimpleImpl(
           title: title,
-          child: builder(c, context),
+          child: builder(
+            c,
+            context,
+          ),
         ),
       ),
     );

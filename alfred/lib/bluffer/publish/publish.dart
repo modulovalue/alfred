@@ -261,7 +261,7 @@ void serialize_to_disk(
   final HtmlElement element,
 ) {
   final file = File(path);
-  final serializedHtml = htmlElementToString(
+  final serializedHtml = html_element_to_string(
     element: element,
   );
   file.writeAsStringSync(
@@ -301,16 +301,13 @@ String constructSinglePage({
   required final Widget child,
   required final Assets assets,
 }) {
-  final style = <String, CssStyleDeclaration>{};
-  final buildContext = BuildContextImpl(
-    assets: assets,
-    styles: style,
-  );
-  final element = child.renderElement(
-    context: buildContext,
-  );
-  return htmlElementToString(
-    element: element,
+  return html_element_to_string(
+    element: child.renderElement(
+      context: BuildContextImpl(
+        assets: assets,
+        styles: <String, CssStyleDeclaration>{},
+      ),
+    ),
   );
 }
 
