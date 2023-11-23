@@ -240,7 +240,7 @@ void process_routes({
       delegates: application.delegates,
       child: routedApp,
     );
-    final result = localizedApp.renderElement(
+    final result = localizedApp.render(
       context: context,
     );
     final relativeTargetUrl = route.relativeUrl + '.html';
@@ -302,7 +302,7 @@ String constructSinglePage({
   required final Assets assets,
 }) {
   return html_element_to_string(
-    element: child.renderElement(
+    element: child.render(
       context: BuildContextImpl(
         assets: assets,
         styles: <String, CssStyleDeclaration>{},

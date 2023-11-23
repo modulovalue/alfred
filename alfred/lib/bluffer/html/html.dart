@@ -34,13 +34,6 @@ String html_element_to_string({
     final close = "</" + tag + ">";
     final content = y_combinator<HtmlElement, Iterable<String>>(
       (final SELF) => (final a) => a.match(
-        appended: (final a) => [
-          ...a.children.map(
-            (final a) => html_element_to_string(
-              element: a,
-            ),
-          ),
-        ],
         raw: (final a) => [],
         copy: (final a) => SELF(a.other),
         br: (final a) => [],
@@ -79,9 +72,6 @@ String? element_classname({
   required final HtmlElement element,
 }) =>
     element.match(
-      appended: (final a) => element_classname(
-        element: a.self,
-      ),
       raw: (final a) => null,
       copy: (final a) => a.idClass?.className,
       br: (final a) => a.idClass?.className,
@@ -103,9 +93,6 @@ String? element_id({
   required final HtmlElement element,
 }) =>
     element.match(
-      appended: (final a) => element_id(
-        element: a.self,
-      ),
       raw: (final a) => null,
       copy: (final a) => a.idClass?.id,
       br: (final a) => a.idClass?.id,
@@ -127,9 +114,6 @@ String element_tag({
   required final HtmlElement element,
 }) =>
     element.match(
-      appended: (final a) => element_tag(
-        element: a.self,
-      ),
       raw: (final a) => "div",
       custom: (final a) => a.tag,
       copy: (final a) => element_tag(
@@ -153,9 +137,6 @@ List<String> element_additional_attributes({
   required final HtmlElement element,
 }) =>
     element.match(
-      appended: (final a) => element_additional_attributes(
-        element: a.self,
-      ),
       raw: (final a) => [],
       copy: (final a) => element_additional_attributes(
         element: a.other,
@@ -163,13 +144,11 @@ List<String> element_additional_attributes({
       br: (final a) => [],
       html: (final a) => [],
       meta: (final a) => [
-        for (final a in a.attributes) a.key + '="' + a.value +
-            '"',
+        for (final a in a.attributes) a.key + '="' + a.value + '"',
       ],
       body: (final a) => [],
       custom: (final a) => [
-        for (final a in a.attributes) a.key + '="' + a.value +
-            '"',
+        for (final a in a.attributes) a.key + '="' + a.value + '"',
       ],
       script: (final a) {
         final _src = a.src;
@@ -647,7 +626,6 @@ abstract class HtmlElement {}
 
 extension HtmlElementMatch on HtmlElement {
   Z match<Z>({
-    required final Z Function(HtmlElementAppended) appended,
     required final Z Function(HtmlElementRaw) raw,
     required final Z Function(HtmlElementCopy) copy,
     required final Z Function(HtmlElementBr) br,
@@ -665,7 +643,6 @@ extension HtmlElementMatch on HtmlElement {
     required final Z Function(HtmlElementHead) head,
   }) {
     final self = this;
-    if (self is HtmlElementAppended) return appended(self);
     if (self is HtmlElementRaw) return raw(self);
     if (self is HtmlElementCopy) return copy(self);
     if (self is HtmlElementBr) return br(self);
@@ -683,12 +660,6 @@ extension HtmlElementMatch on HtmlElement {
     if (self is HtmlElementHead) return head(self);
     throw Exception("Invalid State");
   }
-}
-
-abstract class HtmlElementAppended implements HtmlElement {
-  HtmlElement get self;
-
-  List<HtmlElement> get children;
 }
 
 abstract class HtmlElementRaw implements HtmlElement {
@@ -807,18 +778,6 @@ abstract class HtmlElementHead implements HtmlElement {
 // endregion
 
 // region impl
-class HtmlElementAppendedImpl implements HtmlElementAppended {
-  @override
-  final HtmlElement self;
-  @override
-  final List<HtmlElement> children;
-
-  const HtmlElementAppendedImpl({
-    required this.self,
-    required this.children,
-  });
-}
-
 class HtmlElementRawImpl implements HtmlElementRaw {
   @override
   final String html;
@@ -830,9 +789,9 @@ class HtmlElementRawImpl implements HtmlElementRaw {
 
 class HtmlElementCopyImpl implements HtmlElementCopy {
   @override
-  final HtmlElement other;
-  @override
   final IdClass? idClass;
+  @override
+  final HtmlElement other;
 
   const HtmlElementCopyImpl({
     required this.other,
@@ -995,7 +954,7 @@ class HtmlElementDivImpl implements HtmlElementDiv {
   @override
   final List<Attribute> attributes;
 
-  const HtmlElementDivImpl({
+  HtmlElementDivImpl({
     required this.childNodes,
     required this.attributes,
     required this.idClass,

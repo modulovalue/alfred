@@ -34,10 +34,6 @@ abstract class Widget {
   CssStyleDeclaration? renderCss({
     required final BuildContext context,
   });
-
-  HtmlElement renderElement({
-    required final BuildContext context,
-  });
 }
 
 class BuildContextImpl implements BuildContext {
@@ -97,50 +93,53 @@ class BuildContextImpl implements BuildContext {
       styles[className] = css;
 }
 
-HtmlElement renderWidget({
-  required final Widget child,
-  required final BuildContext context,
-}) {
-  final renderedChildHtml = child.renderHtml(
-    context: context,
-  );
-  return HtmlElementCopyImpl(
-    other: renderedChildHtml,
-    idClass: IdClassImpl(
-      className: () {
-        final rendered_child_css = child.renderCss(
-          context: context,
-        );
-        if (rendered_child_css != null) {
-          final newClass = context.createDefaultKey().className;
-          context.setStyle(
-            newClass,
-            rendered_child_css,
-          );
-          final currentClass = element_classname(
-            element: renderedChildHtml,
-          );
-          if (currentClass != null) {
-            return currentClass + " " + newClass;
-          } else {
-            return newClass;
-          }
-        } else {
-          return null;
-        }
-      }(),
-      id: () {
-        final key = child.key;
-        if (key != null) {
-          final mediaQuerySize = MediaQuery.of(context)!.size;
-          final mediaQuerySizeIndex = mediaQuerySize.index.toString();
-          return key.className + '-' + mediaQuerySizeIndex;
-        } else {
-          return null;
-        }
-      }(),
-    ),
-  );
+extension WidgetExtension on Widget {
+  HtmlElement render({
+    required final BuildContext context,
+  }) {
+    final child = this;
+    final rendered_child_html = child.renderHtml(
+      context: context,
+    );
+    if (child is HtmlElementCopy) {
+      return rendered_child_html;
+    } else {
+      return HtmlElementCopyImpl(
+        other: rendered_child_html,
+        idClass: IdClassImpl(
+          className: () {
+            final rendered_child_css = child.renderCss(
+              context: context,
+            );
+            final current_class = element_classname(
+              element: rendered_child_html,
+            );
+            return [
+              if (current_class != null) current_class,
+              if (rendered_child_css != null) ...[
+                () {
+                  final new_class = context.createDefaultKey().className;
+                  context.setStyle(new_class, rendered_child_css);
+                  // print("NEW CLASS: $new_class   ///  prev ${current_class}");
+                  return new_class;
+                }(),
+              ],
+            ].join(" ");
+          }(),
+          id: () {
+            final key = child.key;
+            if (key != null) {
+              final mediaQuerySize = MediaQuery.of(context)!.size;
+              final mediaQuerySizeIndex = mediaQuerySize.index.toString();
+              return key.className + '-' + mediaQuerySizeIndex;
+            } else {
+              return null;
+            }
+          }(),
+        ),
+      );
+    }
+  }
 }
 
 mixin InheritedWidgetMixin implements InheritedWidget {
@@ -150,19 +149,8 @@ mixin InheritedWidgetMixin implements InheritedWidget {
   HtmlElement renderHtml({
     required final BuildContext context,
   }) {
-    final newContext = context.withInherited(this);
-    return child.renderHtml(
-      context: newContext,
-    );
-  }
-
-  @override
-  HtmlElement renderElement({
-    required final BuildContext context,
-  }) {
-    final newContext = context.withInherited(this);
-    return child.renderElement(
-      context: newContext,
+    return child.render(
+      context: context.withInherited(this),
     );
   }
 
@@ -170,9 +158,8 @@ mixin InheritedWidgetMixin implements InheritedWidget {
   CssStyleDeclaration? renderCss({
     required final BuildContext context,
   }) {
-    final newContext = context.withInherited(this);
     return child.renderCss(
-      context: newContext,
+      context: context.withInherited(this),
     );
   }
 }

@@ -24,7 +24,7 @@ const AppIncludes bootstrapIncludes = AppIncludesImpl(
 
 // TODO action (open link, execute, others)
 // TODO more from https://www.tutorialrepublic.com/twitter-bootstrap-tutorial/bootstrap-buttons.php
-class BootstrapButton with RenderElementMixin, NoCSSMixin, NoKeyMixin {
+class BootstrapButton with NoCSSMixin, NoKeyMixin implements Widget {
   final String text;
   final BootstrapButtonType type;
 
@@ -62,7 +62,7 @@ class BootstrapButton with RenderElementMixin, NoCSSMixin, NoKeyMixin {
 }
 
 // TODO action.
-class BootstrapOutlineButton with RenderElementMixin, NoCSSMixin, NoKeyMixin {
+class BootstrapOutlineButton with NoCSSMixin, NoKeyMixin implements Widget {
   final String text;
   final BootstrapOutlineButtonType type;
 
@@ -169,7 +169,7 @@ enum BootstrapOutlineButtonType {
   dark,
 }
 
-class BootstrapAccordion with RenderElementMixin, NoCSSMixin, NoKeyMixin {
+class BootstrapAccordion with NoCSSMixin, NoKeyMixin implements Widget {
   final Iterable<AccordionEntry> entries;
 
   const BootstrapAccordion({
@@ -258,7 +258,7 @@ class BootstrapAccordion with RenderElementMixin, NoCSSMixin, NoKeyMixin {
                             ),
                             childNodes: [
                               HtmlEntityElementImpl(
-                                element: entry.body.renderElement(
+                                element: entry.body.render(
                                   context: context,
                                 ),
                               ),
@@ -291,7 +291,7 @@ class AccordionEntry {
 }
 
 /// https://getbootstrap.com/docs/5.0/content/tables/
-class BootstrapTable with RenderElementMixin, NoKeyMixin, NoCSSMixin {
+class BootstrapTable with NoKeyMixin, NoCSSMixin implements Widget {
   final Iterable<TableRowImpl> children;
 
   const BootstrapTable({
@@ -313,7 +313,7 @@ class BootstrapTable with RenderElementMixin, NoKeyMixin, NoCSSMixin {
             element: TableImpl(
               children: children,
               clazz: "table table-sm table-striped",
-            ).renderHtml(
+            ).render(
               context: context,
             ),
           ),

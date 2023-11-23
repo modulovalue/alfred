@@ -39,7 +39,7 @@ class Builder extends StatelessWidgetBase with NoCSSMixin {
       builder(context);
 }
 
-class Click with NoCSSMixin, RenderElementMixin implements Widget {
+class Click with NoCSSMixin implements Widget {
   final String url;
   final Widget Function(BuildContext context) builder;
   final bool newTab;
@@ -79,7 +79,7 @@ class Click with NoCSSMixin, RenderElementMixin implements Widget {
           HtmlEntityElementImpl(
             element: builder(
               context,
-            ).renderElement(
+            ).render(
               context: context,
             ),
           ),
@@ -87,7 +87,7 @@ class Click with NoCSSMixin, RenderElementMixin implements Widget {
       );
 }
 
-class ConstrainedBox with CssStyleDeclarationNullMixin, RenderElementMixin implements Widget {
+class ConstrainedBox with CssStyleDeclarationNullMixin implements Widget {
   /// The additional constraints to impose on the child.
   final BoxConstraints? constraints;
   final Widget? child;
@@ -160,15 +160,14 @@ class ConstrainedBox with CssStyleDeclarationNullMixin, RenderElementMixin imple
   HtmlElement renderHtml({
     required final BuildContext context,
   }) {
-    final rendered = child?.renderElement(
+    final rendered = child?.render(
       context: context,
     );
-    return rendered ??
-        const HtmlElementDivImpl(
-          attributes: [],
-          idClass: null,
-          childNodes: [],
-        );
+    return rendered ?? HtmlElementDivImpl(
+      attributes: [],
+      idClass: null,
+      childNodes: [],
+    );
   }
 }
 
@@ -396,7 +395,7 @@ mixin CssStyleDeclarationNullMixin implements CssStyleDeclaration {
   String? get css_textDecoration => null;
 }
 
-class DecoratedBox with RenderElementMixin implements Widget {
+class DecoratedBox implements Widget {
   final Widget? child;
   final BoxDecoration? decoration;
   @override
@@ -430,7 +429,7 @@ class DecoratedBox with RenderElementMixin implements Widget {
           HtmlEntityElementImpl(
             element: Expanded(
               child: _child,
-            ).renderElement(
+            ).render(
               context: context,
             ),
           ),
@@ -665,7 +664,7 @@ class Flex with CssStyleDeclarationNullMixin, MultiRenderElementMixin implements
         childNodes: [
           for (final child in children)
             HtmlEntityElementImpl(
-              element: child.renderHtml(
+              element: child.render(
                 context: context,
               ),
             ),
@@ -730,7 +729,7 @@ class Flex with CssStyleDeclarationNullMixin, MultiRenderElementMixin implements
   }
 }
 
-class Flexible with CssStyleDeclarationNullMixin, RenderElementMixin implements Widget {
+class Flexible with CssStyleDeclarationNullMixin implements Widget {
   final Widget child;
 
   /// The flex factor to use for this child
@@ -763,7 +762,7 @@ class Flexible with CssStyleDeclarationNullMixin, RenderElementMixin implements 
   HtmlElement renderHtml({
     required final BuildContext context,
   }) =>
-      child.renderElement(context: context);
+      child.render(context: context);
 
   @override
   CssStyleDeclaration? renderCss({
@@ -1016,7 +1015,7 @@ class TextLink extends StatelessWidgetBase with NoCSSMixin {
       );
 }
 
-class Image with CssStyleDeclarationNullMixin, RenderElementMixin implements Widget {
+class Image with CssStyleDeclarationNullMixin implements Widget {
   final ImageProvider image;
   final double? width;
   final double? height;
@@ -1281,7 +1280,7 @@ class _LocalizationsScope with InheritedWidgetMixin {
   });
 }
 
-class Padding with CssStyleDeclarationNullMixin, RenderElementMixin implements Widget {
+class Padding with CssStyleDeclarationNullMixin implements Widget {
   final Widget? child;
   final EdgeInsets? padding;
   @override
@@ -1324,13 +1323,13 @@ class Padding with CssStyleDeclarationNullMixin, RenderElementMixin implements W
     required final BuildContext context,
   }) {
     if (child == null) {
-      return const HtmlElementDivImpl(
+      return HtmlElementDivImpl(
         attributes: [],
         idClass: null,
         childNodes: [],
       );
     } else {
-      return child!.renderElement(
+      return child!.render(
         context: context,
       );
     }
@@ -1386,7 +1385,7 @@ class ValueProvider<T> with InheritedWidgetMixin {
   });
 }
 
-class SizedBox with CssStyleDeclarationNullMixin, RenderElementMixin implements Widget {
+class SizedBox with CssStyleDeclarationNullMixin implements Widget {
   final Widget? child;
   final double? width;
   final double? height;
@@ -1434,13 +1433,13 @@ class SizedBox with CssStyleDeclarationNullMixin, RenderElementMixin implements 
     required final BuildContext context,
   }) {
     if (child == null) {
-      return const HtmlElementDivImpl(
+      return HtmlElementDivImpl(
         attributes: [],
         idClass: null,
         childNodes: [],
       );
     } else {
-      return child!.renderElement(
+      return child!.render(
         context: context,
       );
     }
@@ -1453,7 +1452,7 @@ abstract class StatelessWidget implements Widget {
       );
 }
 
-abstract class StatelessWidgetBase with RenderElementMixin implements StatelessWidget {
+abstract class StatelessWidgetBase implements StatelessWidget {
   @override
   final Key? key;
 
@@ -1467,47 +1466,14 @@ abstract class StatelessWidgetBase with RenderElementMixin implements StatelessW
   }) {
     return build(
       context,
-    ).renderElement(
+    ).render(
       context: context,
     );
   }
 }
 
-mixin RenderElementMixin implements Widget {
-  @override
-  HtmlElement renderElement({
-    required final BuildContext context,
-  }) =>
-      renderWidget(
-        child: this,
-        context: context,
-      );
-}
-
 mixin MultiRenderElementMixin implements Widget {
   Iterable<Widget> get children;
-
-  @override
-  HtmlElement renderElement({
-    required final BuildContext context,
-  }) {
-    return HtmlElementAppendedImpl(
-      // self_id String?
-      // self_tag String?
-      // self_className String?
-      self: renderWidget(
-        child: this,
-        context: context,
-      ),
-      children: [
-        for (final child in children)
-          renderWidget(
-            child: child,
-            context: context,
-          ),
-      ],
-    );
-  }
 }
 
 mixin NoCSSMixin implements Widget {
@@ -1523,7 +1489,7 @@ mixin NoKeyMixin implements Widget {
   Key? get key => null;
 }
 
-class RawHtml with RenderElementMixin {
+class RawHtml implements Widget {
   final String html;
 
   const RawHtml(this.html);
@@ -1548,7 +1514,7 @@ class RawHtml with RenderElementMixin {
   }
 }
 
-class Text with RenderElementMixin {
+class Text implements Widget {
   @override
   final Key? key;
 
@@ -1769,6 +1735,47 @@ class _TextCSS with CssStyleDeclarationNullMixin {
   ].join(', ');
 }
 
+class DetailsImpl with MultiRenderElementMixin, NoKeyMixin, NoCSSMixin {
+  final String summary;
+  @override
+  final Iterable<Widget> children;
+
+  const DetailsImpl({
+    required this.summary,
+    required this.children,
+  });
+
+  @override
+  HtmlElement renderHtml({
+    required final BuildContext context,
+  }) =>
+      HtmlElementCustomImpl(
+        idClass: null,
+        tag: "details",
+        attributes: [],
+        childNodes: [
+          HtmlEntityElementImpl(
+            element: HtmlElementCustomImpl(
+              idClass: null,
+              tag: "summary",
+              attributes: [],
+              childNodes: [
+                HtmlEntityNodeImpl(
+                  text: summary,
+                ),
+              ],
+            ),
+          ),
+          for (final child in children)
+            HtmlEntityElementImpl(
+              element: child.render(
+                context: context,
+              ),
+            ),
+        ],
+      );
+}
+
 class TableImpl with MultiRenderElementMixin, NoKeyMixin, NoCSSMixin {
   final String? clazz;
   @override
@@ -1793,7 +1800,7 @@ class TableImpl with MultiRenderElementMixin, NoKeyMixin, NoCSSMixin {
         childNodes: [
           for (final child in children)
             HtmlEntityElementImpl(
-              element: child.renderHtml(
+              element: child.render(
                 context: context,
               ),
             ),
@@ -1820,7 +1827,7 @@ class TableRowImpl with MultiRenderElementMixin, NoKeyMixin, NoCSSMixin {
         childNodes: [
           for (final child in children)
             HtmlEntityElementImpl(
-              element: child.renderHtml(
+              element: child.render(
                 context: context,
               ),
             ),
@@ -1828,7 +1835,7 @@ class TableRowImpl with MultiRenderElementMixin, NoKeyMixin, NoCSSMixin {
       );
 }
 
-abstract class TableRowContent with RenderElementMixin, NoKeyMixin, NoCSSMixin {
+abstract class TableRowContent with NoKeyMixin, NoCSSMixin implements Widget {
   const TableRowContent();
 
   R visit<R>({
@@ -1854,7 +1861,7 @@ class TableHeadImpl extends TableRowContent {
         attributes: [],
         childNodes: [
           HtmlEntityElementImpl(
-            element: child.renderElement(
+            element: child.render(
               context: context,
             ),
           ),
@@ -1886,7 +1893,7 @@ class TableDataImpl extends TableRowContent {
         attributes: [],
         childNodes: [
           HtmlEntityElementImpl(
-            element: child.renderHtml(
+            element: child.render(
               context: context,
             ),
           ),

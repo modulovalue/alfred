@@ -20,7 +20,7 @@ void main() {
         '<div><p class="_w1">a</p>\n'
             '<p class="_w2">b</p></div>',
       );
-    }, skip: false);
+    });
     test("smoketest", () {
       expect(
         single_page(
@@ -79,7 +79,7 @@ void main() {
         '<td><p class="_w8">c</p></td></tr></table>',
       );
       // Add fixture back
-    }, skip: true);
+    });
     test("all", () {
       final result =
       html_element_to_string(
@@ -94,7 +94,7 @@ void main() {
         //     ),
         //   ),
         // ),
-        element: const HtmlElementBodyImpl(
+        element: HtmlElementBodyImpl(
           idClass: null,
           childNodes: [
             HtmlEntityNodeImpl(
