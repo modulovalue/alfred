@@ -126,7 +126,7 @@ void main() {
                 // ignore: avoid_dynamic_calls
                 expect(body.httpBody.body.keys.toSet(), equals(expectedBody.keys.toSet()));
                 // ignore: avoid_dynamic_calls
-                for (final key in expectedBody.keys) {
+                for (final key in (expectedBody as Map).keys) {
                   // ignore: avoid_dynamic_calls
                   final dynamic found = body.httpBody.body[key];
                   // ignore: avoid_dynamic_calls

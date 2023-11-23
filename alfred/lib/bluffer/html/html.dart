@@ -1080,6 +1080,9 @@ String htmlElementToString({
       required final HtmlElement element,
     }) =>
         element.match(
+          appended: (final a) => _element_tag(
+            element: a.other,
+          ),
           raw: (final a) => throw Exception("Invalid State."),
           custom: (final a) => a.tag,
           copy: (final a) => _element_tag(
@@ -1120,6 +1123,9 @@ String htmlElementToString({
                 required final HtmlElement element,
               }) =>
                   element.match(
+                    appended: (final a) => _elementAdditionalAttributes(
+                      element: a.other,
+                    ),
                     raw: (final a) => throw Exception("Invalid State"),
                     copy: (final a) => _elementAdditionalAttributes(
                         element: a.other,
