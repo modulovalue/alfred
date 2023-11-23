@@ -1,3 +1,4 @@
+import 'package:alfred/bluffer/base/text.dart';
 import 'package:alfred/bluffer/publish/publish.dart';
 import 'package:alfred/bluffer/systems/flutter.dart';
 import 'package:test/test.dart';
@@ -62,7 +63,7 @@ void main() {
         '<td><p class="_w8">c</p></td></tr></table>',
       );
     });
-    test("smoketest2", () {
+    test("smoketest smaller", () {
       expect(
         single_page(
           builder: (final context) => const Row(
@@ -74,6 +75,19 @@ void main() {
         ),
         '<div><p>a</p>\n'
         '<p>b</p></div>'
+      );
+    });
+    test("smoketest css", () {
+      expect(
+        single_page(
+          builder: (final context) => const Row(
+            children: [
+              Text("a", textAlign: TextAlign.start),
+              Text("b"),
+            ],
+          ),
+        ),
+        '<p>a<p class="_w1">b</p></p>',
       );
     });
   });

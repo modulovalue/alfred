@@ -1492,25 +1492,24 @@ mixin MultiRenderElementMixin implements Widget {
   HtmlElement renderElement({
     required final BuildContext context,
   }) {
-    HtmlEntityElement result = HtmlEntityElementImpl(
-      element: renderWidget(
-        child: this,
-        context: context,
-      ),
-    );
+    HtmlElement? result ;
     for (final child in children) {
-      result = HtmlEntityElementImpl(
-        element: HtmlElementAppendedImpl(
-          other: result.element,
+      if (result == null) {
+        result = child.renderElement(
+          context: context,
+        );
+      } else {
+        result = HtmlElementAppendedImpl(
+          other: result,
           additional: [
             child.renderElement(
               context: context,
             ),
           ],
-        ),
-      );
+        );
+      }
     }
-    return result.element;
+    return result!;
   }
 }
 
