@@ -313,7 +313,7 @@ class BootstrapTable with RenderElementMixin, NoKeyMixin, NoCSSMixin {
             element: TableImpl(
               children: children,
               clazz: "table table-sm table-striped",
-            ).renderElement(
+            ).renderHtml(
               context: context,
             ),
           ),

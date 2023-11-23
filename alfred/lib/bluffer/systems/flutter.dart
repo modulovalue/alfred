@@ -1465,10 +1465,9 @@ abstract class StatelessWidgetBase with RenderElementMixin implements StatelessW
   HtmlElement renderHtml({
     required final BuildContext context,
   }) {
-    final built = build(
+    return build(
       context,
-    );
-    return built.renderElement(
+    ).renderElement(
       context: context,
     );
   }
@@ -1492,24 +1491,22 @@ mixin MultiRenderElementMixin implements Widget {
   HtmlElement renderElement({
     required final BuildContext context,
   }) {
-    HtmlElement? result ;
-    for (final child in children) {
-      if (result == null) {
-        result = child.renderElement(
-          context: context,
-        );
-      } else {
-        result = HtmlElementAppendedImpl(
-          other: result,
-          additional: [
-            child.renderElement(
-              context: context,
-            ),
-          ],
-        );
-      }
-    }
-    return result!;
+    return HtmlElementAppendedImpl(
+      // self_id String?
+      // self_tag String?
+      // self_className String?
+      self: renderWidget(
+        child: this,
+        context: context,
+      ),
+      children: [
+        for (final child in children)
+          renderWidget(
+            child: child,
+            context: context,
+          ),
+      ],
+    );
   }
 }
 
@@ -1550,6 +1547,7 @@ class RawHtml with RenderElementMixin {
     );
   }
 }
+
 class Text with RenderElementMixin {
   @override
   final Key? key;
@@ -1888,7 +1886,7 @@ class TableDataImpl extends TableRowContent {
         attributes: [],
         childNodes: [
           HtmlEntityElementImpl(
-            element: child.renderElement(
+            element: child.renderHtml(
               context: context,
             ),
           ),

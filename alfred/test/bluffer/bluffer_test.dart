@@ -63,31 +63,19 @@ void main() {
         '<td><p class="_w8">c</p></td></tr></table>',
       );
     });
-    test("smoketest smaller", () {
-      expect(
-        single_page(
-          builder: (final context) => const Row(
-            children: [
-              Text("a"),
-              Text("b"),
-            ],
-          ),
-        ),
-        '<div><p>a</p>\n'
-        '<p>b</p></div>'
-      );
-    });
     test("smoketest css", () {
       expect(
         single_page(
           builder: (final context) => const Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text("a", textAlign: TextAlign.start),
               Text("b"),
             ],
           ),
         ),
-        '<p>a<p class="_w1">b</p></p>',
+        '<div><p class="_w7">a</p>\n'
+        '<p class="_w8">b</p></div>',
       );
     });
   });

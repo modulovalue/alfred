@@ -10,7 +10,7 @@ import 'package:alfred/bluffer/widget/widget.dart';
 void main() {
   publishRaw(
     publishContext: PublishAppContextDefault(
-      serialize: serializeToDisk,
+      serialize: serialize_to_disk,
       application: App(
         application: (final route) => AppWidget(
           route: route,

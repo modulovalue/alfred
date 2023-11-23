@@ -17,17 +17,17 @@ void publishRaw({
   );
   final supportedLocales = publishContext.application.supportedLocales;
   for (final locale in supportedLocales) {
-    final absoluteLocaleDirectory = processLocale(
+    final absoluteLocaleDirectory = process_locale(
       locale: locale,
       log: publishContext.localeLog,
       directory: publishContext.directory,
     );
-    processAssets(
+    process_assets(
       assetsDirectory: publishContext.assetsDirectory,
       absoluteLocaleDirectory: absoluteLocaleDirectory,
       log: publishContext.assetLog,
     );
-    processRoutes(
+    process_routes(
       absoluteLocaleDirectory: absoluteLocaleDirectory,
       application: publishContext.application,
       locale: locale,
@@ -156,7 +156,7 @@ abstract class PublishingLocaleLog {
   });
 }
 
-String processLocale({
+String process_locale({
   required final Locale locale,
   required final PublishingLocaleLog log,
   required final String directory,
@@ -172,7 +172,7 @@ String processLocale({
   return localeDirectoryPath;
 }
 
-void processAssets({
+void process_assets({
   required final String assetsDirectory,
   required final String absoluteLocaleDirectory,
   required final PublishingAssetLog log,
@@ -217,7 +217,7 @@ void processAssets({
   }
 }
 
-void processRoutes({
+void process_routes({
   required final App application,
   required final PublishingRouteLog log,
   required final BuildContext context,
@@ -226,8 +226,7 @@ void processRoutes({
   required final void Function({
     required String targetPath,
     required HtmlElement element,
-  })
-      serializeTo,
+  }) serializeTo,
 }) {
   for (final route in application.routes) {
     log.processingRoute(
@@ -257,7 +256,7 @@ void processRoutes({
 }
 
 /// Writes the given element to the given path.
-void serializeToDisk(
+void serialize_to_disk(
   final String path,
   final HtmlElement element,
 ) {

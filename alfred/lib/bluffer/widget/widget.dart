@@ -117,7 +117,7 @@ HtmlElement renderWidget({
             newClass,
             rendered_child_css,
           );
-          final currentClass = elementClassname(
+          final currentClass = element_classname(
             element: renderedChildHtml,
           );
           if (currentClass != null) {

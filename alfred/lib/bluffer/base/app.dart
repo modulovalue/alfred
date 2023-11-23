@@ -529,7 +529,7 @@ class AppWidget<ROUTE extends WidgetRoute> with NoCSSMixin implements Widget {
       context: context,
       child: this,
     );
-    final children = elementChildNodes(
+    final children = element_child_nodes(
       element: result,
     );
     for (final child in children) {
