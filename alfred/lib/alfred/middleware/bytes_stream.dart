@@ -4,7 +4,7 @@ class StreamOfBytesMiddleware implements AlfredMiddleware {
   final Stream<List<int>> bytes;
 
   const StreamOfBytesMiddleware({
-    required final this.bytes,
+    required this.bytes,
   });
 
   @override

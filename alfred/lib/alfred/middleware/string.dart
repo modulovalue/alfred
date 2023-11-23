@@ -6,7 +6,7 @@ class ServeString implements AlfredMiddleware {
   final String string;
 
   const ServeString({
-    required final this.string,
+    required this.string,
   });
 
   @override

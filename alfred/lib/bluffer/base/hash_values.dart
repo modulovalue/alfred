@@ -12,7 +12,7 @@ const _HashEnd _hashEnd = _HashEnd();
 //
 // Borrowed from the dart sdk: sdk/lib/math/jenkins_smi_hash.dart.
 abstract class _Jenkins {
-  static int combine(int hash, Object? o) {
+  static int combine(int hash, final Object? o) {
     // ignore: prefer_asserts_with_message
     assert(o is! Iterable);
     // ignore: parameter_assignments
@@ -46,13 +46,13 @@ abstract class _Jenkins {
 /// int hashCode => hashValues(foo, bar, hashList(quux), baz);
 /// ```
 int hashValues(
-    Object? arg01,            Object? arg02,          [ Object? arg03 = _hashEnd,
-      Object? arg04 = _hashEnd, Object? arg05 = _hashEnd, Object? arg06 = _hashEnd,
-      Object? arg07 = _hashEnd, Object? arg08 = _hashEnd, Object? arg09 = _hashEnd,
-      Object? arg10 = _hashEnd, Object? arg11 = _hashEnd, Object? arg12 = _hashEnd,
-      Object? arg13 = _hashEnd, Object? arg14 = _hashEnd, Object? arg15 = _hashEnd,
-      Object? arg16 = _hashEnd, Object? arg17 = _hashEnd, Object? arg18 = _hashEnd,
-      Object? arg19 = _hashEnd, Object? arg20 = _hashEnd ]) {
+    final Object? arg01,            final Object? arg02,          [ final Object? arg03 = _hashEnd,
+      final Object? arg04 = _hashEnd, final Object? arg05 = _hashEnd, final Object? arg06 = _hashEnd,
+      final Object? arg07 = _hashEnd, final Object? arg08 = _hashEnd, final Object? arg09 = _hashEnd,
+      final Object? arg10 = _hashEnd, final Object? arg11 = _hashEnd, final Object? arg12 = _hashEnd,
+      final Object? arg13 = _hashEnd, final Object? arg14 = _hashEnd, final Object? arg15 = _hashEnd,
+      final Object? arg16 = _hashEnd, final Object? arg17 = _hashEnd, final Object? arg18 = _hashEnd,
+      final Object? arg19 = _hashEnd, final Object? arg20 = _hashEnd ]) {
   int result = 0;
   result = _Jenkins.combine(result, arg01);
   result = _Jenkins.combine(result, arg02);
@@ -116,7 +116,7 @@ int hashValues(
 /// Combine the [Object.hashCode] values of an arbitrary number of objects from
 /// an [Iterable] into one value. This function will return the same value if
 /// given null as if given an empty list.
-int hashList(Iterable<Object> arguments) {
+int hashList(final Iterable<Object> arguments) {
   int result = 0;
   for (final argument in arguments) {
     result = _Jenkins.combine(result, argument);

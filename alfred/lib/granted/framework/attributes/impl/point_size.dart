@@ -17,7 +17,7 @@ class PointSizeAttrImpl implements PointSizeAttr {
 
   /// Creates a new point size attribute.
   PointSizeAttrImpl(
-    final this.size,
+    this.size,
   ) : _last = 0.0;
 
   /// Pushes the attribute to the renderer.

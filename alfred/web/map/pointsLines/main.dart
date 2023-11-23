@@ -191,8 +191,8 @@ class Driver {
   late LineRemover _lineRemoverAndTrimTool;
 
   Driver(
-    final this._svgPlot,
-    final this._plot,
+    this._svgPlot,
+    this._plot,
   ) : _tree = QuadTreeImpl() {
     _plotItem = _plot.addTree(_tree);
     _selectedTool = Tool.None;
@@ -430,7 +430,7 @@ class Driver {
   ) {
     if (value) {
       _printTree.value = false;
-      print(_tree.toString());
+      print(_tree);
     }
   }
 

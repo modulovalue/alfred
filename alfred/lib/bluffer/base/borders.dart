@@ -54,6 +54,7 @@ enum BorderStyle {
 ///  * Border, which uses [BorderSide] objects to represent its sides.
 ///  * BoxDecoration, which optionally takes a Border object.
 ///  * TableBorder, which is similar to Border but has two more sides
+// ignore: comment_references
 ///    ([TableBorder.horizontalInside] and [TableBorder.verticalInside]), both
 ///    of which are also [BorderSide] objects.
 class BorderSide {
@@ -77,7 +78,7 @@ class BorderSide {
   /// [BorderStyle.none], then BorderSide.zero is returned.
   ///
   /// The arguments must not be null.
-  static BorderSide merge(BorderSide a, BorderSide b) {
+  static BorderSide merge(final BorderSide a, final BorderSide b) {
     assert(canMerge(a, b), "The given BorderSides must be mergeable.");
     final aIsNone = a.style == BorderStyle.none && a.width == 0.0;
     final bIsNone = b.style == BorderStyle.none && b.width == 0.0;
@@ -124,9 +125,9 @@ class BorderSide {
 
   /// Creates a copy of this border but with the given fields replaced with the new values.
   BorderSide copyWith({
-    Color? color,
-    double? width,
-    BorderStyle? style,
+    final Color? color,
+    final double? width,
+    final BorderStyle? style,
   }) =>
       BorderSide(
         color: color ?? this.color,
@@ -150,7 +151,7 @@ class BorderSide {
   ///
   /// Values for `t` are usually obtained from an [Animation<double>], such as
   /// an AnimationController.
-  BorderSide scale(double t) {
+  BorderSide scale(final double t) {
     return BorderSide(
       color: color,
       width: math.max(0.0, width * t),
@@ -171,7 +172,7 @@ class BorderSide {
   /// [BorderStyle.none], or if they both have the same color and style.
   ///
   /// The arguments must not be null.
-  static bool canMerge(BorderSide a, BorderSide b) {
+  static bool canMerge(final BorderSide a, final BorderSide b) {
     if ((a.style == BorderStyle.none && a.width == 0.0) || (b.style == BorderStyle.none && b.width == 0.0)) {
       return true;
     }
@@ -183,7 +184,7 @@ class BorderSide {
   /// The arguments must not be null.
   ///
   /// {@macro dart.ui.shadow.lerp}
-  static BorderSide lerp(BorderSide a, BorderSide b, double t) {
+  static BorderSide lerp(final BorderSide a, final BorderSide b, final double t) {
     if (t == 0.0) {
       return a;
     }
@@ -226,7 +227,7 @@ class BorderSide {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(final dynamic other) {
     if (identical(this, other)) {
       return true;
     }
@@ -288,7 +289,7 @@ abstract class ShapeBorder {
   ///
   /// The `reversed` argument is true if this object was the right operand of
   /// the `+` operator, and false if it was the left operand.
-  ShapeBorder? add(ShapeBorder other, {bool reversed = false}) => null;
+  ShapeBorder? add(final ShapeBorder other, {final bool reversed = false}) => null;
 
   /// Creates a new border consisting of the two borders on either side of the
   /// operator.
@@ -298,7 +299,7 @@ abstract class ShapeBorder {
   /// those two borders (see [add]). Otherwise, an object is returned that
   /// merely paints the two borders sequentially, with the left hand operand on
   /// the inside and the right hand operand on the outside.
-  ShapeBorder operator +(ShapeBorder other) {
+  ShapeBorder operator +(final ShapeBorder other) {
     return add(other) ?? other.add(this, reversed: true) ?? _CompoundBorder(<ShapeBorder>[other, this]);
   }
 
@@ -324,7 +325,7 @@ abstract class ShapeBorder {
   ///
   ///  * [BorderSide.scale], which most [ShapeBorder] subclasses defer to for
   ///    the actual computation.
-  ShapeBorder scale(double t);
+  ShapeBorder scale(final double t);
 
   /// Linearly interpolates from another [ShapeBorder] (possibly of another
   /// class) to `this`.
@@ -350,7 +351,7 @@ abstract class ShapeBorder {
   /// an AnimationController.
   ///
   /// Instead of calling this directly, use [ShapeBorder.lerp].
-  ShapeBorder? lerpFrom(ShapeBorder? a, double t) {
+  ShapeBorder? lerpFrom(final ShapeBorder? a, final double t) {
     if (a == null) {
       return scale(t);
     }
@@ -382,7 +383,7 @@ abstract class ShapeBorder {
   /// an AnimationController.
   ///
   /// Instead of calling this directly, use [ShapeBorder.lerp].
-  ShapeBorder? lerpTo(ShapeBorder? b, double t) {
+  ShapeBorder? lerpTo(final ShapeBorder? b, final double t) {
     if (b == null) {
       return scale(1.0 - t);
     }
@@ -397,7 +398,7 @@ abstract class ShapeBorder {
   /// and `b` after `t=0.5`.
   ///
   /// {@macro dart.ui.shadow.lerp}
-  static ShapeBorder? lerp(ShapeBorder? a, ShapeBorder? b, double t) {
+  static ShapeBorder? lerp(final ShapeBorder? a, final ShapeBorder? b, final double t) {
     ShapeBorder? result;
     if (b != null) {
       result = b.lerpFrom(a, t);
@@ -427,7 +428,7 @@ abstract class ShapeBorder {
 class _CompoundBorder extends ShapeBorder {
   _CompoundBorder(this.borders)
       : assert(borders.length >= 2, "At least two borders must be given. $borders"),
-        assert(!borders.any((ShapeBorder border) => border is _CompoundBorder), "None of the given borders can be a compound shape.");
+        assert(!borders.any((final ShapeBorder border) => border is _CompoundBorder), "None of the given borders can be a compound shape.");
 
   final List<ShapeBorder> borders;
 
@@ -435,14 +436,14 @@ class _CompoundBorder extends ShapeBorder {
   EdgeInsetsGeometry get dimensions {
     return borders.fold<EdgeInsetsGeometry>(
       EdgeInsets.zero,
-      (EdgeInsetsGeometry previousValue, ShapeBorder border) {
+      (final EdgeInsetsGeometry previousValue, final ShapeBorder border) {
         return previousValue.add(border.dimensions);
       },
     );
   }
 
   @override
-  ShapeBorder add(ShapeBorder other, {bool reversed = false}) {
+  ShapeBorder add(final ShapeBorder other, {final bool reversed = false}) {
     // This wraps the list of borders with "other", or, if "reversed" is true,
     // wraps "other" with the list of borders.
     // If "reversed" is false, "other" should end up being at the start of the
@@ -482,21 +483,21 @@ class _CompoundBorder extends ShapeBorder {
   }
 
   @override
-  ShapeBorder scale(double t) {
-    return _CompoundBorder(borders.map<ShapeBorder>((ShapeBorder border) => border.scale(t)).toList());
+  ShapeBorder scale(final double t) {
+    return _CompoundBorder(borders.map<ShapeBorder>((final ShapeBorder border) => border.scale(t)).toList());
   }
 
   @override
-  ShapeBorder lerpFrom(ShapeBorder? a, double t) {
+  ShapeBorder lerpFrom(final ShapeBorder? a, final double t) {
     return _CompoundBorder.lerp(a, this, t);
   }
 
   @override
-  ShapeBorder lerpTo(ShapeBorder? b, double t) {
+  ShapeBorder lerpTo(final ShapeBorder? b, final double t) {
     return _CompoundBorder.lerp(this, b, t);
   }
 
-  static _CompoundBorder lerp(ShapeBorder? a, ShapeBorder? b, double t) {
+  static _CompoundBorder lerp(final ShapeBorder? a, final ShapeBorder? b, final double t) {
     assert(a is _CompoundBorder || b is _CompoundBorder,
         "Either a or b must be a compound border."); // Not really necessary, but all call sites currently intend this.
     final aList = () {
@@ -552,7 +553,7 @@ class _CompoundBorder extends ShapeBorder {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(final dynamic other) {
     if (identical(this, other)) {
       return true;
     }
@@ -584,6 +585,6 @@ class _CompoundBorder extends ShapeBorder {
     // in the list in the opposite order of what the source looks like: a + b =>
     // [b, a]. We do this to make the painting code more optimal, and most of
     // the rest of the code doesn't care, except toString() (for debugging).
-    return borders.reversed.map<String>((ShapeBorder border) => border.toString()).join(' + ');
+    return borders.reversed.map<String>((final ShapeBorder border) => border.toString()).join(' + ');
   }
 }

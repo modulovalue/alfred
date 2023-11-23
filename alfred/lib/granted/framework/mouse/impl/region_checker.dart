@@ -19,8 +19,8 @@ class RegionChecker implements PlotterMouseHandle {
 
   /// Creates a new mouse handler for adding lines.
   RegionChecker(
-    final this._regions,
-    final this._plot,
+    this._regions,
+    this._plot,
   )   : _enabled = true,
         _lines = _plot.plotter.addLines([])..addColor(1.0, 0.5, 0.5),
         _pointColor = ColorAttrImpl.rgb(0.0, 0.0, 0.0),

@@ -169,7 +169,7 @@ class EventArgs {
 
   /// Creates a new event argument.
   EventArgs(
-    final this.sender,
+    this.sender,
   ) : this.propagate = true;
 }
 
@@ -184,8 +184,8 @@ class ItemsAddedEventArgs<T> extends EventArgs {
   /// Creates an items added event argument.
   ItemsAddedEventArgs(
     final Object sender,
-    final this.index,
-    final this.added,
+    this.index,
+    this.added,
   ) : super(sender);
 }
 
@@ -200,8 +200,8 @@ class ItemsRemovedEventArgs<T> extends EventArgs {
   /// Creates an items removed event argument.
   ItemsRemovedEventArgs(
     final Object sender,
-    final this.index,
-    final this.removed,
+    this.index,
+    this.removed,
   ) : super(sender);
 }
 
@@ -219,9 +219,9 @@ class ValueChangedEventArgs<T> extends EventArgs {
   /// Creates an entity event argument.
   ValueChangedEventArgs(
     final Object sender,
-    final this.name,
-    final this.previous,
-    final this.value,
+    this.name,
+    this.previous,
+    this.value,
   ) : super(sender);
 
   /// The string for this event argument.

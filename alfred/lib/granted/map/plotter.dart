@@ -173,24 +173,24 @@ class QuadTreeGroup {
   final Group rootBoundaryGroup;
 
   const QuadTreeGroup._({
-    required final this.tree,
-    required final this.passRects,
-    required final this.passRectsGroup,
-    required final this.pointRects,
-    required final this.pointRectsGroup,
-    required final this.emptyRects,
-    required final this.emptyRectsGroup,
-    required final this.branchRects,
-    required final this.branchRectsGroup,
-    required final this.edges,
-    required final this.edgesGroup,
-    required final this.points,
-    required final this.pointsGroup,
-    required final this.boundaryRect,
-    required final this.boundaryGroup,
-    required final this.rootBoundaryRect,
-    required final this.rootBoundaryGroup,
-    required final this.group,
+    required this.tree,
+    required this.passRects,
+    required this.passRectsGroup,
+    required this.pointRects,
+    required this.pointRectsGroup,
+    required this.emptyRects,
+    required this.emptyRectsGroup,
+    required this.branchRects,
+    required this.branchRectsGroup,
+    required this.edges,
+    required this.edgesGroup,
+    required this.points,
+    required this.pointsGroup,
+    required this.boundaryRect,
+    required this.boundaryGroup,
+    required this.rootBoundaryRect,
+    required this.rootBoundaryGroup,
+    required this.group,
   });
 
   /// Indicates if pass nodes should be shown or not.
@@ -354,12 +354,13 @@ class _QuadTreePlotterNodeHandler extends QTNodeHandler {
 
   /// Creates a new quadtree plotter handler.
   _QuadTreePlotterNodeHandler(
-    final this._plot,
-    final this._passRects,
-    final this._pointRects,
-    final this._emptyRects,
-    final this._branchRects, [
-    final this._pad = 0.45,
+    this._plot,
+    this._passRects,
+    this._pointRects,
+    this._emptyRects,
+    this._branchRects, [
+    // ignore: unused_element
+    this._pad = 0.45,
   ]);
 
   /// Handles adding a new node into the plot.
@@ -395,8 +396,8 @@ class _QuadTreePlotterEdgeHandler extends QTEdgeHandler<Object?> {
 
   /// Creates a new quadtree plotter handler.
   _QuadTreePlotterEdgeHandler(
-    final this._plot,
-    final this._edges,
+    this._plot,
+    this._edges,
   );
 
   /// Handles adding a new edge into the plot.
@@ -416,8 +417,8 @@ class _QuadTreePlotterPointHandler extends QTPointHandler {
 
   /// Creates a new quadtree plotter handler.
   _QuadTreePlotterPointHandler(
-    final this._plot,
-    final this._points,
+    this._plot,
+    this._points,
   );
 
   /// Handles adding a new point into the plot.

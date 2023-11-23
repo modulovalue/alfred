@@ -51,8 +51,8 @@ abstract class BaseResult {
 
   /// Creates a new collision result for collision between shapes.
   BaseResult(
-    final this.type,
-    final this.parametric,
+    this.type,
+    this.parametric,
   );
 
   /// Gets the string for this collision.
@@ -97,12 +97,12 @@ class SpherePlaneResult extends BaseResult {
   SpherePlaneResult(
     final Type type,
     final double parametric,
-    final this.sphere,
-    final this.plane,
-    final this.vec,
-    final this.backside, [
-    final this.center,
-    final this.hitPoint,
+    this.sphere,
+    this.plane,
+    this.vec,
+    this.backside, [
+    this.center,
+    this.hitPoint,
   ]) : super(
           type,
           parametric,
@@ -182,13 +182,13 @@ class TwoAABB2Result extends BaseResult {
   TwoAABB2Result(
     final Type type,
     final double parametric,
-    final this.regionA,
-    final this.regionB,
-    final this.vecA,
-    final this.vecB,
-    final this.sidesA,
-    final this.sidesB,
-    final this.region,
+    this.regionA,
+    this.regionB,
+    this.vecA,
+    this.vecB,
+    this.sidesA,
+    this.sidesB,
+    this.region,
   ) : super(type, parametric);
 
   /// Gets the string for this collision.
@@ -326,13 +326,13 @@ class TwoAABB3Result extends BaseResult {
   TwoAABB3Result(
     final Type type,
     final double parametric,
-    final this.regionA,
-    final this.regionB,
-    final this.vecA,
-    final this.vecB,
-    final this.sidesA,
-    final this.sidesB,
-    final this.region,
+    this.regionA,
+    this.regionB,
+    this.vecA,
+    this.vecB,
+    this.sidesA,
+    this.sidesB,
+    this.region,
   ) : super(type, parametric);
 
   /// Gets the string for this collision.
@@ -515,13 +515,13 @@ class TwoSphereResult extends BaseResult {
   TwoSphereResult(
     final Type type,
     final double parametric,
-    final this.sphereA,
-    final this.sphereB,
-    final this.vecA,
-    final this.vecB, [
-    final this.centerA,
-    final this.centerB,
-    final this.hitPoint,
+    this.sphereA,
+    this.sphereB,
+    this.vecA,
+    this.vecB, [
+    this.centerA,
+    this.centerB,
+    this.hitPoint,
   ]) : super(type, parametric);
 
   /// Gets the string for this collision.

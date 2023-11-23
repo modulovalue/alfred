@@ -16,7 +16,7 @@ class DirectedLineAttrImpl implements DirectedLineAttr {
 
   /// Creates a directed line flag attribute.
   DirectedLineAttrImpl([
-    final this.directed = true,
+    this.directed = true,
   ]) : _last = false;
 
   /// Pushes the attribute to the renderer.

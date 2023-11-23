@@ -3,7 +3,7 @@ class KeyImpl implements Key {
   final String className;
 
   const KeyImpl(
-    final this.className,
+    this.className,
   );
 }
 

@@ -167,7 +167,7 @@ abstract class AlfredWebSocket {
   StreamSubscription<dynamic> listen({
     required final void Function(dynamic event)? on_data,
     required final Function? on_error,
-    required void Function()? on_done,
+    required final void Function()? on_done,
     required final bool? cancel_on_error,
   });
 
@@ -242,7 +242,7 @@ class AlfredRoutedRoutes implements AlfredRouted {
   final Iterable<AlfredHttpRoute> routes;
 
   const AlfredRoutedRoutes({
-    required final this.routes,
+    required this.routes,
   });
 
   @override
@@ -258,8 +258,8 @@ class AlfredRoutesAt implements AlfredRouted {
   final AlfredRouted routes;
 
   const AlfredRoutesAt({
-    required final this.prefix,
-    required final this.routes,
+    required this.prefix,
+    required this.routes,
   });
 
   @override

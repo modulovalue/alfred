@@ -20,9 +20,9 @@ class QTEdgeNodeImpl<T extends Object?> implements QTEdgeNode<T> {
 
   /// Creates a new edge node.
   QTEdgeNodeImpl(
-    final this.startNode,
-    final this.endNode,
-    final this.data,
+    this.startNode,
+    this.endNode,
+    this.data,
   ) :
         // May not initialize an edge node with the
         // same node for both the start and end.

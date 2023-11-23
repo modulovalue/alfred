@@ -7,7 +7,7 @@ class ServetBuilder implements AlfredMiddleware {
   final FutureOr<AlfredMiddleware> Function(ServeContext c) builder;
 
   const ServetBuilder({
-    required final this.builder,
+    required this.builder,
   });
 
   @override

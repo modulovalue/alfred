@@ -13,7 +13,7 @@ class QTEdgeHandlerNeighborIgnorerImpl implements QTEdgeHandler<Object?> {
   /// Creates a new neighbor edge ignorer.
   /// The given [edge] is the edge to ignore and ignore the neighbors of.
   QTEdgeHandlerNeighborIgnorerImpl(
-    final this._edge,
+    this._edge,
   );
 
   /// Gets the edge to ignore and ignore the neighbors of.
@@ -37,7 +37,7 @@ class QTEdgeHandlerAnonymousImpl<T> implements QTEdgeHandler<T> {
 
   /// Creates a new edge handler.
   const QTEdgeHandlerAnonymousImpl(
-    final this._hndl,
+    this._hndl,
   );
 
   /// Handles the given edge.
@@ -59,7 +59,7 @@ class QTEdgeHandlerEdgeCollectorImpl implements QTEdgeHandler<Object?> {
   /// Create a new edge collector.
   QTEdgeHandlerEdgeCollectorImpl({
     final Set<QTEdgeNode>? edgeSet,
-    final this.filter,
+    this.filter,
   }) : _set = (() {
           if (edgeSet == null) {
             return <QTEdgeNode>{};
@@ -128,9 +128,9 @@ class QTEdgeHandlerBorderNeighborImpl implements QTEdgeHandler<Object?> {
   /// Set [_ccw] to true to use a counter-clockwise border, false if clockwise.
   /// The given [_matcher] will filter possible neighbors.
   QTEdgeHandlerBorderNeighborImpl(
-    final this._query, [
-    final this._ccw = true,
-    final this._matcher,
+    this._query, [
+    this._ccw = true,
+    this._matcher,
   ])  : _result = null,
         _adjusted = null,
         _allowFore = true,
@@ -373,7 +373,7 @@ class QTEdgeHandlerEdgeRemoverImpl implements QTEdgeHandler<Object?> {
   final Set<QTEdgeNode> remove;
 
   QTEdgeHandlerEdgeRemoverImpl(
-    final this._region,
+    this._region,
   ) : remove = <QTEdgeNode>{};
 
   @override

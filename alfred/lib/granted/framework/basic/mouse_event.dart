@@ -19,12 +19,12 @@ class PlotterMouseEventImpl implements PlotterMouseEvent {
   bool redraw;
 
   PlotterMouseEventImpl(
-    final this.window,
-    final this.projection,
-    final this.viewProj,
-    final this.x,
-    final this.y,
-    final this.state,
+    this.window,
+    this.projection,
+    this.viewProj,
+    this.x,
+    this.y,
+    this.state,
   ) : redraw = false;
 
   @override

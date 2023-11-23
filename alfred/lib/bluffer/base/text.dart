@@ -22,7 +22,7 @@ enum FontStyle {
 /// The thickness of the glyphs used to draw the text
 class FontWeight {
   const FontWeight._(
-    final this.index,
+    this.index,
   );
 
   /// The encoded integer value of this font weight.
@@ -85,11 +85,11 @@ class FontWeight {
   ///
   /// Values for `t` are usually obtained from an [Animation<double>], such as
   /// an AnimationController.
-  static FontWeight? lerp(FontWeight? a, FontWeight? b, double t) {
+  static FontWeight? lerp(final FontWeight? a, final FontWeight? b, final double t) {
     if (a == null && b == null) {
       return null;
     }
-    return values[lerpDouble(a?.index ?? normal.index, b?.index ?? normal.index, t).round().clamp(0, 8).round()];
+    return values[lerpDouble(a?.index ?? normal.index, b?.index ?? normal.index, t).round().clamp(0, 8)];
   }
 
   @override
@@ -195,10 +195,10 @@ class FontFeature {
         assert(value >= 0, "The given value must be positive or zero.");
 
   /// Create a [FontFeature] object that enables the feature with the given tag.
-  const FontFeature.enable(String feature) : this(feature, 1);
+  const FontFeature.enable(final String feature) : this(feature, 1);
 
   /// Create a [FontFeature] object that disables the feature with the given tag.
-  const FontFeature.disable(String feature) : this(feature, 0);
+  const FontFeature.disable(final String feature) : this(feature, 0);
 
   /// Randomize the alternate forms used in text.
   ///
@@ -221,7 +221,7 @@ class FontFeature {
   /// See also:
   ///
   ///  * <https://docs.microsoft.com/en-us/typography/opentype/spec/features_pt#ssxx>
-  static FontFeature stylisticSet(int value) {
+  static FontFeature stylisticSet(final int value) {
     assert(value >= 1, "The given value $value must be greater or equal 1.");
     assert(value <= 20, "The given value $value must be less or equal 20.");
     return FontFeature('ss${value.toString().padLeft(2, "0")}');
@@ -301,7 +301,7 @@ class FontFeature {
   final int value;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(final dynamic other) {
     if (identical(this, other)) {
       return true;
     }
@@ -365,7 +365,7 @@ class TextDecoration {
   const TextDecoration._(this._mask);
 
   /// Creates a decoration that paints the union of all the given decorations.
-  static TextDecoration combine(List<TextDecoration> decorations) {
+  static TextDecoration combine(final List<TextDecoration> decorations) {
     int mask = 0;
     for (final decoration in decorations) {
       mask |= decoration._mask;
@@ -376,7 +376,7 @@ class TextDecoration {
   final int _mask;
 
   /// Whether this decoration will paint at least as much decoration as the given decoration.
-  bool contains(TextDecoration other) {
+  bool contains(final TextDecoration other) {
     return (_mask | other._mask) == _mask;
   }
 
@@ -393,7 +393,7 @@ class TextDecoration {
   static const TextDecoration lineThrough = TextDecoration._(0x4);
 
   @override
-  bool operator ==(dynamic other) => other is TextDecoration && _mask == other._mask;
+  bool operator ==(final dynamic other) => other is TextDecoration && _mask == other._mask;
 
   @override
   int get hashCode => _mask.hashCode;
@@ -443,7 +443,7 @@ enum TextDecorationStyle {
 /// Returns true if the lists are both null, or if they are both non-null, have
 /// the same length, and contain the same elements in the same order. Returns
 /// false otherwise.
-bool _listEquals<T>(List<T>? a, List<T>? b) {
+bool _listEquals<T>(final List<T>? a, final List<T>? b) {
   if (a == null) {
     return b == null;
   }
@@ -517,7 +517,7 @@ class TextStyle {
   ;
 
   TextStyle merge(
-    TextStyle other,
+    final TextStyle other,
   ) =>
       TextStyle(
         fontFamily: other.fontFamily ?? this.fontFamily,
@@ -554,7 +554,7 @@ class TextStyle {
   final Locale? locale;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(final dynamic other) {
     if (identical(this, other)) {
       return true;
     }
@@ -655,17 +655,17 @@ class TextStyle {
 //  - Element 5: The value of |maxLines|.
 //
 Int32List _encodeParagraphStyle(
-  TextAlign? textAlign,
-  TextDirection? textDirection,
-  int? maxLines,
-  String? fontFamily,
-  double? fontSize,
-  double? height,
-  FontWeight? fontWeight,
-  FontStyle? fontStyle,
-  StrutStyle? strutStyle,
-  String? ellipsis,
-  Locale? locale,
+  final TextAlign? textAlign,
+  final TextDirection? textDirection,
+  final int? maxLines,
+  final String? fontFamily,
+  final double? fontSize,
+  final double? height,
+  final FontWeight? fontWeight,
+  final FontStyle? fontStyle,
+  final StrutStyle? strutStyle,
+  final String? ellipsis,
+  final Locale? locale,
 ) {
   final result = Int32List(7); // also update paragraph_builder.cc
   if (textAlign != null) {
@@ -771,17 +771,17 @@ class ParagraphStyle {
   ///
   /// * `locale`: The locale used to select region-specific glyphs.
   ParagraphStyle({
-    TextAlign? textAlign,
-    TextDirection? textDirection,
-    int? maxLines,
-    String? fontFamily,
-    double? fontSize,
-    double? height,
-    FontWeight? fontWeight,
-    FontStyle? fontStyle,
-    StrutStyle? strutStyle,
-    String? ellipsis,
-    Locale? locale,
+    final TextAlign? textAlign,
+    final TextDirection? textDirection,
+    final int? maxLines,
+    final String? fontFamily,
+    final double? fontSize,
+    final double? height,
+    final FontWeight? fontWeight,
+    final FontStyle? fontStyle,
+    final StrutStyle? strutStyle,
+    final String? ellipsis,
+    final Locale? locale,
   })  : _encoded = _encodeParagraphStyle(
           textAlign,
           textDirection,
@@ -811,7 +811,7 @@ class ParagraphStyle {
   final Locale? _locale;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(final dynamic other) {
     if (identical(this, other)) {
       return true;
     }
@@ -927,8 +927,8 @@ class ParagraphStyle {
 // We serialize this more thoroughly than ParagraphStyle because it is
 // much more likely that the strut is empty/null and we wish to add
 // minimal overhead for non-strut cases.
-ByteData _encodeStrut(String? fontFamily, List<String>? fontFamilyFallback, double? fontSize, double? height, double? leading,
-    FontWeight? fontWeight, FontStyle? fontStyle, bool? forceStrutHeight) {
+ByteData _encodeStrut(final String? fontFamily, final List<String>? fontFamilyFallback, final double? fontSize, final double? height, final double? leading,
+    final FontWeight? fontWeight, final FontStyle? fontStyle, final bool? forceStrutHeight) {
   if (fontFamily == null &&
       fontSize == null &&
       height == null &&
@@ -1024,14 +1024,14 @@ class StrutStyle {
   ///   of the `fontFamily` and `(height + leading) * fontSize`. Otherwise, it
   ///   will be determined by the Ascent + half-leading of the first text.
   StrutStyle({
-    String? fontFamily,
-    List<String>? fontFamilyFallback,
-    double? fontSize,
-    double? height,
-    double? leading,
-    FontWeight? fontWeight,
-    FontStyle? fontStyle,
-    bool? forceStrutHeight,
+    final String? fontFamily,
+    final List<String>? fontFamilyFallback,
+    final double? fontSize,
+    final double? height,
+    final double? leading,
+    final FontWeight? fontWeight,
+    final FontStyle? fontStyle,
+    final bool? forceStrutHeight,
   })  : _encoded = _encodeStrut(
           fontFamily,
           fontFamilyFallback,
@@ -1050,7 +1050,7 @@ class StrutStyle {
   final List<String>? _fontFamilyFallback;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(final dynamic other) {
     if (identical(this, other)) {
       return true;
     }
@@ -1234,7 +1234,7 @@ class TextBox {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(final dynamic other) {
     if (identical(this, other)) {
       return true;
     }
@@ -1348,7 +1348,7 @@ class TextPosition {
   final TextAffinity affinity;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(final dynamic other) {
     if (other.runtimeType != runtimeType) {
       return false;
     }
@@ -1385,7 +1385,7 @@ class TextRange {
   /// A text range that starts and ends at offset.
   ///
   /// The [offset] argument must be non-null and greater than or equal to -1.
-  const TextRange.collapsed(int offset)
+  const TextRange.collapsed(final int offset)
       : assert(offset >= -1, "The given end position $offset must either be -1, 0 or positive"),
         start = offset,
         end = offset;
@@ -1413,28 +1413,28 @@ class TextRange {
   bool get isNormalized => end >= start;
 
   /// The text before this range.
-  String textBefore(String text) {
+  String textBefore(final String text) {
     // ignore: prefer_asserts_with_message
     assert(isNormalized);
     return text.substring(0, start);
   }
 
   /// The text after this range.
-  String textAfter(String text) {
+  String textAfter(final String text) {
     // ignore: prefer_asserts_with_message
     assert(isNormalized);
     return text.substring(end);
   }
 
   /// The text inside this range.
-  String textInside(String text) {
+  String textInside(final String text) {
     // ignore: prefer_asserts_with_message
     assert(isNormalized);
     return text.substring(start, end);
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(final dynamic other) {
     if (identical(this, other)) {
       return true;
     } else if (other is! TextRange) {
@@ -1488,7 +1488,7 @@ class ParagraphConstraints {
   final double width;
 
   @override
-  bool operator ==(dynamic other) => other is ParagraphConstraints && other.width == width;
+  bool operator ==(final dynamic other) => other is ParagraphConstraints && other.width == width;
 
   @override
   int get hashCode => width.hashCode;

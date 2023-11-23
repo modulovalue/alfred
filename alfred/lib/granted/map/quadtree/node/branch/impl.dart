@@ -185,8 +185,8 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
   /// Returns true if all points in the boundary were run, false if stopped.
   @override
   bool foreachPoint(
-    QTPointHandler handle, [
-    QTBoundary? bounds,
+    final QTPointHandler handle, [
+    final QTBoundary? bounds,
   ]) {
     if ((bounds == null) || overlapsBoundary(bounds)) {
       return _ne.foreachPoint(handle, bounds) &&
@@ -204,9 +204,9 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
   /// Returns true if all edges in the boundary were run, false if stopped.
   @override
   bool foreachEdge(
-    QTEdgeHandler<Object?> handle, [
-    QTBoundary? bounds,
-    bool exclusive = false,
+    final QTEdgeHandler<Object?> handle, [
+    final QTBoundary? bounds,
+    final bool exclusive = false,
   ]) {
     if ((bounds == null) || overlapsBoundary(bounds)) {
       return _ne.foreachEdge(handle, bounds, exclusive) &&
@@ -221,7 +221,7 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
   /// Returns true if all nodes in the boundary were run,
   /// false if stopped.
   @override
-  bool foreachNode(QTNodeHandler handle, [QTBoundary? bounds]) {
+  bool foreachNode(final QTNodeHandler handle, [final QTBoundary? bounds]) {
     if ((bounds == null) || overlapsBoundary(bounds)) {
       return handle.handle(this) &&
           _ne.foreachNode(handle, bounds) &&
@@ -368,7 +368,7 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
 
   /// Gets the child at a given quadrant.
   @override
-  QTNode child(Quadrant childQuad) {
+  QTNode child(final Quadrant childQuad) {
     if (childQuad == Quadrant.NorthEast) {
       return _ne;
     }
@@ -425,7 +425,7 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
   /// Returns the first point node in the given boundary,
   /// or null if none was found.
   @override
-  PointNode? findFirstPoint(QTBoundary? boundary, QTPointHandler? handle) {
+  PointNode? findFirstPoint(final QTBoundary? boundary, final QTPointHandler? handle) {
     if ((boundary == null) || overlapsBoundary(boundary)) {
       for (final quad in Quadrant.values) {
         final node = child(quad);
@@ -453,7 +453,7 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
   /// Returns the last point node in the given boundary,
   /// or null if none was found.
   @override
-  PointNode? findLastPoint(QTBoundary? boundary, QTPointHandler? handle) {
+  PointNode? findLastPoint(final QTBoundary? boundary, final QTPointHandler? handle) {
     if ((boundary == null) || overlapsBoundary(boundary)) {
       for (final quad in Quadrant.values) {
         final node = child(quad);
@@ -480,7 +480,7 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
   /// Returns the next point node in the given region,
   /// or null if none was found.
   @override
-  PointNode? findNextPoint(QTNode curNode, QTBoundary? boundary, QTPointHandler? handle) {
+  PointNode? findNextPoint(final QTNode curNode, final QTBoundary? boundary, final QTPointHandler? handle) {
     List<Quadrant> others;
     final quad = childNodeQuad(curNode);
     if (quad == Quadrant.NorthWest) {
@@ -522,7 +522,7 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
   /// Returns the previous point node in the given region,
   /// or null if none was found.
   @override
-  PointNode? findPreviousPoint(QTNode curNode, QTBoundary? boundary, QTPointHandler? handle) {
+  PointNode? findPreviousPoint(final QTNode curNode, final QTBoundary? boundary, final QTPointHandler? handle) {
     List<Quadrant> others;
     final quad = childNodeQuad(curNode);
     if (quad == Quadrant.NorthWest) {
@@ -630,7 +630,7 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
 
   /// Gets a weighting which indicates the minimum amount
   /// of points which can be in the node.
-  int _pointWeight(QTNode node) {
+  int _pointWeight(final QTNode node) {
     if (node is PointNode) {
       return 1;
     } else if (node is BranchNode) {
@@ -644,7 +644,7 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
 
   //// Validates this node.
   @override
-  bool validate(StringBuffer sout, bool recursive) {
+  bool validate(final StringBuffer sout, final bool recursive) {
     bool result = true;
     if (!_validateChild(sout, recursive, _ne, "NE", true, true)) {
       result = false;
@@ -663,12 +663,12 @@ class BranchNodeImpl with QTNodeBoundaryMixin implements BranchNode {
 
   /// Validates the given child node.
   bool _validateChild(
-    StringBuffer sout,
-    bool recursive,
-    QTNode? child,
-    String name,
-    bool north,
-    bool east,
+    final StringBuffer sout,
+    final bool recursive,
+    final QTNode? child,
+    final String name,
+    final bool north,
+    final bool east,
   ) {
     if (child == null) {
       sout.write("Error in ");

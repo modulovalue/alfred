@@ -9,7 +9,7 @@ class BaseResult {
 
   /// Creates a new intersection result for intersection between shapes.
   BaseResult(
-    final this.intersects,
+    this.intersects,
   );
 
   /// Gets the string for this intersection.
@@ -183,8 +183,8 @@ class RaySphereResult extends BaseResult {
   /// Creates a new intersection result.
   RaySphereResult(
     final bool intersects,
-    final this.point,
-    final this.parametric,
+    this.point,
+    this.parametric,
   ) : super(intersects);
 
   /// Gets the string for this intersection.
@@ -352,10 +352,10 @@ class RayRegion3Result extends BaseResult {
   /// Creates a new intersection result.
   RayRegion3Result._(
     final bool intersects,
-    final this.point,
-    final this.normal,
-    final this.parametric,
-    final this.region,
+    this.point,
+    this.normal,
+    this.parametric,
+    this.region,
   ) : super(intersects);
 
   /// Creates a new intersection result for no intersection.
@@ -489,10 +489,10 @@ class RayRegion2Result extends BaseResult {
   /// Creates a new intersection result.
   RayRegion2Result._(
     final bool intersets,
-    final this.point,
-    final this.normal,
-    final this.parametric,
-    final this.region,
+    this.point,
+    this.normal,
+    this.parametric,
+    this.region,
   ) : super(intersets);
 
   /// Creates a new intersection result for no intersection.
@@ -548,8 +548,8 @@ class RayPlaneResult extends BaseResult {
   /// Creates a new intersection result.
   RayPlaneResult._(
     final bool intesects,
-    final this.point,
-    final this.parametric,
+    this.point,
+    this.parametric,
   ) : super(intesects);
 
   /// Creates a new intersection result.
@@ -589,7 +589,7 @@ class PlanesResult extends BaseResult {
   /// Creates a new intersection result.
   PlanesResult(
     final bool intersects,
-    final this.point,
+    this.point,
   ) : super(intersects);
 
   /// Gets the string for this intersection.

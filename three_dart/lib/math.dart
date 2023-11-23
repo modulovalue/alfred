@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_returning_this
+
 import 'dart:math' as math;
 
 // region math
@@ -869,10 +871,10 @@ class Matrix2 {
 
   /// Constructs a new [Matrix2] with the given initial values.
   const Matrix2(
-    final this.m11,
-    final this.m21,
-    final this.m12,
-    final this.m22,
+    this.m11,
+    this.m21,
+    this.m12,
+    this.m22,
   );
 
   /// Constructs a 2x2 scalar matrix.

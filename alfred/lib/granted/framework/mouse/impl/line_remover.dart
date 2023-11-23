@@ -20,11 +20,11 @@ class LineRemover implements PlotterMouseHandle {
 
   /// Creates a new mouse handler for removing lines.
   LineRemover(
-    final this._tree,
-    final this._plot,
-    final this._plotItem,
-    final this._state,
-    final this._trimTree,
+    this._tree,
+    this._plot,
+    this._plotItem,
+    this._state,
+    this._trimTree,
   )   : enabled = true,
         _mouseDown = false,
         _tempLine = _plot.plotter.addLines([])

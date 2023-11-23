@@ -20,10 +20,10 @@ class TransformerImpl implements Transformer {
 
   /// Creates a new transformer.
   TransformerImpl(
-    final this._xScalar,
-    final this._yScalar,
-    final this._dx,
-    final this._dy,
+    this._xScalar,
+    this._yScalar,
+    this._dx,
+    this._dy,
   )   :
         // ignore: prefer_asserts_with_message
         assert(_xScalar > 0.0),

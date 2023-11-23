@@ -20,8 +20,8 @@ class EllipseGroup with PlotterItemMixin, BasicCoordsMixin {
 
   /// Creates a new ellipse plotter item.
   EllipseGroup(
-    final this.xRadii,
-    final this.yRadii,
+    this.xRadii,
+    this.yRadii,
   );
 
   @override

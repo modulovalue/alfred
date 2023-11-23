@@ -54,10 +54,10 @@ class Texture2DGroup {
 
   /// Creates a new radio button group for selecting a texture.
   Texture2DGroup._(
-    final this._elem_id,
-    final this._hndl,
-    final this._keep_in_url,
-    final this._elem,
+    this._elem_id,
+    this._hndl,
+    this._keep_in_url,
+    this._elem,
   );
 
   /// Adds a new texture radio button.
@@ -159,7 +159,7 @@ class ShellPage {
 
   /// Creates a new shell page.
   ShellPage._(
-    final this._page,
+    this._page,
   );
 
   /// The page element to append new data to.

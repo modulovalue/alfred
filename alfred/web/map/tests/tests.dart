@@ -1,3 +1,5 @@
+// ignore_for_file: discarded_futures
+
 import 'dart:html' as html;
 
 import 'package:alfred/granted/framework/plot/impl/html_svg.dart';
@@ -39,7 +41,7 @@ class QuadTreeTestSuiteHTML with QuadTreeTestSuite {
   final TestBlock args;
 
   const QuadTreeTestSuiteHTML({
-    required final this.args,
+    required this.args,
   });
 
   @override
@@ -68,9 +70,9 @@ class TestBlock implements TestArgs {
   /// Creates a new test block for the given test.
   TestBlock(
     final html.Element _elem,
-    final this._man,
-    final this._test,
-    final this._testName,
+    this._man,
+    this._test,
+    this._testName,
   )   : _body = html.DivElement()..className = "test_body body_hidden",
         _title = html.DivElement()..className = "running top_header",
         _start = null,
@@ -101,24 +103,24 @@ class TestBlock implements TestArgs {
       DateTime? end = _end;
       end ??= DateTime.now();
       time = ((end.difference(_start!).inMilliseconds) * 0.001).toStringAsFixed(2);
-      time = "(" + time.toString() + "s)";
+      time = "(" + time + "s)";
     }
     if (!_started) {
       _title
         ..className = "test_header queued"
-        ..text = "Queued: " + _testName + " " + time.toString();
+        ..text = "Queued: " + _testName + " " + time;
     } else if (_failed) {
       _title
         ..className = "test_header failed"
-        ..text = "Failed: " + _testName + " " + time.toString();
+        ..text = "Failed: " + _testName + " " + time;
     } else if (_finished) {
       _title
         ..className = "test_header passed"
-        ..text = "Passed: " + _testName + " " + time.toString();
+        ..text = "Passed: " + _testName + " " + time;
     } else {
       _title
         ..className = "test_header running"
-        ..text = "Running: " + _testName + " " + time.toString();
+        ..text = "Running: " + _testName + " " + time;
     }
     _man._update();
   }
@@ -152,7 +154,7 @@ class TestBlock implements TestArgs {
           _finished = true;
           _man._testDone(this);
           _update();
-          html.window.requestAnimationFrame((_) {});
+          html.window.requestAnimationFrame((final _) {});
         },
       );
 
@@ -277,19 +279,19 @@ class TestManager {
       if (_failed > 0) {
         _header.className = "top_header failed";
         if (_failed == 1) {
-          _header.text = "Failed 1 Test (" + time.toString() + "s)";
+          _header.text = "Failed 1 Test (" + time + "s)";
         } else {
-          _header.text = "Failed " + this._failed.toString() + " Tests (" + time.toString() + "s)";
+          _header.text = "Failed " + this._failed.toString() + " Tests (" + time + "s)";
         }
       } else {
         _header
-          ..text = "Tests Passed (" + time.toString() + "s)"
+          ..text = "Tests Passed (" + time + "s)"
           ..className = "top_header passed";
       }
     } else {
       final prec = ((_finished.toDouble() / testCount) * 100.0).toStringAsFixed(2);
       _header.text =
-          "Running Tests: " + this._finished.toString() + "/" + testCount.toString() + " (" + prec.toString() + "%)";
+          "Running Tests: " + this._finished.toString() + "/" + testCount.toString() + " (" + prec + "%)";
       if (_failed > 0) {
         _header
           ..text = this._header.text.toString() + " - " + this._failed.toString() + " failed)"
@@ -313,7 +315,7 @@ class TestManager {
     if (_finished < _tests.length) {
       Future(
         () {
-          html.window.requestAnimationFrame((_) {});
+          html.window.requestAnimationFrame((final _) {});
           _tests[_finished].run();
         },
       );
@@ -338,7 +340,7 @@ class TestManager {
       final checkBox = html.CheckboxInputElement()
         ..className = "log_checkbox"
         ..checked = true;
-      checkBox.onChange.listen((_) {
+      checkBox.onChange.listen((final _) {
         final myElements = html.document.querySelectorAll("." + type);
         final display = () {
           if (checkBox.checked!) {
@@ -361,7 +363,7 @@ class TestManager {
     _createLogSwitch(checkBoxes, "Warning", "warning_log");
     _createLogSwitch(checkBoxes, "Error", "error_log");
     _elem.children.add(checkBoxes);
-    return (testName, test) {
+    return (testName, final test) {
       if (testName.isEmpty) {
         // ignore: parameter_assignments
         testName = test.toString();

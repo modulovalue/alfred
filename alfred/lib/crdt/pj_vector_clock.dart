@@ -9,8 +9,8 @@ class DistributedClock implements Comparable<DistributedClock> {
 
   DistributedClock(
     final VectorClock clock,
-    final this._timestamp,
-    final this._node,
+    this._timestamp,
+    this._node,
   ) : _vector_clock = VectorClock.from(clock);
 
   DistributedClock.from(
@@ -105,7 +105,7 @@ class DistributedClock implements Comparable<DistributedClock> {
   ) {
     return DistributedClock(
       VectorClock.fromList(
-        (json['clock'] as List).map((dynamic e) => e as int).toList(),
+        (json['clock'] as List).map((final dynamic e) => e as int).toList(),
       ),
       json['timestamp'] as int,
       json['node'] as String,

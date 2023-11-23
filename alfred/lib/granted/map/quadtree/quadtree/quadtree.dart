@@ -863,7 +863,7 @@ class QuadTreeImpl implements QuadTree {
       result = false;
     }
     if (toConsole && sout.isNotEmpty) {
-      print(sout.toString());
+      print(sout);
     }
     return result;
   }
@@ -1391,6 +1391,6 @@ abstract class QuadTree {
   /// [sout] is the output to write errors to.
   /// Returns true if valid, false if invalid.
   bool validate([
-    StringBuffer? sout,
+    final StringBuffer? sout,
   ]);
 }

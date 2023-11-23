@@ -45,9 +45,9 @@ class Plotter extends Group {
   final List<PlotterMouseHandle> mouseHandles;
 
   Plotter({
-    required final this.dataBounds,
-    required final this.windowToViewTransformer,
-    required final this.mouseHandles,
+    required this.dataBounds,
+    required this.windowToViewTransformer,
+    required this.mouseHandles,
   });
 
   /// Note: May need to call updateBounds before this if the data has changed.

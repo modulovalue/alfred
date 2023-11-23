@@ -7,7 +7,7 @@ class MediaQueryDataImpl implements MediaQueryData {
   final MediaSize size;
 
   const MediaQueryDataImpl({
-    required final this.size,
+    required this.size,
   });
 }
 

@@ -17,7 +17,7 @@ class MapCrdt<K, V extends Object> extends CrdtBase<K, V> {
   final String node_id;
 
   MapCrdt(
-    final this.node_id, [
+    this.node_id, [
     final Map<K, Record<V>> seed = const {},
   ]) {
     _map.addAll(seed);
@@ -265,9 +265,9 @@ class RecordImpl<V extends Object> implements Record<V> {
   final Hlc modified;
 
   const RecordImpl(
-    final this.hlc,
-    final this.value,
-    final this.modified,
+    this.hlc,
+    this.value,
+    this.modified,
   );
 
   @override
@@ -462,7 +462,7 @@ Map<K, Record<V>> crdt_to_json<K, V extends Object>(
   final now = now_hlc(canonical_time.node_id);
   final modified = canonical_time >= now ? canonical_time : now;
   return (jsonDecode(json) as Map<String, dynamic>).map(
-        (final key, dynamic value) => MapEntry(
+        (final key, final dynamic value) => MapEntry(
           () {
         if (key_decoder == null) {
           return key as K;

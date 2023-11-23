@@ -10,6 +10,7 @@ void main() {
     initialUrl: 'https://google.com/',
     userAgent: 'spidart',
   );
+  // ignore: discarded_futures
   crawler.crawl(
     pageLimit: 500,
   );
@@ -44,9 +45,9 @@ class Crawler {
 
   /// [initialUrl] - The root of the tree of pages / The first visited page
   Crawler({
-    required final this.initialUrl,
-    final this.userAgent = 'spidart',
-    final this.allowInsecureHttp = false,
+    required this.initialUrl,
+    this.userAgent = 'spidart',
+    this.allowInsecureHttp = false,
   }) : _validUrl = (() {
           if (allowInsecureHttp) {
             return _insecureHttpValidUrl;
@@ -157,8 +158,8 @@ class Text {
   final String content;
 
   const Text(
-    final this.type,
-    final this.content,
+    this.type,
+    this.content,
   );
 }
 
@@ -216,7 +217,7 @@ class Robots {
   bool disallowedAllPaths = false;
 
   Robots({
-    required final this.userAgent,
+    required this.userAgent,
   });
 
   /// Reads and parses the robots.txt file of a host
@@ -291,8 +292,8 @@ class Robots {
   ) =>
       (!disallowedCompletePaths.contains(path) || allowedCompletePaths.contains(path)) &&
       // All entries listed under a disallowed path should be disregarded
-      (!disallowedIncompletePaths.any((incompletePath) => path.startsWith(incompletePath)) ||
-          allowedIncompletePaths.any((incompletePath) => path.startsWith(incompletePath)));
+      (!disallowedIncompletePaths.any((final incompletePath) => path.startsWith(incompletePath)) ||
+          allowedIncompletePaths.any((final incompletePath) => path.startsWith(incompletePath)));
 }
 
 const List<String> metadataTags = [
@@ -446,14 +447,14 @@ class Validation {
     final s = str.split('/');
     if (s.length > 1) {
       final hostSlice = <String>[];
-      s.forEach((String e) {
+      s.forEach((final String e) {
         if (e.isNotEmpty) {
           hostSlice.add(e);
         }
       });
       var newStr = '';
       var i = 0;
-      hostSlice.forEach((String e) {
+      hostSlice.forEach((final String e) {
         if (i > 0) {
           newStr = newStr + '/' + e;
         } else {
@@ -491,7 +492,7 @@ class Validation {
         return false;
       }
       final parts = str.split('.');
-      parts.sort((a, b) => int.parse(a) - int.parse(b));
+      parts.sort((final a, final b) => int.parse(a) - int.parse(b));
       return int.parse(parts[3]) <= 255;
     }
     return version == '6' && _ipv6.hasMatch(str);
@@ -533,8 +534,8 @@ class ValidationReturn {
   final String description;
 
   const ValidationReturn(
-    final this.isCorrect,
-    final this.description,
+    this.isCorrect,
+    this.description,
   );
 }
 
@@ -658,7 +659,7 @@ class WebScraper {
         final re = RegExp('$variableName *=.*?;(?=([^\"\']*\"[^\"\']*\")*[^\"\']*\$)', multiLine: true);
         //  Iterate all matches
         final matches = re.allMatches(script.text);
-        matches.forEach((match) {
+        matches.forEach((final match) {
           // List for all the occurence of the variable name.
           var temp = result[variableName];
           if (result[variableName] == null) {
@@ -783,6 +784,6 @@ class WebScraperException implements Exception {
   final String? message;
 
   const WebScraperException(
-    final this.message,
+    this.message,
   );
 }

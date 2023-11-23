@@ -4,7 +4,7 @@ class ServeHtml implements AlfredMiddleware {
   final String html;
 
   const ServeHtml({
-    required final this.html,
+    required this.html,
   });
 
   @override
@@ -21,7 +21,7 @@ class ServeHtmlBuilder implements AlfredMiddleware {
   final String Function(ServeContext context) builder;
 
   const ServeHtmlBuilder({
-    required final this.builder,
+    required this.builder,
   });
 
   @override

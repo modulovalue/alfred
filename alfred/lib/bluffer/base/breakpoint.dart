@@ -5,8 +5,8 @@ class Breakpoint {
   final MediaSize size;
 
   const Breakpoint(
-    final this.size,
-    final this.minSize,
+    this.size,
+    this.minSize,
   );
 
   static int defaultBreakpointSize({

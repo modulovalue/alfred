@@ -22,8 +22,8 @@ class WebGLBuffer implements Buffer {
 
   /// Creates a new WebGL buffer.
   WebGLBuffer(
-    final this._bufType,
-    final this._buf,
+    this._bufType,
+    this._buf,
   );
 
   /// Creates a new WebGL buffer from a double list of data.
@@ -89,8 +89,8 @@ class TestDoubleBuffer implements Buffer {
 
   /// Creates a new test double buffer.
   TestDoubleBuffer(
-    final this._bufType,
-    final this._buf,
+    this._bufType,
+    this._buf,
   );
 
   /// Throws an error because test buffers may not be binded.
@@ -130,8 +130,8 @@ class TestIntBuffer implements Buffer {
 
   /// Creates a new test integer buffer.
   TestIntBuffer(
-    final this._bufType,
-    final this._buf,
+    this._bufType,
+    this._buf,
   );
 
   /// Throws an error because test buffers may not be binded.
@@ -185,11 +185,11 @@ class BufferAttr extends Bindable {
   /// [_stride] is the stride in bytes between this type of elements in the buffer.
   /// [attr] is the initial shader attribute identifier.
   BufferAttr(
-    final this._type,
-    final this._size,
-    final this._offset,
-    final this._stride, [
-    final this.attr = 0,
+    this._type,
+    this._size,
+    this._offset,
+    this._stride, [
+    this.attr = 0,
   ]);
 
   /// The type of vertex being stored.
@@ -244,7 +244,7 @@ class WebGLBufferBuilder implements BufferBuilder {
 
   /// Creates a new WebGL buffer builder.
   WebGLBufferBuilder(
-    final this._gl,
+    this._gl,
   );
 
   /// Creates a new buffer from the given double list.
@@ -310,9 +310,9 @@ class BufferStore implements Bindable, TechniqueCache {
 
   /// Creates a new buffer store.
   BufferStore(
-    final this._vertexBuf,
-    final this._attrs,
-    final this._vertexType,
+    this._vertexBuf,
+    this._attrs,
+    this._vertexType,
   ) : this._indexObjs = [];
 
   /// The list of buffer attributes describing the type of vertices in the buffer.
@@ -437,9 +437,9 @@ class IndexObject {
   /// [count] is the number of indices in the buffer.
   /// [buffer] is the buffer of indices for a shape.
   IndexObject(
-    final this.type,
-    final this.count,
-    final this.buffer,
+    this.type,
+    this.count,
+    this.buffer,
   );
 
   /// Gets the string for this index Entity.
@@ -495,7 +495,7 @@ class VertexType {
 
   /// Creates a new vertex type.
   VertexType._(
-    final this._value,
+    this._value,
   );
 
   /// Combines two vertex types into one.

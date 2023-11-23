@@ -18,7 +18,7 @@ class FillColorAttrImpl implements FillColorAttr {
 
   /// Creates a fill color attribute.
   FillColorAttrImpl([
-    final this.color,
+    this.color,
   ]);
 
   /// Creates a fill color attribute.

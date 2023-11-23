@@ -33,7 +33,7 @@ class SvgRenderer implements PlotterRenderer, PlotterDrawActions, PlotterDrawSta
   bool currentShouldDrawDirectedLines;
 
   SvgRenderer({
-    required final this.renderReset,
+    required this.renderReset,
   })  : outputBuffer = StringBuffer(),
         dataSetBounds = BoundsImpl.empty(),
         currentPointSize = 0.0,

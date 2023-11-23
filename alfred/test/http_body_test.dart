@@ -1,3 +1,5 @@
+// ignore_for_file: discarded_futures
+
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
@@ -297,7 +299,7 @@ File content\r
     );
     var isDone = false;
     const HttpBodyHandlerImpl(utf8).bind(requests).listen(
-          (_) {},
+          (final _) {},
           onDone: () => isDone = true,
         );
     await pumpEventQueue();
@@ -483,9 +485,9 @@ class FakeHttpRequest extends StreamView<Uint8List> implements HttpRequest {
   final bool followRedirects;
 
   FakeHttpRequest(
-    final this.uri, {
+    this.uri, {
     required final Stream<Uint8List> data,
-    final this.followRedirects = true,
+    this.followRedirects = true,
     final DateTime? ifModifiedSince,
   }) : super(data) {
     if (ifModifiedSince != null) {

@@ -280,5 +280,5 @@ List<String> match(
     options: routes,
     method: Methods.get,
   );
-  return matchedRoute.map((e) => e.path).toList();
+  return matchedRoute.map((final e) => e.path).toList();
 }

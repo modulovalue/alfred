@@ -106,8 +106,8 @@ class Entity implements Movable, Changeable {
 
   /// Creates a new Entity.
   Entity({
-    final this.name = '',
-    final this.enabled = true,
+    this.name = '',
+    this.enabled = true,
     final Shape? shape,
     final Technique? tech,
     final Mover? mover,
@@ -259,6 +259,7 @@ class Entity implements Movable, Changeable {
     final String name,
   ) {
     if (this.name == name) {
+      // ignore: avoid_returning_this
       return this;
     }
     for (final child in this._children) {
@@ -641,7 +642,7 @@ class EntityEventArgs extends EventArgs {
   /// Creates an entity event argument.
   EntityEventArgs(
     final Object sender,
-    final this.entities,
+    this.entities,
   ) : super(sender);
 }
 
@@ -739,8 +740,8 @@ class _EnvironmentData {
 
   /// Creates a new environment with the given data.
   _EnvironmentData._(
-    final this.browser,
-    final this.os,
+    this.browser,
+    this.os,
   );
 
   /// Determines which kind of browser is being used.
@@ -846,8 +847,8 @@ class RenderState {
 
   /// Constructs a new render state with the given context and canvas.
   RenderState(
-    final this._gl,
-    final this._canvas,
+    this._gl,
+    this._canvas,
   )   : this.width = 512,
         this.height = 512,
         this._frameNum = 0,
@@ -987,7 +988,7 @@ class StateEventArgs extends EventArgs {
   /// Creates a new state event argument.
   StateEventArgs(
     final Object sender,
-    final this.state,
+    this.state,
   ) : super(sender);
 }
 
@@ -1124,13 +1125,13 @@ class ThreeDart implements Changeable {
 
   /// Creates a new 3Dart instance with the given values.
   ThreeDart._(
-    final this._elem,
-    final this._canvas,
-    final this._gl,
-    final this._state,
-    final this._txtLoader,
-    final this._audioLoader,
-    final this._input,
+    this._elem,
+    this._canvas,
+    this._gl,
+    this._state,
+    this._txtLoader,
+    this._audioLoader,
+    this._input,
   )   : this._scene = null,
         this._changed = null,
         this._prerender = null,

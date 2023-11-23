@@ -23,7 +23,7 @@ class PointAdder implements PlotterMouseHandle {
   );
 
   PointAdder._(
-    final this._adderPoints,
+    this._adderPoints,
   );
 
   @override

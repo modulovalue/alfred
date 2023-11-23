@@ -9,10 +9,10 @@ class PlotterMouseButtonStateImpl implements PlotterMouseButtonState {
   final bool altKey;
 
   const PlotterMouseButtonStateImpl({
-    required final this.button,
-    final this.shiftKey = false,
-    final this.ctrlKey = false,
-    final this.altKey = false,
+    required this.button,
+    this.shiftKey = false,
+    this.ctrlKey = false,
+    this.altKey = false,
   });
 
   @override

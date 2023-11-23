@@ -262,7 +262,7 @@ class TestClass {
   final String test;
 
   TestClass(
-    final this.test,
+    this.test,
   );
 
   static TestClass fromJson(

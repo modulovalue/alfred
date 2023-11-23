@@ -67,7 +67,7 @@ Hlc receive_hlc(
     return canonical;
   } else if (canonical.node_id == remote.node_id) {
     // Assert the node id
-    throw DuplicateNodeException(canonical.node_id.toString());
+    throw DuplicateNodeException(canonical.node_id);
   } else if (remote.millis - millis > hlc_max_drift) {
     // Assert the remote clock drift
     throw ClockDriftException(remote.millis - millis);
@@ -138,8 +138,8 @@ class HlcImpl implements Hlc {
 
   HlcImpl(
     final int millis,
-    final this.counter,
-    final this.node_id,
+    this.counter,
+    this.node_id,
   )   : assert(
           counter <= hlc_max_counter,
           "Counter can't go beyond max counter.",
@@ -178,7 +178,7 @@ class HlcImpl implements Hlc {
       '-' +
       counter.toRadixString(16).toUpperCase().padLeft(4, '0') +
       '-' +
-      node_id.toString();
+      node_id;
 
   @override
   int get hashCode => toString().hashCode;
@@ -279,7 +279,7 @@ class ClockDriftException implements Exception {
   final int drift;
 
   const ClockDriftException(
-    final this.drift,
+    this.drift,
   );
 
   @override
@@ -291,7 +291,7 @@ class OverflowException implements Exception {
   final int counter;
 
   const OverflowException(
-    final this.counter,
+    this.counter,
   );
 
   @override
@@ -302,7 +302,7 @@ class DuplicateNodeException implements Exception {
   final String node_id;
 
   const DuplicateNodeException(
-    final this.node_id,
+    this.node_id,
   );
 
   @override

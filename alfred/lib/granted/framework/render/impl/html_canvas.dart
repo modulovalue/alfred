@@ -58,7 +58,7 @@ class HtmlCanvasRenderer implements PlotterRenderer, PlotterDrawActions, Plotter
 
   /// Creates a new renderer.
   HtmlCanvasRenderer(
-    final this._context,
+    this._context,
   )   : dataSetBounds = BoundsImpl.empty(),
         currentPointSize = 0.0,
         currentBackgroundColor = ColorImpl(1.0, 1.0, 1.0),
@@ -294,10 +294,10 @@ class HtmlCanvasRenderer implements PlotterRenderer, PlotterDrawActions, Plotter
 
   /// Draws an ellipse to the viewport.
   void _drawEllipse(
-    double x1_,
-    double y1_,
-    double x2_,
-    double y2_,
+    final double x1_,
+    final double y1_,
+    final double x2_,
+    final double y2_,
   ) {
     double x1 = _transX(x1_);
     double y1 = _transY(y1_);

@@ -3,7 +3,7 @@ import '../qt_point.dart';
 import 'equals.dart';
 
 /// Gets the intersection location of the given point on the edge.
-PointOnEdgeResult pointOnEdge(QTEdge edge, QTPoint point) {
+PointOnEdgeResult pointOnEdge(final QTEdge edge, final QTPoint point) {
   if (qtEdgeDegenerate(edge)) {
     // TODO don't throw.
     return throw Exception("degenerate edge");
@@ -83,7 +83,7 @@ abstract class PointOnEdgeResult {
 /// The multiple results from a point on the edge method call.
 class PointOnEdgeResultImpl implements PointOnEdgeResult {
   /// This checks if the given point on edge results are the same.
-  static bool equalResults(PointOnEdgeResult? a, PointOnEdgeResult? b) {
+  static bool equalResults(final PointOnEdgeResult? a, final PointOnEdgeResult? b) {
     if (a == null) {
       return b == null;
     }

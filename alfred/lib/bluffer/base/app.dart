@@ -19,13 +19,13 @@ class App with NoCSSMixin implements Widget {
   final List<LocalizationsDelegate<dynamic>> delegates;
 
   App({
-    required final this.routes,
-    required final this.application,
-    final this.currentRoute,
-    final this.supportedLocales = const <Locale>[
+    required this.routes,
+    required this.application,
+    this.currentRoute,
+    this.supportedLocales = const <Locale>[
       Locale('en', 'US'),
     ],
-    final this.delegates = const <LocalizationsDelegate<dynamic>>[],
+    this.delegates = const <LocalizationsDelegate<dynamic>>[],
   });
 
   App withCurrentRoute(
@@ -78,11 +78,11 @@ class AppWidget<ROUTE extends WidgetRoute> with NoCSSMixin implements Widget {
   final bool enableCssReset;
 
   AppWidget({
-    required final this.route,
-    final this.theme,
-    final this.enableCssReset = true,
-    final this.builder,
-    final this.includes = const AppIncludesEmptyImpl(),
+    required this.route,
+    this.theme,
+    this.enableCssReset = true,
+    this.builder,
+    this.includes = const AppIncludesEmptyImpl(),
   });
 
   @override
@@ -535,6 +535,7 @@ class AppWidget<ROUTE extends WidgetRoute> with NoCSSMixin implements Widget {
     for (final child in children) {
       final stop = child.match(
         element: (final a) => a.element.match(
+          appended: (final a) => false,
           raw: (final a) => false,
           copy: (final a) => false,
           br: (final a) => false,
@@ -595,8 +596,8 @@ class AppIncludesImpl implements AppIncludes {
   final List<HtmlElementScriptImpl> scriptLinks;
 
   const AppIncludesImpl({
-    required final this.stylesheetLinks,
-    required final this.scriptLinks,
+    required this.stylesheetLinks,
+    required this.scriptLinks,
   });
 }
 
@@ -611,7 +612,7 @@ class AppIncludesCompositeImpl implements AppIncludes {
   final Iterable<AppIncludes> includes;
 
   const AppIncludesCompositeImpl({
-    required final this.includes,
+    required this.includes,
   });
 
   @override
@@ -648,8 +649,8 @@ class WidgetRouteImpl with WidgetRouteMixin {
   final Widget Function(BuildContext context) builder;
 
   const WidgetRouteImpl({
-    required final this.title,
-    required final this.builder,
+    required this.title,
+    required this.builder,
   });
 
   @override
@@ -670,8 +671,8 @@ class WidgetRouteSimpleImpl with WidgetRouteMixin {
   final Widget child;
 
   const WidgetRouteSimpleImpl({
-    required final this.title,
-    required final this.child,
+    required this.title,
+    required this.child,
   });
 
   @override
@@ -708,9 +709,9 @@ class UrlWidgetRoute with WidgetRouteMixin {
   final Widget Function(BuildContext context) builder;
 
   const UrlWidgetRoute({
-    required final this.relativeUrl,
-    required final this.title,
-    required final this.builder,
+    required this.relativeUrl,
+    required this.title,
+    required this.builder,
   });
 
   @override

@@ -78,7 +78,7 @@ abstract class BoxBorder extends ShapeBorder {
   // We override this to tighten the return value, so that callers can assume
   // that we'll return a [BoxBorder].
   @override
-  BoxBorder? add(ShapeBorder other, {bool reversed = false}) => null;
+  BoxBorder? add(final ShapeBorder other, {final bool reversed = false}) => null;
 
 // /// Linearly interpolate between two borders.
 // ///
@@ -230,7 +230,7 @@ class Border extends BoxBorder {
   /// Creates a border whose sides are all the same.
   ///
   /// The `side` argument must not be null.
-  const Border.fromBorderSide(BorderSide side)
+  const Border.fromBorderSide(final BorderSide side)
       : top = side,
         right = side,
         bottom = side,
@@ -240,9 +240,9 @@ class Border extends BoxBorder {
   ///
   /// The sides default to black solid borders, one logical pixel wide.
   static Border all({
-    Color color = const Color(0xFF000000),
-    double width = 1.0,
-    BorderStyle style = BorderStyle.solid,
+    final Color color = const Color(0xFF000000),
+    final double width = 1.0,
+    final BorderStyle style = BorderStyle.solid,
   }) {
     final side = BorderSide(color: color, width: width, style: style);
     return Border.fromBorderSide(side);
@@ -255,7 +255,7 @@ class Border extends BoxBorder {
   /// the pairwise combination of each side on both [Border]s.
   ///
   /// The arguments must not be null.
-  static Border merge(Border a, Border b) {
+  static Border merge(final Border a, final Border b) {
     // ignore: prefer_asserts_with_message
     assert(BorderSide.canMerge(a.top, b.top));
     // ignore: prefer_asserts_with_message
@@ -310,7 +310,7 @@ class Border extends BoxBorder {
   }
 
   @override
-  Border? add(ShapeBorder other, {bool reversed = false}) {
+  Border? add(final ShapeBorder other, {final bool reversed = false}) {
     if (other is! Border) {
       return null;
     } else {
@@ -326,7 +326,7 @@ class Border extends BoxBorder {
   }
 
   @override
-  Border scale(double t) => Border(
+  Border scale(final double t) => Border(
       top: top.scale(t),
       right: right.scale(t),
       bottom: bottom.scale(t),
@@ -334,7 +334,7 @@ class Border extends BoxBorder {
     );
 
   @override
-  ShapeBorder? lerpFrom(ShapeBorder? a, double t) {
+  ShapeBorder? lerpFrom(final ShapeBorder? a, final double t) {
     if (a is Border) {
       return Border.lerp(a, this, t);
     }
@@ -342,7 +342,7 @@ class Border extends BoxBorder {
   }
 
   @override
-  ShapeBorder? lerpTo(ShapeBorder? b, double t) {
+  ShapeBorder? lerpTo(final ShapeBorder? b, final double t) {
     if (b is Border) {
       return Border.lerp(this, b, t);
     }
@@ -355,7 +355,7 @@ class Border extends BoxBorder {
   /// borders.
   ///
   /// {@macro dart.ui.shadow.lerp}
-  static Border? lerp(Border? a, Border? b, double t) {
+  static Border? lerp(final Border? a, final Border? b, final double t) {
     if (a == null && b == null) {
       return null;
     }
@@ -374,7 +374,7 @@ class Border extends BoxBorder {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(final dynamic other) {
     if (identical(this, other)) {
       return true;
     }
@@ -445,7 +445,7 @@ class BorderDirectional extends BoxBorder {
   /// the pairwise combination of each side on both [BorderDirectional]s.
   ///
   /// The arguments must not be null.
-  static BorderDirectional merge(BorderDirectional a, BorderDirectional b) {
+  static BorderDirectional merge(final BorderDirectional a, final BorderDirectional b) {
     // ignore: prefer_asserts_with_message
     assert(BorderSide.canMerge(a.top, b.top));
     // ignore: prefer_asserts_with_message
@@ -511,7 +511,7 @@ class BorderDirectional extends BoxBorder {
   }
 
   @override
-  BoxBorder? add(ShapeBorder other, {bool reversed = false}) {
+  BoxBorder? add(final ShapeBorder other, {final bool reversed = false}) {
     if (other is BorderDirectional) {
       if (BorderSide.canMerge(top, other.top) &&
           BorderSide.canMerge(start, other.start) &&
@@ -552,7 +552,7 @@ class BorderDirectional extends BoxBorder {
   }
 
   @override
-  BorderDirectional scale(double t) {
+  BorderDirectional scale(final double t) {
     return BorderDirectional(
       top: top.scale(t),
       start: start.scale(t),
@@ -562,7 +562,7 @@ class BorderDirectional extends BoxBorder {
   }
 
   @override
-  ShapeBorder? lerpFrom(ShapeBorder? a, double t) {
+  ShapeBorder? lerpFrom(final ShapeBorder? a, final double t) {
     if (a is BorderDirectional) {
       return BorderDirectional.lerp(a, this, t);
     }
@@ -570,7 +570,7 @@ class BorderDirectional extends BoxBorder {
   }
 
   @override
-  ShapeBorder? lerpTo(ShapeBorder? b, double t) {
+  ShapeBorder? lerpTo(final ShapeBorder? b, final double t) {
     if (b is BorderDirectional) {
       return BorderDirectional.lerp(this, b, t);
     }
@@ -583,7 +583,7 @@ class BorderDirectional extends BoxBorder {
   /// borders.
   ///
   /// {@macro dart.ui.shadow.lerp}
-  static BorderDirectional? lerp(BorderDirectional? a, BorderDirectional? b, double t) {
+  static BorderDirectional? lerp(final BorderDirectional? a, final BorderDirectional? b, final double t) {
     if (a == null && b == null) {
       return null;
     }
@@ -602,7 +602,7 @@ class BorderDirectional extends BoxBorder {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(final dynamic other) {
     if (identical(this, other)) {
       return true;
     }

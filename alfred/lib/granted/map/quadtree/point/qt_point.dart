@@ -15,9 +15,9 @@ class QTPointImpl<T extends Object> implements QTPoint<T?> {
 
   /// Creates a new point.
   QTPointImpl(
-    final this.x,
-    final this.y, [
-    final this.data,
+    this.x,
+    this.y, [
+    this.data,
   ]);
 
   @override

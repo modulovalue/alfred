@@ -87,7 +87,7 @@ void addMenuItem(
       }
     }())
     ..onClick.listen(
-      (_) {
+      (final _) {
         value.onClick();
       },
     );
@@ -113,7 +113,7 @@ class BoolValue {
   /// Creates a new boolean value.
   /// [toggle] indicates if the value will changed to true when value is false
   /// and false when the value is true or if the value should only be set to true on click.
-  BoolValue(bool toggle, [bool value = false])
+  BoolValue(final bool toggle, [final bool value = false])
       : _toggle = toggle,
         _value = value,
         _changed = <void Function(bool newValue)>[];
@@ -128,7 +128,7 @@ class BoolValue {
   }
 
   /// Handles the value being set.
-  set value(bool value) {
+  set value(final bool value) {
     if (_value != value) {
       _value = value;
       for (final hndl in _changed) {
@@ -185,8 +185,8 @@ class Driver {
   late RegionChecker _regionCheckTool;
 
   Driver(
-    final this._svgPlot,
-    final this._plot,
+    this._svgPlot,
+    this._plot,
   ) {
     _regions = Regions();
     _plotItem = _plot.addTree(_regions.tree);
@@ -287,7 +287,7 @@ class Driver {
 
   BoolValue get clearAll => _clearAll;
 
-  void _onCenterViewChange(bool value) {
+  void _onCenterViewChange(final bool value) {
     if (value) {
       _centerView.value = false;
       final bounds = _regions.tree.tightBoundingBodyOfAllData;
@@ -307,75 +307,75 @@ class Driver {
     }
   }
 
-  void _onPointsChange(bool value) {
+  void _onPointsChange(final bool value) {
     _plotItem.showPoints = value;
     _svgPlot.refresh();
   }
 
-  void _onLinesChange(bool value) {
+  void _onLinesChange(final bool value) {
     _plotItem.showEdges = value;
     _svgPlot.refresh();
   }
 
-  void _onEmptyNodesChange(bool value) {
+  void _onEmptyNodesChange(final bool value) {
     _plotItem.showEmptyNodes = value;
     _svgPlot.refresh();
   }
 
-  void _onBranchNodesChange(bool value) {
+  void _onBranchNodesChange(final bool value) {
     _plotItem.showBranchNodes = value;
     _svgPlot.refresh();
   }
 
-  void _onPassNodesChange(bool value) {
+  void _onPassNodesChange(final bool value) {
     _plotItem.showPassNodes = value;
     _svgPlot.refresh();
   }
 
-  void _onPointNodesChange(bool value) {
+  void _onPointNodesChange(final bool value) {
     _plotItem.showPointNodes = value;
     _svgPlot.refresh();
   }
 
-  void _onBoundaryChange(bool value) {
+  void _onBoundaryChange(final bool value) {
     _plotItem.showBoundary = value;
     _svgPlot.refresh();
   }
 
-  void _onRootBoundaryChange(bool value) {
+  void _onRootBoundaryChange(final bool value) {
     _plotItem.showRootBoundary = value;
     _svgPlot.refresh();
   }
 
-  void _onPanViewChange(bool value) {
+  void _onPanViewChange(final bool value) {
     _setTool(Tool.PanView, value);
   }
 
-  void _onAddPolygon1Change(bool value) {
+  void _onAddPolygon1Change(final bool value) {
     _setTool(Tool.AddPolygon, value, 1);
   }
 
-  void _onAddPolygon2Change(bool value) {
+  void _onAddPolygon2Change(final bool value) {
     _setTool(Tool.AddPolygon, value, 2);
   }
 
-  void _onAddPolygon3Change(bool value) {
+  void _onAddPolygon3Change(final bool value) {
     _setTool(Tool.AddPolygon, value, 3);
   }
 
-  void _onAddPolygon4Change(bool value) {
+  void _onAddPolygon4Change(final bool value) {
     _setTool(Tool.AddPolygon, value, 4);
   }
 
-  void _onAddPolygon5Change(bool value) {
+  void _onAddPolygon5Change(final bool value) {
     _setTool(Tool.AddPolygon, value, 5);
   }
 
-  void _onCheckRegion(bool value) {
+  void _onCheckRegion(final bool value) {
     _setTool(Tool.CheckRegion, value);
   }
 
-  void _setTool(Tool newTool, bool value, [int regionId = 0]) {
+  void _setTool(final Tool newTool, final bool value, [final int regionId = 0]) {
     if (!value) {
       return;
     }
@@ -398,21 +398,21 @@ class Driver {
     }
   }
 
-  void _onValidateChange(bool value) {
+  void _onValidateChange(final bool value) {
     if (value) {
       _validate.value = false;
       _regions.tree.validate();
     }
   }
 
-  void _onPrintTreeChange(bool value) {
+  void _onPrintTreeChange(final bool value) {
     if (value) {
       _printTree.value = false;
-      print(_regions.tree.toString());
+      print(_regions.tree);
     }
   }
 
-  void _onClearAllChange(bool value) {
+  void _onClearAllChange(final bool value) {
     if (value) {
       _clearAll.value = false;
       _regions.tree.clearPointsEdgeNodesButAdditionalData();

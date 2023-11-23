@@ -35,7 +35,7 @@ class QTPointHandlerCollectorImpl implements QTPointHandler {
   /// Create a new point collector.
   QTPointHandlerCollectorImpl({
     final Set<PointNode>? nodes,
-    final this.filter,
+    this.filter,
   }) : _set = (() {
           if (nodes == null) {
             return <PointNode>{};
@@ -70,7 +70,7 @@ class QTPointHandlerAnonymousImpl implements QTPointHandler {
 
   /// Creates a new node handler.
   const QTPointHandlerAnonymousImpl(
-    final this._hndl,
+    this._hndl,
   );
 
   /// Handles the given node.
@@ -89,7 +89,7 @@ class QTPointHandlerEdgePointIgnorerImpl implements QTPointHandler {
   /// Create a new edge point ignorer.
   /// The given [edge] is the edge to ignore the points of.
   QTPointHandlerEdgePointIgnorerImpl(
-    final this._edge,
+    this._edge,
   );
 
   /// Gets the edge to ignore the points of.
@@ -110,7 +110,7 @@ class QTPointHandlerPointRemoverImpl implements QTPointHandler {
   final Set<PointNode> remove;
 
   QTPointHandlerPointRemoverImpl(
-    final this._region,
+    this._region,
   ) : remove = <PointNode>{};
 
   @override

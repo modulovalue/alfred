@@ -27,7 +27,7 @@ class TransAttrImpl implements TransAttr {
 
   /// Creates a new transformation attribute.
   TransAttrImpl(
-    final this.transform,
+    this.transform,
   )   : multiply = true,
         _last = null;
 
@@ -116,6 +116,6 @@ abstract class TransAttr implements PlotterAttribute {
 
   /// Un-applies this transformation attribute, similar as popping but while calculating the data bounds.
   Transformer unapply(
-    Transformer trans,
+    final Transformer trans,
   );
 }

@@ -141,10 +141,10 @@ class BuiltAlfredIOImpl implements BuiltAlfred {
   final Alfred alfred;
 
   BuiltAlfredIOImpl({
-    required final this.server,
-    required final this.requestQueue,
-    required final this.args,
-    required final this.alfred,
+    required this.server,
+    required this.requestQueue,
+    required this.args,
+    required this.alfred,
   });
 
   @override
@@ -171,9 +171,9 @@ class AlfredImpl implements Alfred, AlfredHttpRouteFactory {
   final AlfredMiddleware Function(Object error) onInternalError;
 
   AlfredImpl.raw({
-    required final this.routes,
-    required final this.onNotFound,
-    required final this.onInternalError,
+    required this.routes,
+    required this.onNotFound,
+    required this.onInternalError,
   });
 
   @override
@@ -485,9 +485,9 @@ class AlfredHttpRouteImpl with AlfredHttpRouteMixin {
   final AlfredMiddleware middleware;
 
   const AlfredHttpRouteImpl({
-    required final this.path,
-    required final this.method,
-    required final this.middleware,
+    required this.path,
+    required this.method,
+    required this.middleware,
   });
 }
 
@@ -537,11 +537,11 @@ class AlfredContentTypeImpl implements AlfredContentType {
   final String? Function(String) getParam;
 
   const AlfredContentTypeImpl({
-    required final this.primary_type,
-    required final this.sub_type,
-    required final this.charset,
-    required final this.mime_type,
-    required final this.getParam,
+    required this.primary_type,
+    required this.sub_type,
+    required this.charset,
+    required this.mime_type,
+    required this.getParam,
   });
 
   @override
@@ -564,11 +564,11 @@ class ServerConfigImpl implements ServerConfig {
   final Duration idle_timeout;
 
   const ServerConfigImpl({
-    required final this.bind_ip,
-    required final this.shared,
-    required final this.port,
-    required final this.simultaneous_processing,
-    required final this.idle_timeout,
+    required this.bind_ip,
+    required this.shared,
+    required this.port,
+    required this.simultaneous_processing,
+    required this.idle_timeout,
   });
 }
 
@@ -602,7 +602,7 @@ class ServerConfigDefaultWithPort implements ServerConfig {
   final int port;
 
   const ServerConfigDefaultWithPort({
-    required final this.port,
+    required this.port,
   });
 
   @override
@@ -623,8 +623,8 @@ class HttpRouteFactoryImpl implements AlfredHttpRouteFactory {
   final String basePath;
 
   const HttpRouteFactoryImpl({
-    required final this.alfred,
-    required final this.basePath,
+    required this.alfred,
+    required this.basePath,
   });
 
   @override
@@ -823,7 +823,7 @@ class AlfredLoggingDelegatePrintImpl with AlfredLoggingDelegateGeneralizingMixin
   final LogType logLevel;
 
   const AlfredLoggingDelegatePrintImpl([
-    final this.logLevel = const LogTypeDebug(),
+    this.logLevel = const LogTypeDebug(),
   ]);
 
   @override
@@ -902,7 +902,7 @@ class HttpBodyHandlerImpl extends StreamTransformerBase<AlfredRequest, AlfredHtt
   /// `multipart/form-data` content correctly. See the class comment
   /// for more information on `multipart/form-data`.
   const HttpBodyHandlerImpl(
-    final this.defaultEncoding,
+    this.defaultEncoding,
   );
 
   @override
@@ -950,8 +950,8 @@ class HttpBodyImpl<T> implements AlfredHttpBody<T> {
   final T body;
 
   const HttpBodyImpl({
-    required final this.type,
-    required final this.body,
+    required this.type,
+    required this.body,
   });
 }
 
@@ -963,8 +963,8 @@ class HttpClientResponseBodyImpl<T> implements AlfredHttpClientResponseBody<T> {
   final AlfredHttpBody<T> httpBody;
 
   const HttpClientResponseBodyImpl({
-    required final this.response,
-    required final this.httpBody,
+    required this.response,
+    required this.httpBody,
   });
 }
 
@@ -975,8 +975,8 @@ class HttpRequestBodyImpl<T> implements AlfredHttpRequestBody<T> {
   final AlfredHttpBody<T> httpBody;
 
   const HttpRequestBodyImpl._(
-    final this.request,
-    final this.httpBody,
+    this.request,
+    this.httpBody,
   );
 }
 
@@ -989,9 +989,9 @@ class HttpBodyFileUploadImpl<T> implements AlfredHttpBodyFileUpload<T> {
   final T content;
 
   const HttpBodyFileUploadImpl._({
-    required final this.content_type,
-    required final this.filename,
-    required final this.content,
+    required this.content_type,
+    required this.filename,
+    required this.content,
   });
 }
 
@@ -1200,12 +1200,12 @@ class HttpMultipartFormData extends Stream<dynamic> {
   final Stream<dynamic> stream;
 
   HttpMultipartFormData({
-    required final this.contentType,
-    required final this.contentDisposition,
-    required final this.contentTransferEncoding,
-    required final this.mimeMultipart,
-    required final this.stream,
-    required final this.isText,
+    required this.contentType,
+    required this.contentDisposition,
+    required this.contentTransferEncoding,
+    required this.mimeMultipart,
+    required this.stream,
+    required this.isText,
   });
 
   @override

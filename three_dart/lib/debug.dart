@@ -87,7 +87,7 @@ class StringTree {
 
   /// Creates a new string tree.
   StringTree([
-    final this.text = '',
+    this.text = '',
   ]) : this.children = [];
 
   /// Adds a child to this string tree.

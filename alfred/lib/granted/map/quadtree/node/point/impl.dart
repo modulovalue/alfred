@@ -42,8 +42,8 @@ class PointNodeImpl with QTNodeBoundaryMixin implements PointNode {
 
   /// Creates a new point node.
   PointNodeImpl(
-    final this._x,
-    final this._y,
+    this._x,
+    this._y,
   )   : _startEdges = <QTEdgeNode>{},
         _endEdges = <QTEdgeNode>{},
         _passEdges = <QTEdgeNode>{},
@@ -79,7 +79,7 @@ class PointNodeImpl with QTNodeBoundaryMixin implements PointNode {
 
   /// Finds an edge that starts at this point and ends at the given point.
   @override
-  QTEdgeNode? findEdgeTo(QTPoint end) {
+  QTEdgeNode? findEdgeTo(final QTPoint end) {
     for (final edge in _startEdges) {
       if (pointEquals(edge.endNode, end)) return edge;
     }
@@ -88,7 +88,7 @@ class PointNodeImpl with QTNodeBoundaryMixin implements PointNode {
 
   /// Finds an edge that ends at this point and starts at the given point.
   @override
-  QTEdgeNode? findEdgeFrom(QTPoint start) {
+  QTEdgeNode? findEdgeFrom(final QTPoint start) {
     for (final edge in _endEdges) {
       if (pointEquals(edge.startNode, start)) {
         return edge;
@@ -148,7 +148,7 @@ class PointNodeImpl with QTNodeBoundaryMixin implements PointNode {
     }
     // Remove any edges which no longer pass through this point.
     final it = _passEdges.iterator;
-    final remove = <QTEdge>{};
+    final remove = <QTEdgeNode>{};
     while (it.moveNext()) {
       final edge = it.current;
       if (!overlapsEdge(edge)) remove.add(edge);
@@ -532,7 +532,7 @@ class PointNodeImpl with QTNodeBoundaryMixin implements PointNode {
   /// -1 if this point is less than the other point,
   /// 0 if this point is the same as the other point.
   @override
-  int compareTo(PointNode other) {
+  int compareTo(final PointNode other) {
     if (_y < other.y) return -1;
     if (_y > other.y) return 1;
     if (_x < other.x) return -1;

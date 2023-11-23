@@ -147,7 +147,7 @@ void main() {
     await runTest(fn: (app, final built, final port) async {
       await built.close();
       app = makeSimpleAlfred(
-        onInternalError: (dynamic e) => MiddlewareBuilder(
+        onInternalError: (final dynamic e) => MiddlewareBuilder(
           process: (final c) {
             c.res.set_status_code(httpStatusInternalServerError500);
             return const ServeJson.map(
@@ -273,7 +273,7 @@ void main() {
   });
   test('not found with file type handler', () async {
     await runTest(
-      fn: (app, built, port) async {
+      fn: (final app, final built, final port) async {
         app.router.add(
           routes: AlfredRoutedRoutes(
             routes: [
@@ -320,7 +320,7 @@ void main() {
     });
   });
   test('it handles a put request', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       app.router.add(
         routes: AlfredRoutedRoutes(
           routes: [
@@ -338,7 +338,7 @@ void main() {
     });
   });
   test('it handles a delete request', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       app.router.add(
         routes: AlfredRoutedRoutes(
           routes: [
@@ -356,7 +356,7 @@ void main() {
     });
   });
   test('it handles an options request', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       app.router.add(
         routes: AlfredRoutedRoutes(
           routes: [
@@ -401,7 +401,7 @@ void main() {
     });
   });
   test('it handles a route that hits all methods', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       app.router.add(
         routes: AlfredRoutedRoutes(
           routes: [
@@ -425,7 +425,7 @@ void main() {
     });
   });
   test('it closes out a request if you fail to', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       app.router.add(
         routes: AlfredRoutedRoutes(
           routes: [
@@ -441,7 +441,7 @@ void main() {
     });
   });
   test('it handles a List<int>', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       app.router.add(
         routes: AlfredRoutedRoutes(
           routes: [
@@ -460,7 +460,7 @@ void main() {
     });
   });
   test('it handles a Stream<List<int>>', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       app.router.add(
         routes: AlfredRoutedRoutes(
           routes: [
@@ -510,7 +510,7 @@ void main() {
     });
   });
   test('it serves a file for download', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       app.router.add(
         routes: AlfredRoutedRoutes(
           routes: [
@@ -532,7 +532,7 @@ void main() {
     });
   });
   test('it serves a pdf, setting the extension from the filename', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       app.router.add(
         routes: AlfredRoutedRoutes(
           routes: [
@@ -551,7 +551,7 @@ void main() {
     });
   });
   test('it uses the json helper correctly', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       app.router.add(
         routes: AlfredRoutedRoutes(
           routes: [
@@ -571,7 +571,7 @@ void main() {
     });
   });
   test('it uses the send helper correctly', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       app.router.add(
         routes: AlfredRoutedRoutes(
           routes: [
@@ -589,7 +589,7 @@ void main() {
     });
   });
   test('it serves static files', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       const log = AlfredLoggingDelegatePrintImpl();
       app.router.add(
         routes: AlfredRoutedRoutes(
@@ -610,7 +610,7 @@ void main() {
     });
   });
   test('it serves static files although directories do not match', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       const log = AlfredLoggingDelegatePrintImpl();
       app.router.add(
         routes: AlfredRoutedRoutes(
@@ -631,7 +631,7 @@ void main() {
     });
   });
   test('it serves static files with basic filtering', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       const log = AlfredLoggingDelegatePrintImpl();
       app.router.add(
         routes: AlfredRoutedRoutes(
@@ -654,7 +654,7 @@ void main() {
     });
   });
   test('it serves SPA projects', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       const log = AlfredLoggingDelegatePrintImpl();
       app.router.add(
         routes: AlfredRoutedRoutes(
@@ -694,7 +694,7 @@ void main() {
     });
   });
   test('it does not crash when File not exists', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       app.router.add(
         routes: AlfredRoutedRoutes(
           routes: [
@@ -737,7 +737,7 @@ void main() {
     });
   });
   test('it handles params', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       app.router.add(
         routes: AlfredRoutedRoutes(
           routes: [
@@ -757,7 +757,7 @@ void main() {
     });
   });
   test('it should implement cors correctly', () async {
-    await runTest(fn: (app, built, port) async {
+    await runTest(fn: (final app, final built, final port) async {
       app.router.add(
         routes: AlfredRoutedRoutes(
           routes: [
@@ -811,7 +811,7 @@ class TestLogger with AlfredLoggingDelegateGeneralizingMixin {
   final void Function(String) add;
 
   const TestLogger(
-    final this.add,
+    this.add,
   );
 
   @override

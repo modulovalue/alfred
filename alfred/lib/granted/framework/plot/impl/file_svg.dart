@@ -15,8 +15,8 @@ class PlotFileSvg implements PlotterPlot {
   late String _bgColor;
 
   PlotFileSvg({
-    required final this.plotter,
-    required final this.onNewSvg,
+    required this.plotter,
+    required this.onNewSvg,
   }) {
     _renderer = SvgRenderer(
       renderReset: (final window, final backgroundColorString) {

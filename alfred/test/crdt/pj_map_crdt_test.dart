@@ -62,7 +62,7 @@ void main() {
     expect(crdt1.map['node']?.map, {'key2': 'value2'});
     expect(
       crdt1.records.values.every(
-        (record) => record.isDeleted || record.value!.root == crdt1,
+        (final record) => record.isDeleted || record.value!.root == crdt1,
       ),
       true,
       reason: 'expected crdt nodes to have updated their parent',
@@ -192,7 +192,7 @@ void main() {
     };
     expect(crdtNode.toJson(), expectedCrdtNodeJson);
     final node1Clock = crdt.getRecord('node1')!.clock;
-    expect(crdt.toJson(valueEncode: (node) => node.toJson()), {
+    expect(crdt.toJson(valueEncode: (final node) => node.toJson()), {
       'node': 'node1',
       'nodes': ['node1'],
       'vectorClock': crdt.vectorClock.value.toList(),
@@ -209,7 +209,7 @@ void main() {
     final crdtNode = MapCrdtNode<String, ValueType>(crdt);
     crdt.put('node1', crdtNode);
     crdtNode.put('key1', ValueType('value1'));
-    final valueEncodeFunc = (ValueType v) => {'value': v.value};
+    final valueEncodeFunc = (final ValueType v) => {'value': v.value};
     final key1Clock = crdtNode.getRecord('key1')!.clock;
     final expectedCrdtNodeJson = {
       'key1': {
@@ -224,7 +224,7 @@ void main() {
     final node1Clock = crdt.getRecord('node1')!.clock;
     expect(
       crdt.toJson(
-        valueEncode: (node) => node.toJson(valueEncode: valueEncodeFunc),
+        valueEncode: (final node) => node.toJson(valueEncode: valueEncodeFunc),
       ),
       {
         'node': 'node1',
@@ -282,7 +282,7 @@ void main() {
     };
     final decodedCrdt = MapCrdtRoot<String, MapCrdtNode<String, String>>.fromJson(
       crdtJson,
-      lateValueDecode: (crdt, dynamic json) => MapCrdtNode<String, String>.fromJson(
+      lateValueDecode: (final crdt, final dynamic json) => MapCrdtNode<String, String>.fromJson(
         json as Map<String, dynamic>,
         parent: crdt,
       ),
@@ -328,7 +328,7 @@ void main() {
         crdtNodeJson,
         parent: MapCrdtRoot<String, MapCrdtNode<String, ValueType>>('node1'),
         // ignore: avoid_dynamic_calls
-        valueDecode: (dynamic v) => ValueType(v['value'] as String),
+        valueDecode: (final dynamic v) => ValueType(v['value'] as String),
       ).records,
       {
         'key1': Record<ValueType>(
@@ -350,10 +350,10 @@ void main() {
     };
     final decodedCrdt = MapCrdtRoot<String, MapCrdtNode<String, ValueType>>.fromJson(
       crdtJson,
-      lateValueDecode: (crdt, dynamic json) => MapCrdtNode<String, ValueType>.fromJson(
+      lateValueDecode: (final crdt, final dynamic json) => MapCrdtNode<String, ValueType>.fromJson(
         json as Map<String, dynamic>,
         parent: crdt,
-        valueDecode: (dynamic v) => ValueType((v as Map<dynamic, dynamic>)['value'] as String),
+        valueDecode: (final dynamic v) => ValueType((v as Map<dynamic, dynamic>)['value'] as String),
       ),
     );
     expect(
@@ -510,7 +510,7 @@ void main() {
     crdt1.put('key', ValueType('value1'));
     final crdt2 = MapCrdtRoot<String, ValueType>.from(
       crdt1,
-      cloneValue: (v) => ValueType(v.value),
+      cloneValue: (final v) => ValueType(v.value),
     );
     expect(crdt2.map, {'key': ValueType('value1')});
     crdt2.getRecord('key')!.value!.value = 'value2';
@@ -521,7 +521,7 @@ void main() {
     crdt1.put(ValueType('key'), 'value1');
     final crdt2 = MapCrdtRoot<ValueType, String>.from(
       crdt1,
-      cloneKey: (k) => ValueType(k.value),
+      cloneKey: (final k) => ValueType(k.value),
     );
     expect(crdt2.map, {ValueType('key'): 'value1'});
     crdt2.records.keys.first.value = 'key2';
@@ -623,7 +623,7 @@ void main() {
     expect(crdt1.node, 'newNode1');
     expect(crdt1.nodes.toSet(), {'node1', 'newNode1'});
     expect(
-      () => crdt1.records.values.forEach((record) => crdt1.validateRecord(record)),
+      () => crdt1.records.values.forEach((final record) => crdt1.validateRecord(record)),
       returnsNormally,
     );
   });
@@ -728,7 +728,7 @@ void main() {
     );
     expect(
       crdt.toJson(
-        valueEncode: (v) => {'value': v.value},
+        valueEncode: (final v) => {'value': v.value},
       ),
       {
         'node': 'node1',
@@ -766,7 +766,7 @@ void main() {
     // ignore: prefer-trailing-comma
     final crdt = MapCrdtRoot<String, ValueType>.fromJson(
       json,
-      valueDecode: (dynamic valueJson) => ValueType((valueJson as Map<String, dynamic>)['value'] as String),
+      valueDecode: (final dynamic valueJson) => ValueType((valueJson as Map<String, dynamic>)['value'] as String),
     );
     expect(crdt.vectorClock, VectorClock.fromList([1]));
     expect(crdt.nodes, ['node1']);
@@ -781,10 +781,10 @@ void main() {
 }
 
 MapCrdtRoot<String, MapCrdtNode<String, String>> _deepCloneCrdt(
-  MapCrdtRoot<String, MapCrdtNode<String, String>> crdt,
+  final MapCrdtRoot<String, MapCrdtNode<String, String>> crdt,
 ) {
   final crdtCopy = MapCrdtRoot<String, MapCrdtNode<String, String>>.from(crdt);
-  crdtCopy.updateValues((k, v) => MapCrdtNode.from(v, parent: crdtCopy));
+  crdtCopy.updateValues((final k, final v) => MapCrdtNode.from(v, parent: crdtCopy));
   return crdtCopy;
 }
 
@@ -792,7 +792,7 @@ class ValueType {
   String value;
 
   ValueType(
-    final this.value,
+    this.value,
   );
 
   @override
@@ -808,7 +808,7 @@ class ValueType {
   String toString() => 'ValueType("$value")';
 }
 
-void _setTimestamp(Record<String> record, int timestamp) {
+void _setTimestamp(final Record<String> record, final int timestamp) {
   record.clock = DistributedClock(
     record.clock.vectorClock,
     timestamp,

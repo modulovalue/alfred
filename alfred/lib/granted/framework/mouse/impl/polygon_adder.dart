@@ -33,7 +33,7 @@ class PolygonAdder implements PlotterMouseHandle {
   /// Indicates of the point adder tool is enabled or not.
   bool get enabled => _enabled;
 
-  set enabled(bool value) {
+  set enabled(final bool value) {
     _enabled = value;
     reset();
   }
@@ -111,7 +111,7 @@ class PolygonAdder implements PlotterMouseHandle {
 
   /// handles mouse moved.
   @override
-  void mouseMove(PlotterMouseEvent e) {
+  void mouseMove(final PlotterMouseEvent e) {
     if (_mouseDown) {
       final loc = _transMouse(e);
       final last = _tempLines.get(_tempLines.count - 1, 1);

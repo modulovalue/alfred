@@ -122,7 +122,7 @@ class Player {
 
   /// Creates a new audio player.
   Player._(
-    final this._elem,
+    this._elem,
   )   : this._loaded = false,
         this._changed = null,
         this._onPlaying = null,

@@ -23,7 +23,7 @@ class UserInput {
 
   /// Creates a new user input for the given [_elem].
   UserInput(
-    final this._elem,
+    this._elem,
   )   : this._key = null,
         this._mouse = null,
         this._locked = null,
@@ -459,7 +459,7 @@ class TouchInput {
 
   /// Creates a new user input for the given [_input].
   TouchInput._(
-    final this._input,
+    this._input,
   )   : this._start = null,
         this._end = null,
         this._move = null,
@@ -565,13 +565,13 @@ class TouchEventArgs extends PointEventArgs {
   /// Creates a touch event argument.
   TouchEventArgs(
     final Object sender,
-    final this.points,
+    this.points,
     final Region2 size,
-    final this.startRawPoint,
-    final this.previousRawPoint,
+    this.startRawPoint,
+    this.previousRawPoint,
     final Point2 rawPoint,
-    final this.startTime,
-    final this.previousTime,
+    this.startTime,
+    this.previousTime,
     final DateTime currentTime,
   ) : super(sender, size, rawPoint, currentTime);
 
@@ -615,9 +615,9 @@ class PointEventArgs extends EventArgs {
   /// Creates a new point event argument.
   PointEventArgs(
     final Object sender,
-    final this.size,
-    final this.rawPoint,
-    final this.currentTime,
+    this.size,
+    this.rawPoint,
+    this.currentTime,
   ) : super(
           sender,
         );
@@ -637,7 +637,7 @@ class MouseWheelEventArgs extends PointEventArgs {
     final Region2 size,
     final Point2 rawPoint,
     final DateTime currentTime,
-    final this.wheel,
+    this.wheel,
   ) : super(sender, size, rawPoint, currentTime);
 }
 
@@ -682,7 +682,7 @@ class MouseInput {
 
   /// Creates a new user mouse input.
   MouseInput._(
-    final this._input,
+    this._input,
   )   : this._down = null,
         this._up = null,
         this._move = null,
@@ -846,9 +846,9 @@ class Modifiers {
 
   /// Creates a new modifier's group.
   const Modifiers(
-    final this.ctrl,
-    final this.alt,
-    final this.shift,
+    this.ctrl,
+    this.alt,
+    this.shift,
   );
 
   /// Creates a new modifier with nothing set yet.

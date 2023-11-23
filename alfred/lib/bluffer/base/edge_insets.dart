@@ -50,7 +50,7 @@ abstract class EdgeInsetsGeometry {
   double get vertical => _top + _bottom;
 
   /// The total offset in the given direction.
-  double along(Axis axis) {
+  double along(final Axis axis) {
     switch (axis) {
       case Axis.horizontal:
         return horizontal;
@@ -74,7 +74,7 @@ abstract class EdgeInsetsGeometry {
   ///    [EdgeInsetsDirectional], requires first calling [resolve] to establish
   ///    how the start and end map to the left or right).
   ///  * [deflateSize], to deflate a [Size] rather than inflating it.
-  Size inflateSize(Size size) {
+  Size inflateSize(final Size size) {
     return Size(size.width + horizontal, size.height + vertical);
   }
 
@@ -90,7 +90,7 @@ abstract class EdgeInsetsGeometry {
   ///    [EdgeInsetsDirectional], requires first calling [resolve] to establish
   ///    how the start and end map to the left or right).
   ///  * [inflateSize], to inflate a [Size] rather than deflating it.
-  Size deflateSize(Size size) {
+  Size deflateSize(final Size size) {
     return Size(size.width - horizontal, size.height - vertical);
   }
 
@@ -110,7 +110,7 @@ abstract class EdgeInsetsGeometry {
   /// This method returns the same result as [add] applied to the result of
   /// negating the argument (using the prefix unary `-` operator or multiplying
   /// the argument by -1.0 using the `*` operator).
-  EdgeInsetsGeometry subtract(EdgeInsetsGeometry other) {
+  EdgeInsetsGeometry subtract(final EdgeInsetsGeometry other) {
     return _MixedEdgeInsets.fromLRSETB(
       _left - other._left,
       _right - other._right,
@@ -132,7 +132,7 @@ abstract class EdgeInsetsGeometry {
   /// this is not reflected in the type system). Otherwise, an object
   /// representing a combination of both is returned. That object can be turned
   /// into a concrete [EdgeInsets] using [resolve].
-  EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
+  EdgeInsetsGeometry add(final EdgeInsetsGeometry other) {
     return _MixedEdgeInsets.fromLRSETB(
       _left + other._left,
       _right + other._right,
@@ -153,12 +153,12 @@ abstract class EdgeInsetsGeometry {
   /// Scales the [EdgeInsetsGeometry] object in each dimension by the given factor.
   ///
   /// This operator returns an object of the same type as the operand.
-  EdgeInsetsGeometry operator *(double other);
+  EdgeInsetsGeometry operator *(final double other);
 
   /// Divides the [EdgeInsetsGeometry] object in each dimension by the given factor.
   ///
   /// This operator returns an object of the same type as the operand.
-  EdgeInsetsGeometry operator /(double other);
+  EdgeInsetsGeometry operator /(final double other);
 
   /// Integer divides the [EdgeInsetsGeometry] object in each dimension by the given factor.
   ///
@@ -166,7 +166,7 @@ abstract class EdgeInsetsGeometry {
   ///
   /// This operator may have unexpected results when applied to a mixture of
   /// [EdgeInsets] and [EdgeInsetsDirectional] objects.
-  EdgeInsetsGeometry operator ~/(double other);
+  EdgeInsetsGeometry operator ~/(final double other);
 
   /// Computes the remainder in each dimension by the given factor.
   ///
@@ -174,7 +174,7 @@ abstract class EdgeInsetsGeometry {
   ///
   /// This operator may have unexpected results when applied to a mixture of
   /// [EdgeInsets] and [EdgeInsetsDirectional] objects.
-  EdgeInsetsGeometry operator %(double other);
+  EdgeInsetsGeometry operator %(final double other);
 
   /// Linearly interpolate between two [EdgeInsetsGeometry] objects.
   ///
@@ -188,7 +188,7 @@ abstract class EdgeInsetsGeometry {
   /// into a concrete [EdgeInsets] using [resolve].
   ///
   /// {@macro dart.ui.shadow.lerp}
-  static EdgeInsetsGeometry? lerp(EdgeInsetsGeometry? a, EdgeInsetsGeometry? b, double t) {
+  static EdgeInsetsGeometry? lerp(final EdgeInsetsGeometry? a, final EdgeInsetsGeometry? b, final double t) {
     if (a == null && b == null) {
       return null;
     }
@@ -223,7 +223,7 @@ abstract class EdgeInsetsGeometry {
   ///  * [EdgeInsets], for which this is a no-op (returns itself).
   ///  * [EdgeInsetsDirectional], which flips the horizontal direction
   ///    based on the `direction` argument.
-  EdgeInsets resolve(TextDirection direction);
+  EdgeInsets resolve(final TextDirection direction);
 
   @override
   String toString() {
@@ -257,7 +257,7 @@ abstract class EdgeInsetsGeometry {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(final dynamic other) {
     if (other is! EdgeInsetsGeometry) {
       return false;
     }
@@ -332,7 +332,7 @@ class EdgeInsets extends EdgeInsetsGeometry {
   /// const EdgeInsets.all(8.0)
   /// ```
   /// {@end-tool}
-  const EdgeInsets.all(double value)
+  const EdgeInsets.all(final double value)
       : left = value,
         top = value,
         right = value,
@@ -366,8 +366,8 @@ class EdgeInsets extends EdgeInsetsGeometry {
   /// ```
   /// {@end-tool}
   const EdgeInsets.symmetric({
-    double vertical = 0.0,
-    double horizontal = 0.0,
+    final double vertical = 0.0,
+    final double horizontal = 0.0,
   })  : left = horizontal,
         top = vertical,
         right = horizontal,
@@ -436,7 +436,7 @@ class EdgeInsets extends EdgeInsetsGeometry {
   ///
   ///  * [inflateSize], to inflate a [Size] rather than a [Rect].
   ///  * [deflateRect], to deflate a [Rect] rather than inflating it.
-  Rect inflateRect(Rect rect) {
+  Rect inflateRect(final Rect rect) {
     return Rect.fromLTRB(rect.left - left, rect.top - top, rect.right + right, rect.bottom + bottom);
   }
 
@@ -453,12 +453,12 @@ class EdgeInsets extends EdgeInsetsGeometry {
   ///
   ///  * [deflateSize], to deflate a [Size] rather than a [Rect].
   ///  * [inflateRect], to inflate a [Rect] rather than deflating it.
-  Rect deflateRect(Rect rect) {
+  Rect deflateRect(final Rect rect) {
     return Rect.fromLTRB(rect.left + left, rect.top + top, rect.right - right, rect.bottom - bottom);
   }
 
   @override
-  EdgeInsetsGeometry subtract(EdgeInsetsGeometry other) {
+  EdgeInsetsGeometry subtract(final EdgeInsetsGeometry other) {
     if (other is EdgeInsets) {
       return this - other;
     }
@@ -466,7 +466,7 @@ class EdgeInsets extends EdgeInsetsGeometry {
   }
 
   @override
-  EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
+  EdgeInsetsGeometry add(final EdgeInsetsGeometry other) {
     if (other is EdgeInsets) {
       return this + other;
     }
@@ -474,7 +474,7 @@ class EdgeInsets extends EdgeInsetsGeometry {
   }
 
   /// Returns the difference between two [EdgeInsets].
-  EdgeInsets operator -(EdgeInsets other) {
+  EdgeInsets operator -(final EdgeInsets other) {
     return EdgeInsets.fromLTRB(
       left - other.left,
       top - other.top,
@@ -484,7 +484,7 @@ class EdgeInsets extends EdgeInsetsGeometry {
   }
 
   /// Returns the sum of two [EdgeInsets].
-  EdgeInsets operator +(EdgeInsets other) {
+  EdgeInsets operator +(final EdgeInsets other) {
     return EdgeInsets.fromLTRB(
       left + other.left,
       top + other.top,
@@ -508,7 +508,7 @@ class EdgeInsets extends EdgeInsetsGeometry {
 
   /// Scales the [EdgeInsets] in each dimension by the given factor.
   @override
-  EdgeInsets operator *(double other) {
+  EdgeInsets operator *(final double other) {
     return EdgeInsets.fromLTRB(
       left * other,
       top * other,
@@ -519,7 +519,7 @@ class EdgeInsets extends EdgeInsetsGeometry {
 
   /// Divides the [EdgeInsets] in each dimension by the given factor.
   @override
-  EdgeInsets operator /(double other) {
+  EdgeInsets operator /(final double other) {
     return EdgeInsets.fromLTRB(
       left / other,
       top / other,
@@ -530,7 +530,7 @@ class EdgeInsets extends EdgeInsetsGeometry {
 
   /// Integer divides the [EdgeInsets] in each dimension by the given factor.
   @override
-  EdgeInsets operator ~/(double other) {
+  EdgeInsets operator ~/(final double other) {
     return EdgeInsets.fromLTRB(
       (left ~/ other).toDouble(),
       (top ~/ other).toDouble(),
@@ -541,7 +541,7 @@ class EdgeInsets extends EdgeInsetsGeometry {
 
   /// Computes the remainder in each dimension by the given factor.
   @override
-  EdgeInsets operator %(double other) {
+  EdgeInsets operator %(final double other) {
     return EdgeInsets.fromLTRB(
       left % other,
       top % other,
@@ -555,7 +555,7 @@ class EdgeInsets extends EdgeInsetsGeometry {
   /// If either is null, this function interpolates from [EdgeInsets.zero].
   ///
   /// {@macro dart.ui.shadow.lerp}
-  static EdgeInsets? lerp(EdgeInsets? a, EdgeInsets? b, double t) {
+  static EdgeInsets? lerp(final EdgeInsets? a, final EdgeInsets? b, final double t) {
     if (a == null && b == null) {
       return null;
     }
@@ -574,15 +574,15 @@ class EdgeInsets extends EdgeInsetsGeometry {
   }
 
   @override
-  EdgeInsets resolve(TextDirection direction) => this;
+  EdgeInsets resolve(final TextDirection direction) => this;
 
   /// Creates a copy of this EdgeInsets but with the given fields replaced
   /// with the new values.
   EdgeInsets copyWith({
-    double? left,
-    double? top,
-    double? right,
-    double? bottom,
+    final double? left,
+    final double? top,
+    final double? right,
+    final double? bottom,
   }) {
     return EdgeInsets.only(
       left: left ?? this.left,
@@ -683,7 +683,7 @@ class EdgeInsetsDirectional extends EdgeInsetsGeometry {
   EdgeInsetsDirectional get flipped => EdgeInsetsDirectional.fromSTEB(end, bottom, start, top);
 
   @override
-  EdgeInsetsGeometry subtract(EdgeInsetsGeometry other) {
+  EdgeInsetsGeometry subtract(final EdgeInsetsGeometry other) {
     if (other is EdgeInsetsDirectional) {
       return this - other;
     }
@@ -691,7 +691,7 @@ class EdgeInsetsDirectional extends EdgeInsetsGeometry {
   }
 
   @override
-  EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
+  EdgeInsetsGeometry add(final EdgeInsetsGeometry other) {
     if (other is EdgeInsetsDirectional) {
       return this + other;
     }
@@ -699,7 +699,7 @@ class EdgeInsetsDirectional extends EdgeInsetsGeometry {
   }
 
   /// Returns the difference between two [EdgeInsetsDirectional] objects.
-  EdgeInsetsDirectional operator -(EdgeInsetsDirectional other) {
+  EdgeInsetsDirectional operator -(final EdgeInsetsDirectional other) {
     return EdgeInsetsDirectional.fromSTEB(
       start - other.start,
       top - other.top,
@@ -709,7 +709,7 @@ class EdgeInsetsDirectional extends EdgeInsetsGeometry {
   }
 
   /// Returns the sum of two [EdgeInsetsDirectional] objects.
-  EdgeInsetsDirectional operator +(EdgeInsetsDirectional other) {
+  EdgeInsetsDirectional operator +(final EdgeInsetsDirectional other) {
     return EdgeInsetsDirectional.fromSTEB(
       start + other.start,
       top + other.top,
@@ -733,7 +733,7 @@ class EdgeInsetsDirectional extends EdgeInsetsGeometry {
 
   /// Scales the [EdgeInsetsDirectional] object in each dimension by the given factor.
   @override
-  EdgeInsetsDirectional operator *(double other) {
+  EdgeInsetsDirectional operator *(final double other) {
     return EdgeInsetsDirectional.fromSTEB(
       start * other,
       top * other,
@@ -744,7 +744,7 @@ class EdgeInsetsDirectional extends EdgeInsetsGeometry {
 
   /// Divides the [EdgeInsetsDirectional] object in each dimension by the given factor.
   @override
-  EdgeInsetsDirectional operator /(double other) {
+  EdgeInsetsDirectional operator /(final double other) {
     return EdgeInsetsDirectional.fromSTEB(
       start / other,
       top / other,
@@ -755,7 +755,7 @@ class EdgeInsetsDirectional extends EdgeInsetsGeometry {
 
   /// Integer divides the [EdgeInsetsDirectional] object in each dimension by the given factor.
   @override
-  EdgeInsetsDirectional operator ~/(double other) {
+  EdgeInsetsDirectional operator ~/(final double other) {
     return EdgeInsetsDirectional.fromSTEB(
       (start ~/ other).toDouble(),
       (top ~/ other).toDouble(),
@@ -766,7 +766,7 @@ class EdgeInsetsDirectional extends EdgeInsetsGeometry {
 
   /// Computes the remainder in each dimension by the given factor.
   @override
-  EdgeInsetsDirectional operator %(double other) {
+  EdgeInsetsDirectional operator %(final double other) {
     return EdgeInsetsDirectional.fromSTEB(
       start % other,
       top % other,
@@ -784,7 +784,7 @@ class EdgeInsetsDirectional extends EdgeInsetsGeometry {
   /// [EdgeInsetsGeometry.lerp] static method.
   ///
   /// {@macro dart.ui.shadow.lerp}
-  static EdgeInsetsDirectional? lerp(EdgeInsetsDirectional? a, EdgeInsetsDirectional? b, double t) {
+  static EdgeInsetsDirectional? lerp(final EdgeInsetsDirectional? a, final EdgeInsetsDirectional? b, final double t) {
     if (a == null && b == null) {
       return null;
     }
@@ -803,7 +803,7 @@ class EdgeInsetsDirectional extends EdgeInsetsGeometry {
   }
 
   @override
-  EdgeInsets resolve(TextDirection direction) {
+  EdgeInsets resolve(final TextDirection direction) {
     switch (direction) {
       case TextDirection.rtl:
         return EdgeInsets.fromLTRB(end, top, start, bottom);
@@ -852,7 +852,7 @@ class _MixedEdgeInsets extends EdgeInsetsGeometry {
   }
 
   @override
-  _MixedEdgeInsets operator *(double other) {
+  _MixedEdgeInsets operator *(final double other) {
     return _MixedEdgeInsets.fromLRSETB(
       _left * other,
       _right * other,
@@ -864,7 +864,7 @@ class _MixedEdgeInsets extends EdgeInsetsGeometry {
   }
 
   @override
-  _MixedEdgeInsets operator /(double other) {
+  _MixedEdgeInsets operator /(final double other) {
     return _MixedEdgeInsets.fromLRSETB(
       _left / other,
       _right / other,
@@ -876,7 +876,7 @@ class _MixedEdgeInsets extends EdgeInsetsGeometry {
   }
 
   @override
-  _MixedEdgeInsets operator ~/(double other) {
+  _MixedEdgeInsets operator ~/(final double other) {
     return _MixedEdgeInsets.fromLRSETB(
       (_left ~/ other).toDouble(),
       (_right ~/ other).toDouble(),
@@ -888,7 +888,7 @@ class _MixedEdgeInsets extends EdgeInsetsGeometry {
   }
 
   @override
-  _MixedEdgeInsets operator %(double other) {
+  _MixedEdgeInsets operator %(final double other) {
     return _MixedEdgeInsets.fromLRSETB(
       _left % other,
       _right % other,
@@ -900,7 +900,7 @@ class _MixedEdgeInsets extends EdgeInsetsGeometry {
   }
 
   @override
-  EdgeInsets resolve(TextDirection direction) {
+  EdgeInsets resolve(final TextDirection direction) {
     switch (direction) {
       case TextDirection.rtl:
         return EdgeInsets.fromLTRB(_end + _left, _top, _start + _right, _bottom);

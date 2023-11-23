@@ -19,8 +19,8 @@ class RectangleGroup with PlotterItemMixin, BasicCoordsMixin {
 
   /// Creates a new rectangle plotter item.
   RectangleGroup(
-    final this.width,
-    final this.height,
+    this.width,
+    this.height,
   );
 
   @override

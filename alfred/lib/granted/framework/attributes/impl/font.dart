@@ -14,7 +14,7 @@ class FontAttrImpl implements FontAttr {
 
   /// Creates a line font attribute.
   FontAttrImpl(
-    final this.font,
+    this.font,
   );
 
   /// Pushes the attribute to the renderer.

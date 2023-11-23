@@ -249,8 +249,8 @@ void main() {
 
 abstract class HtmlEntity {
   Z match<Z>({
-    required Z Function(HtmlEntityElement) element,
-    required Z Function(HtmlEntityNode) node,
+    required final Z Function(HtmlEntityElement) element,
+    required final Z Function(HtmlEntityNode) node,
   });
 }
 
@@ -539,6 +539,7 @@ abstract class HtmlElement {}
 
 extension HtmlElementMatch on HtmlElement {
   Z match<Z>({
+    required final Z Function(HtmlElementAppended) appended,
     required final Z Function(HtmlElementRaw) raw,
     required final Z Function(HtmlElementCopy) copy,
     required final Z Function(HtmlElementBr) br,
@@ -556,40 +557,30 @@ extension HtmlElementMatch on HtmlElement {
     required final Z Function(HtmlElementHead) head,
   }) {
     final self = this;
-    if (self is HtmlElementRaw) {
-      return raw(self);
-    } else if (self is HtmlElementCopy) {
-      return copy(self);
-    } else if (self is HtmlElementBr) {
-      return br(self);
-    } else if (self is HtmlElementHtml) {
-      return html(self);
-    } else if (self is HtmlElementMeta) {
-      return meta(self);
-    } else if (self is HtmlElementBody) {
-      return body(self);
-    } else if (self is HtmlElementCustom) {
-      return custom(self);
-    } else if (self is HtmlElementScript) {
-      return script(self);
-    } else if (self is HtmlElementLink) {
-      return link(self);
-    } else if (self is HtmlElementTitle) {
-      return title(self);
-    } else if (self is HtmlElementStyle) {
-      return style(self);
-    } else if (self is HtmlElementImage) {
-      return image(self);
-    } else if (self is HtmlElementDiv) {
-      return div(self);
-    } else if (self is HtmlElementAnchor) {
-      return anchor(self);
-    } else if (self is HtmlElementHead) {
-      return head(self);
-    } else {
-      throw Exception("Invalid State");
-    }
+    if (self is HtmlElementAppended) return appended(self);
+    if (self is HtmlElementRaw) return raw(self);
+    if (self is HtmlElementCopy) return copy(self);
+    if (self is HtmlElementBr) return br(self);
+    if (self is HtmlElementHtml) return html(self);
+    if (self is HtmlElementMeta) return meta(self);
+    if (self is HtmlElementBody) return body(self);
+    if (self is HtmlElementCustom) return custom(self);
+    if (self is HtmlElementScript) return script(self);
+    if (self is HtmlElementLink) return link(self);
+    if (self is HtmlElementTitle) return title(self);
+    if (self is HtmlElementStyle) return style(self);
+    if (self is HtmlElementImage) return image(self);
+    if (self is HtmlElementDiv) return div(self);
+    if (self is HtmlElementAnchor) return anchor(self);
+    if (self is HtmlElementHead) return head(self);
+    throw Exception("Invalid State");
   }
+}
+
+abstract class HtmlElementAppended implements HtmlElement {
+  HtmlElement get other;
+
+  List<HtmlElement> get additional;
 }
 
 abstract class HtmlElementRaw implements HtmlElement {
@@ -704,6 +695,19 @@ abstract class HtmlElementHead implements HtmlElement {
   IdClass? get idClass;
 
   List<HtmlEntity> get childNodes;
+}
+
+
+class HtmlElementAppendedImpl implements HtmlElementAppended {
+  @override
+  final HtmlElement other;
+  @override
+  final List<HtmlElement> additional;
+
+  const HtmlElementAppendedImpl({
+    required this.other,
+    required this.additional,
+  });
 }
 
 class HtmlElementRawImpl implements HtmlElementRaw {
@@ -924,8 +928,8 @@ class HtmlElementHeadImpl implements HtmlElementHead {
 
 abstract class StyleContent {
   Z match<Z>({
-    required Z Function(StyleContentStyle) style,
-    required Z Function(StyleContentStructure) structure,
+    required final Z Function(StyleContentStyle) style,
+    required final Z Function(StyleContentStructure) structure,
   });
 }
 
@@ -997,8 +1001,8 @@ class HtmlStyleImpl implements HtmlStyle {
 // TODO, Class, Id, colon?
 abstract class CssKey {
   Z match<Z>({
-    required Z Function(CssKeyRaw) raw,
-    required Z Function(CssKeyComposite) composite,
+    required final Z Function(CssKeyRaw) raw,
+    required final Z Function(CssKeyComposite) composite,
   });
 }
 
@@ -1052,6 +1056,9 @@ String htmlElementToString({
       required final HtmlElement element,
     }) =>
         element.match(
+          appended: (final a) => element_id(
+            element: a.other,
+          ),
           raw: (final a) => throw Exception("Invalid State."),
           copy: (final a) => a.idClass?.id,
           br: (final a) => a.idClass?.id,
@@ -1142,10 +1149,10 @@ String htmlElementToString({
                         if (_async != null) 'async="' + _async.toString() + '"',
                         if (_defer != null) 'defer="' + _defer.toString() + '"',
                         if (_integrity != null) 'integrity="' +
-                            _integrity.toString() + '"',
+                            _integrity + '"',
                         if (_crossorigin != null) 'crossorigin="' +
-                            _crossorigin.toString() + '"',
-                        if (_rel != null) 'rel="' + _rel.toString() + '"',
+                            _crossorigin + '"',
+                        if (_rel != null) 'rel="' + _rel + '"',
                       ];
                     },
                     link: (final a) {
@@ -1203,6 +1210,7 @@ String htmlElementToString({
             );
           }
           element.match(
+            appended: (final a) {},
             raw: (final a) => throw Exception("Invalid State."),
             copy: (final a) {},
             br: (final a) {},
@@ -1387,6 +1395,16 @@ List<HtmlEntity> elementChildNodes({
   required final HtmlElement element,
 }) =>
     element.match(
+      appended: (final a) => [
+        ...elementChildNodes(
+          element: a.other,
+        ),
+        ...a.additional.map(
+          (final a) => HtmlEntityElementImpl(
+            element: a,
+          ),
+        ),
+      ],
       raw: (final a) => [],
       copy: (final a) => elementChildNodes(
         element: a.other,
@@ -1414,6 +1432,9 @@ String? elementClassname({
   required final HtmlElement element,
 }) =>
     element.match(
+      appended: (final a) => elementClassname(
+        element: a.other,
+      ),
       raw: (final a) => null,
       copy: (final a) => a.idClass?.className,
       br: (final a) => a.idClass?.className,

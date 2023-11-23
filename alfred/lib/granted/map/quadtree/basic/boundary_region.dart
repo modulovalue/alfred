@@ -49,11 +49,11 @@ class BoundaryRegionImpl implements BoundaryRegion {
   /// Determines if the given [other] BoundaryRegion is partially contained in this BoundaryRegion.
   /// Typically used with North, South, East, and West. Will always return true for Inside.
   @override
-  bool has(BoundaryRegion other) => (value & other.value) == other.value;
+  bool has(final BoundaryRegion other) => (value & other.value) == other.value;
 
   /// Checks if this BoundaryRegion is equal to the given [other] BoundaryRegion.
   @override
-  bool operator ==(Object other) {
+  bool operator ==(final Object other) {
     return other is BoundaryRegion && value == other.value;
   }
 
@@ -62,11 +62,11 @@ class BoundaryRegionImpl implements BoundaryRegion {
 
   /// Gets the OR of the two boundary regions.
   @override
-  BoundaryRegion operator |(BoundaryRegion other) => BoundaryRegionImpl._(value | other.value);
+  BoundaryRegion operator |(final BoundaryRegion other) => BoundaryRegionImpl._(value | other.value);
 
   /// Gets the AND of the two boundary regions.
   @override
-  BoundaryRegion operator &(BoundaryRegion other) => BoundaryRegionImpl._(value & other.value);
+  BoundaryRegion operator &(final BoundaryRegion other) => BoundaryRegionImpl._(value & other.value);
 
   /// Gets the string for the given boundary region.
   @override

@@ -4,7 +4,7 @@ class ImageProvider {
   final String url;
 
   const ImageProvider.network(
-    final this.url,
+    this.url,
   );
 
   const ImageProvider.asset(
@@ -22,10 +22,10 @@ class DecorationImage {
   /// The [image], alignment, [repeat], and [matchTextDirection] arguments
   /// must not be null.
   const DecorationImage({
-    required final this.image,
-    final this.fit,
-    final this.repeat = ImageRepeat.noRepeat,
-    final this.matchTextDirection = false,
+    required this.image,
+    this.fit,
+    this.repeat = ImageRepeat.noRepeat,
+    this.matchTextDirection = false,
   });
 
   /// The image to be painted into the decoration.

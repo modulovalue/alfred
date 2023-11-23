@@ -20,10 +20,10 @@ class PointRemover implements PlotterMouseHandle {
 
   /// Creates a new mouse handler for removing points.
   PointRemover(
-    final this._tree,
-    final this._plot,
-    final this._plotItem,
-    final this._state,
+    this._tree,
+    this._plot,
+    this._plotItem,
+    this._state,
   )   : enabled = true,
         _mouseDown = false,
         _tempPoint = _plot.plotter.addPoints([])

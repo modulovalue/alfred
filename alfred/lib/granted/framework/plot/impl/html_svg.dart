@@ -52,10 +52,10 @@ class PlotHtmlSvg implements PlotterPlot {
   final String Function(PlotHtmlSvg) render;
 
   PlotHtmlSvg({
-    required final this.targetDiv,
-    required final this.svg,
-    required final this.plotter,
-    required final this.render,
+    required this.targetDiv,
+    required this.svg,
+    required this.plotter,
+    required this.render,
   }) {
     svg
       ..onResize.listen(

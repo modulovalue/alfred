@@ -6,7 +6,7 @@ Color _scaleAlpha(
   final Color a,
   final double factor,
 ) =>
-    a.withAlpha((a.alpha * factor).round().clamp(0, 255).toInt());
+    a.withAlpha((a.alpha * factor).round().clamp(0, 255));
 
 /// An immutable 32 bit color value in ARGB format.
 ///
@@ -236,10 +236,10 @@ class Color {
       return _scaleAlpha(a, 1.0 - t);
     }
     return Color.fromARGB(
-      lerpDouble(a.alpha, b.alpha, t).toInt().clamp(0, 255).toInt(),
-      lerpDouble(a.red, b.red, t).toInt().clamp(0, 255).toInt(),
-      lerpDouble(a.green, b.green, t).toInt().clamp(0, 255).toInt(),
-      lerpDouble(a.blue, b.blue, t).toInt().clamp(0, 255).toInt(),
+      lerpDouble(a.alpha, b.alpha, t).toInt().clamp(0, 255),
+      lerpDouble(a.red, b.red, t).toInt().clamp(0, 255),
+      lerpDouble(a.green, b.green, t).toInt().clamp(0, 255),
+      lerpDouble(a.blue, b.blue, t).toInt().clamp(0, 255),
     );
   }
 

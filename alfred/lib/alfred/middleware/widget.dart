@@ -10,7 +10,7 @@ class ServeWidgetBuilder implements AlfredMiddleware {
   final Widget Function(ServeContext c, BuildContext context) builder;
 
   const ServeWidgetBuilder({
-    required final this.builder,
+    required this.builder,
   });
 
   @override
@@ -30,7 +30,7 @@ class ServeWidgetImpl implements ServeWidget {
   final Widget child;
 
   const ServeWidgetImpl({
-    required final this.child,
+    required this.child,
   });
 
   @override
@@ -52,9 +52,9 @@ class ServeWidgetAppImpl implements ServeWidget {
   final void Function()? onProcess;
 
   const ServeWidgetAppImpl({
-    required final this.title,
-    required final this.child,
-    final this.onProcess,
+    required this.title,
+    required this.child,
+    this.onProcess,
   });
 
   @override
@@ -84,11 +84,11 @@ class ServeWidgetAppBuilderImpl implements ServeWidget {
   final bool enable_css_reset;
 
   const ServeWidgetAppBuilderImpl({
-    required final this.title,
-    required final this.builder,
-    final this.includes = const AppIncludesEmptyImpl(),
-    final this.enable_css_reset = true,
-    final this.on_process,
+    required this.title,
+    required this.builder,
+    this.includes = const AppIncludesEmptyImpl(),
+    this.enable_css_reset = true,
+    this.on_process,
   });
 
   @override

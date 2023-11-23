@@ -469,17 +469,17 @@ class IntersectionResultImpl implements IntersectionResult {
 
   /// Creates a new intersection result.
   IntersectionResultImpl(
-    final this.edgeA,
-    final this.edgeB,
-    final this.intersects,
-    final this.type,
-    final this.point,
-    final this.locA,
-    final this.locB,
-    final this.startBOnEdgeA,
-    final this.endBOnEdgeA,
-    final this.startAOnEdgeB,
-    final this.endAOnEdgeB,
+    this.edgeA,
+    this.edgeB,
+    this.intersects,
+    this.type,
+    this.point,
+    this.locA,
+    this.locB,
+    this.startBOnEdgeA,
+    this.endBOnEdgeA,
+    this.startAOnEdgeB,
+    this.endAOnEdgeB,
   );
 
   /// Compares this intersection with the other intersection.

@@ -8,7 +8,7 @@ class InternalError500Middleware implements AlfredMiddleware {
   final Object error;
 
   const InternalError500Middleware({
-    required final this.error,
+    required this.error,
   });
 
   @override

@@ -23,7 +23,7 @@ class ArrowAdder implements PlotterMouseHandle {
   final Lines _arrows;
 
   ArrowAdder._(
-    final this._arrows,
+    this._arrows,
   );
 
   @override

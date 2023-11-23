@@ -141,7 +141,7 @@ class Handler implements Smoother {
 
   /// Privatize the constructor for the smoother.
   Handler(
-    final this._handle,
+    this._handle,
   );
 
   /// [smooth] changes a linear 0.0 to 1.0 into different order of movements.
@@ -175,9 +175,9 @@ class _Modifier {
 
   /// Creates a new double modifier.
   _Modifier(
-    final this.start,
-    final this.goal,
-    final this._setHndl,
+    this.start,
+    this.goal,
+    this._setHndl,
   );
 
   /// Updates the value for the mover.
@@ -308,10 +308,10 @@ class Shifter {
 
   /// Constructs a shifter with the final information set.
   Shifter._(
-    final this._delay,
-    final this._duration,
-    final this._init,
-    final this._smoother,
+    this._delay,
+    this._duration,
+    this._init,
+    this._smoother,
   )   : this._mods = [],
         this._done = false,
         this._inited = false;

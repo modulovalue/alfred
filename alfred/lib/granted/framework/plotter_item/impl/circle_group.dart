@@ -17,7 +17,7 @@ class CircleGroup with PlotterItemMixin, BasicCoordsMixin {
 
   /// Creates a new circle plotter item.
   CircleGroup(
-    final this.radius,
+    this.radius,
   );
 
   @override

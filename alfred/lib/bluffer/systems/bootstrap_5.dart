@@ -29,8 +29,8 @@ class BootstrapButton with RenderElementMixin, NoCSSMixin, NoKeyMixin {
   final BootstrapButtonType type;
 
   const BootstrapButton({
-    required final this.text,
-    final this.type = BootstrapButtonType.primary,
+    required this.text,
+    this.type = BootstrapButtonType.primary,
   });
 
   @override
@@ -67,8 +67,8 @@ class BootstrapOutlineButton with RenderElementMixin, NoCSSMixin, NoKeyMixin {
   final BootstrapOutlineButtonType type;
 
   const BootstrapOutlineButton({
-    required final this.text,
-    final this.type = BootstrapOutlineButtonType.primary,
+    required this.text,
+    this.type = BootstrapOutlineButtonType.primary,
   });
 
   @override
@@ -173,7 +173,7 @@ class BootstrapAccordion with RenderElementMixin, NoCSSMixin, NoKeyMixin {
   final Iterable<AccordionEntry> entries;
 
   const BootstrapAccordion({
-    required final this.entries,
+    required this.entries,
   });
 
   @override
@@ -284,9 +284,9 @@ class AccordionEntry {
   final bool showByDefault;
 
   const AccordionEntry({
-    required final this.title,
-    required final this.body,
-    final this.showByDefault = false,
+    required this.title,
+    required this.body,
+    this.showByDefault = false,
   });
 }
 
@@ -295,7 +295,7 @@ class BootstrapTable with RenderElementMixin, NoKeyMixin, NoCSSMixin {
   final Iterable<TableRowImpl> children;
 
   const BootstrapTable({
-    required final this.children,
+    required this.children,
   });
 
   @override

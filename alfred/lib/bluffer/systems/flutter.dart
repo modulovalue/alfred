@@ -1,3 +1,5 @@
+// ignore_for_file: discarded_futures
+
 import 'dart:async';
 // TODO remove this dependency?
 // ignore: deprecated_member_use
@@ -527,7 +529,7 @@ class _DecoratedBoxCSS with CssStyleDeclarationNullMixin {
             'px ' +
             shadow.spreadRadius.toString() +
             'px ' +
-            shadowColor.toString() +
+            shadowColor +
             ';';
       } else {
         return null;
@@ -993,7 +995,7 @@ class TextLink extends StatelessWidgetBase with NoCSSMixin {
       Click(
         newTab: false,
         url: url,
-        builder: (context) {
+        builder: (final context) {
           TextStyle style;
           // switch (state) {
           //   case ClickState.active:
@@ -1137,7 +1139,7 @@ class Localizations extends StatelessWidgetBase with NoCSSMixin {
     required this.locale,
     required this.delegates,
     required this.child,
-    Key? key,
+    final Key? key,
   }) : super(key: key);
 
   final Widget child;
@@ -1197,13 +1199,14 @@ class Localizations extends StatelessWidgetBase with NoCSSMixin {
 
   @override
   Widget build(
-      final BuildContext context,
-      ) {
+    final BuildContext context,
+  ) {
     final typeToResources = <Type, dynamic>{};
     for (final delegate in delegates) {
       final loaded = delegate.load(locale);
       final value = loaded.then(
-            (final dynamic a) {
+        // ignore: void_checks
+        (final dynamic a) {
           if (a is Type) {
             return a;
           } else {
@@ -1488,11 +1491,27 @@ mixin MultiRenderElementMixin implements Widget {
   @override
   HtmlElement renderElement({
     required final BuildContext context,
-  }) =>
-      renderWidget(
+  }) {
+    HtmlEntityElement result = HtmlEntityElementImpl(
+      element: renderWidget(
         child: this,
         context: context,
+      ),
+    );
+    for (final child in children) {
+      result = HtmlEntityElementImpl(
+        element: HtmlElementAppendedImpl(
+          other: result.element,
+          additional: [
+            child.renderElement(
+              context: context,
+            ),
+          ],
+        ),
       );
+    }
+    return result.element;
+  }
 }
 
 mixin NoCSSMixin implements Widget {
@@ -1518,14 +1537,14 @@ class RawHtml with RenderElementMixin {
 
   @override
   CssStyleDeclaration? renderCss({
-    required BuildContext context,
+    required final BuildContext context,
   }) {
     return null;
   }
 
   @override
   HtmlElement renderHtml({
-    required BuildContext context,
+    required final BuildContext context,
   }) {
     return HtmlElementRawImpl(
       html: html,

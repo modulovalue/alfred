@@ -18,4 +18,4 @@ double lerpDouble(
   final num b,
   final double t,
 ) =>
-    (a + (b - a) * t).toDouble();
+    a + (b - a) * t;

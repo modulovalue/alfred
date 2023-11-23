@@ -91,12 +91,12 @@ class BoxDecoration {
   /// Creates a copy of this object but with the given fields replaced with the
   /// new values.
   BoxDecoration copyWith({
-    Color? color,
-    DecorationImage? image,
-    BoxBorder? border,
-    BorderRadiusGeometry? borderRadius,
-    List<BoxShadow>? boxShadow,
-    Gradient? gradient,
+    final Color? color,
+    final DecorationImage? image,
+    final BoxBorder? border,
+    final BorderRadiusGeometry? borderRadius,
+    final List<BoxShadow>? boxShadow,
+    final Gradient? gradient,
   }) {
     return BoxDecoration(
       color: color ?? this.color,
@@ -164,7 +164,7 @@ class BoxDecoration {
   final Gradient? gradient;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(final dynamic other) {
     if (identical(this, other)) {
       return true;
     }

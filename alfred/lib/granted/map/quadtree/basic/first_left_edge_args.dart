@@ -28,8 +28,8 @@ class FirstLeftEdgeArgsImpl implements FirstLeftEdgeArgs {
   /// left of the given query point.
   /// [queryPoint] is the point to find the first edge left of.
   FirstLeftEdgeArgsImpl(
-    final this._queryPoint,
-    final this._handle,
+    this._queryPoint,
+    this._handle,
   )   : _rightValue = -double.maxFinite,
         _resultEdge = null,
         _resultPoint = null;

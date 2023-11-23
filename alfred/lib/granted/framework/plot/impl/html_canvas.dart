@@ -37,8 +37,8 @@ class PlotHtmlCanvas implements PlotterPlot {
 
   /// Creates a plotter that outputs SVG.
   PlotHtmlCanvas.fromElem(
-    final this._targetDiv,
-    final this.plotter,
+    this._targetDiv,
+    this.plotter,
   )   : _canvas = CanvasElement(),
         _pendingRender = false {
     _canvas.style

@@ -33,9 +33,9 @@ class NearestEdgeArgsImpl implements NearestEdgeArgs {
   /// [cutoffDist2] is the maximum allowable distance squared to the nearest edge.
   /// The [handle] is the filter acceptable edges with, or null to not filter.
   NearestEdgeArgsImpl({
-    required final this.queryPoint,
-    required final this.cutoffDist2,
-    required final this.handle,
+    required this.queryPoint,
+    required this.cutoffDist2,
+    required this.handle,
   })  : _resultEdge = null,
         _resultPoint = null;
 

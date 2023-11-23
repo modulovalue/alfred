@@ -36,8 +36,8 @@ class Group with PlotterItemMixin {
 
   /// Creates a new plotter item group.
   Group([
-    final this.label = "",
-    final this.enabled = true,
+    this.label = "",
+    this.enabled = true,
   ]) : _items = <PlotterItem>[];
 
   /// The number of items in the group.

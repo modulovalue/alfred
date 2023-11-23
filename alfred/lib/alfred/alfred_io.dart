@@ -15,9 +15,9 @@ class ServeContextIOImpl implements ServeContext {
   late AlfredHttpRoute route;
 
   ServeContextIOImpl({
-    required final this.alfred,
-    required final this.req,
-    required final this.res,
+    required this.alfred,
+    required this.req,
+    required this.res,
   });
 
   @override
@@ -34,7 +34,7 @@ class AlfredResponseImpl implements AlfredResponse {
   final HttpResponse res;
 
   const AlfredResponseImpl({
-    required final this.res,
+    required this.res,
   });
 
   @override
@@ -117,8 +117,8 @@ class AlfredRequestImpl implements AlfredRequest {
   final AlfredResponse response;
 
   const AlfredRequestImpl({
-    required final this.req,
-    required final this.response,
+    required this.req,
+    required this.response,
   });
 
   @override
@@ -148,7 +148,7 @@ class AlfredHttpHeadersImpl implements AlfredHttpHeaders {
   final HttpHeaders headers;
 
   const AlfredHttpHeadersImpl({
-    required final this.headers,
+    required this.headers,
   });
 
   @override
@@ -180,7 +180,7 @@ class AlfredContentTypeFromContentTypeImpl implements AlfredContentType {
   final ContentType contentType;
 
   const AlfredContentTypeFromContentTypeImpl({
-    required final this.contentType,
+    required this.contentType,
   });
 
   @override
@@ -225,7 +225,7 @@ class AlfredWebSocketImpl implements AlfredWebSocket {
   final WebSocket socket;
 
   const AlfredWebSocketImpl({
-    required final this.socket,
+    required this.socket,
   });
 
   @override
@@ -242,8 +242,8 @@ class AlfredWebSocketImpl implements AlfredWebSocket {
 
   @override
   Future<void> close({
-    required int? code,
-    required String? reason,
+    required final int? code,
+    required final String? reason,
   }) =>
       socket.close(code, reason);
 

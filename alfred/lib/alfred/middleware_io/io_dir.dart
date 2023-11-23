@@ -12,8 +12,8 @@ class ServeDirectoryIoDirectoryImpl implements AlfredMiddleware {
   final AlfredLoggingDelegate log;
 
   const ServeDirectoryIoDirectoryImpl({
-    required final this.directory,
-    final this.log = const AlfredLoggingDelegatePrintImpl(),
+    required this.directory,
+    this.log = const AlfredLoggingDelegatePrintImpl(),
   });
 
   @override
@@ -35,8 +35,8 @@ class ServeDirectoryStringPathImpl implements AlfredMiddleware {
   final AlfredLoggingDelegate log;
 
   const ServeDirectoryStringPathImpl({
-    required final this.path,
-    final this.log = const AlfredLoggingDelegatePrintImpl(),
+    required this.path,
+    this.log = const AlfredLoggingDelegatePrintImpl(),
   });
 
   @override

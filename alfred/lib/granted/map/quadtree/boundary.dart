@@ -93,10 +93,10 @@ class QTBoundaryImpl implements QTBoundary {
 
   /// Creates a new boundary.
   const QTBoundaryImpl._(
-    final this._xmin,
-    final this._ymin,
-    final this._xmax,
-    final this._ymax,
+    this._xmin,
+    this._ymin,
+    this._xmax,
+    this._ymax,
   );
 
   /// Gets the minimum x component.
@@ -159,17 +159,17 @@ class QTBoundaryImpl implements QTBoundary {
   }
 
   /// Checks if the given point is completely contained within this boundary.
-  bool _contains(int x, int y) => !((_xmin > x) || (_xmax < x) || (_ymin > y) || (_ymax < y));
+  bool _contains(final int x, final int y) => !((_xmin > x) || (_xmax < x) || (_ymin > y) || (_ymax < y));
 
   /// Checks if the given point is completely contained within this boundary.
   /// Returns true if the point is fully contained, false otherwise.
   @override
-  bool containsPoint(QTPoint point) => _contains(point.x, point.y);
+  bool containsPoint(final QTPoint point) => _contains(point.x, point.y);
 
   /// Checks if the given edge is completely contained within this boundary.
   /// Returns true if the edge is fully contained, false otherwise.
   @override
-  bool containsEdge(QTEdge edge) => _contains(edge.x1, edge.y1) && _contains(edge.x2, edge.y2);
+  bool containsEdge(final QTEdge edge) => _contains(edge.x1, edge.y1) && _contains(edge.x2, edge.y2);
 
   /// Checks if the given boundary is completely contains by this boundary.
   /// @Returns true if the boundary is fully contained, false otherwise.

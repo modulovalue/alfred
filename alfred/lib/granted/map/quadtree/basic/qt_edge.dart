@@ -18,9 +18,9 @@ class QTEdgeImpl<T extends Object?> implements QTEdge<T> {
 
   /// Creates a new edge.
   QTEdgeImpl(
-    final this._start,
-    final this._end,
-    final this.data,
+    this._start,
+    this._end,
+    this.data,
   );
 
   /// Gets the first component of the start point of the edge.

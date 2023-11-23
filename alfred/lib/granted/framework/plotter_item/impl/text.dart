@@ -32,11 +32,11 @@ class Text with PlotterItemMixin {
 
   /// Creates a points plotter item.
   Text([
-    final this.x = 0.0,
-    final this.y = 0.0,
-    final this.size = 10.0,
-    final this.text = "",
-    final this.scale = false,
+    this.x = 0.0,
+    this.y = 0.0,
+    this.size = 10.0,
+    this.text = "",
+    this.scale = false,
   ]);
 
   /// Draws the group to the panel.

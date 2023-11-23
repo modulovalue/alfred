@@ -44,14 +44,14 @@ class PublishAppContextDefault with PublishAppContextDefaultMixin {
   final App application;
 
   const PublishAppContextDefault({
-    required final this.application,
-    required final this.serialize,
+    required this.application,
+    required this.serialize,
   });
 
   @override
   void serializeTo({
-    required String targetPath,
-    required HtmlElement element,
+    required final String targetPath,
+    required final HtmlElement element,
   }) =>
       serialize(targetPath, element);
 }
@@ -86,8 +86,8 @@ mixin PublishAppContextDefaultMixin implements PublishAppContext {
 
   @override
   void serializeTo({
-    required String targetPath,
-    required HtmlElement element,
+    required final String targetPath,
+    required final HtmlElement element,
   });
 }
 
@@ -330,7 +330,7 @@ class PublishingLogPrintImpl
   final void Function(String) output;
 
   const PublishingLogPrintImpl({
-    required final this.output,
+    required this.output,
   });
 
   @override

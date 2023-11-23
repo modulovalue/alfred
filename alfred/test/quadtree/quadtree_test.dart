@@ -18,7 +18,7 @@ class QuadTreeTestSuiteTest with QuadTreeTestSuite {
   final TestBlock args;
 
   const QuadTreeTestSuiteTest({
-    required final this.args,
+    required this.args,
   });
 
   @override

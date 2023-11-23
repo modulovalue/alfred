@@ -356,10 +356,10 @@ class BorderRadius extends BorderRadiusGeometry {
   /// Creates a border radius with only the given non-zero values. The other
   /// corners will be right angles.
   const BorderRadius.only({
-    final this.topLeft = Radius.zero,
-    final this.topRight = Radius.zero,
-    final this.bottomLeft = Radius.zero,
-    final this.bottomRight = Radius.zero,
+    this.topLeft = Radius.zero,
+    this.topRight = Radius.zero,
+    this.bottomLeft = Radius.zero,
+    this.bottomRight = Radius.zero,
   });
 
   /// A border radius with all zero radii.

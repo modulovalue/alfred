@@ -4,7 +4,7 @@ class ServeWebSocket implements AlfredMiddleware {
   final WebSocketSession web_socket_session;
 
   const ServeWebSocket({
-    required final this.web_socket_session,
+    required this.web_socket_session,
   });
 
   @override
@@ -21,7 +21,7 @@ class ServeWebSocketFactory implements AlfredMiddleware {
   final Future<WebSocketSession> Function(ServeContext) web_socket_session_factory;
 
   const ServeWebSocketFactory({
-    required final this.web_socket_session_factory,
+    required this.web_socket_session_factory,
   });
 
   @override
@@ -38,7 +38,7 @@ class WebSocketSessionAnonymousImpl with WebSocketSessionStartMixin {
   final InitiatedWebSocketSession Function(AlfredWebSocket web_socket) open;
 
   WebSocketSessionAnonymousImpl({
-    required final this.open,
+    required this.open,
   });
 
   @override
@@ -75,12 +75,13 @@ mixin WebSocketSessionStartMixin implements WebSocketSession {
           }
         },
         on_done: () => delegate.on_close(socket),
-        on_error: (dynamic error) => delegate.on_error(socket, error),
+        on_error: (final dynamic error) => delegate.on_error(socket, error),
         cancel_on_error: true,
       );
     } on Object catch (e) {
       print('WebSocket Error: ' + e.toString());
       try {
+        // ignore: discarded_futures
         socket.close(
           code: null,
           reason: null,
@@ -110,10 +111,10 @@ class InitiatedWebSocketSessionAnonymousImpl implements InitiatedWebSocketSessio
   final void Function(AlfredWebSocket web_socket)? close;
 
   const InitiatedWebSocketSessionAnonymousImpl({
-    final this.message_string,
-    final this.message_bytes,
-    final this.error,
-    final this.close,
+    this.message_string,
+    this.message_bytes,
+    this.error,
+    this.close,
   });
 
   @override

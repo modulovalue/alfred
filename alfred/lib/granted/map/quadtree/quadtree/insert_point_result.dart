@@ -8,8 +8,8 @@ class InsertPointResultImpl implements InsertPointResult {
   final bool pointExistedElsePointNew;
 
   const InsertPointResultImpl(
-    final this.insertedPoint,
-    final this.pointExistedElsePointNew,
+    this.insertedPoint,
+    this.pointExistedElsePointNew,
   );
 }
 

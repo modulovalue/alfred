@@ -19,8 +19,8 @@ class PlotterMouseCoords implements PlotterMouseHandle {
   final Text _text;
 
   const PlotterMouseCoords(
-    final this._plot,
-    final this._text,
+    this._plot,
+    this._text,
   );
 
   /// handles mouse down.
@@ -39,7 +39,7 @@ class PlotterMouseCoords implements PlotterMouseHandle {
     _text
       ..x = (e.x + 3)
       ..y = (e.y - 3)
-      ..text = x.toString() + ", " + y.toString();
+      ..text = x + ", " + y;
     e.redraw = true;
   }
 

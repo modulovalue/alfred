@@ -23,10 +23,10 @@ class CorsMiddleware implements AlfredMiddleware {
   final String origin;
 
   const CorsMiddleware({
-    final this.age = 86400,
-    final this.headers = '*',
-    final this.methods = default_methods,
-    final this.origin = '*',
+    this.age = 86400,
+    this.headers = '*',
+    this.methods = default_methods,
+    this.origin = '*',
   });
 
   @override

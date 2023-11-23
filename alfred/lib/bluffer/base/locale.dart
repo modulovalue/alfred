@@ -62,8 +62,8 @@ class Locale {
   /// invalid data.
   const Locale.fromSubtags({
     required this.scriptCode,
-    required String countryCode,
-    String languageCode = 'und',
+    required final String countryCode,
+    final String languageCode = 'und',
   })  : assert(languageCode != '', "The given language code can't be empty."),
         _languageCode = languageCode,
         assert(scriptCode != '', "The given script code can't be empty."),
@@ -228,7 +228,7 @@ class Locale {
   };
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(final dynamic other) {
     if (identical(this, other)) {
       return true;
     }
@@ -267,7 +267,7 @@ class Locale {
   /// details.
   String toLanguageTag() => _rawToString('-');
 
-  String _rawToString(String separator) {
+  String _rawToString(final String separator) {
     final out = StringBuffer(languageCode);
     if (scriptCode != null) {
       out.write('$separator$scriptCode');

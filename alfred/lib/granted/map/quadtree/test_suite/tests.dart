@@ -680,7 +680,7 @@ class QuadTreeTester {
 
   /// Create a new quad-tree tester.
   QuadTreeTester(
-    final this.args,
+    this.args,
   ) : tree = QuadTreeImpl();
 
   /// Inserts a point into the test tree.
@@ -727,7 +727,7 @@ class QuadTreeTester {
     }
     final sout = StringBuffer();
     if (!tree.validate(sout)) {
-      args.error("Failed validation after insertPoint($x, $y):" + "\n${sout.toString()}");
+      args.error("Failed validation after insertPoint($x, $y):" + "\n${sout}");
     }
     return point;
   }
@@ -794,7 +794,7 @@ class QuadTreeTester {
     final sout = StringBuffer();
     if (!tree.validate(sout)) {
       args.error(
-        "Failed validation after insertEdge($x1, $y1, $x2, $y2):\n${sout.toString()}",
+        "Failed validation after insertEdge($x1, $y1, $x2, $y2):\n${sout}",
       );
     }
     return edge;
@@ -856,7 +856,7 @@ class RegionMapTester {
   final List<List<double>> _colors;
 
   RegionMapTester(
-    final this._args,
+    this._args,
   )   : _map = Regions(),
         _polygons = <List<int>>[],
         _regions = <int>[],
@@ -943,7 +943,7 @@ class _LineCollector implements QTEdgeHandler<Object?> {
   final List<Lines> _lines;
 
   _LineCollector(
-    final this._lines,
+    this._lines,
   );
 
   @override
@@ -1192,7 +1192,7 @@ mixin QuadTreeTestSuite {
 
   /// Checks that the first left result was as expected.
   void checkFirstLeftEdge(
-    QuadTreeTester tester,
+    final QuadTreeTester tester,
     final int x,
     final int y,
     final int x1,
@@ -1271,8 +1271,8 @@ mixin QuadTreeTestSuite {
     tester.args.info("$edge => $inters\n");
     if (inters.results.length != count) {
       tester.args.error("Expected to find $count intersections but found ${inters.results.length}.\n" +
-          "${inters.toString()}\n" +
-          "${tester.tree.toString()}\n\n");
+          "${inters}\n" +
+          "${tester.tree}\n\n");
       // ignore: parameter_assignments
       showPlot = true;
     }
@@ -1280,8 +1280,8 @@ mixin QuadTreeTestSuite {
     if (firstInt != null) {
       if (count < 1) {
         tester.args.error("Expected to find no intersections but found a first intersection.\n" +
-            "${firstInt.toString()}\n" +
-            "${tester.tree.toString()}\n\n");
+            "${firstInt}\n" +
+            "${tester.tree}\n\n");
         // ignore: parameter_assignments
         showPlot = true;
       }
@@ -1289,7 +1289,7 @@ mixin QuadTreeTestSuite {
       if (count > 0) {
         tester.args.error(
           "Expected to find $count intersections but found no first intersection.\n" +
-              "${tester.tree.toString()}\n\n",
+              "${tester.tree}\n\n",
         );
         // ignore: parameter_assignments
         showPlot = true;
@@ -1369,7 +1369,7 @@ mixin QuadTreeTestSuite {
         onPlot(plot);
       }
       args.error(
-        "Failed: Unexpected result from edge interscetion:\n" +
+        "Failed: Unexpected result from edge intersection:\n" +
             "   Edge A:   $edgeA\n" +
             "   Edge B:   $edgeB\n" +
             "   Full:     ${result.toString("\n                 ")}\n" +
@@ -1419,8 +1419,8 @@ mixin QuadTreeTestSuite {
     args.args.info("Expected: $exp\n");
     if (!qtEdgeEquals(result!.edgeB, exp, false)) {
       args.args.error("Expected to find an intersections but found a first intersection.\n" +
-          "${result.toString()}\n" +
-          "${args.tree.toString()}\n\n");
+          "${result}\n" +
+          "${args.tree}\n\n");
       // ignore: parameter_assignments
       showPlot = true;
     }
@@ -1540,10 +1540,10 @@ mixin QuadTreeTestSuite {
     args.args.info("$focus => $result\n");
     if (!pointEquals(exp, result)) {
       args.args.error("Foreach point failed to return expected results:" +
-          "\n   Focus:     ${focus.toString()}" +
-          "\n   Exp:       ${exp.toString()}" +
+          "\n   Focus:     ${focus}" +
+          "\n   Exp:       ${exp}" +
           "\n   Exp Dist2: ${pointDistance2(exp, focus)}" +
-          "\n   Result:    ${result.toString()}");
+          "\n   Result:    ${result}");
       // ignore: parameter_assignments
       showPlot = true;
     }
@@ -1551,10 +1551,10 @@ mixin QuadTreeTestSuite {
     args.tree.foreachPoint(hndl);
     if (!pointEquals(hndl.found, result)) {
       args.args.error("FindNearestPoint didn't find nearest point:" +
-          "\n   Focus:        ${focus.toString()}" +
-          "\n   Result:       ${result.toString()}" +
+          "\n   Focus:        ${focus}" +
+          "\n   Result:       ${result}" +
           "\n   Result Dist2: ${pointDistance2(focus, result!)}" +
-          "\n   Found:        ${hndl.found.toString()}" +
+          "\n   Found:        ${hndl.found}" +
           "\n   Found Dist2:  ${hndl.minDist2}");
       // ignore: parameter_assignments
       showPlot = true;

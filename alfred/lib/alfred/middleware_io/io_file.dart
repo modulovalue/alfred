@@ -9,7 +9,7 @@ class ServeFileIoFileImpl implements ServeFile {
   final File file;
 
   const ServeFileIoFileImpl({
-    required final this.file,
+    required this.file,
   });
 
   @override
@@ -23,7 +23,7 @@ class ServeFileStringPathImpl implements ServeFile {
   final String path;
 
   const ServeFileStringPathImpl({
-    required final this.path,
+    required this.path,
   });
 
   @override
@@ -60,8 +60,8 @@ class AlfredFileNotFoundExceptionImpl implements AlfredNotFoundException {
   final ServeContext c;
 
   const AlfredFileNotFoundExceptionImpl({
-    required final this.c,
-    required final this.file,
+    required this.c,
+    required this.file,
   });
 
   @override

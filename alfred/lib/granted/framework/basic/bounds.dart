@@ -17,10 +17,10 @@ class BoundsImpl implements Bounds {
 
   /// Creates a new boundary for data.
   BoundsImpl(
-    final this._xmin,
-    final this._ymin,
-    final this._xmax,
-    final this._ymax,
+    this._xmin,
+    this._ymin,
+    this._xmax,
+    this._ymax,
   ) : _empty = false;
 
   /// Creates a new empty bounds.

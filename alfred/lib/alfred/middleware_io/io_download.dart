@@ -6,8 +6,8 @@ class ServeDownload implements AlfredMiddleware {
   final ServeFile child;
 
   const ServeDownload({
-    required final this.filename,
-    required final this.child,
+    required this.filename,
+    required this.child,
   });
 
   @override

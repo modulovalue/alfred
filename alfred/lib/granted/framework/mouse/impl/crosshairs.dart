@@ -18,8 +18,8 @@ class PlotterMouseLocationCrosshairs implements PlotterMouseHandle {
   final Lines crossHairLines;
 
   const PlotterMouseLocationCrosshairs(
-    final this.mouseHandlesPlotter,
-    final this.crossHairLines,
+    this.mouseHandlesPlotter,
+    this.crossHairLines,
   );
 
   /// Handles mouse movement to update the crosshairs.

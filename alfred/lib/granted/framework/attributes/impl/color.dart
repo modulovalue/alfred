@@ -16,7 +16,7 @@ class ColorAttrImpl implements ColorAttr {
 
   /// Creates a line color attribute.
   ColorAttrImpl(
-    final this.color,
+    this.color,
   );
 
   /// Creates a line color attribute.

@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_returning_this
+
 import 'dart:io';
 import 'dart:math';
 
@@ -1440,7 +1442,7 @@ class Deserializer {
 
   /// Creates a new deserializer with the given data.
   Deserializer(
-      final this._data,
+      this._data,
       );
 
   /// Gets the serialized string of data.
@@ -1954,9 +1956,9 @@ class Token {
 
   /// Creates a new token.
   Token(
-      final this.name,
-      final this.text,
-      final this.index,
+      this.name,
+      this.text,
+      this.index,
       );
 
   /// Gets the string for this token.
@@ -1973,8 +1975,8 @@ class TokenState {
 
   /// Creates a new token state for the given tokenizer.
   TokenState._(
-      final this._tokenizer,
-      final this._name,
+      this._tokenizer,
+      this._name,
       );
 
   /// Gets the name of this token.
@@ -2027,7 +2029,7 @@ class Transition extends Group {
 
   /// Creates a new transition.
   Transition._(
-      final this._target,
+      this._target,
       ) : super();
 
   /// Gets the state to goto if a character matches this transition.
@@ -2090,8 +2092,8 @@ class RuleNode implements TreeNode {
 
   /// Creates a new tree node.
   const RuleNode(
-      final this.rule,
-      final this.items,
+      this.rule,
+      this.items,
       );
 
   /// Helps construct the debugging output of the tree.
@@ -2153,7 +2155,7 @@ class TokenNode implements TreeNode {
 
   /// Creates a new token parse tree node.
   const TokenNode(
-      final this.token,
+      this.token,
       );
 
   /// Processes this tree node with the given handles for the triggers to call.
@@ -2177,7 +2179,7 @@ class TriggerNode implements TreeNode {
 
   /// Creates a new token parse tree node.
   const TriggerNode(
-      final this.trigger,
+      this.trigger,
       );
 
   /// Processes this tree node with the given handles for the triggers to call.
@@ -2876,7 +2878,6 @@ class Rule {
   /// Adds a term to this rule.
   /// This will get or create a new term to the grammar.
   /// Returns this rule so that rule creation can be chained.
-  // ignore: avoid_returning_this
   Rule addTerm(String termName) {
     final term = this._grammar.term(termName);
     this._items.add(term);
@@ -2885,7 +2886,6 @@ class Rule {
 
   /// Adds a token to this rule.
   /// Returns this rule so that rule creation can be chained.
-  // ignore: avoid_returning_this
   Rule addToken(String tokenName) {
     final token = this._grammar.token(tokenName);
     this._items.add(token);
@@ -2894,7 +2894,6 @@ class Rule {
 
   /// Adds a trigger to this rule.
   /// Returns this rule so that rule creation can be chained.
-  // ignore: avoid_returning_this
   Rule addTrigger(String triggerName) {
     final trigger = this._grammar.trigger(triggerName);
     this._items.add(trigger);
@@ -2957,7 +2956,7 @@ abstract class Item {
 
   /// Creates a new item.
   const Item._(
-      final this.name,
+      this.name,
       );
 
   /// Gets the string for this item.
@@ -2977,8 +2976,8 @@ class Step {
 
   /// Creates a new step group.
   const Step(
-      final this.type,
-      final this.count,
+      this.type,
+      this.count,
       );
 
   /// Gets the string for this group.
@@ -3092,7 +3091,7 @@ class _Path {
 
   /// Creates a new path builder.
   _Path(
-      final this._baseComp,
+      this._baseComp,
       ) {
     final len = this._baseComp.bLength + 1;
     this._scoreFront = List<int>.filled(len, 0, growable: false);
@@ -3318,12 +3317,12 @@ class _Container {
 
   /// Creates a new comparable container with the given subset and reverse settings.
   const _Container(
-      final this._comp,
-      final this._aOffset,
-      final this._aLength,
-      final this._bOffset,
-      final this._bLength,
-      final this._reverse,
+      this._comp,
+      this._aOffset,
+      this._aLength,
+      this._bOffset,
+      this._bLength,
+      this._reverse,
       );
 
   /// Creates a new comparable for a full container.
@@ -3480,8 +3479,8 @@ class _StringsComparable extends Comparable {
 
   /// Creates a new diff comparable for the two given strings.
   _StringsComparable(
-      final this._aSource,
-      final this._bSource,
+      this._aSource,
+      this._bSource,
       );
 
   /// The length of the first list being compared.
@@ -4225,7 +4224,7 @@ class Variant {
 
   /// Wraps the given value into a new Variant.
   Variant(
-      final this.value,
+      this.value,
       );
 
   /// Gets the string for this value.

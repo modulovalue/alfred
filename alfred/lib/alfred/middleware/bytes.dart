@@ -6,7 +6,7 @@ class BytesMiddleware implements AlfredMiddleware {
   final List<int> bytes;
 
   const BytesMiddleware({
-    required final this.bytes,
+    required this.bytes,
   });
 
   @override

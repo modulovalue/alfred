@@ -420,8 +420,8 @@ class EdgeSide {
   /// This specifies the identifiers of the region data to the
   /// [left] and [right] of the edge.
   EdgeSide(
-    final this.left,
-    final this.right,
+    this.left,
+    this.right,
   );
 
   /// A simple string displaying the data.
