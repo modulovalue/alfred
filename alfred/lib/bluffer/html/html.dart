@@ -32,32 +32,34 @@ String html_element_to_string({
       ...other_tag_attributes,
     ].join(" ") + ">";
     final close = "</" + tag + ">";
-    final content = y_combinator<HtmlElement, Iterable<String>>(
+    String wrap(
+      final Iterable<String> strs,
+    ) {
+      return open + strs.join("\n") + close;
+    }
+    return y_combinator<HtmlElement, String>(
       (final SELF) => (final a) => a.match(
-        raw: (final a) => [],
+        raw: (final a) => a.html,
         copy: (final a) => SELF(a.other),
-        br: (final a) => [],
-        html: (final a) => a.childNodes.map((final a) => html_entity_to_string(element: a)),
-        meta: (final a) => [],
-        body: (final a) => a.childNodes.map((final a) => html_entity_to_string(element: a)),
-        custom: (final a) => a.childNodes.map((final a) => html_entity_to_string(element: a)),
-        script: (final a) => [],
-        link: (final a) => [],
-        title: (final a) => [a.text],
-        style: (final a) => a.styles.map(
+        br: (final a) => wrap([]),
+        html: (final a) => wrap(a.childNodes.map((final a) => html_entity_to_string(element: a))),
+        meta: (final a) => wrap([]),
+        body: (final a) => wrap(a.childNodes.map((final a) => html_entity_to_string(element: a))),
+        custom: (final a) => wrap(a.childNodes.map((final a) => html_entity_to_string(element: a))),
+        script: (final a) => wrap([]),
+        link: (final a) => wrap([]),
+        title: (final a) => wrap([a.text]),
+        style: (final a) => wrap(a.styles.map(
           (final e) => serialize_style_content(
             content: e,
           ),
-        ).toList(),
-        image: (final a) => a.childNodes.map((final a) => html_entity_to_string(element: a)),
-        div: (final a) => a.childNodes.map((final a) => html_entity_to_string(element: a)),
-        anchor: (final a) => a.childNodes.map((final a) => html_entity_to_string(element: a)),
-        head: (final a) => a.childNodes.map((final a) => html_entity_to_string(element: a)),
+        )),
+        image: (final a) => wrap(a.childNodes.map((final a) => html_entity_to_string(element: a))),
+        div: (final a) => wrap(a.childNodes.map((final a) => html_entity_to_string(element: a))),
+        anchor: (final a) => wrap(a.childNodes.map((final a) => html_entity_to_string(element: a))),
+        head: (final a) => wrap(a.childNodes.map((final a) => html_entity_to_string(element: a))),
       ),
-    )(element).join("\n");
-    // endregion
-    // region result
-    return open + content + close;
+    )(element);
     // endregion
   }
 }

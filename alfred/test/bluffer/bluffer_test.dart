@@ -12,6 +12,7 @@ void main() {
           builder: (final context) => const Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              RawHtml("foo"),
               Text("a", textAlign: TextAlign.start),
               Text("b"),
             ],
